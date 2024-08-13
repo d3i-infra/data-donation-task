@@ -1,0 +1,27 @@
+YouTube:
+  
+  input: 
+    types: ["application/zip"]
+    multi: false
+  
+  validate:
+    - nl:
+      - kijkgeschiedenis.html
+      - zoekgeschiedenis.html
+  
+  # extraction
+  tables:
+    - name: watch_history
+      columns: ["Titel", "Url", "Reklame", "Kanaal", "Tijdstip"]
+      title:
+        en: "Your YouTube watch history"
+        nl: "Je YouTube kijkgeschiedenis"
+      description:
+        en: "In this table you find the videos you watched on YouTube sorted over time. Below, you find visualizations of different parts of this table." 
+        nl: "Hieronder vind je een overzicht van de video's die je hebt bekeken en wanneer dit was."
+      visuals:
+        - name: wordcloud
+          titel:
+            en: "The most frequently watched YouTube channels. The size of the words represents how frequently you viewed YouTube channels."
+            nl: "De meest bekeken YouTube-kanalen. De grootte van de woorden geeft weer hoe vaak je YouTube-kanalen hebt bekeken."
+          textColumn: "Kanaal"
