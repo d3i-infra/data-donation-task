@@ -2,22 +2,21 @@ import port.api.props as props
 from port.api.commands import (CommandSystemDonate, CommandUIRender, CommandSystemExit)
 
 import pandas as pd
-import zipfile
+from pyodide.http import open_url
 import yaml
 
-from logic import DDFactory
-from logic import DDYoutube
+from port.logic import DDFactory
+from port.logic import DDYoutube
 
 
 def process(session_id: str):
     
-    with open("config.yml") as f:
-        config = yaml.safe_load(f)
+    config = yaml.safe_load(open_url('../../config.yml'))
 
     dd_factory = DDFactory()
 
     # These are the available platforms
-    dd_factory.register_dd('YouTube', DDYoutube())
+    dd_factory.register_dd('YouTube', DDYoutube)
 
     for platform in config:
         
@@ -26,7 +25,7 @@ def process(session_id: str):
         # Start of the data donation flow
         while True:
             # Ask the participant to submit a file
-            file_prompt = prompt_file(**dd.file_input())
+            file_prompt = prompt_file(*dd.file_input())
             file_prompt_result = yield render_page(platform, file_prompt)
 
             # If the participant submitted a file: continue
@@ -34,28 +33,28 @@ def process(session_id: str):
 
                 # Validate the file the participant submitted
                 # In general this is wise to do 
-                is_data_valid = dd.validate_zip(file_prompt_result.value)
+                validation = dd.validate_zip(file_prompt_result.value)
 
                 # Happy flow:
                 # The file the participant submitted is valid
-                if is_data_valid == True:
+                if validation.status_code.id == 0:
 
                     # Extract the data you as a researcher are interested in, and put it in a pandas DataFrame
                     # Show this data to the participant in a table on screen
                     # The participant can now decide to donate
-                    table_list, donation_dict = dd.extract(file_prompt_result.value)
+                    table_list = dd.extract(file_prompt_result.value, validation)
                     consent_prompt = prompt_consent(table_list)
                     consent_prompt_result = yield render_page(platform, consent_prompt)
 
                     # If the participant wants to donate the data gets donated
                     if consent_prompt_result.__type__ == "PayloadJSON":
-                        yield donate(f"{session_id}-{platform}", donation_dict)
+                        yield donate(platform, consent_prompt_result.value)
 
                     break
 
                 # Sad flow:
                 # The data was not valid, ask the participant to retry
-                if is_data_valid == False:
+                if validation.status_code.id != 0:
                     retry_prompt = retry_confirmation(platform)
                     retry_prompt_result = yield render_page(platform, retry_prompt)
 
@@ -83,14 +82,14 @@ def prompt_consent(table_list: list) -> props.PropsUIPromptConsentForm:
     """
     consent_form_tables = []
     for table in table_list:
-        table_title = props.Translatable(table.get("title"))
-        table_description = props.Translatable(table.get("description"))
+        table_title = props.Translatable(table["title"])
+        table_description = props.Translatable(table["description"])
         table = props.PropsUIPromptConsentFormTable(
-            table.get("name"), 
+            table["name"], 
             table_title, 
-            table.get("df"), 
+            table["df"], 
             table_description, 
-            table.get("visualizations")
+            table["visualizations"]
         )
         consent_form_tables.append(table)
         
@@ -150,7 +149,7 @@ def retry_confirmation(platform):
 
 
 def prompt_file(description, extensions):
-    return props.PropsUIPromptFileInput(description, extensions)
+    return props.PropsUIPromptFileInput(props.Translatable(description), extensions)
 
 
 def donate(key, json_string):

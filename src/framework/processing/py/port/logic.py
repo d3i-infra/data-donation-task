@@ -1,8 +1,8 @@
 from abc import ABCMeta, abstractmethod
 
-import validate
+import port.validate as validate
 
-from platforms import youtube
+from port.platforms import youtube
 
 
 class DDLogic(metaclass=ABCMeta):
@@ -15,7 +15,7 @@ class DDLogic(metaclass=ABCMeta):
         }
         return description, extensions
 
-    def _make_visual(**kwargs):
+    def _make_visual(self, **kwargs):
         name = kwargs.get("name")
 
         if name == "wordcloud":
@@ -24,6 +24,8 @@ class DDLogic(metaclass=ABCMeta):
                     "textColumn": kwargs.get("textColumn"),
                     "tokenize": False
                     }
+        else:
+            return {}
         
     @abstractmethod
     def file_input(self):
@@ -48,14 +50,11 @@ class DDYoutube(DDLogic):
         }
 
     def file_input(self):
-        input_config = self.config.get("input")
         extensions = 'application/zip'
-        if input_config:
-            extensions = ",".join(input_config.get("types"))
-        self._file_input(extensions, self.platform)
+        return self._file_input(extensions, self.platform)
     
     def validate_zip(self, file_prompt_result):
-        youtube.validate_zip(file_prompt_result)
+        return youtube.validate_zip(file_prompt_result)
     
     def extract(self, zip_file: str, validation: validate.ValidateInput):
         tables_to_render = []
@@ -68,7 +67,7 @@ class DDYoutube(DDLogic):
                     df.columns = columns
                 visualizations = []
                 for visual in table.get("visuals"):
-                    visualizations.append(self._make_visual(visual))
+                    visualizations.append(self._make_visual(**visual))
                 tables_to_render.append(
                     {
                         "name": "youtube_" + table.get("name"),
@@ -78,6 +77,7 @@ class DDYoutube(DDLogic):
                         "visualizations": visualizations
                     }
                 )
+        return tables_to_render
 
 
 class DDFactory:

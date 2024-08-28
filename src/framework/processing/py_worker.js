@@ -111,7 +111,7 @@ function startPyodide() {
 
 function loadPackages() {
   console.log('[ProcessingWorker] loading packages')
-  return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas', 'pyyaml'])
+  return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas', 'lxml', 'pyyaml'])
 }
 
 function installPortPackage() {
