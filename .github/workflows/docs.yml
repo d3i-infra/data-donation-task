@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - master
+      - sphinx-docs-workflow
   pull_request:
     branches:
       - master

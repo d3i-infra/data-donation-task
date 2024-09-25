@@ -1,22 +1,27 @@
 # API reference
 
-## Helpers
+## Props
 
-### Extraction helpers
+```{eval-rst}
+.. automodule:: port.api.props
+   :members:
+```
+
+## Extraction helpers
 
 ```{eval-rst}
 .. automodule:: port.helpers.extraction_helpers
    :members:
 ```
 
-### Port helpers
+## Port helpers
 
 ```{eval-rst}
 .. automodule:: port.helpers.port_helpers
    :members:
 ```
 
-### Validation
+## Validation
 
 ```{eval-rst}
 .. automodule:: port.helpers.validate

@@ -9,6 +9,8 @@
 
 # testing
 /coverage
+/_build
+/.venv
 
 # production
 /build
