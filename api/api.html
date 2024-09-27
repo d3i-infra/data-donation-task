@@ -1,0 +1,1911 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API reference &#8212; Port 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic_mod.css?v=9b2032db" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <script src="../_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="prev" title="API Documentation" href="index.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="../index.html" title="Go to homepage">Port 1.0.0 documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="../search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><ul>
+<li class="toctree-l1"><a class="reference internal" href="../articles/index.html">Articles</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API Documentation</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="#">API reference</a></li>
+</ul>
+</li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="api-reference">
+<h1>API reference<a class="headerlink" href="#api-reference" title="Link to this heading">¶</a></h1>
+<section id="module-port.api.props">
+<span id="props"></span><h2>Props<a class="headerlink" href="#module-port.api.props" title="Link to this heading">¶</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIFooter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIFooter</span></span><a class="headerlink" href="#port.api.props.PropsUIFooter" title="Link to this definition">¶</a></dt>
+<dd><p>Page footer.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIFooter.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIFooter.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIHeader">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIHeader" title="Link to this definition">¶</a></dt>
+<dd><p>Page header.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIHeader.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIHeader.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDonation">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPageDonation</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIHeader" title="port.api.props.PropsUIHeader"><span class="pre">PropsUIHeader</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput" title="port.api.props.PropsUIPromptRadioInput"><span class="pre">PropsUIPromptRadioInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm"><span class="pre">PropsUIPromptConsentForm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput"><span class="pre">PropsUIPromptFileInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple" title="port.api.props.PropsUIPromptFileInputMultiple"><span class="pre">PropsUIPromptFileInputMultiple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm"><span class="pre">PropsUIPromptConfirm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire" title="port.api.props.PropsUIPromptQuestionnaire"><span class="pre">PropsUIPromptQuestionnaire</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">footer</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIFooter" title="port.api.props.PropsUIFooter"><span class="pre">PropsUIFooter</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPageDonation" title="Link to this definition">¶</a></dt>
+<dd><p>A multi-purpose page that gets shown to the user.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDonation.platform">
+<span class="sig-name descname"><span class="pre">platform</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDonation.platform" title="Link to this definition">¶</a></dt>
+<dd><p>The platform name the user is currently in the process of donating data from.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDonation.header">
+<span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDonation.header" title="Link to this definition">¶</a></dt>
+<dd><p>Page header.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIHeader" title="port.api.props.PropsUIHeader">PropsUIHeader</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py">
+<span class="sig-name descname"><span class="pre">body</span> <span class="pre">(PropsUIPromptRadioInput</span> <span class="pre">|</span> <span class="pre">PropsUIPromptConsentForm</span> <span class="pre">|</span> <span class="pre">PropsUIPromptFileInput</span> <span class="pre">|</span></span></dt>
+<dd><blockquote>
+<div><p>PropsUIPromptFileInputMultiple | PropsUIPromptConfirm | PropsUIPromptQuestionnaire):</p>
+</div></blockquote>
+<p>Main body of the page.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDonation.footer">
+<span class="sig-name descname"><span class="pre">footer</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDonation.footer" title="Link to this definition">¶</a></dt>
+<dd><p>Optional page footer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#port.api.props.PropsUIFooter" title="port.api.props.PropsUIFooter">PropsUIFooter</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDonation.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPageDonation.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageEnd">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPageEnd</span></span><a class="headerlink" href="#port.api.props.PropsUIPageEnd" title="Link to this definition">¶</a></dt>
+<dd><p>An ending page to show the user they are done.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageEnd.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPageEnd.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConfirm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cancel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm" title="Link to this definition">¶</a></dt>
+<dd><p>Retry submitting a file page.</p>
+<p>Prompt the user if they want to submit a new file.
+This can be used in case a file could not be processed.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.text" title="Link to this definition">¶</a></dt>
+<dd><p>Message to display.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.ok">
+<span class="sig-name descname"><span class="pre">ok</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.ok" title="Link to this definition">¶</a></dt>
+<dd><p>Message to display if the user wants to try again.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.cancel">
+<span class="sig-name descname"><span class="pre">cancel</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.cancel" title="Link to this definition">¶</a></dt>
+<dd><p>Message to display if the user wants to continue regardless.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConsentForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><span class="pre">PropsUIPromptConsentFormTable</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">meta_tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><span class="pre">PropsUIPromptConsentFormTable</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">donate_question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">donate_button</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm" title="Link to this definition">¶</a></dt>
+<dd><p>Tables to be shown to the participant prior to donation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.tables">
+<span class="sig-name descname"><span class="pre">tables</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.tables" title="Link to this definition">¶</a></dt>
+<dd><p>A list of tables.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable">PropsUIPromptConsentFormTable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.meta_tables">
+<span class="sig-name descname"><span class="pre">meta_tables</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.meta_tables" title="Link to this definition">¶</a></dt>
+<dd><p>A list of optional tables, for example for logging data.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable">PropsUIPromptConsentFormTable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.description" title="Link to this definition">¶</a></dt>
+<dd><p>Optional description of the consent form.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.donate_question">
+<span class="sig-name descname"><span class="pre">donate_question</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.donate_question" title="Link to this definition">¶</a></dt>
+<dd><p>Optional donation question.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.donate_button">
+<span class="sig-name descname"><span class="pre">donate_button</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.donate_button" title="Link to this definition">¶</a></dt>
+<dd><p>Optional text for the donate button.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.translate_meta_tables">
+<span class="sig-name descname"><span class="pre">translate_meta_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.translate_meta_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Translate the meta tables to a list of dictionaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of dictionaries representing the meta tables.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.translate_tables">
+<span class="sig-name descname"><span class="pre">translate_tables</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.translate_tables" title="Link to this definition">¶</a></dt>
+<dd><p>Translate the tables to a list of dictionaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of dictionaries representing the tables.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConsentFormTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">visualizations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">folded</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">delete_option</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable" title="Link to this definition">¶</a></dt>
+<dd><p>Table to be shown to the participant prior to donation.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.id" title="Link to this definition">¶</a></dt>
+<dd><p>A unique string to identify the table after donation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.title" title="Link to this definition">¶</a></dt>
+<dd><p>Title of the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.data_frame">
+<span class="sig-name descname"><span class="pre">data_frame</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame" title="Link to this definition">¶</a></dt>
+<dd><p>Table to be shown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.description" title="Link to this definition">¶</a></dt>
+<dd><p>Optional description of the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.visualizations">
+<span class="sig-name descname"><span class="pre">visualizations</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.visualizations" title="Link to this definition">¶</a></dt>
+<dd><p>Optional visualizations to be shown.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[list]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.folded">
+<span class="sig-name descname"><span class="pre">folded</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.folded" title="Link to this definition">¶</a></dt>
+<dd><p>Whether the table should be initially folded.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.delete_option">
+<span class="sig-name descname"><span class="pre">delete_option</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.delete_option" title="Link to this definition">¶</a></dt>
+<dd><p>Whether to show a delete option for the table.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[bool]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptFileInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput" title="Link to this definition">¶</a></dt>
+<dd><p>Prompt the user to submit a file.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput.description" title="Link to this definition">¶</a></dt>
+<dd><p>Text with an explanation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput.extensions">
+<span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput.extensions" title="Link to this definition">¶</a></dt>
+<dd><p>Accepted mime types, example: “application/zip, text/plain”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInputMultiple">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptFileInputMultiple</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInputMultiple" title="Link to this definition">¶</a></dt>
+<dd><p>Prompt the user to submit multiple files.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInputMultiple.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInputMultiple.description" title="Link to this definition">¶</a></dt>
+<dd><p>Text with an explanation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInputMultiple.extensions">
+<span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInputMultiple.extensions" title="Link to this definition">¶</a></dt>
+<dd><p>Accepted mime types, example: “application/zip, text/plain”.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInputMultiple.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInputMultiple.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptProgress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress" title="Link to this definition">¶</a></dt>
+<dd><p>Prompt the user information during the extraction.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.description" title="Link to this definition">¶</a></dt>
+<dd><p>Text with an explanation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.message">
+<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.message" title="Link to this definition">¶</a></dt>
+<dd><p>Can be used to show extraction progress.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.percentage">
+<span class="sig-name descname"><span class="pre">percentage</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.percentage" title="Link to this definition">¶</a></dt>
+<dd><p>Optional percentage of progress.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[int]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptQuestionnaire">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptQuestionnaire</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">questions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice" title="port.api.props.PropsUIQuestionMultipleChoice"><span class="pre">PropsUIQuestionMultipleChoice</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox" title="port.api.props.PropsUIQuestionMultipleChoiceCheckbox"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIQuestionOpen" title="port.api.props.PropsUIQuestionOpen"><span class="pre">PropsUIQuestionOpen</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptQuestionnaire" title="Link to this definition">¶</a></dt>
+<dd><p>Questionnaire containing multiple questions.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptQuestionnaire.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptQuestionnaire.description" title="Link to this definition">¶</a></dt>
+<dd><p>Description of the questionnaire.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptQuestionnaire.questions">
+<span class="sig-name descname"><span class="pre">questions</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptQuestionnaire.questions" title="Link to this definition">¶</a></dt>
+<dd><p>List of questions in the questionnaire.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice" title="port.api.props.PropsUIQuestionMultipleChoice">PropsUIQuestionMultipleChoice</a> | <a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox" title="port.api.props.PropsUIQuestionMultipleChoiceCheckbox">PropsUIQuestionMultipleChoiceCheckbox</a> | <a class="reference internal" href="#port.api.props.PropsUIQuestionOpen" title="port.api.props.PropsUIQuestionOpen">PropsUIQuestionOpen</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptQuestionnaire.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptQuestionnaire.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptRadioInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.RadioItem" title="port.api.props.RadioItem"><span class="pre">RadioItem</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput" title="Link to this definition">¶</a></dt>
+<dd><p>Radio group.</p>
+<p>This radio group can be used to get a multiple choice answer from a user.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.title" title="Link to this definition">¶</a></dt>
+<dd><p>Title of the radio group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.description" title="Link to this definition">¶</a></dt>
+<dd><p>Short description of the radio group.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.items">
+<span class="sig-name descname"><span class="pre">items</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.items" title="Link to this definition">¶</a></dt>
+<dd><p>A list of radio buttons.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.RadioItem" title="port.api.props.RadioItem">RadioItem</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoice">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIQuestionMultipleChoice</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoice" title="Link to this definition">¶</a></dt>
+<dd><p>Multiple choice question with radio buttons.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoice.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoice.id" title="Link to this definition">¶</a></dt>
+<dd><p>Question ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoice.question">
+<span class="sig-name descname"><span class="pre">question</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoice.question" title="Link to this definition">¶</a></dt>
+<dd><p>The question text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoice.choices">
+<span class="sig-name descname"><span class="pre">choices</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoice.choices" title="Link to this definition">¶</a></dt>
+<dd><p>List of choices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoice.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoice.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoiceCheckbox">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">choices</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox" title="Link to this definition">¶</a></dt>
+<dd><p>Multiple choice question with checkboxes.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoiceCheckbox.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.id" title="Link to this definition">¶</a></dt>
+<dd><p>Question ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoiceCheckbox.question">
+<span class="sig-name descname"><span class="pre">question</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.question" title="Link to this definition">¶</a></dt>
+<dd><p>The question text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoiceCheckbox.choices">
+<span class="sig-name descname"><span class="pre">choices</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.choices" title="Link to this definition">¶</a></dt>
+<dd><p>List of choices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionMultipleChoiceCheckbox.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionOpen">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIQuestionOpen</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionOpen" title="Link to this definition">¶</a></dt>
+<dd><p>Open-ended question.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionOpen.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionOpen.id" title="Link to this definition">¶</a></dt>
+<dd><p>Question ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionOpen.question">
+<span class="sig-name descname"><span class="pre">question</span></span><a class="headerlink" href="#port.api.props.PropsUIQuestionOpen.question" title="Link to this definition">¶</a></dt>
+<dd><p>The question text.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.PropsUIQuestionOpen.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIQuestionOpen.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.RadioItem">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">RadioItem</span></span><a class="headerlink" href="#port.api.props.RadioItem" title="Link to this definition">¶</a></dt>
+<dd><p>Radio button.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.RadioItem.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.RadioItem.id" title="Link to this definition">¶</a></dt>
+<dd><p>ID of radio button.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.RadioItem.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#port.api.props.RadioItem.value" title="Link to this definition">¶</a></dt>
+<dd><p>Text to be displayed.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.Translatable">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">Translatable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">translations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translations" title="port.api.props.Translations"><span class="pre">Translations</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.Translatable" title="Link to this definition">¶</a></dt>
+<dd><p>Wrapper class for Translations.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="port.api.props.Translatable.toDict">
+<span class="sig-name descname"><span class="pre">toDict</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.Translatable.toDict" title="Link to this definition">¶</a></dt>
+<dd><p>Convert the object to a dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary representation of the object.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.Translations">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">Translations</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">en</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">nl</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.Translations" title="Link to this definition">¶</a></dt>
+<dd><p>Typed dict containing text that is displayed in a specific language.</p>
+</dd></dl>
+
+</section>
+<section id="module-port.helpers.extraction_helpers">
+<span id="extraction-helpers"></span><h2>Extraction helpers<a class="headerlink" href="#module-port.helpers.extraction_helpers" title="Link to this heading">¶</a></h2>
+<p>This module contains helper functions that can be used during the data extraction process</p>
+<dl class="py exception">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.FileNotFoundInZipError">
+<em class="property"><span class="pre">exception</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">FileNotFoundInZipError</span></span><a class="headerlink" href="#port.helpers.extraction_helpers.FileNotFoundInZipError" title="Link to this definition">¶</a></dt>
+<dd><p>The File you are looking for is not present in a zipfile</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.dict_denester">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">dict_denester</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">inp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_first</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.dict_denester" title="Link to this definition">¶</a></dt>
+<dd><p>Denests a dictionary or list, returning a new flattened dictionary.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>inp</strong> (<em>dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>list</em><em>[</em><em>Any</em><em>]</em>) – The input dictionary or list to be denested.</p></li>
+<li><p><strong>new</strong> (<em>dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>] </em><em>| </em><em>None</em><em>, </em><em>optional</em>) – The dictionary to store denested key-value pairs. Defaults to None.</p></li>
+<li><p><strong>name</strong> (<em>str</em><em>, </em><em>optional</em>) – The current key name in the denesting process. Defaults to “”.</p></li>
+<li><p><strong>run_first</strong> (<em>bool</em><em>, </em><em>optional</em>) – Flag to indicate if this is the first run of the function. Defaults to True.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A new denested dictionary.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[Any, Any]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">nested_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;b&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;c&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}},</span> <span class="s2">&quot;d&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dict_denester</span><span class="p">(</span><span class="n">nested_dict</span><span class="p">)</span>
+<span class="go">{&quot;a-b-c&quot;: 1, &quot;d-0&quot;: 2, &quot;d-1&quot;: 3}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.epoch_to_iso">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">epoch_to_iso</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">epoch_timestamp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.epoch_to_iso" title="Link to this definition">¶</a></dt>
+<dd><p>Convert epoch timestamp to an ISO 8601 string, assuming UTC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>epoch_timestamp</strong> (<em>str</em><em> | </em><em>int</em>) – The epoch timestamp to convert.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The ISO 8601 formatted string, or the original input if conversion fails.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Logs an error message if conversion fails.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">epoch_to_iso</span><span class="p">(</span><span class="mi">1632139200</span><span class="p">)</span>
+<span class="go">&quot;2021-09-20T12:00:00+00:00&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.extract_file_from_zip">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">extract_file_from_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_to_extract</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">BytesIO</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.extract_file_from_zip" title="Link to this definition">¶</a></dt>
+<dd><p>Extracts a specific file from a zipfile and returns it as a BytesIO buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>zfile</strong> (<em>str</em>) – Path to the zip file.</p></li>
+<li><p><strong>file_to_extract</strong> (<em>str</em>) – Name or path of the file to extract from the zip.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A BytesIO buffer containing the extracted file’s content of the first file found.</dt><dd><p>Returns an empty BytesIO if the file is not found or an error occurs.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>io.BytesIO</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><ul class="simple">
+<li><p><a class="reference internal" href="#port.helpers.extraction_helpers.FileNotFoundInZipError" title="port.helpers.extraction_helpers.FileNotFoundInZipError"><strong>FileNotFoundInZipError</strong></a> – Logs an error if the specified file is not found in the zip.</p></li>
+<li><p><strong>zipfile.BadZipFile</strong> – Logs an error if the zip file is invalid.</p></li>
+<li><p><strong>Exception</strong> – Logs any other unexpected errors.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">extracted_file</span> <span class="o">=</span> <span class="n">extract_file_from_zip</span><span class="p">(</span><span class="s2">&quot;archive.zip&quot;</span><span class="p">,</span> <span class="s2">&quot;data.txt&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">content</span> <span class="o">=</span> <span class="n">extracted_file</span><span class="o">.</span><span class="n">getvalue</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.find_item">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">find_item</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_to_match</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.find_item" title="Link to this definition">¶</a></dt>
+<dd><p>Finds the least nested value in a denested dictionary whose key contains the given key_to_match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em>) – A denested dictionary to search in.</p></li>
+<li><p><strong>key_to_match</strong> (<em>str</em>) – The substring to match in the keys.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The value of the least nested key containing key_to_match.</dt><dd><p>Returns an empty string if no match is found.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Logs an error message if an exception occurs during the search.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;asd-asd-asd&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;asd-asd&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;qwe&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">find_item</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;asd&quot;</span><span class="p">)</span>
+<span class="go">&quot;2&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.find_items">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">find_items</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key_to_match</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.find_items" title="Link to this definition">¶</a></dt>
+<dd><p>Finds all values in a denested dictionary whose keys contain the given key_to_match.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>d</strong> (<em>dict</em><em>[</em><em>Any</em><em>, </em><em>Any</em><em>]</em>) – A denested dictionary to search in.</p></li>
+<li><p><strong>key_to_match</strong> (<em>str</em>) – The substring to match in the keys.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A list of all values whose keys contain key_to_match.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Logs an error message if an exception occurs during the search.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">d</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;asd-1&quot;</span><span class="p">:</span> <span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;asd-2&quot;</span><span class="p">:</span> <span class="s2">&quot;b&quot;</span><span class="p">,</span> <span class="s2">&quot;qwe&quot;</span><span class="p">:</span> <span class="s2">&quot;c&quot;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">find_items</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;asd&quot;</span><span class="p">)</span>
+<span class="go">[&quot;a&quot;, &quot;b&quot;]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.fix_ascii_string">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">fix_ascii_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.fix_ascii_string" title="Link to this definition">¶</a></dt>
+<dd><p>Fixes the string encoding by removing non-ASCII characters.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input</strong> (<em>str</em>) – The input string that needs to be fixed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The fixed string with only ASCII characters, or the original string if an exception occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fix_ascii_string</span><span class="p">(</span><span class="s2">&quot;Hello, 世界!&quot;</span><span class="p">)</span>
+<span class="go">&quot;Hello, !&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.fix_latin1_string">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">fix_latin1_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.fix_latin1_string" title="Link to this definition">¶</a></dt>
+<dd><p>Fixes the string encoding by attempting to encode it using the ‘latin1’ encoding and then decoding it.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input</strong> (<em>str</em>) – The input string that needs to be fixed.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The fixed string after encoding and decoding, or the original string if an exception occurs.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">fix_latin1_string</span><span class="p">(</span><span class="s2">&quot;café&quot;</span><span class="p">)</span>
+<span class="go">&quot;café&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.json_dumper">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">json_dumper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">zfile</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.json_dumper" title="Link to this definition">¶</a></dt>
+<dd><p>Reads all JSON files in a zip file, flattens them, and combines them into a single DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>zfile</strong> (<em>str</em>) – Path to the zip file containing JSON files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A DataFrame containing flattened data from all JSON files in the zip.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>Exception</strong> – Logs an error message if an exception occurs during the process.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">json_dumper</span><span class="p">(</span><span class="s2">&quot;data.zip&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">())</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.read_csv_from_bytes">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">read_csv_from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BytesIO</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.read_csv_from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Reads CSV data from a BytesIO buffer and returns it as a list of dictionaries.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_bytes</strong> (<em>io.BytesIO</em>) – A BytesIO buffer containing CSV data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>A list of dictionaries, where each dictionary represents a row in the CSV.</dt><dd><p>Returns an empty list if parsing fails.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[dict[Any, Any]]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;name,age</span><span class="se">\n</span><span class="s1">Alice,30</span><span class="se">\n</span><span class="s1">Bob,25&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">read_csv_from_bytes</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">[{&#39;name&#39;: &#39;Alice&#39;, &#39;age&#39;: &#39;30&#39;}, {&#39;name&#39;: &#39;Bob&#39;, &#39;age&#39;: &#39;25&#39;}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.read_csv_from_bytes_to_df">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">read_csv_from_bytes_to_df</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BytesIO</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.read_csv_from_bytes_to_df" title="Link to this definition">¶</a></dt>
+<dd><p>Reads CSV data from a BytesIO buffer and returns it as a pandas DataFrame.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_bytes</strong> (<em>io.BytesIO</em>) – A BytesIO buffer containing CSV data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A pandas DataFrame containing the CSV data.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.DataFrame</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;name,age</span><span class="se">\n</span><span class="s1">Alice,30</span><span class="se">\n</span><span class="s1">Bob,25&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">read_csv_from_bytes_to_df</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">df</span><span class="p">)</span>
+<span class="go">   name  age</span>
+<span class="go">0  Alice   30</span>
+<span class="go">1    Bob   25</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.read_json_from_bytes">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">read_json_from_bytes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_bytes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BytesIO</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.read_json_from_bytes" title="Link to this definition">¶</a></dt>
+<dd><p>Reads JSON data from a BytesIO buffer.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_bytes</strong> (<em>io.BytesIO</em>) – A BytesIO buffer containing JSON data.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The parsed JSON data as a dictionary or list.</dt><dd><p>Returns an empty dictionary if parsing fails.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[Any, Any] | list[Any]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">buffer</span> <span class="o">=</span> <span class="n">io</span><span class="o">.</span><span class="n">BytesIO</span><span class="p">(</span><span class="sa">b</span><span class="s1">&#39;{&quot;key&quot;: &quot;value&quot;}&#39;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">read_json_from_bytes</span><span class="p">(</span><span class="n">buffer</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">{&#39;key&#39;: &#39;value&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.read_json_from_file">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">read_json_from_file</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">json_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.read_json_from_file" title="Link to this definition">¶</a></dt>
+<dd><p>Reads JSON data from a file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>json_file</strong> (<em>str</em>) – Path to the JSON file.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
+<dt>The parsed JSON data as a dictionary or list.</dt><dd><p>Returns an empty dictionary if parsing fails.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[Any, Any] | list[Any]</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="n">read_json_from_file</span><span class="p">(</span><span class="s2">&quot;data.json&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="go">{&#39;key&#39;: &#39;value&#39;}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.replace_months">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">replace_months</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.replace_months" title="Link to this definition">¶</a></dt>
+<dd><p>Replaces Dutch month abbreviations with English equivalents in the input string.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>input_string</strong> (<em>str</em>) – The input string containing potential Dutch month abbreviations.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The input string with Dutch month abbreviations replaced by English equivalents.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">replace_months</span><span class="p">(</span><span class="s2">&quot;15 mei 2023&quot;</span><span class="p">)</span>
+<span class="go">&quot;15 may 2023&quot;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.extraction_helpers.sort_isotimestamp_empty_timestamp_last">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.extraction_helpers.</span></span><span class="sig-name descname"><span class="pre">sort_isotimestamp_empty_timestamp_last</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timestamp_series</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.Series</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.Series</span></span></span><a class="headerlink" href="#port.helpers.extraction_helpers.sort_isotimestamp_empty_timestamp_last" title="Link to this definition">¶</a></dt>
+<dd><p>Creates a key for sorting a pandas Series of ISO timestamps, placing empty timestamps last.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>timestamp_series</strong> (<em>pd.Series</em>) – A pandas Series containing ISO formatted timestamps.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A Series of sorting keys, with -timestamp for valid dates and infinity for invalid/empty dates.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pd.Series</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">df</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">by</span><span class="o">=</span><span class="s2">&quot;Date&quot;</span><span class="p">,</span> <span class="n">key</span><span class="o">=</span><span class="n">sort_isotimestamp_empty_timestamp_last</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="module-port.helpers.port_helpers">
+<span id="port-helpers"></span><h2>Port helpers<a class="headerlink" href="#module-port.helpers.port_helpers" title="Link to this heading">¶</a></h2>
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.donate">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">donate</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_string</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CommandSystemDonate</span></span></span><a class="headerlink" href="#port.helpers.port_helpers.donate" title="Link to this definition">¶</a></dt>
+<dd><p>Initiates a donation process using the provided key and data.</p>
+<p>This function triggers the donation process by passing a key and a JSON-formatted string
+that contains donation information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>key</strong> (<em>str</em>) – The key associated with the donation process. The key will be used in the file name.</p></li>
+<li><p><strong>json_string</strong> (<em>str</em>) – A JSON-formatted string containing the donated data.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A system command that initiates the donation process. Must be yielded.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CommandSystemDonate</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.exit">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">exit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CommandSystemExit</span></span></span><a class="headerlink" href="#port.helpers.port_helpers.exit" title="Link to this definition">¶</a></dt>
+<dd><p>Exits Next with the provided exit code and additional information.
+This if the code reaches this function, it will return to the task list in Next.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>code</strong> (<em>int</em>) – The exit code representing the type or status of the exit.</p></li>
+<li><p><strong>info</strong> (<em>str</em>) – A string containing additional information about the exit.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A system command that initiates the exit process in Next.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CommandSystemExit</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p>yield exit(0, “Success”)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.generate_file_prompt">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">generate_file_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput"><span class="pre">PropsUIPromptFileInput</span></a></span></span><a class="headerlink" href="#port.helpers.port_helpers.generate_file_prompt" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a file input prompt for selecting a file for a platform.</p>
+<p>This function creates a bilingual (English and Dutch) file input prompt
+that instructs the user to select a file they’ve received from a platform
+and stored on their device.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>extensions</strong> (<em>str</em>) – A collection of allowed MIME types.</p></li>
+<li><p><strong>example</strong> (<em>For</em>) – “application/zip, text/plain, application/json”</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A file input prompt object containing
+the description text and allowed file extensions.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput">props.PropsUIPromptFileInput</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.generate_retry_prompt">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">generate_retry_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm"><span class="pre">PropsUIPromptConfirm</span></a></span></span><a class="headerlink" href="#port.helpers.port_helpers.generate_retry_prompt" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a confirmation prompt for retrying file processing.</p>
+<p>This function creates a bilingual (English and Dutch) confirmation prompt
+when a file from a specific platform cannot be processed. It allows the user
+to either try again with a different file or continue with the current file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>platform_name</strong> (<em>str</em>) – The name of the platform associated with the file
+that couldn’t be processed. This is inserted into the prompt text.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A confirmation prompt object containing
+the message, and labels for the “OK” (try again) and “Cancel” (continue) buttons.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm">props.PropsUIPromptConfirm</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.generate_review_data_prompt">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">generate_review_data_prompt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_list</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><span class="pre">PropsUIPromptConsentFormTable</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm"><span class="pre">PropsUIPromptConsentForm</span></a></span></span><a class="headerlink" href="#port.helpers.port_helpers.generate_review_data_prompt" title="Link to this definition">¶</a></dt>
+<dd><p>Generates a data review form with a list of tables and a description, including default donate question and button.
+The participant can review these tables before they will be send to the researcher.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>table_list</strong> (<em>list</em><em>[</em><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><em>props.PropsUIPromptConsentFormTable</em></a><em>]</em>) – A list of consent form tables to be included in the prompt.</p></li>
+<li><p><strong>description</strong> (<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><em>props.Translatable</em></a>) – A translatable description text for the consent prompt.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A structured consent form object containing the provided table list, description,
+and default values for donate question and button.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm">props.PropsUIPromptConsentForm</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.render_end_page">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">render_end_page</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.port_helpers.render_end_page" title="Link to this definition">¶</a></dt>
+<dd><p>Renders a thank you page, must be yielded.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.port_helpers.render_page">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.port_helpers.</span></span><span class="sig-name descname"><span class="pre">render_page</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">header_text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput" title="port.api.props.PropsUIPromptRadioInput"><span class="pre">PropsUIPromptRadioInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm"><span class="pre">PropsUIPromptConsentForm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput"><span class="pre">PropsUIPromptFileInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple" title="port.api.props.PropsUIPromptFileInputMultiple"><span class="pre">PropsUIPromptFileInputMultiple</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm"><span class="pre">PropsUIPromptConfirm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire" title="port.api.props.PropsUIPromptQuestionnaire"><span class="pre">PropsUIPromptQuestionnaire</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">CommandUIRender</span></span></span><a class="headerlink" href="#port.helpers.port_helpers.render_page" title="Link to this definition">¶</a></dt>
+<dd><p>Renders the UI components for a donation page.</p>
+<p>This function assembles various UI components including a header, body, and footer
+to create a complete donation page. It uses the provided header text and body content
+to customize the page.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>header_text</strong> (<a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><em>props.Translatable</em></a>) – The text to be displayed in the header.
+This should be a translatable object to support multiple languages.</p></li>
+<li><p><strong>(</strong> (<em>body</em>) – props.PropsUIPromptRadioInput |
+props.PropsUIPromptConsentForm |
+props.PropsUIPromptFileInput |
+props.PropsUIPromptFileInputMultiple |
+props.PropsUIPromptConfirm |
+props.PropsUIPromptQuestionnaire</p></li>
+<li><p><strong>)</strong> – The main content of the page. It must be compatible with <cite>props.PropsUIPageDonation</cite>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A render command object containing the fully assembled page. Must be yielded.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>CommandUIRender</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
+<section id="module-port.helpers.validate">
+<span id="validation"></span><h2>Validation<a class="headerlink" href="#module-port.helpers.validate" title="Link to this heading">¶</a></h2>
+<p>Contains classes to deal with input validation of DDPs</p>
+<p>The idea of this module is to provide a uniform way to assign a validation status to a DDP validation
+Which can be used and acted upon</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="port.helpers.validate.DDPCategory">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">DDPCategory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ddp_filetype</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.helpers.validate.DDPFiletype" title="port.helpers.validate.DDPFiletype"><span class="pre">DDPFiletype</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">language</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.helpers.validate.Language" title="port.helpers.validate.Language"><span class="pre">Language</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">known_files</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.validate.DDPCategory" title="Link to this definition">¶</a></dt>
+<dd><p>Represents characteristics that define a DDP (Data Delivery Package) category.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>str</em>) – Unique identifier for the DDP category.</p></li>
+<li><p><strong>ddp_filetype</strong> (<a class="reference internal" href="#port.helpers.validate.DDPFiletype" title="port.helpers.validate.DDPFiletype"><em>DDPFiletype</em></a>) – The file type of the DDP.</p></li>
+<li><p><strong>language</strong> (<a class="reference internal" href="#port.helpers.validate.Language" title="port.helpers.validate.Language"><em>Language</em></a>) – The language of the DDP.</p></li>
+<li><p><strong>known_files</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of known files associated with this DDP category.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">category</span> <span class="o">=</span> <span class="n">DDPCategory</span><span class="p">(</span><span class="s2">&quot;cat1&quot;</span><span class="p">,</span> <span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span> <span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;file1.json&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.json&quot;</span><span class="p">])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="go">cat1</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">category</span><span class="o">.</span><span class="n">language</span><span class="p">)</span>
+<span class="go">&lt;Language.EN: 1&gt;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.helpers.validate.DDPFiletype">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">DDPFiletype</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.validate.DDPFiletype" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of supported DDP file types.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.helpers.validate.Language">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">Language</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.validate.Language" title="Link to this definition">¶</a></dt>
+<dd><p>Enumeration of supported languages.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.helpers.validate.StatusCode">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">StatusCode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.validate.StatusCode" title="Link to this definition">¶</a></dt>
+<dd><p>Represents a status code that can be used to set a DDP status.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>id</strong> (<em>int</em>) – The numeric identifier of the status code.</p></li>
+<li><p><strong>description</strong> (<em>str</em>) – A brief description of what the status code represents.</p></li>
+</ul>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">status</span> <span class="o">=</span> <span class="n">StatusCode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Success&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">id</span><span class="p">)</span>
+<span class="go">0</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">print</span><span class="p">(</span><span class="n">status</span><span class="o">.</span><span class="n">description</span><span class="p">)</span>
+<span class="go">Success</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">ValidateInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">all_status_codes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.helpers.validate.StatusCode" title="port.helpers.validate.StatusCode"><span class="pre">StatusCode</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_ddp_categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><span class="pre">DDPCategory</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_status_code</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.helpers.validate.StatusCode" title="port.helpers.validate.StatusCode"><span class="pre">StatusCode</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">current_ddp_category</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><span class="pre">DDPCategory</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.helpers.validate.ValidateInput" title="Link to this definition">¶</a></dt>
+<dd><p>A class for validating input data against predefined categories and status codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>all_status_codes</strong> (<em>List</em><em>[</em><a class="reference internal" href="#port.helpers.validate.StatusCode" title="port.helpers.validate.StatusCode"><em>StatusCode</em></a><em>]</em>) – A list of valid status codes.</p></li>
+<li><p><strong>all_ddp_categories</strong> (<em>List</em><em>[</em><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><em>DDPCategory</em></a><em>]</em>) – A list of valid DDP categories.</p></li>
+<li><p><strong>current_status_code</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#port.helpers.validate.StatusCode" title="port.helpers.validate.StatusCode"><em>StatusCode</em></a><em>]</em>) – The current status code. Defaults to None.</p></li>
+<li><p><strong>current_ddp_category</strong> (<em>Optional</em><em>[</em><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><em>DDPCategory</em></a><em>]</em>) – The current DDP category. Defaults to None.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput.ddp_categories_lookup">
+<span class="sig-name descname"><span class="pre">ddp_categories_lookup</span></span><a class="headerlink" href="#port.helpers.validate.ValidateInput.ddp_categories_lookup" title="Link to this definition">¶</a></dt>
+<dd><p>A lookup dictionary for DDP categories.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[str, <a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory">DDPCategory</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput.status_codes_lookup">
+<span class="sig-name descname"><span class="pre">status_codes_lookup</span></span><a class="headerlink" href="#port.helpers.validate.ValidateInput.status_codes_lookup" title="Link to this definition">¶</a></dt>
+<dd><p>A lookup dictionary for status codes.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Dict[int, <a class="reference internal" href="#port.helpers.validate.StatusCode" title="port.helpers.validate.StatusCode">StatusCode</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">status_codes</span> <span class="o">=</span> <span class="p">[</span><span class="n">StatusCode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Success&quot;</span><span class="p">),</span> <span class="n">StatusCode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Error&quot;</span><span class="p">)]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ddp_categories</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPCategory</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cat1&quot;</span><span class="p">,</span> <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span> <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.txt&quot;</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">validator</span> <span class="o">=</span> <span class="n">ValidateInput</span><span class="p">(</span><span class="n">all_status_codes</span><span class="o">=</span><span class="n">status_codes</span><span class="p">,</span> <span class="n">all_ddp_categories</span><span class="o">=</span><span class="n">ddp_categories</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="py method">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput.get_status_code_id">
+<span class="sig-name descname"><span class="pre">get_status_code_id</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="headerlink" href="#port.helpers.validate.ValidateInput.get_status_code_id" title="Link to this definition">¶</a></dt>
+<dd><p>Return the current assigned status code ID. Note: zero is always used for OK.
+Non-zero otherwise.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>The ID of the current status code, or 1 if no status code is set.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>int</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">validator</span><span class="o">.</span><span class="n">get_status_code_id</span><span class="p">()</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput.infer_ddp_category">
+<span class="sig-name descname"><span class="pre">infer_ddp_category</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_list_input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#port.helpers.validate.ValidateInput.infer_ddp_category" title="Link to this definition">¶</a></dt>
+<dd><p>Compares a list of files to a list of known files and infers the DDPCategory.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file_list_input</strong> (<em>List</em><em>[</em><em>str</em><em>]</em>) – A list of input files to compare against known files.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if a valid DDP category is inferred, False otherwise. It sets the current_status_code
+and current_ddp_category to either the DDP catogory match, or to an unknown category.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">validator</span><span class="o">.</span><span class="n">infer_ddp_category</span><span class="p">([</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.txt&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="port.helpers.validate.ValidateInput.set_current_status_code_by_id">
+<span class="sig-name descname"><span class="pre">set_current_status_code_by_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#port.helpers.validate.ValidateInput.set_current_status_code_by_id" title="Link to this definition">¶</a></dt>
+<dd><p>Set the status code based on the provided ID.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>id</strong> (<em>int</em>) – The ID of the status code to set.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">validator</span><span class="o">.</span><span class="n">set_current_status_code_by_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="port.helpers.validate.validate_zip">
+<span class="sig-prename descclassname"><span class="pre">port.helpers.validate.</span></span><span class="sig-name descname"><span class="pre">validate_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ddp_categories</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><span class="pre">DDPCategory</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path_to_zip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#port.helpers.validate.ValidateInput" title="port.helpers.validate.ValidateInput"><span class="pre">ValidateInput</span></a></span></span><a class="headerlink" href="#port.helpers.validate.validate_zip" title="Link to this definition">¶</a></dt>
+<dd><p>Validates a DDP zip file against a list of DDP categories.</p>
+<p>This function attempts to open and read the contents of a zip file, then uses
+the ValidateInput class to infer the DDP category based on the files in the zip.
+If the zip file is invalid or cannot be read, it sets an error status code (an integer greather than 0).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ddp_categories</strong> (<em>List</em><em>[</em><a class="reference internal" href="#port.helpers.validate.DDPCategory" title="port.helpers.validate.DDPCategory"><em>DDPCategory</em></a><em>]</em>) – A list of valid DDP categories to compare against.</p></li>
+<li><p><strong>path_to_zip</strong> (<em>str</em>) – The file path to the zip file to be validated.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An instance of ValidateInput containing the validation results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.helpers.validate.ValidateInput" title="port.helpers.validate.ValidateInput">ValidateInput</a></p>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>zipfile.BadZipFile</strong> – This exception is caught internally and results in an error status code.</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">categories</span> <span class="o">=</span> <span class="p">[</span><span class="n">DDPCategory</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;cat1&quot;</span><span class="p">,</span> <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span> <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span> <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;file1.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;file2.txt&quot;</span><span class="p">])]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_zip</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="s2">&quot;path/to/valid.zip&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">get_status_code_id</span><span class="p">()</span>
+<span class="go">0</span>
+</pre></div>
+</div>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">result</span> <span class="o">=</span> <span class="n">validate_zip</span><span class="p">(</span><span class="n">categories</span><span class="p">,</span> <span class="s2">&quot;path/to/invalid.zip&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">result</span><span class="o">.</span><span class="n">get_status_code_id</span><span class="p">()</span>
+<span class="go">1</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</section>
+<section id="platforms">
+<h2>Platforms<a class="headerlink" href="#platforms" title="Link to this heading">¶</a></h2>
+<section id="module-port.platforms.chatgpt">
+<span id="chatgpt"></span><h3>ChatGPT<a class="headerlink" href="#module-port.platforms.chatgpt" title="Link to this heading">¶</a></h3>
+<p>ChatGPT</p>
+<p>This module contains an example flow of a ChatGPT data donation study</p>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&lt;</span><span>Page contents</span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&gt;</span><span>Page contents:</span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">API reference</a><ul>
+<li><a class="reference internal" href="#module-port.api.props">Props</a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIFooter"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIFooter.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIHeader"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIHeader.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageDonation"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDonation</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageDonation.platform"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDonation.platform</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageDonation.header"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDonation.header</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageDonation.footer"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDonation.footer</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageDonation.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDonation.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageEnd"><code class="docutils literal notranslate"><span class="pre">PropsUIPageEnd</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPageEnd.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPageEnd.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.text</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm.ok"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.ok</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm.cancel"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.cancel</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.tables</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.meta_tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.meta_tables</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.donate_question"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_question</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.donate_button"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_button</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.toDict()</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.translate_meta_tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.translate_meta_tables()</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm.translate_tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.translate_tables()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.id"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.id</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.title</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.data_frame</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.visualizations"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.visualizations</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.folded"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.folded</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.delete_option"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.delete_option</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput.extensions"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.extensions</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInputMultiple</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInputMultiple.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple.extensions"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInputMultiple.extensions</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptFileInputMultiple.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInputMultiple.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptProgress"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptProgress.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptProgress.message"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.message</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptProgress.percentage"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.percentage</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptProgress.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptQuestionnaire</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptQuestionnaire.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire.questions"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptQuestionnaire.questions</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptQuestionnaire.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptQuestionnaire.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.title</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.description</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput.items"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.items</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoice</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice.id"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoice.id</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice.question"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoice.question</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice.choices"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoice.choices</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoice.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoice.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.id"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox.id</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.question"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox.question</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.choices"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox.choices</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionMultipleChoiceCheckbox.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionOpen"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionOpen</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionOpen.id"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionOpen.id</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionOpen.question"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionOpen.question</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.PropsUIQuestionOpen.toDict"><code class="docutils literal notranslate"><span class="pre">PropsUIQuestionOpen.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.RadioItem"><code class="docutils literal notranslate"><span class="pre">RadioItem</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.RadioItem.id"><code class="docutils literal notranslate"><span class="pre">RadioItem.id</span></code></a></li>
+<li><a class="reference internal" href="#port.api.props.RadioItem.value"><code class="docutils literal notranslate"><span class="pre">RadioItem.value</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.Translatable"><code class="docutils literal notranslate"><span class="pre">Translatable</span></code></a><ul>
+<li><a class="reference internal" href="#port.api.props.Translatable.toDict"><code class="docutils literal notranslate"><span class="pre">Translatable.toDict()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.api.props.Translations"><code class="docutils literal notranslate"><span class="pre">Translations</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-port.helpers.extraction_helpers">Extraction helpers</a><ul>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.FileNotFoundInZipError"><code class="docutils literal notranslate"><span class="pre">FileNotFoundInZipError</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.dict_denester"><code class="docutils literal notranslate"><span class="pre">dict_denester()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.epoch_to_iso"><code class="docutils literal notranslate"><span class="pre">epoch_to_iso()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.extract_file_from_zip"><code class="docutils literal notranslate"><span class="pre">extract_file_from_zip()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.find_item"><code class="docutils literal notranslate"><span class="pre">find_item()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.find_items"><code class="docutils literal notranslate"><span class="pre">find_items()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.fix_ascii_string"><code class="docutils literal notranslate"><span class="pre">fix_ascii_string()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.fix_latin1_string"><code class="docutils literal notranslate"><span class="pre">fix_latin1_string()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.json_dumper"><code class="docutils literal notranslate"><span class="pre">json_dumper()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.read_csv_from_bytes"><code class="docutils literal notranslate"><span class="pre">read_csv_from_bytes()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.read_csv_from_bytes_to_df"><code class="docutils literal notranslate"><span class="pre">read_csv_from_bytes_to_df()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.read_json_from_bytes"><code class="docutils literal notranslate"><span class="pre">read_json_from_bytes()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.read_json_from_file"><code class="docutils literal notranslate"><span class="pre">read_json_from_file()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.replace_months"><code class="docutils literal notranslate"><span class="pre">replace_months()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.extraction_helpers.sort_isotimestamp_empty_timestamp_last"><code class="docutils literal notranslate"><span class="pre">sort_isotimestamp_empty_timestamp_last()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-port.helpers.port_helpers">Port helpers</a><ul>
+<li><a class="reference internal" href="#port.helpers.port_helpers.donate"><code class="docutils literal notranslate"><span class="pre">donate()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.exit"><code class="docutils literal notranslate"><span class="pre">exit()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.generate_file_prompt"><code class="docutils literal notranslate"><span class="pre">generate_file_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.generate_retry_prompt"><code class="docutils literal notranslate"><span class="pre">generate_retry_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.generate_review_data_prompt"><code class="docutils literal notranslate"><span class="pre">generate_review_data_prompt()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.render_end_page"><code class="docutils literal notranslate"><span class="pre">render_end_page()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.port_helpers.render_page"><code class="docutils literal notranslate"><span class="pre">render_page()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#module-port.helpers.validate">Validation</a><ul>
+<li><a class="reference internal" href="#port.helpers.validate.DDPCategory"><code class="docutils literal notranslate"><span class="pre">DDPCategory</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.DDPFiletype"><code class="docutils literal notranslate"><span class="pre">DDPFiletype</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.Language"><code class="docutils literal notranslate"><span class="pre">Language</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.StatusCode"><code class="docutils literal notranslate"><span class="pre">StatusCode</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput"><code class="docutils literal notranslate"><span class="pre">ValidateInput</span></code></a><ul>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput.ddp_categories_lookup"><code class="docutils literal notranslate"><span class="pre">ValidateInput.ddp_categories_lookup</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput.status_codes_lookup"><code class="docutils literal notranslate"><span class="pre">ValidateInput.status_codes_lookup</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput.get_status_code_id"><code class="docutils literal notranslate"><span class="pre">ValidateInput.get_status_code_id()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput.infer_ddp_category"><code class="docutils literal notranslate"><span class="pre">ValidateInput.infer_ddp_category()</span></code></a></li>
+<li><a class="reference internal" href="#port.helpers.validate.ValidateInput.set_current_status_code_by_id"><code class="docutils literal notranslate"><span class="pre">ValidateInput.set_current_status_code_by_id()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#port.helpers.validate.validate_zip"><code class="docutils literal notranslate"><span class="pre">validate_zip()</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#platforms">Platforms</a><ul>
+<li><a class="reference internal" href="#module-port.platforms.chatgpt">ChatGPT</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="index.html">
+                    <span class="icon">&lt;</span><span>API Documentation</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Boeschoten et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 7.4.7.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
