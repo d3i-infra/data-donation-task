@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating your own donation task &#8212; Port 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic_mod.css?v=9b2032db" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <script src="../_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data donation checklist" href="data-donation-checklist.html" />
+    <link rel="prev" title="Installation" href="installation.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="../index.html" title="Go to homepage">Port 1.0.0 documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="../search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction-to-data-donation.html">Introduction to Data Donation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Creating your own donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="creating-your-own-donation-task">
+<h1>Creating your own donation task<a class="headerlink" href="#creating-your-own-donation-task" title="Link to this heading">¶</a></h1>
+<p>The donation task is at the core of a data donation study.
+It is the step where the participant is actually going to donate their data.</p>
+<p>The data donation task goes as follows:</p>
+<ol class="arabic simple">
+<li><p>The participant goes to your data donation task app in a browser</p></li>
+<li><p>The participant is prompted to submit their data download package (DDP)</p></li>
+<li><p>A Python script you wrote, extracts the data you need for your research</p></li>
+<li><p>That data gets presented to the participant on screen</p></li>
+<li><p>The participants decides to donate and you receive the data</p></li>
+</ol>
+<section id="using-the-data-donation-task-in-a-data-donation-study">
+<h2>Using the data donation task in a data donation study<a class="headerlink" href="#using-the-data-donation-task-in-a-data-donation-study" title="Link to this heading">¶</a></h2>
+<p>The data donation task needs to be used in together with Next. Next is the backend for the data donation task. With Next you can configure a data donation study: i.e. configure:</p>
+<ul class="simple">
+<li><p>Your data donation task</p></li>
+<li><p>An information page</p></li>
+<li><p>An informed consent page</p></li>
+<li><p>A privacy policy</p></li>
+<li><p>Instruction manuals for participants</p></li>
+<li><p>Configure where the data should go</p></li>
+<li><p>and more</p></li>
+</ul>
+<p>You can find more information on how to deploy a study in the wiki</p>
+</section>
+<section id="how-does-the-data-donation-task-work">
+<h2>How does the data donation task work?<a class="headerlink" href="#how-does-the-data-donation-task-work" title="Link to this heading">¶</a></h2>
+<p><strong>The idea behind the data donation task</strong>
+The data donation task repository is in essence a toolkit with which you can build your own custom data donation task.
+It is designed as a toolkit because researchers need to tailor the data donation task to their own interests; they interested in different DDPs and are interested in different data within those DDPs.</p>
+<p>This toolkit approach has several benefits:</p>
+<ol class="arabic simple">
+<li><p>It allows for a bespoke experience for the participant</p></li>
+<li><p>You can only extract (and possibly aggregate) the data you need for you study, which we think is important in order to preserve the privacy of the participant and is often a requirement from your data steward/ethical review board</p></li>
+</ol>
+<p>These benefits come at the cost of added complexity compared to a one size fits all approach that extracts most or all data from the participant.</p>
+<p><strong>The design of the data donation task</strong>
+The data donation task contains reusable components (such as: a screen that prompts the participant to submit their DDP and a screen with tables that the participants need to review prior to donation) that you can use and combine in creative ways to make your own study.
+These components are combined in a Python script that is created by the researcher.</p>
+<p>On a high level the script works as follows:</p>
+<ol class="arabic simple">
+<li><p>The Python script determines which user interface (UI) component needs to be shown to the participant</p></li>
+<li><p>Whenever the participant is done interacting with the UI component, the result of that interaction is returned to the script</p></li>
+<li><p>The script handles the return result en determine the next UI component that the participant needs to see or interact with, go back to step 1 until the end of the donation task</p></li>
+</ol>
+<p><strong>The architecture of the data donation task</strong>
+The data donation task is a web application (build with <a class="reference external" href="https://react.dev/">React</a> and <a class="reference external" href="https://pyodide.org/en/stable/">Pyodide</a>) that completely runs in the browser of the participant.
+The Python script and the UI components will run completely in the browser of the participant.
+Data is only sent to the server upon the participant clicking a consent button.</p>
+</section>
+<section id="start-writing-your-first-data-donation-task-script">
+<h2>Start writing your first data donation task script<a class="headerlink" href="#start-writing-your-first-data-donation-task-script" title="Link to this heading">¶</a></h2>
+<p>After you have forked or cloned and installed this repository (see <a class="reference external" href="https://github.com/d3i-infra/feldspar/wiki/Installation">instruction</a>) you can start creating your own donation task.</p>
+<p>You can create your own study by changing and/or adapting the code in the following directory <code class="docutils literal notranslate"><span class="pre">port/src/framework/processing/py/port/</span></code>
+This directory contains the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">script.py</span></code>: Contains your donation task logic; which screen the participants will see and in what order</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api/props.py</span></code>: Contains all the UI elements you can use; you can use this file for reference</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api/commands.py</span></code>: Contains the Render and the Donate commands</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">main.py</span></code>: The main driver of you donation task, you don’t need to touch this file</p></li>
+</ul>
+<section id="script-py">
+<h3><code class="docutils literal notranslate"><span class="pre">script.py</span></code><a class="headerlink" href="#script-py" title="Link to this heading">¶</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">script.py</span></code> is the most important file and the one we will be working with the most</p>
+<p>Lets look at a full example of a <code class="docutils literal notranslate"><span class="pre">script.py</span></code>. In this example we will be extracting data from a fictional DDP.
+Participants are asked to submit a zip file (any zip file will do in this case), and we will extract the file names and some meta data from this zip file.
+In a real study you would extract something substantial from the data.</p>
+<p><code class="docutils literal notranslate"><span class="pre">script.py</span></code> must contain a function called <code class="docutils literal notranslate"><span class="pre">process</span></code> this function determines the whole data donation task from start to finish (Which screens the participant will see and in what order, and what kind of data extraction will take place).
+At the time of writing this example is also the default <code class="docutils literal notranslate"><span class="pre">script.py</span></code>.</p>
+<p>In this example process defines the following data donation task:</p>
+<ol class="arabic simple">
+<li><p>Ask the participant to submit a zip file</p></li>
+<li><p>Perform validation on the submitted zip file, if not valid return to step 1</p></li>
+<li><p>Extract the data from the submitted zip file</p></li>
+<li><p>Render the extract data on screen in a table</p></li>
+<li><p>Send the data to the data storage upon consent</p></li>
+</ol>
+<p>Although these can vary per data donation task, they will be more or less similar.</p>
+<p>Below you can find the annotated example <code class="docutils literal notranslate"><span class="pre">process</span></code> function:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># script.py</span>
+<span class="kn">import</span> <span class="nn">port.api.props</span> <span class="k">as</span> <span class="nn">props</span>
+<span class="kn">from</span> <span class="nn">port.api.commands</span> <span class="kn">import</span> <span class="p">(</span><span class="n">CommandSystemDonate</span><span class="p">,</span> <span class="n">CommandUIRender</span><span class="p">,</span> <span class="n">CommandSystemExit</span><span class="p">)</span>
+
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">zipfile</span>
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">session_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">platform</span> <span class="o">=</span> <span class="s2">&quot;Platform of interest&quot;</span>
+
+    <span class="c1"># Start of the data donation task</span>
+    <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+        <span class="c1"># Ask the participant to submit a file</span>
+        <span class="n">file_prompt</span> <span class="o">=</span> <span class="n">generate_file_prompt</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="s2">&quot;application/zip, text/plain&quot;</span><span class="p">)</span>
+        <span class="n">file_prompt_result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">render_page</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">file_prompt</span><span class="p">)</span>
+
+        <span class="c1"># If the participant submitted a file: continue</span>
+        <span class="k">if</span> <span class="n">file_prompt_result</span><span class="o">.</span><span class="n">__type__</span> <span class="o">==</span> <span class="s1">&#39;PayloadString&#39;</span><span class="p">:</span>
+
+            <span class="c1"># Validate the file the participant submitted</span>
+            <span class="c1"># In general this is wise to do </span>
+            <span class="n">is_data_valid</span> <span class="o">=</span> <span class="n">validate_the_participants_input</span><span class="p">(</span><span class="n">file_prompt_result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># Happy flow (all is well):</span>
+            <span class="c1"># The file the participant submitted is valid</span>
+            <span class="k">if</span> <span class="n">is_data_valid</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
+
+                <span class="c1"># Extract the data you as a researcher are interested in, and put it in a pandas DataFrame</span>
+                <span class="c1"># Show this data to the participant in a table on screen</span>
+                <span class="c1"># The participant can now decide to donate</span>
+                <span class="n">extracted_data</span> <span class="o">=</span> <span class="n">extract_the_data_you_are_interested_in</span><span class="p">(</span><span class="n">file_prompt_result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+                <span class="n">consent_prompt</span> <span class="o">=</span> <span class="n">generate_consent_prompt</span><span class="p">(</span><span class="n">extracted_data</span><span class="p">)</span>
+                <span class="n">consent_prompt_result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">render_page</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">consent_prompt</span><span class="p">)</span>
+
+                <span class="c1"># If the participant wants to donate the data gets donated</span>
+                <span class="k">if</span> <span class="n">consent_prompt_result</span><span class="o">.</span><span class="n">__type__</span> <span class="o">==</span> <span class="s2">&quot;PayloadJSON&quot;</span><span class="p">:</span>
+                    <span class="k">yield</span> <span class="n">donate</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">session_id</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">consent_prompt_result</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+                <span class="k">break</span>
+
+            <span class="c1"># Sad flow</span>
+            <span class="c1"># The data was not valid, ask the participant to retry</span>
+            <span class="k">if</span> <span class="n">is_data_valid</span> <span class="o">==</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">retry_prompt</span> <span class="o">=</span> <span class="n">generate_retry_prompt</span><span class="p">(</span><span class="n">platform</span><span class="p">)</span>
+                <span class="n">retry_prompt_result</span> <span class="o">=</span> <span class="k">yield</span> <span class="n">render_page</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">retry_prompt</span><span class="p">)</span>
+
+                <span class="c1"># The participant wants to retry: start from the beginning</span>
+                <span class="k">if</span> <span class="n">retry_prompt_result</span><span class="o">.</span><span class="n">__type__</span> <span class="o">==</span> <span class="s1">&#39;PayloadTrue&#39;</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="c1"># The participant does not want to retry or pressed skip</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="k">break</span>
+
+        <span class="c1"># The participant did not submit a file and pressed skip</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">break</span>
+
+    <span class="k">yield</span> <span class="n">exit_port</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Success&quot;</span><span class="p">)</span>
+    <span class="k">yield</span> <span class="n">render_end_page</span><span class="p">()</span>
+
+</pre></div>
+</div>
+<p><strong>The functions used in <code class="docutils literal notranslate"><span class="pre">process</span></code></strong></p>
+<p>These are all the functions used in <code class="docutils literal notranslate"><span class="pre">process</span></code> together they make up <code class="docutils literal notranslate"><span class="pre">script.py</span></code>.</p>
+<details>
+<summary>extract_the_data_you_are_interested_in</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">extract_the_data_you_are_interested_in</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    This function extracts the data the researcher is interested in</span>
+
+<span class="sd">    In this case we extract from the zipfile:</span>
+<span class="sd">    * The filesnames</span>
+<span class="sd">    * The compressed file size</span>
+<span class="sd">    * The file size</span>
+
+<span class="sd">    You could extract anything here</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">file</span> <span class="o">=</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">file</span><span class="o">.</span><span class="n">namelist</span><span class="p">():</span>
+            <span class="n">names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">info</span> <span class="o">=</span> <span class="n">file</span><span class="o">.</span><span class="n">getinfo</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+            <span class="n">data</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">compress_size</span><span class="p">,</span> <span class="n">info</span><span class="o">.</span><span class="n">file_size</span><span class="p">))</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;File name&quot;</span><span class="p">,</span> <span class="s2">&quot;Compressed file size&quot;</span><span class="p">,</span> <span class="s2">&quot;File size&quot;</span><span class="p">])</span>
+
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Something went wrong: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>validate_the_participants_input</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">validate_the_participants_input</span><span class="p">(</span><span class="n">zip_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check if the participant actually submitted a zipfile</span>
+<span class="sd">    Returns True if participant submitted a zipfile, otherwise False</span>
+
+<span class="sd">    In reality you need to do a lot more validation.</span>
+<span class="sd">    Some things you could check:</span>
+<span class="sd">    - Check if the the file(s) are the correct format (json, html, binary, etc.)</span>
+<span class="sd">    - If the files are in the correct language</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">zip_file</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>render_end_page</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_end_page</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders a thank you page</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPageEnd</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">CommandUIRender</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</details>
+<details>
+<summary>render_page</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">render_page</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">progress</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Renders the UI components</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIHeader</span><span class="p">(</span><span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span><span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="n">platform</span><span class="p">,</span> <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="n">platform</span> <span class="p">}))</span>
+    <span class="n">footer</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIFooter</span><span class="p">(</span><span class="n">progress</span><span class="p">)</span>
+    <span class="n">page</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPageDonation</span><span class="p">(</span><span class="n">platform</span><span class="p">,</span> <span class="n">header</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">footer</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">CommandUIRender</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>generate_retry_prompt</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_retry_prompt</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConfirm</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a retry screen, this can be used if validation failed for example.</span>
+<span class="sd">    You can aks the participant to try again, and go back to the submit file prompt</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+        <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Unfortunately, we cannot process your </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> file. Continue, if you are sure that you selected the right file. Try again to select a different file.&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Helaas, kunnen we uw </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.&quot;</span>
+    <span class="p">})</span>
+    <span class="n">ok</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+        <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;Try again&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Probeer opnieuw&quot;</span>
+    <span class="p">})</span>
+    <span class="n">cancel</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+        <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;Continue&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Verder&quot;</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConfirm</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">ok</span><span class="p">,</span> <span class="n">cancel</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>generate_file_prompt</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_file_prompt</span><span class="p">(</span><span class="n">platform</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptFileInput</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a prompt that asks the participant to input a file</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">description</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+        <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> file. &quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen </span><span class="si">{</span><span class="n">platform</span><span class="si">}</span><span class="s2"> bestand heeft klik dan op “Overslaan” rechts onder.&quot;</span>
+    <span class="p">})</span>
+ 
+    <span class="k">return</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptFileInput</span><span class="p">(</span><span class="n">description</span><span class="p">,</span> <span class="s2">&quot;application/zip, text/plain&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>generate_consent_prompt</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">generate_consent_prompt</span><span class="p">(</span><span class="n">df</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentForm</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Generates a prompt screen with table(s) with the extract data for the participant to review</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">table_title</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+        <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;Zip file contents&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Inhoud zip bestand&quot;</span>
+    <span class="p">})</span>
+    <span class="n">table</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTable</span><span class="p">(</span><span class="s2">&quot;zip_contents&quot;</span><span class="p">,</span> <span class="n">table_title</span><span class="p">,</span> <span class="n">df</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentForm</span><span class="p">([</span><span class="n">table</span><span class="p">],</span> <span class="p">[])</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>donate</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">donate</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">json_string</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Sends data to the backend</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">CommandSystemDonate</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">json_string</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+<details>
+<summary>exit_port</summary>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">exit_port</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">info</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    When in Next this function exits the data donation task, and lets the participant return to Next</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">CommandSystemExit</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">info</span><span class="p">)</span>
+</pre></div>
+</div>
+</details>
+</section>
+<section id="start-writing-your-own-script-py-using-the-api">
+<h3>Start writing your own <code class="docutils literal notranslate"><span class="pre">script.py</span></code> using the api<a class="headerlink" href="#start-writing-your-own-script-py-using-the-api" title="Link to this heading">¶</a></h3>
+<p>Now that you have seen a full example, you can start to try and create your own data donation task. With the elements from the example you can already build some pretty intricate data donation tasks.
+Start creating your own by <code class="docutils literal notranslate"><span class="pre">script.py</span></code> by adapting this example to your own needs, for example, instead of file names you could extract data you would actually like to extract yourself.</p>
+<p>If you want to see which up what UI elements are available to you checkout <code class="docutils literal notranslate"><span class="pre">api/props.py</span></code>. In general you need to construct your own pages (prompts) and render them with <code class="docutils literal notranslate"><span class="pre">render_page</span></code> (dont forget <code class="docutils literal notranslate"><span class="pre">yield</span></code>).</p>
+</section>
+<section id="the-usage-of-yield-in-script-py">
+<h3>The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code> in <code class="docutils literal notranslate"><span class="pre">script.py</span></code><a class="headerlink" href="#the-usage-of-yield-in-script-py" title="Link to this heading">¶</a></h3>
+<p>Did you notice <code class="docutils literal notranslate"><span class="pre">yield</span></code> instead of return? <code class="docutils literal notranslate"><span class="pre">yield</span></code> makes sure that whenever the code resumes after a page render, it starts where it left off.
+If you render a page you need to use yield instead of return, just like in the example.</p>
+</section>
+<section id="install-python-packages">
+<h3>Install Python packages<a class="headerlink" href="#install-python-packages" title="Link to this heading">¶</a></h3>
+<p>The data donation task runs in the browser of the participant, it is important to understand that when Python is running in your browser it is not using the Python version you have installed on your system.
+The data donation task is using <a class="reference external" href="https://pyodide.org/en/stable/">Pyodide</a> this is Python compiled to web assembly that runs in the browser.
+This means that packages you have available on your system install of Python, won’t be available in the browser.</p>
+<p>If you want to use external packages they should be available for Pyodide, you can check the list of available packages <a class="reference external" href="https://pyodide.org/en/stable/usage/packages-in-pyodide.html">here</a>.
+If you have found a package you want to use you can installed it by adding it to the array in the <code class="docutils literal notranslate"><span class="pre">loadPackages</span></code> function in <code class="docutils literal notranslate"><span class="pre">src/framework/processing/py_worker.js</span></code> as shown below:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// src/framework/processing/py_worker.js</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">loadPackages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ProcessingWorker] loading packages&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="c1">// These packages are now installed and usable: micropip, numpy, pandas, and lxml</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">self</span><span class="p">.</span><span class="nx">pyodide</span><span class="p">.</span><span class="nx">loadPackage</span><span class="p">([</span><span class="s1">&#39;micropip&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pandas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lxml&#39;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can now import the packages as you would normally do in Python.</p>
+</section>
+<section id="try-the-donation-task-from-the-perspective-of-the-participant">
+<h3>Try the donation task from the perspective of the participant<a class="headerlink" href="#try-the-donation-task-from-the-perspective-of-the-participant" title="Link to this heading">¶</a></h3>
+<p>If you want to try out the above example, follow the installation instructions and start the server with <code class="docutils literal notranslate"><span class="pre">npm</span> <span class="pre">run</span> <span class="pre">start</span></code>.</p>
+</section>
+<section id="tips-when-writing-your-own-script-py">
+<h3>Tips when writing your own <code class="docutils literal notranslate"><span class="pre">script.py</span></code><a class="headerlink" href="#tips-when-writing-your-own-script-py" title="Link to this heading">¶</a></h3>
+<p><strong>Split the extraction logic from the data donation task logic</strong>
+You can define your own modules where you create your data extraction, you can <code class="docutils literal notranslate"><span class="pre">import</span></code> those modules in <code class="docutils literal notranslate"><span class="pre">script.py</span></code></p>
+<p><strong>Develop in separate script</strong>
+You are better off engineering your extraction logic in different scripts and put them in <code class="docutils literal notranslate"><span class="pre">script.py</span></code> whenever you are finished developing. Only do small tweaks in <code class="docutils literal notranslate"><span class="pre">script.py</span></code></p>
+<p><strong>Use the console in your browser</strong>
+In case of errors they will show up in the browser console. You can use <code class="docutils literal notranslate"><span class="pre">print</span></code> in the Python script and it will show up in the browser console.</p>
+<p><strong>Keep the diverse nature of DDPs into account</strong>
+At least check a couple of DDPs to make sure its reflective of the population you are interesed in. Thinks you can check are: data formats (html, json, plain text, csv, etc.), language settings (they somethines lead to json keys being in a different language or file names other than English).</p>
+<p><strong>Keep your code efficient</strong>
+If your code is not efficient the extraction will take longer, which can result in a bad experience for the participant. In practice I have found that in most cases it’s not really an issue, and don’t have to pay that much attention to efficiency of your code.
+Where efficiency really matters is when you have parse huge html files, beautifulsoup4 is a library that is commonly used to do this, this library is too slow however. As an alternative you can use lxml which is fast enough.</p>
+<p><strong>Don’t let your code crash</strong>
+You cannot have your script crash, if your Python script crashes the task stops as well. This is not a good experience for your participant.
+For example in the code you do the following: <code class="docutils literal notranslate"><span class="pre">value_i_want_to_extract</span> <span class="pre">=</span> <span class="pre">extracted_data_in_a_dictionary[&quot;interesting</span> <span class="pre">key&quot;]</span></code> if the key <code class="docutils literal notranslate"><span class="pre">&quot;interesting</span> <span class="pre">key&quot;</span></code> does not exists, because it does not occur in the data of the participant, the script crashes and the participant cannot continue the data donation task.</p>
+<p><strong>Data donation checklist</strong>
+Creating a good data donation task can be hard due to the variety of DDPs you will encounted.
+Check out the following <a class="reference external" href="https://github.com/d3i-infra/data-donation-task/wiki/Data-donation-checklist">wiki article</a></p>
+</section>
+</section>
+<section id="limits-of-the-data-donation-task">
+<h2>Limits of the data donation task<a class="headerlink" href="#limits-of-the-data-donation-task" title="Link to this heading">¶</a></h2>
+<p>Currently the data donation task has the following limitations:</p>
+<ul class="simple">
+<li><p>The data donation task is a frontend, you need to package this together with Next to deploy it. If you want to use it with your own backend you have to make the data donation task compatible with it yourself. A tutorial on how to do this might be added in the future.</p></li>
+<li><p>The data donation task is running in the browser of the participant that brings in limitations, such as constraints on the files participant can submit. The limits are around 2GiB thats what Pyodide can handle. But less is better. So keep that in mind whenever you, for example, want to collect data from YouTube: your participants should exclude their own personal videos from their DDP (including these would result in a huge number of separate DDPs of around 2GiB).</p></li>
+<li><p>The data donation currently works with text data, nothing keeps us from using other formats in the future (but the constraints on file sizes are still there)</p></li>
+<li><p>The data donation task should run fine on mobile, however its not optimized for it, you might need to do some tweaking to the UI yourself</p></li>
+</ul>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&lt;</span><span>Page contents</span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&gt;</span><span>Page contents:</span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">Creating your own donation task</a><ul>
+<li><a class="reference internal" href="#using-the-data-donation-task-in-a-data-donation-study">Using the data donation task in a data donation study</a></li>
+<li><a class="reference internal" href="#how-does-the-data-donation-task-work">How does the data donation task work?</a></li>
+<li><a class="reference internal" href="#start-writing-your-first-data-donation-task-script">Start writing your first data donation task script</a><ul>
+<li><a class="reference internal" href="#script-py"><code class="docutils literal notranslate"><span class="pre">script.py</span></code></a></li>
+<li><a class="reference internal" href="#start-writing-your-own-script-py-using-the-api">Start writing your own <code class="docutils literal notranslate"><span class="pre">script.py</span></code> using the api</a></li>
+<li><a class="reference internal" href="#the-usage-of-yield-in-script-py">The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code> in <code class="docutils literal notranslate"><span class="pre">script.py</span></code></a></li>
+<li><a class="reference internal" href="#install-python-packages">Install Python packages</a></li>
+<li><a class="reference internal" href="#try-the-donation-task-from-the-perspective-of-the-participant">Try the donation task from the perspective of the participant</a></li>
+<li><a class="reference internal" href="#tips-when-writing-your-own-script-py">Tips when writing your own <code class="docutils literal notranslate"><span class="pre">script.py</span></code></a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#limits-of-the-data-donation-task">Limits of the data donation task</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="installation.html">
+                    <span class="icon">&lt;</span><span>Installation</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+                    <a href="data-donation-checklist.html"><span>Data donation checklist</span><span class="icon">&gt;</span></a>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Boeschoten et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>

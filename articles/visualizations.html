@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adding data visualizations &#8212; Port 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic_mod.css?v=9b2032db" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <script src="../_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Documentation" href="../api/index.html" />
+    <link rel="prev" title="Deployment of the data donation task" href="deployment.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="../index.html" title="Go to homepage">Port 1.0.0 documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="../search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction-to-data-donation.html">Introduction to Data Donation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-your-own-data-donation-task.html">Creating your own donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Adding data visualizations</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="adding-data-visualizations">
+<h1>Adding data visualizations<a class="headerlink" href="#adding-data-visualizations" title="Link to this heading">¶</a></h1>
+<p>You can add data visualizations to the consent form page, that will be shown below a data table. These visualizations will dynamically aggregate and visualize the data, responding to search queries and deleted items.</p>
+<p>Good visualizations can help participants to see and explore what data they are about to donate, and thereby support informed consent. Furthermore, it can make the data donation process more educational and enjoyable.</p>
+<section id="adding-visualizations-to-tables">
+<h2>Adding visualizations to tables<a class="headerlink" href="#adding-visualizations-to-tables" title="Link to this heading">¶</a></h2>
+<p>Visualizations are always directly connected to a <strong>consent form table</strong>. When in script.py you create a consent form table, you can implement visualizations as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table_title</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+    <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;Table title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Tabel titel&quot;</span>
+<span class="p">})</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTable</span><span class="p">(</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;tableId&quot;</span><span class="p">,</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">table_title</span><span class="p">,</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+    <span class="n">visualizations</span> <span class="o">=</span> <span class="p">[])</span>
+</pre></div>
+</div>
+<p>You can now add one or multiple <strong>visualization specifications</strong> to the <code class="docutils literal notranslate"><span class="pre">visualizations</span></code> list.</p>
+</section>
+<section id="visualization-specification">
+<h2>Visualization Specification<a class="headerlink" href="#visualization-specification" title="Link to this heading">¶</a></h2>
+<p>A visualization specification provides instructions for creating a visualization based on the data in the table. This visualization will then be created dynamically, so that when the table is updated (e.g., when participants search the data or remove rows) the visualization is updated as well.</p>
+<p>A specification covers three main components:</p>
+<ul class="simple">
+<li><p><strong>Aggregation</strong>: How should the table data be aggregated. e.g., count the number of rows per day</p></li>
+<li><p><strong>Display</strong>: How should the aggregated data be displayed? e.g., line chart, bar chart, wordcloud</p></li>
+<li><p><strong>Labels</strong>: Any labels to help along interpretation, optionally with translations (as seen above in the table_title)</p></li>
+</ul>
+<p>A detailed explanation of the visualizatoin specification is shown below in the <strong>Specification Guide</strong>. But we recommend first having a look at the following examples.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">¶</a></h2>
+<p>Say we have data about every time a participant viewed a certain channel, and we also also know the channel category (e.g., sports, entertainment) and the exact timestampe. We have put this in a <code class="docutils literal notranslate"><span class="pre">data_frame</span></code> with the columns: <strong>channel</strong>, <strong>category</strong> and <strong>timestamp</strong>. We can then make a number of different visualizations.</p>
+<section id="categorical-variables-bar-chart-of-views-per-category">
+<h3>Categorical variables | Bar chart of views per category<a class="headerlink" href="#categorical-variables-bar-chart-of-views-per-category" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views per category&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Category&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">))]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The <strong>type</strong> determines the chart type, and can in this case be “bar”,”line” or “area”. The <strong>group</strong> determines how the data should be grouped and aggregated, which in this case is per category. The <strong>values</strong> determines the values to calculate per group, which here is just the count of the rows.</p>
+<p><strong>!!!</strong> Notice that <code class="docutils literal notranslate"><span class="pre">values</span></code> is a list, and not a single dictionary. Adding multiple value dictionaries will create multiple y-values, for grouped barcharts or multiple lines or areas.</p>
+<p>The <strong>label</strong>’s can be either a single <em>string</em> (as in the <code class="docutils literal notranslate"><span class="pre">group</span></code>) or a dictionary with different languages, where keys are country codes, and values are labels (as in the <code class="docutils literal notranslate"><span class="pre">values</span></code>).</p>
+</section>
+<section id="date-variables-area-chart-of-views-per-month">
+<h3>Date variables | Area chart of views per month<a class="headerlink" href="#date-variables-area-chart-of-views-per-month" title="Link to this heading">¶</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views over time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">))]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In this area chart (i.e. a line chart where the area below the line is coloured) we group the data by month, and use the same aggregation values as in the previous example to count the number of views per group.</p>
+<p>The <strong>dateFormat</strong> grouping variable can be set if the column is a date string in ISO format: <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> for date or <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> for datetime (You can also use <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDTHH:SS:MM)</span></code>, but that doesn’t look niced in the table).</p>
+<p>The following formats are supported:</p>
+<ul class="simple">
+<li><p><strong>Fixed interval</strong>: “year”, “quarter”, “month”, “day”, “hour”</p></li>
+<li><p><strong>Automatic interval</strong>: “auto” will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with “hour” interval)</p></li>
+<li><p><strong>cycles / season</strong>: “month_cycle” (January - December), “weekday_cycle” (Monday - Sunday) and “hour_cycle” (1 - 24).</p></li>
+</ul>
+</section>
+<section id="second-level-aggregation-line-chart-of-views-over-time-per-category">
+<h3>Second-level aggregation | Line chart of views over time per category<a class="headerlink" href="#second-level-aggregation-line-chart-of-views-over-time-per-category" title="Link to this heading">¶</a></h3>
+<p>Above we mentioned that you can add multiple values to create multiple y-values. But this only works if your data is <em>wide</em>. Alternatively, you can also perform a second-level aggregation on <em>long</em> data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis3</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views per category over time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+        <span class="n">group_by</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span>
+    <span class="p">)]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we changed three things. First, we changed the type to “line”, because that’s a bit easier on the eye with multiple y-values. Second, we added <code class="docutils literal notranslate"><span class="pre">group_by</span></code> to the aggregation value, setting it to “category”. This will break the values data into groups for categories, and calculate the aggregation statistic per category. This will be visualized as a line chart where the frequency of each category (e.g., sport, entertainment) will be displayed on separate lines.</p>
+<p>A third change is that we set the dateFormat to “auto” instead of fixing it to “month”. This will automatically pick a suitable time interval based on the range of column (last date - first date). This could mean that different participants see different intervals, depending on what works best for their own data.</p>
+</section>
+<section id="text-variables-a-wordcloud">
+<h3>Text variables | A wordcloud<a class="headerlink" href="#text-variables-a-wordcloud" title="Link to this heading">¶</a></h3>
+<p>As a final example, we’ll look at a different sub-specification for visualizing textual data. We’ll make a wordcloud of channels, based on their frequency in the data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis4</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;Most viewed channels&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;wordcloud&quot;</span><span class="p">,</span>
+    <span class="n">textColumn</span> <span class="o">=</span> <span class="s1">&#39;channel&#39;</span><span class="p">,</span>
+    <span class="n">tokenize</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This creates a wordcloud of the full channel names. Note that we could also have tokenized the texts, but for channels (e.g., YouTube channels) the full names are probably most informative.</p>
+</section>
+</section>
+<section id="example-wrap-up">
+<h2>Example wrap-up<a class="headerlink" href="#example-wrap-up" title="Link to this heading">¶</a></h2>
+<p>Now that we have created visualizations, we can add them to the consent form table. Note that above we assigned our specifications to <strong>vis1</strong> to <strong>vis4</strong>. We can now simply add them to the visualiations list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTable</span><span class="p">(</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;tableId&quot;</span><span class="p">,</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">table_title</span><span class="p">,</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+    <span class="n">visualizations</span> <span class="o">=</span> <span class="p">[</span><span class="n">vis1</span><span class="p">,</span> <span class="n">vis2</span><span class="p">,</span> <span class="n">vis3</span><span class="p">,</span> <span class="n">vis4</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="specification-guide">
+<h2>Specification guide<a class="headerlink" href="#specification-guide" title="Link to this heading">¶</a></h2>
+<p>This is an overview of the visualiation specification. First, there are some <strong>general visualization arguments</strong> that every visualization has. Second, there are specific arguments depending on the visualization <strong>type</strong></p>
+<section id="general-visualization-arguments">
+<h3>General visualization arguments<a class="headerlink" href="#general-visualization-arguments" title="Link to this heading">¶</a></h3>
+<p>Every visualization has the following arguments</p>
+<ul class="simple">
+<li><p><strong>title</strong>: A title for the visualization. This has to be a translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>type</strong>: The type of the visualization. The type determines what specification you need to follow</p>
+<ul>
+<li><p><strong>Chart visualiation</strong>: “line”, “bar” or “area”</p></li>
+<li><p><strong>Text visualization</strong>: “wordcloud”</p></li>
+</ul>
+</li>
+<li><p><strong>height (optional)</strong>: The height of the chart in pixels</p></li>
+</ul>
+</section>
+<section id="chart-visualization-arguments">
+<h3>Chart visualization arguments<a class="headerlink" href="#chart-visualization-arguments" title="Link to this heading">¶</a></h3>
+<p>Chart visualizations work by aggregating the data into X, Y and optionally Z axes. It’s the basis for most common charts.</p>
+<ul class="simple">
+<li><p><strong>type</strong>: “line”, “bar” or “area”</p></li>
+<li><p><strong>group</strong>: specifies the column to group and aggregate the data by. The group is visualized on the x-axis.</p>
+<ul>
+<li><p><strong>label</strong>: x-axis label. Either a string or translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>column</strong>: the name of the column</p></li>
+<li><p><strong>dateFormat (optional)</strong>: if column is a date, select how it should be grouped. (see <strong>dateFormat</strong> spec below)</p></li>
+<li><p><strong>levels (optional)</strong>. A list of strings with the specific column values to use. This also makes sure these values are displayed if they are missing in a participants data (also see <strong>values</strong> -&gt; <strong>addZeroes</strong>)</p></li>
+</ul>
+</li>
+<li><p><strong>values</strong>: A list (<strong>!!</strong>) of objects. Each object specifies an (aggregate) value to calculate per group. A value is visualized on the y-axis. Multiple values can be given for multiple y-values</p>
+<ul>
+<li><p><strong>label</strong>: y-axis label. Either a string or translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>column (optional)</strong>: the column based on which the value is calculated. Can be empty if just counting rows.</p></li>
+<li><p><strong>aggregate</strong>: The aggregation function. (see <strong>aggregate</strong> spec below)</p></li>
+<li><p><strong>addZeroes</strong>: Boolean. If true, add zeroes for empty groups. If <strong>levels</strong> are specified, participants will explicitly see that they occured zero times in their data. If <strong>dateFormat</strong> is used, this fills possible gaps (note that this mostly makes sense for row “count” aggregations where absense implies zero)</p></li>
+<li><p><strong>group_by (optional)</strong>: the name of a column to do a second-level aggregation. This will create multiple y-values where the value in the column becomes the label.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="text-visualization-arguments">
+<h3>Text visualization arguments<a class="headerlink" href="#text-visualization-arguments" title="Link to this heading">¶</a></h3>
+<p>Text visualizations take a text column as input.</p>
+<ul class="simple">
+<li><p><strong>type</strong>: “wordcloud”</p></li>
+<li><p><strong>textColumn</strong>: A text (string) column in the data</p></li>
+<li><p><strong>tokenize (optional)</strong>: Boolean. If true, the text will be tokenized</p></li>
+<li><p><strong>valueColumn (optional)</strong>: By default, every text or token will be given a value based on the number of rows in which it occurs. Alternatively, you can specify a numeric column, in which case (the sum of) the values in this column will be used.</p></li>
+<li><p><strong>extract (optional)</strong>: Normally, all preprocessing of the data should be handled in the import scripts, but for convenience we will provide some common methods for extracting parts of a string. Currently supports:</p>
+<ul>
+<li><p>“url_domain”: If the column contains URLs, extract only the domain.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="spec-details">
+<h3>Spec details<a class="headerlink" href="#spec-details" title="Link to this heading">¶</a></h3>
+<p>Here are some details for the more complicated spec components.</p>
+<section id="translation">
+<h4>- translation<a class="headerlink" href="#translation" title="Link to this heading">¶</a></h4>
+<p>A translation dictionary has country codes as keys and the translations as values: <code class="docutils literal notranslate"><span class="pre">dict(en</span> <span class="pre">=</span> <span class="pre">&quot;english</span> <span class="pre">label&quot;,</span> <span class="pre">nl</span> <span class="pre">=</span> <span class="pre">&quot;dutch</span> <span class="pre">label&quot;)</span></code>. (This is identical to the dictionary used in the <code class="docutils literal notranslate"><span class="pre">props.Translatable</span></code>)</p>
+</section>
+<section id="dateformat">
+<h4>- dateFormat<a class="headerlink" href="#dateformat" title="Link to this heading">¶</a></h4>
+<p>If column is a date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>, <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM</span></code> or <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code>), select how the date is grouped. options are:</p>
+<ul class="simple">
+<li><p><strong>Fixed interval</strong>: “year”, “quarter”, “month”, “day”, “hour”</p></li>
+<li><p><strong>Automatic interval</strong>: “auto” will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with “hour” interval)</p></li>
+<li><p><strong>cycles / season</strong>: “month_cycle” (January - December), “weekday_cycle” (Monday - Sunday) and “hour_cycle” (1 - 24).</p></li>
+</ul>
+</section>
+<section id="aggregate">
+<h4>- aggregate<a class="headerlink" href="#aggregate" title="Link to this heading">¶</a></h4>
+<p>The function by which to aggregate the column in <code class="docutils literal notranslate"><span class="pre">values</span></code>. The following functions are currently supported</p>
+<ul class="simple">
+<li><p>“count” just counts the rows</p></li>
+<li><p>“mean” and “sum” require the value column to be numeric.</p></li>
+<li><p>“count_pct” gives the count as a percentage of the total number of rows.*</p></li>
+<li><p>“pct” sums the values of a numeric column and divides by the total sum.*</p></li>
+</ul>
+<p><strong>*</strong> <em>If a secondary aggregation is used, percentages are calculated within the primary aggregation group</em></p>
+</section>
+</section>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&lt;</span><span>Page contents</span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&gt;</span><span>Page contents:</span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">Adding data visualizations</a><ul>
+<li><a class="reference internal" href="#adding-visualizations-to-tables">Adding visualizations to tables</a></li>
+<li><a class="reference internal" href="#visualization-specification">Visualization Specification</a></li>
+<li><a class="reference internal" href="#examples">Examples</a><ul>
+<li><a class="reference internal" href="#categorical-variables-bar-chart-of-views-per-category">Categorical variables | Bar chart of views per category</a></li>
+<li><a class="reference internal" href="#date-variables-area-chart-of-views-per-month">Date variables | Area chart of views per month</a></li>
+<li><a class="reference internal" href="#second-level-aggregation-line-chart-of-views-over-time-per-category">Second-level aggregation | Line chart of views over time per category</a></li>
+<li><a class="reference internal" href="#text-variables-a-wordcloud">Text variables | A wordcloud</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#example-wrap-up">Example wrap-up</a></li>
+<li><a class="reference internal" href="#specification-guide">Specification guide</a><ul>
+<li><a class="reference internal" href="#general-visualization-arguments">General visualization arguments</a></li>
+<li><a class="reference internal" href="#chart-visualization-arguments">Chart visualization arguments</a></li>
+<li><a class="reference internal" href="#text-visualization-arguments">Text visualization arguments</a></li>
+<li><a class="reference internal" href="#spec-details">Spec details</a><ul>
+<li><a class="reference internal" href="#translation">- translation</a></li>
+<li><a class="reference internal" href="#dateformat">- dateFormat</a></li>
+<li><a class="reference internal" href="#aggregate">- aggregate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="deployment.html">
+                    <span class="icon">&lt;</span><span>Deployment of the data donation task</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+                    <a href="../api/index.html"><span>API Documentation</span><span class="icon">&gt;</span></a>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Boeschoten et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
