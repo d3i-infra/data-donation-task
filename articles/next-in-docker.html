@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Try out Next with Docker &#8212; Port 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic_mod.css?v=9b2032db" />
+    <script src="../_static/documentation_options.js?v=8d563738"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/js/theme.js"></script>
+    <script src="../_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api/index.html" />
+    <link rel="prev" title="Deployment of the data donation task" href="deployment.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="../index.html" title="Go to homepage">Port 1.0.0 documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="../search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Articles</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="introduction-to-data-donation.html">Introduction to Data Donation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-your-own-data-donation-task.html">Creating your own donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="#">Try out Next with Docker</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <section id="try-out-next-with-docker">
+<h1>Try out Next with Docker<a class="headerlink" href="#try-out-next-with-docker" title="Link to this heading">¶</a></h1>
+<p>This tutorial outlines how you can run Next in a docker container.</p>
+<p>This is great for trying out the Next platform and will show you the necessary settings so you could use it in production.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">¶</a></h2>
+<p>In order for you to try out Next you need to set up some prerequisites.</p>
+<section id="unsplash">
+<h3>Unsplash<a class="headerlink" href="#unsplash" title="Link to this heading">¶</a></h3>
+<p>Configure a developer account at <a class="reference external" href="https://unsplash.com/">unsplash</a> and get an API key. You can do this for free.</p>
+<p>Unsplash is used as the source for banner images used to customize studies.</p>
+</section>
+<section id="google-oidc">
+<h3>Google OIDC<a class="headerlink" href="#google-oidc" title="Link to this heading">¶</a></h3>
+<p>Configure a google OIDC connect application in the <a class="reference external" href="https://console.cloud.google.com/welcome?project=stalwart-yen-241815">google cloud console</a>. For the details check the <a class="reference external" href="https://developers.google.com/identity/openid-connect/openid-connect">official instructions</a>.</p>
+<p>Google OIDC (OpenID Connect) is used to manage user authentication and account sign-ins.</p>
+</section>
+</section>
+<section id="run-next-in-a-docker-container">
+<h2>Run Next in a Docker container<a class="headerlink" href="#run-next-in-a-docker-container" title="Link to this heading">¶</a></h2>
+<p>In this step, we will create and run the necessary containers using Docker Compose.</p>
+<p>We are going to create a folder with the following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── docker-compose.yaml
+├── proxy
+│   ├── certs
+│   │   ├── nginx-selfsigned.crt
+│   │   └── nginx-selfsigned.key
+│   └── conf
+│       └── nginx.conf
+</pre></div>
+</div>
+<p>In the next step we are going to create the files.</p>
+<section id="build-the-next-docker-image">
+<h3>Build the Next Docker image<a class="headerlink" href="#build-the-next-docker-image" title="Link to this heading">¶</a></h3>
+<p>Clone or fork <a class="reference external" href="https://github.com/eyra/mono">Next</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into <code class="docutils literal notranslate"><span class="pre">/core</span></code></p>
+<p>and build the image with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span>  <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">VERSION</span><span class="o">=</span><span class="mf">1.0.0</span> <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">BUNDLE</span><span class="o">=</span><span class="bp">self</span> <span class="o">.</span> <span class="o">-</span><span class="n">t</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span><span class="p">:</span><span class="n">latest</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-certificates-for-tls">
+<h3>Setup certificates for TLS<a class="headerlink" href="#setup-certificates-for-tls" title="Link to this heading">¶</a></h3>
+<p>Create certificates and put them in <code class="docutils literal notranslate"><span class="pre">proxy/certs</span></code></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">nodes</span> <span class="o">-</span><span class="n">days</span> <span class="mi">365</span> <span class="o">-</span><span class="n">newkey</span> <span class="n">rsa</span><span class="p">:</span><span class="mi">2048</span> <span class="o">-</span><span class="n">keyout</span> <span class="n">nginx</span><span class="o">-</span><span class="n">selfsigned</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">nginx</span><span class="o">-</span><span class="n">selfsigned</span><span class="o">.</span><span class="n">crt</span>
+</pre></div>
+</div>
+</section>
+<section id="nginx-configuration">
+<h3>Nginx configuration<a class="headerlink" href="#nginx-configuration" title="Link to this heading">¶</a></h3>
+<p>We are going to use Nginx as <a class="reference external" href="https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/">reverse proxy</a>.</p>
+<p>Nginx will be used to provide TLS for our HTTP connections.</p>
+<p>Paste the following nginx configuration in <code class="docutils literal notranslate"><span class="pre">proxy/conf</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># nginx.conf
+events {}
+http {
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name localhost;
+        
+        # Redirect all HTTP requests to HTTPS
+        return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        server_name localhost;
+        
+        if ($scheme != &quot;https&quot;) {
+            return 301 https://$host$request_uri;
+        }
+        
+        location / {
+          allow all;
+          proxy_pass                http://app:8000;
+          proxy_set_header          X-Forwarded-Proto $scheme;
+          proxy_set_header          X-Forwarded-For $remote_addr;
+          proxy_set_header          X-Real-IP $remote_addr;
+          proxy_set_header          Host $http_host;
+          proxy_http_version        1.1;
+          proxy_set_header          Upgrade $http_upgrade;
+          proxy_set_header          Connection &quot;upgrade&quot;;
+          proxy_max_temp_file_size  1m;
+        }
+        
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/nginx-selfsigned.crt;
+        ssl_certificate_key /etc/nginx/certs/nginx-selfsigned.key;
+    }
+}
+</pre></div>
+</div>
+<p>This Nginx configuration works with websocket connections which Next (Phoenix web application) uses.</p>
+</section>
+<section id="docker-compose-yaml">
+<h3>Docker compose yaml<a class="headerlink" href="#docker-compose-yaml" title="Link to this heading">¶</a></h3>
+<p>Now create the docker-compose.yaml:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#docker-compose.yaml</span>
+<span class="n">services</span><span class="p">:</span>
+  <span class="n">app</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">environment</span><span class="p">:</span>
+      <span class="n">APP_NAME</span><span class="p">:</span> <span class="nb">next</span>
+      <span class="n">APP_DOMAIN</span><span class="p">:</span> <span class="n">localhost</span>
+      <span class="n">APP_MAIL_DOMAIN</span><span class="p">:</span> <span class="s2">&quot;@gmail&quot;</span>
+      <span class="n">APP_ADMINS</span><span class="p">:</span> <span class="n">youremail</span><span class="nd">@gmail</span><span class="o">.</span><span class="n">com</span>
+      <span class="n">DB_USER</span><span class="p">:</span> <span class="n">user</span>
+      <span class="n">DB_PASS</span><span class="p">:</span> <span class="n">password</span>
+      <span class="n">DB_HOST</span><span class="p">:</span> <span class="n">db</span>
+      <span class="n">DB_NAME</span><span class="p">:</span> <span class="n">test_database</span>
+      <span class="n">SECRET_KEY_BASE</span><span class="p">:</span> <span class="s2">&quot;aUMZobj7oJn58XIlMGVcwTYrCsAllwDCGlwDCGlwDCGwDChdhsjahdghaggdgdGt7MoQYJtJbA=&quot;</span>
+      <span class="n">STATIC_PATH</span><span class="p">:</span> <span class="s2">&quot;/tmp&quot;</span>
+      <span class="n">UNSPLASH_ACCESS_KEY</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-api-key&gt;&quot;</span>
+      <span class="n">UNSPLASH_APP_NAME</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-app-name&gt;&quot;</span>
+      <span class="n">GOOGLE_SIGN_IN_CLIENT_ID</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-id&gt;&quot;</span>
+      <span class="n">GOOGLE_SIGN_IN_CLIENT_SECRET</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-secret&gt;&quot;</span>
+      <span class="n">STORAGE_SERVICES</span><span class="p">:</span> <span class="s2">&quot;builtin, yoda, azure&quot;</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">app_data</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span>
+    <span class="n">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">db</span>
+
+  <span class="n">db</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">postgres</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">db</span><span class="o">-</span><span class="nb">next</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">environment</span><span class="p">:</span>
+      <span class="n">POSTGRES_USER</span><span class="p">:</span> <span class="n">user</span>
+      <span class="n">POSTGRES_PASSWORD</span><span class="p">:</span> <span class="n">password</span>
+      <span class="n">POSTGRES_DB</span><span class="p">:</span> <span class="n">test_database</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">postgres_data</span><span class="p">:</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">data</span>
+
+  <span class="n">proxy</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">nginx</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">nginx</span>
+    <span class="n">ports</span><span class="p">:</span>
+      <span class="o">-</span> <span class="mi">443</span><span class="p">:</span><span class="mi">443</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">proxy</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">conf</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">conf</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">proxy</span><span class="o">/</span><span class="n">certs</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">certs</span>
+    <span class="n">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">app</span>
+
+<span class="n">volumes</span><span class="p">:</span>
+  <span class="n">postgres_data</span><span class="p">:</span>
+  <span class="n">app_data</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>and replace the following variables with the values you obtained in the previous steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UNSPLASH_ACCESS_KEY</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-api-key&gt;&quot;</span>
+<span class="n">UNSPLASH_APP_NAME</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-app-name&gt;&quot;</span>
+<span class="n">GOOGLE_SIGN_IN_CLIENT_ID</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-id&gt;&quot;</span>
+<span class="n">GOOGLE_SIGN_IN_CLIENT_SECRET</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-secret&gt;&quot;</span>
+</pre></div>
+</div>
+<p>If you want to learn more about the variables you can read the <a class="reference external" href="https://github.com/eyra/mono/blob/master/SELFHOSTING.md">documentation</a>.</p>
+<p>Now you are ready to start the containers with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">compose</span> <span class="n">up</span>
+</pre></div>
+</div>
+<p>Go to <code class="docutils literal notranslate"><span class="pre">https://localhost:80</span></code> and if everything went well you should see Next.</p>
+<p>Note: because you self-signed your TLS certificates your browser will complain: accept all the risks and continue.</p>
+</section>
+</section>
+<section id="next-steps-in-next">
+<h2>Next steps in Next<a class="headerlink" href="#next-steps-in-next" title="Link to this heading">¶</a></h2>
+<p>Now you can play around in Next. If you want to login as admin go to <code class="docutils literal notranslate"><span class="pre">/admin/login</span></code>.</p>
+</section>
+</section>
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+        <div id="show_right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&lt;</span><span>Page contents</span></a></p>
+        </div>
+
+        <div id="right_sidebar">
+            <p><a class="toggle_right_sidebar" href="#"><span class="icon">&gt;</span><span>Page contents:</span></a></p>
+            <div class="page_toc">
+                <ul>
+<li><a class="reference internal" href="#">Try out Next with Docker</a><ul>
+<li><a class="reference internal" href="#prerequisites">Prerequisites</a><ul>
+<li><a class="reference internal" href="#unsplash">Unsplash</a></li>
+<li><a class="reference internal" href="#google-oidc">Google OIDC</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#run-next-in-a-docker-container">Run Next in a Docker container</a><ul>
+<li><a class="reference internal" href="#build-the-next-docker-image">Build the Next Docker image</a></li>
+<li><a class="reference internal" href="#setup-certificates-for-tls">Setup certificates for TLS</a></li>
+<li><a class="reference internal" href="#nginx-configuration">Nginx configuration</a></li>
+<li><a class="reference internal" href="#docker-compose-yaml">Docker compose yaml</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#next-steps-in-next">Next steps in Next</a></li>
+</ul>
+</li>
+</ul>
+
+            </div>
+        </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+                <a href="deployment.html">
+                    <span class="icon">&lt;</span><span>Deployment of the data donation task</span></a>
+                
+            </div>
+
+            <div class="right">
+                
+                    <a href="../api/index.html"><span>API Reference</span><span class="icon">&gt;</span></a>
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Boeschoten et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
