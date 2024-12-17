@@ -75,7 +75,7 @@ def conversations_to_df(chatgpt_zip: str)  -> pd.DataFrame:
 
 
 
-def extraction(chatgpt_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
+def extraction_fun(chatgpt_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
     
     df = conversations_to_df(chatgpt_zip)
@@ -126,46 +126,79 @@ REVIEW_DATA_DESCRIPTION = props.Translatable({
 })
 
 
+#def process(session_id: int):
+#    platform_name = "ChatGPT"
+#
+#    table_list = None
+#    while True:
+#        logger.info("Prompt for file for %s", platform_name)
+#
+#        file_prompt = ph.generate_file_prompt("application/zip")
+#        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
+#
+#        if file_result.__type__ == "PayloadString":
+#            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
+#
+#            # Happy flow: Valid DDP
+#            if validation.get_status_code_id() == 0:
+#                logger.info("Payload for %s", platform_name)
+#                extraction_result = extraction(file_result.value)
+#                table_list = extraction_result
+#                break
+#
+#            # Enter retry flow, reason: if DDP was not a ChatGPT DDP
+#            if validation.get_status_code_id() != 0:
+#                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
+#                retry_prompt = ph.generate_retry_prompt(platform_name)
+#                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
+#
+#                if retry_result.__type__ == "PayloadTrue":
+#                    continue
+#                else:
+#                    logger.info("Skipped during retry flow")
+#                    break
+#
+#        else:
+#            logger.info("Skipped at file selection ending flow")
+#            break
+#
+#    if table_list is not None:
+#        logger.info("Prompt consent; %s", platform_name)
+#        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-chatgpt", REVIEW_DATA_DESCRIPTION, table_list)
+#        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
+#
+#    yield ph.exit(0, "Success")
+#    yield ph.render_end_page()
+
+texts = {
+    "submit_file_header": props.Translatable({
+        "en": "Select your ChatGPT file", 
+        "nl": "Selecteer uw ChatGPT bestand"
+        }),
+    "review_data_header": props.Translatable({
+        "en": "Your ChatGPT data", 
+        "nl": "Uw ChatGPT gegevens"
+    }),
+    "retry_header": props.Translatable({
+        "en": "Try again", 
+        "nl": "Probeer opnieuw"
+    }),
+    "review_data_description": props.Translatable({
+       "en": "Below you will find a currated selection of ChatGPT data. In this case only the conversations you had with ChatGPT are show on screen. The data represented in this way are much more insightfull because you can actually read back the conversations you had with ChatGPT",
+       "nl": "Below you will find a currated selection of ChatGPT data. In this case only the conversations you had with ChatGPT are show on screen. The data represented in this way are much more insightfull because you can actually read back the conversations you had with ChatGPT",
+    }),
+}
+
+
+from port.platforms.flow_builder import DataDonationFlow
+
 def process(session_id: int):
-    platform_name = "ChatGPT"
+    flow = DataDonationFlow(
+        platform_name="ChatGPT", 
+        ddp_categories=DDP_CATEGORIES,
+        texts=texts,
+        extraction_fun=extraction_fun,
+        session_id=session_id,
+    )
 
-    table_list = None
-    while True:
-        logger.info("Prompt for file for %s", platform_name)
-
-        file_prompt = ph.generate_file_prompt("application/zip")
-        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
-
-        if file_result.__type__ == "PayloadString":
-            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
-
-            # Happy flow: Valid DDP
-            if validation.get_status_code_id() == 0:
-                logger.info("Payload for %s", platform_name)
-                extraction_result = extraction(file_result.value)
-                table_list = extraction_result
-                break
-
-            # Enter retry flow, reason: if DDP was not a ChatGPT DDP
-            if validation.get_status_code_id() != 0:
-                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                retry_prompt = ph.generate_retry_prompt(platform_name)
-                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
-
-                if retry_result.__type__ == "PayloadTrue":
-                    continue
-                else:
-                    logger.info("Skipped during retry flow")
-                    break
-
-        else:
-            logger.info("Skipped at file selection ending flow")
-            break
-
-    if table_list is not None:
-        logger.info("Prompt consent; %s", platform_name)
-        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-chatgpt", REVIEW_DATA_DESCRIPTION, table_list)
-        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
-
-    yield ph.exit(0, "Success")
-    yield ph.render_end_page()
+    yield from flow.initialize_default_flow().run()
