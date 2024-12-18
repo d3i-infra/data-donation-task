@@ -1,27 +1,67 @@
 """
 Flow Builder
 
-This module contains an example flow of a ChatGPT data donation study
+This module contains tools to create data donation flows
 """
+
 import logging
+import json
+import io
 
 import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
+    datefmt="%Y-%m-%dT%H:%M:%S%z",
+)
+
+ 
+def should_yield(func):
+    func.is_yieldable = True
+    return func
+
+
+def is_yieldable(func):
+    return getattr(func, 'is_yieldable', False)
 
 
 class DataDonationFlow:
-    def __init__(self, platform_name, ddp_categories, texts, extraction_fun, session_id):
-        self.name = platform_name,
+    def __init__(self, platform_name, ddp_categories, texts, functions, session_id, is_donate_logs):
+        self.name = platform_name
         self.ddp_categories = ddp_categories
         self.texts = texts
-        self.extraction = extraction_fun
+        self.functions = functions
         self.session_id = session_id
+        self.is_donate_logs = is_donate_logs
+        self.log_stream = io.StringIO()
         self.steps = []
+        self._configure_logger()
 
-    def set_session_id(self, session_id):
-        self.session_id = session_id
+    def _configure_logger(self):
+        if self.is_donate_logs:
+            handler_stream = self.log_stream
+            logger.handlers = [] # clear handler
+            handler = logging.StreamHandler(handler_stream)
+            handler.setLevel(logging.INFO)
+            handler.setFormatter(
+                logging.Formatter(
+                    fmt="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
+                    datefmt="%Y-%m-%dT%H:%M:%S%z"
+                )
+            )
+            logger.addHandler(handler)
+
+    def donate_logs(self):
+        log_string = self.log_stream.getvalue()
+        if log_string:
+            log_data = log_string.split("\n")
+        else:
+            log_data = ["no logs"]
+
+        return ph.donate(f"{self.session_id}-tracking.json", json.dumps(log_data))
 
     def add_step(self, step_function):
         self.steps.append(step_function)
@@ -29,21 +69,29 @@ class DataDonationFlow:
 
     def initialize_default_flow(self):
         self.add_step(prompt_file_and_validate_input)
-        self.add_step(extract_and_review_data)
+        self.add_step(extract_data)
+        self.add_step(review_data)
         self.add_step(exit_flow)
         return self
 
     def run(self):
         logger.info("Starting data donation flow for %s", self.name)
-        
+        print(self.name)
+        if self.is_donate_logs:
+            yield self.donate_logs()
+
         data = None
         for  step in self.steps:
-            data = yield from step(self, data)
-        
-        logger.info("Flow completed %s", self.name)
-        return data
+            if is_yieldable(step):
+                data = yield from step(self, data)
+            else:
+                data = step(self, data)
+
+            if self.is_donate_logs:
+                yield self.donate_logs()
 
 
+@should_yield
 def prompt_file_and_validate_input(flow, _):
     logger.info("Prompt for file step for %s", flow.name)
     ddp_zip = None
@@ -76,8 +124,13 @@ def prompt_file_and_validate_input(flow, _):
     return ddp_zip
 
 
-def extract_and_review_data(flow, zip):
-    table_list = flow.extraction(zip)
+def extract_data(flow, zip):
+    table_list = flow.functions["extraction"](zip)
+    return table_list
+
+
+@should_yield
+def review_data(flow, table_list):
     if table_list != None:
         logger.info("Ask participant to review data; %s", flow.name)
         review_data_prompt = ph.generate_review_data_prompt(f"{flow.session_id}-chatgpt", flow.texts["review_data_description"], table_list)
@@ -86,7 +139,7 @@ def extract_and_review_data(flow, zip):
         logger.info("No data got extracted %s", flow.name)
 
 
+@should_yield
 def exit_flow(_, __):
     yield ph.exit(0, "Success")
     yield ph.render_end_page()
-

@@ -21,12 +21,19 @@ to:
     from port.platforms.instagram import process
 
 Available platforms
--------------------
+===================
+
+ChatGPT
+-------
 
 .. automodule:: port.platforms.chatgpt
-
 
 Instagram
 ---------
 
 .. automodule:: port.platforms.instagram
+
+TikTok
+---------
+
+.. automodule:: port.platforms.tiktok
