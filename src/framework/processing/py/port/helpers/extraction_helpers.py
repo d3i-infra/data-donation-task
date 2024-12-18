@@ -249,7 +249,7 @@ def epoch_to_iso(epoch_timestamp: str | int | float) -> str:
         epoch_timestamp = int(float(epoch_timestamp)) 
         out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
     except (OverflowError, OSError, ValueError, TypeError) as e:
-        logger.error("Could not convert epoch time timestamp, %s", e)
+        logger.debug("Could not convert epoch time timestamp, %s", e)
 
     return out
 

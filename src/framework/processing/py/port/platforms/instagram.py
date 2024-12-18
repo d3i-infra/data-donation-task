@@ -2,16 +2,17 @@
 Instagram
 
 This module contains an example flow of a Instagram data donation study
+
+To see what type of DDPs from Instagram it is designed for check DDP_CATEGORIES
 """
+
 import logging
 
 import pandas as pd
 
 import port.api.props as props
 import port.helpers.extraction_helpers as eh
-import port.helpers.port_helpers as ph
-import port.helpers.validate as validate
-
+from port.platforms.flow_builder import DataDonationFlow
 from port.helpers.validate import (
     DDPCategory,
     DDPFiletype,
@@ -341,7 +342,7 @@ def liked_posts_to_df(instagram_zip: str) -> pd.DataFrame:
 
 
 
-def extraction(instagram_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
+def extraction_fun(instagram_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
     df = posts_viewed_to_df(instagram_zip)
@@ -546,68 +547,39 @@ def extraction(instagram_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
     return tables_to_render
 
 
-# TEXTS
-SUBMIT_FILE_HEADER = props.Translatable({
-    "en": "Select your Instagram file", 
-    "nl": "Selecteer uw Instagram bestand"
-})
+# Configurables for the data donation flow
 
-REVIEW_DATA_HEADER = props.Translatable({
-    "en": "Your Instagram data", 
-    "nl": "Uw Instagram gegevens"
-})
+TEXTS = {
+    "submit_file_header": props.Translatable({
+        "en": "Select your Instagram file", 
+        "nl": "Selecteer uw Instagram bestand"
+    }),
+    "review_data_header": props.Translatable({
+        "en": "Your Instagram data", 
+        "nl": "Uw Instagram gegevens"
+    }),
+    "retry_header": props.Translatable({
+        "en": "Try again", 
+        "nl": "Probeer opnieuw"
+    }),
+    "review_data_description": props.Translatable({
+       "en": "Below you will find a currated selection of Instagram data.",
+       "nl": "Below you will find a currated selection of Instagram data.",
+    }),
+}
 
-RETRY_HEADER = props.Translatable({
-    "en": "Try again", 
-    "nl": "Probeer opnieuw"
-})
-
-REVIEW_DATA_DESCRIPTION = props.Translatable({
-   "en": "Below you will find a currated selection of Instagram data.",
-   "nl": "Below you will find a currated selection of Instagram data.",
-})
-
+FUNCTIONS = {
+    "extraction": extraction_fun
+}
 
 def process(session_id: int):
-    platform_name = "Instagram"
+    flow = DataDonationFlow(
+        platform_name="Instagram", 
+        ddp_categories=DDP_CATEGORIES,
+        texts=TEXTS,
+        functions=FUNCTIONS,
+        session_id=session_id,
+        is_donate_logs=False,
+    )
 
-    table_list = None
-    while True:
-        logger.info("Prompt for file for %s", platform_name)
-
-        file_prompt = ph.generate_file_prompt("application/zip")
-        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
-
-        if file_result.__type__ == "PayloadString":
-            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
-
-            # Happy flow: Valid DDP
-            if validation.get_status_code_id() == 0:
-                logger.info("Payload for %s", platform_name)
-                extraction_result = extraction(file_result.value)
-                table_list = extraction_result
-                break
-
-            # Enter retry flow, reason: if DDP was not a Instagram DDP
-            if validation.get_status_code_id() != 0:
-                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                retry_prompt = ph.generate_retry_prompt(platform_name)
-                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
-
-                if retry_result.__type__ == "PayloadTrue":
-                    continue
-                else:
-                    logger.info("Skipped during retry flow")
-                    break
-
-        else:
-            logger.info("Skipped at file selection ending flow")
-            break
-
-    if table_list is not None:
-        logger.info("Prompt consent; %s", platform_name)
-        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-instagram", REVIEW_DATA_DESCRIPTION, table_list)
-        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
-
-    yield ph.exit(0, "Success")
-    yield ph.render_end_page()
+    yield from flow.initialize_default_flow().run()

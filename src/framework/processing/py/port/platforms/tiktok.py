@@ -1,22 +1,21 @@
 """
 TikTok
 
-This module contains an example flow of a TikTok data donation study
+This module contains an example flow of a TikTok data donation study.
+
+To see what type of DDPs from TikTok it is designed for check DDP_CATEGORIES
 """
 
 from typing import Dict
 import logging
 import io
 import re
-import re
 
 import pandas as pd
 
 import port.api.props as props
 import port.helpers.extraction_helpers as eh
-import port.helpers.port_helpers as ph
-import port.helpers.validate as validate
-
+from port.platforms.flow_builder import DataDonationFlow
 from port.helpers.validate import (
     DDPCategory,
     DDPFiletype,
@@ -280,7 +279,7 @@ def settings_to_df(tiktok_zip: str):
 
 
 
-def extraction(tiktok_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
+def extraction_fun(tiktok_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
     data = browsing_history_to_df(tiktok_zip)
@@ -409,68 +408,38 @@ def extraction(tiktok_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
     return tables_to_render
 
 
-# TEXTS
-SUBMIT_FILE_HEADER = props.Translatable({
-    "en": "Select your TikTok file", 
-    "nl": "Selecteer uw TikTok bestand"
-})
+TEXTS = {
+    "submit_file_header": props.Translatable({
+        "en": "Select your TikTok file", 
+        "nl": "Selecteer uw TikTok bestand"
+    }),
+    "review_data_header": props.Translatable({
+        "en": "Your TikTok data", 
+        "nl": "Uw TikTok gegevens"
+    }),
+    "retry_header": props.Translatable({
+        "en": "Try again", 
+        "nl": "Probeer opnieuw"
+    }),
+    "review_data_description": props.Translatable({
+       "en": "Below you will find a selection of your TikTok data.",
+       "nl": "Hieronder vindt u een geselecteerde weergave van uw TikTok-gegevens.",
+    }),
+}
 
-REVIEW_DATA_HEADER = props.Translatable({
-    "en": "Your TikTok data", 
-    "nl": "Uw TikTok gegevens"
-})
-
-RETRY_HEADER = props.Translatable({
-    "en": "Try again", 
-    "nl": "Probeer opnieuw"
-})
-
-REVIEW_DATA_DESCRIPTION = props.Translatable({
-   "en": "Below you will find a selection of your TikTok data.",
-   "nl": "Hieronder vindt u een geselecteerde weergave van uw TikTok-gegevens.",
-})
+FUNCTIONS = {
+    "extraction": extraction_fun
+}
 
 
 def process(session_id: int):
-    platform_name = "TikTok"
+    flow = DataDonationFlow(
+        platform_name="TikTok", 
+        ddp_categories=DDP_CATEGORIES,
+        texts=TEXTS,
+        functions=FUNCTIONS,
+        session_id=session_id,
+        is_donate_logs=False,
+    )
 
-    table_list = None
-    while True:
-        logger.info("Prompt for file for %s", platform_name)
-
-        file_prompt = ph.generate_file_prompt("application/zip")
-        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
-
-        if file_result.__type__ == "PayloadString":
-            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
-
-            # Happy flow: Valid DDP
-            if validation.get_status_code_id() == 0:
-                logger.info("Payload for %s", platform_name)
-                extraction_result = extraction(file_result.value)
-                table_list = extraction_result
-                break
-
-            # Enter retry flow, reason: if DDP was not a Valid DDP
-            if validation.get_status_code_id() != 0:
-                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                retry_prompt = ph.generate_retry_prompt(platform_name)
-                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
-
-                if retry_result.__type__ == "PayloadTrue":
-                    continue
-                else:
-                    logger.info("Skipped during retry flow")
-                    break
-
-        else:
-            logger.info("Skipped at file selection ending flow")
-            break
-
-    if table_list is not None:
-        logger.info("Prompt consent; %s", platform_name)
-        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-tiktok", REVIEW_DATA_DESCRIPTION, table_list)
-        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
-
-    yield ph.exit(0, "Success")
-    yield ph.render_end_page()
+    yield from flow.initialize_default_flow().run()
