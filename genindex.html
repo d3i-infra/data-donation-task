@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="./">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Index &#8212; Port 1.0.0 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=80d5e7a1" />
+    <link rel="stylesheet" type="text/css" href="_static/basic_mod.css?v=9b2032db" />
+    <script src="_static/documentation_options.js?v=8d563738"></script>
+    <script src="_static/doctools.js?v=9bcbadda"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="_static/js/theme.js"></script>
+    <script src="_static/js/petite-vue.js"></script>
+    <link rel="index" title="Index" href="#" />
+    <link rel="search" title="Search" href="search.html" /> 
+  </head><body data-dark_mode_code_blocks="true">
+
+<div id="top_nav">
+    
+
+    <nav>
+        
+            
+        
+
+        <p id="toggle_sidebar">
+            <a href="#" title="Toggle sidebar">|||</a>
+        </p>
+        <h1><a href="index.html" title="Go to homepage">Port 1.0.0 documentation</a></h1>
+
+        <a id="mode_toggle" href="#" @click.prevent="handleClick" :title="mode">
+    <template v-if="mode == 'light'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_light"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M67.48,18.073c1.913,-1.912 1.913,-5.018 0,-6.931c-1.912,-1.912 -5.018,-1.912 -6.931,0l-6.798,6.799c-1.912,1.912 -1.912,5.018 0,6.931c1.913,1.912 5.018,1.912 6.931,-0l6.798,-6.799Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.728,61.108c1.912,-1.913 1.912,-5.018 -0,-6.931c-1.913,-1.913 -5.019,-1.913 -6.931,-0l-6.799,6.798c-1.912,1.913 -1.912,5.019 0,6.931c1.913,1.913 5.019,1.913 6.931,0l6.799,-6.798Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.682,54.177c-1.913,-1.913 -5.018,-1.913 -6.931,-0c-1.912,1.913 -1.912,5.018 0,6.931l6.798,6.798c1.913,1.913 5.019,1.913 6.931,0c1.913,-1.912 1.913,-5.018 0,-6.931l-6.798,-6.798Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M4.901,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901l-0,9.614c-0,2.705 2.196,4.901 4.9,4.901c2.705,-0 4.901,-2.196 4.901,-4.901l0,-9.614Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M18.929,11.142c-1.912,-1.912 -5.018,-1.912 -6.931,0c-1.912,1.913 -1.912,5.019 0,6.931l6.799,6.799c1.912,1.912 5.018,1.912 6.931,-0c1.912,-1.913 1.912,-5.019 -0,-6.931l-6.799,-6.799Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.108,34.623c-2.705,0 -4.901,2.196 -4.901,4.901c-0,2.705 2.196,4.901 4.901,4.901l9.614,0c2.705,0 4.901,-2.196 4.901,-4.901c-0,-2.705 -2.196,-4.901 -4.901,-4.901l-9.614,0Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'dark'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_dark"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><circle cx="39.311" cy="39.524" r="15.734" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.212,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.901,2.196 -4.901,4.901c0,2.705 2.197,4.901 4.901,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.662,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.989,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.732,61.103c1.91,-1.91 1.91,-5.011 0,-6.921l-0.009,-0.01c-1.91,-1.91 -5.012,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.909,1.91 5.011,1.91 6.92,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.672,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.52,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l-0,-0.01c-0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.212,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.901,2.196 -4.901,4.901c0,2.704 2.197,4.9 4.901,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.73,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 -0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.098,34.623c-2.699,0 -4.891,2.192 -4.891,4.892l-0,0.019c-0,2.699 2.192,4.891 4.891,4.891c2.7,0 4.892,-2.192 4.892,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.892,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+
+    <template v-if="mode == 'darkest'">
+        <svg width="100%" height="100%" viewBox="0 0 79 80" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:space="preserve" style="fill-rule:evenodd;clip-rule:evenodd;stroke-linejoin:round;stroke-miterlimit:2;"><g id="mode_darkest"><rect id="Bounds" x="0" y="-0" width="78.623" height="79.049" style="fill:none;"/><path d="M39.315,23.791c8.684,-0 15.734,7.05 15.734,15.733c0,8.684 -7.05,15.734 -15.734,15.734c-8.683,0 -15.733,-7.05 -15.733,-15.734c-0,-8.683 7.05,-15.733 15.733,-15.733Zm0,4.737c6.069,0 10.997,4.927 10.997,10.996c-0,6.069 -4.928,10.996 -10.997,10.996c-6.068,0 -10.996,-4.927 -10.996,-10.996c0,-6.069 4.928,-10.996 10.996,-10.996Z" style="fill:#fff;"/><g id="beams"><g id="beam"><path id="beam1" serif:id="beam" d="M44.216,14.515c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,0 -4.9,2.196 -4.9,4.901c-0,2.705 2.196,4.901 4.9,4.901c2.705,0 4.901,-2.196 4.901,-4.901Z" style="fill:#fff;"/></g><g id="beam2" serif:id="beam"><path id="beam3" serif:id="beam" d="M60.666,24.892c1.902,-1.902 1.902,-4.99 0,-6.892l-0.04,-0.039c-1.901,-1.902 -4.989,-1.902 -6.891,-0c-1.901,1.901 -1.901,4.989 0,6.891l0.04,0.04c1.902,1.901 4.99,1.901 6.891,-0Z" style="fill:#fff;"/></g><g id="beam4" serif:id="beam"><path id="beam5" serif:id="beam" d="M25.737,61.103c1.909,-1.91 1.909,-5.011 -0,-6.921l-0.01,-0.01c-1.91,-1.91 -5.011,-1.91 -6.921,-0c-1.91,1.91 -1.91,5.011 -0,6.921l0.01,0.01c1.91,1.91 5.011,1.91 6.921,-0Z" style="fill:#fff;"/></g><g id="beam6" serif:id="beam"><path id="beam7" serif:id="beam" d="M60.676,54.167c-1.907,-1.907 -5.004,-1.907 -6.911,0l-0.02,0.02c-1.907,1.907 -1.907,5.004 0,6.911c1.907,1.907 5.004,1.907 6.911,-0l0.02,-0.02c1.907,-1.907 1.907,-5.004 0,-6.911Z" style="fill:#fff;"/></g><g id="beam8" serif:id="beam"><path id="beam9" serif:id="beam" d="M14.524,34.623c-2.702,0 -4.896,2.194 -4.896,4.896l0,0.01c0,2.702 2.194,4.896 4.896,4.896c2.702,0 4.896,-2.194 4.896,-4.896l0,-0.01c0,-2.702 -2.194,-4.896 -4.896,-4.896Z" style="fill:#fff;"/></g><g id="beam10" serif:id="beam"><path id="beam11" serif:id="beam" d="M44.216,64.534c0,-2.705 -2.196,-4.901 -4.901,-4.901c-2.704,-0 -4.9,2.196 -4.9,4.901c-0,2.704 2.196,4.9 4.9,4.9c2.705,0 4.901,-2.196 4.901,-4.9Z" style="fill:#fff;"/></g><g id="beam12" serif:id="beam"><path id="beam13" serif:id="beam" d="M25.734,17.943c-1.911,-1.911 -5.015,-1.911 -6.926,0l-0.005,0.005c-1.911,1.911 -1.911,5.015 0,6.926c1.911,1.911 5.015,1.911 6.926,0l0.005,-0.005c1.911,-1.911 1.911,-5.014 0,-6.926Z" style="fill:#fff;"/></g><g id="beam14" serif:id="beam"><path id="beam15" serif:id="beam" d="M64.103,34.623c-2.7,0 -4.892,2.192 -4.892,4.892l-0,0.019c-0,2.699 2.192,4.891 4.892,4.891c2.699,0 4.891,-2.192 4.891,-4.891l0,-0.019c0,-2.7 -2.192,-4.892 -4.891,-4.892Z" style="fill:#fff;"/></g></g></g></svg>
+    </template>
+</a>
+
+<script>
+(function() {
+    const LOCAL_STORAGE_KEY = 'piccoloThemeMode'
+
+    var initialMode = localStorage.getItem(LOCAL_STORAGE_KEY)
+
+    if (initialMode) {
+        // Make sure the value in local storage is valid
+        if (['light', 'dark', 'darkest'].indexOf(initialMode) == -1) {
+            initialMode = 'light'
+            localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+        }
+    } else {
+        // Check if the client prefers dark mode
+        if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+            initialMode = 'dark'
+        } else {
+            initialMode = 'light'
+        }
+        localStorage.setItem(LOCAL_STORAGE_KEY, initialMode)
+    }
+
+    document.documentElement.dataset.mode = initialMode
+
+    PetiteVue.createApp({
+        'mode': initialMode,
+        handleClick() {
+            let currentMode = this.mode
+
+            if (currentMode == 'light') {
+                this.mode = 'dark'
+            } else if (currentMode == 'dark') {
+                this.mode = 'darkest'
+            } else if (currentMode == 'darkest') {
+                this.mode = 'light'
+            }
+
+            document.documentElement.dataset.mode = this.mode
+            localStorage.setItem(LOCAL_STORAGE_KEY, this.mode)
+
+            console.log(this.mode)
+        }
+    }).mount('#mode_toggle')
+})()
+</script>
+            <p class="mobile_search_link">
+                <a href="search.html" title="Search">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 65 64" fill-rule="evenodd" stroke-linejoin="round" stroke-miterlimit="2">
+                        <path d="M14.873 40.009c-2.315-3.943-3.642-8.532-3.642-13.429C11.231 11.91 23.141 0 37.811 0s26.58 11.91 26.58 26.58-11.91 26.58-26.58 26.58a26.44 26.44 0 0 1-14.277-4.161L9.739 62.794a3.12 3.12 0 0 1-4.413 0L.913 58.382c-1.217-1.218-1.217-3.196 0-4.413l13.96-13.96zM37.811 8.054c10.225 0 18.526 8.301 18.526 18.526s-8.301 18.526-18.526 18.526-18.526-8.301-18.526-18.526S27.586 8.054 37.811 8.054z" fill="#fff" />
+                    </svg>
+                </a>
+            </p>
+        
+
+        <div class="searchbox_wrapper">
+            
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+    </nav>
+</div>
+
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper"><ul>
+<li class="toctree-l1"><a class="reference internal" href="articles/index.html">Articles</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="api/index.html">API Reference</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="standard_scripts/index.html">Platform Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="standard_scripts/index.html#available-platforms">Available platforms</a></li>
+</ul>
+
+        </div>
+      </div>
+
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+
+<h1 id="index">Index</h1>
+
+<div class="genindex-jumpbox">
+ <a href="#C"><strong>C</strong></a>
+ | <a href="#D"><strong>D</strong></a>
+ | <a href="#E"><strong>E</strong></a>
+ | <a href="#F"><strong>F</strong></a>
+ | <a href="#G"><strong>G</strong></a>
+ | <a href="#H"><strong>H</strong></a>
+ | <a href="#I"><strong>I</strong></a>
+ | <a href="#J"><strong>J</strong></a>
+ | <a href="#L"><strong>L</strong></a>
+ | <a href="#M"><strong>M</strong></a>
+ | <a href="#O"><strong>O</strong></a>
+ | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
+ | <a href="#R"><strong>R</strong></a>
+ | <a href="#S"><strong>S</strong></a>
+ | <a href="#T"><strong>T</strong></a>
+ | <a href="#V"><strong>V</strong></a>
+ 
+</div>
+<h2 id="C">C</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConfirm.cancel">cancel (port.api.props.PropsUIPromptConfirm attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoice.choices">choices (port.api.props.PropsUIQuestionMultipleChoice attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.choices">(port.api.props.PropsUIQuestionMultipleChoiceCheckbox attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="D">D</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.data_frame">data_frame (port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput.ddp_categories_lookup">ddp_categories_lookup (port.helpers.validate.ValidateInput attribute)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.DDPCategory">DDPCategory (class in port.helpers.validate)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.DDPFiletype">DDPFiletype (class in port.helpers.validate)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.delete_option">delete_option (port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.description">description (port.api.props.PropsUIPromptConsentForm attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.description">(port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptFileInput.description">(port.api.props.PropsUIPromptFileInput attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptFileInputMultiple.description">(port.api.props.PropsUIPromptFileInputMultiple attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptProgress.description">(port.api.props.PropsUIPromptProgress attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptQuestionnaire.description">(port.api.props.PropsUIPromptQuestionnaire attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptRadioInput.description">(port.api.props.PropsUIPromptRadioInput attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.dict_denester">dict_denester() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.port_helpers.donate">donate() (in module port.helpers.port_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.donate_button">donate_button (port.api.props.PropsUIPromptConsentForm attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.donate_question">donate_question (port.api.props.PropsUIPromptConsentForm attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="E">E</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.epoch_to_iso">epoch_to_iso() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.port_helpers.exit">exit() (in module port.helpers.port_helpers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptFileInput.extensions">extensions (port.api.props.PropsUIPromptFileInput attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptFileInputMultiple.extensions">(port.api.props.PropsUIPromptFileInputMultiple attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.extract_file_from_zip">extract_file_from_zip() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="F">F</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.FileNotFoundInZipError">FileNotFoundInZipError</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.find_item">find_item() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.find_items">find_items() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.fix_ascii_string">fix_ascii_string() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.fix_latin1_string">fix_latin1_string() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.folded">folded (port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPageDonation.footer">footer (port.api.props.PropsUIPageDonation attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="G">G</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.port_helpers.generate_file_prompt">generate_file_prompt() (in module port.helpers.port_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.port_helpers.generate_retry_prompt">generate_retry_prompt() (in module port.helpers.port_helpers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.port_helpers.generate_review_data_prompt">generate_review_data_prompt() (in module port.helpers.port_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput.get_status_code_id">get_status_code_id() (port.helpers.validate.ValidateInput method)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="H">H</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPageDonation.header">header (port.api.props.PropsUIPageDonation attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="I">I</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.id">id (port.api.props.PropsUIPromptConsentForm attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.id">(port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoice.id">(port.api.props.PropsUIQuestionMultipleChoice attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.id">(port.api.props.PropsUIQuestionMultipleChoiceCheckbox attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionOpen.id">(port.api.props.PropsUIQuestionOpen attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.RadioItem.id">(port.api.props.RadioItem attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput.infer_ddp_category">infer_ddp_category() (port.helpers.validate.ValidateInput method)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptRadioInput.items">items (port.api.props.PropsUIPromptRadioInput attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="J">J</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.json_dumper">json_dumper() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="L">L</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.validate.Language">Language (class in port.helpers.validate)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="M">M</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptProgress.message">message (port.api.props.PropsUIPromptProgress attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.meta_tables">meta_tables (port.api.props.PropsUIPromptConsentForm attribute)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="api/api.html#module-port.api.props">port.api.props</a>
+</li>
+        <li><a href="api/api.html#module-port.helpers.extraction_helpers">port.helpers.extraction_helpers</a>
+</li>
+        <li><a href="api/api.html#module-port.helpers.port_helpers">port.helpers.port_helpers</a>
+</li>
+        <li><a href="api/api.html#module-port.helpers.validate">port.helpers.validate</a>
+</li>
+        <li><a href="standard_scripts/index.html#module-port.platforms.chatgpt">port.platforms.chatgpt</a>
+</li>
+        <li><a href="standard_scripts/index.html#module-port.platforms.instagram">port.platforms.instagram</a>
+</li>
+        <li><a href="standard_scripts/index.html#module-port.platforms.tiktok">port.platforms.tiktok</a>
+</li>
+      </ul></li>
+  </ul></td>
+</tr></table>
+
+<h2 id="O">O</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConfirm.ok">ok (port.api.props.PropsUIPromptConfirm attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="P">P</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptProgress.percentage">percentage (port.api.props.PropsUIPromptProgress attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPageDonation.platform">platform (port.api.props.PropsUIPageDonation attribute)</a>
+</li>
+      <li>
+    port.api.props
+
+      <ul>
+        <li><a href="api/api.html#module-port.api.props">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.helpers.extraction_helpers
+
+      <ul>
+        <li><a href="api/api.html#module-port.helpers.extraction_helpers">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.helpers.port_helpers
+
+      <ul>
+        <li><a href="api/api.html#module-port.helpers.port_helpers">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.helpers.validate
+
+      <ul>
+        <li><a href="api/api.html#module-port.helpers.validate">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.platforms.chatgpt
+
+      <ul>
+        <li><a href="standard_scripts/index.html#module-port.platforms.chatgpt">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.platforms.instagram
+
+      <ul>
+        <li><a href="standard_scripts/index.html#module-port.platforms.instagram">module</a>
+</li>
+      </ul></li>
+      <li>
+    port.platforms.tiktok
+
+      <ul>
+        <li><a href="standard_scripts/index.html#module-port.platforms.tiktok">module</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIFooter">PropsUIFooter (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIHeader">PropsUIHeader (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPageDonation">PropsUIPageDonation (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPageEnd">PropsUIPageEnd (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConfirm">PropsUIPromptConfirm (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm">PropsUIPromptConsentForm (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable">PropsUIPromptConsentFormTable (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptFileInput">PropsUIPromptFileInput (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptFileInputMultiple">PropsUIPromptFileInputMultiple (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptProgress">PropsUIPromptProgress (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptQuestionnaire">PropsUIPromptQuestionnaire (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptRadioInput">PropsUIPromptRadioInput (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoice">PropsUIQuestionMultipleChoice (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoiceCheckbox">PropsUIQuestionMultipleChoiceCheckbox (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIQuestionOpen">PropsUIQuestionOpen (class in port.api.props)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoice.question">question (port.api.props.PropsUIQuestionMultipleChoice attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.question">(port.api.props.PropsUIQuestionMultipleChoiceCheckbox attribute)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionOpen.question">(port.api.props.PropsUIQuestionOpen attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptQuestionnaire.questions">questions (port.api.props.PropsUIPromptQuestionnaire attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="R">R</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.RadioItem">RadioItem (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.read_csv_from_bytes">read_csv_from_bytes() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.read_csv_from_bytes_to_df">read_csv_from_bytes_to_df() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.read_json_from_bytes">read_json_from_bytes() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.read_json_from_file">read_json_from_file() (in module port.helpers.extraction_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.port_helpers.render_end_page">render_end_page() (in module port.helpers.port_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.port_helpers.render_page">render_page() (in module port.helpers.port_helpers)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.replace_months">replace_months() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="S">S</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput.set_current_status_code_by_id">set_current_status_code_by_id() (port.helpers.validate.ValidateInput method)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.extraction_helpers.sort_isotimestamp_empty_timestamp_last">sort_isotimestamp_empty_timestamp_last() (in module port.helpers.extraction_helpers)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput.status_codes_lookup">status_codes_lookup (port.helpers.validate.ValidateInput attribute)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.StatusCode">StatusCode (class in port.helpers.validate)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="T">T</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.tables">tables (port.api.props.PropsUIPromptConsentForm attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConfirm.text">text (port.api.props.PropsUIPromptConfirm attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.title">title (port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptRadioInput.title">(port.api.props.PropsUIPromptRadioInput attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="api/api.html#port.api.props.PropsUIFooter.toDict">toDict() (port.api.props.PropsUIFooter method)</a>
+
+      <ul>
+        <li><a href="api/api.html#port.api.props.PropsUIHeader.toDict">(port.api.props.PropsUIHeader method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPageDonation.toDict">(port.api.props.PropsUIPageDonation method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPageEnd.toDict">(port.api.props.PropsUIPageEnd method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptConfirm.toDict">(port.api.props.PropsUIPromptConfirm method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.toDict">(port.api.props.PropsUIPromptConsentForm method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.toDict">(port.api.props.PropsUIPromptConsentFormTable method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptFileInput.toDict">(port.api.props.PropsUIPromptFileInput method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptFileInputMultiple.toDict">(port.api.props.PropsUIPromptFileInputMultiple method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptProgress.toDict">(port.api.props.PropsUIPromptProgress method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptQuestionnaire.toDict">(port.api.props.PropsUIPromptQuestionnaire method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIPromptRadioInput.toDict">(port.api.props.PropsUIPromptRadioInput method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoice.toDict">(port.api.props.PropsUIQuestionMultipleChoice method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionMultipleChoiceCheckbox.toDict">(port.api.props.PropsUIQuestionMultipleChoiceCheckbox method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.PropsUIQuestionOpen.toDict">(port.api.props.PropsUIQuestionOpen method)</a>
+</li>
+        <li><a href="api/api.html#port.api.props.Translatable.toDict">(port.api.props.Translatable method)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.Translatable">Translatable (class in port.api.props)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.translate_meta_tables">translate_meta_tables() (port.api.props.PropsUIPromptConsentForm method)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentForm.translate_tables">translate_tables() (port.api.props.PropsUIPromptConsentForm method)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.Translations">Translations (class in port.api.props)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="V">V</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.helpers.validate.validate_zip">validate_zip() (in module port.helpers.validate)</a>
+</li>
+      <li><a href="api/api.html#port.helpers.validate.ValidateInput">ValidateInput (class in port.helpers.validate)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="api/api.html#port.api.props.RadioItem.value">value (port.api.props.RadioItem attribute)</a>
+</li>
+      <li><a href="api/api.html#port.api.props.PropsUIPromptConsentFormTable.visualizations">visualizations (port.api.props.PropsUIPromptConsentFormTable attribute)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+
+
+            <div class="clearer"></div>
+          </div>
+        </div>
+      </div>
+    
+
+      <div class="clearer"></div>
+    </div>
+    <div class="button_nav_wrapper">
+        <div class="button_nav">
+            <div class="left">
+                
+            </div>
+
+            <div class="right">
+                
+            </div>
+        </div>
+    </div>
+
+
+    <div class="footer" role="contentinfo">
+    &#169; Copyright 2024, Boeschoten et al..
+      Created using <a href="https://www.sphinx-doc.org/">Sphinx</a> 8.1.3.
+    </div>
+
+<p id="theme_credit">Styled using the <a href="https://github.com/piccolo-orm/piccolo_theme">Piccolo Theme</a></p>
+  </body>
+</html>
