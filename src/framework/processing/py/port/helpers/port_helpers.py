@@ -138,6 +138,33 @@ def generate_review_data_prompt(
     )
 
 
+def generate_radio_prompt(
+        description: props.Translatable,
+        list_of_options: list[str]
+) -> props.PropsUIPromptRadioInput:
+    """
+    Generates a radio input form with a list of options and a description.
+
+    Args:
+        description (props.Translatable): A translatable description text for the radio prompt.
+        list_of_options (list[str]): A list of options to be shown in the prompt.
+
+    Returns:
+        props.PropsUIPromptRadioInput: A structured radio input form object.
+    """
+    title = props.Translatable({
+        "en": "",
+        "nl": ""
+    })
+    radio_input = [{"id": index, "value": option} for index, option in enumerate(list_of_options)]
+
+    return props.PropsUIPromptRadioInput(
+        title=title, 
+        description=description, 
+        items=radio_input
+    )
+
+
 def donate(key: str, json_string: str) -> CommandSystemDonate:
     """
     Initiates a donation process using the provided key and data.
