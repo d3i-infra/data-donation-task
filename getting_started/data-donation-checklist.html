@@ -1,0 +1,466 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Data donation checklist &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/data-donation-checklist';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="API Reference" href="../api/index.html" />
+    <link rel="prev" title="Try out Next with Docker" href="next-in-docker.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/data-donation-checklist.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Data donation checklist</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="data-donation-checklist">
+<h1>Data donation checklist<a class="headerlink" href="#data-donation-checklist" title="Link to this heading">#</a></h1>
+<p>Writing data donation scripts can be challenging due to the diverse nature of data download packages (DDPs) your participants will try to submit.
+If your participants try to submit a DDP that you did not anticipate your extraction might fail, or your script might crash, in that case you will end up with a non-response and a frustrated participant.</p>
+<p>In order to minimize the number of problems you encounter. We developed a list of points you can pay attention to when developing scripts or performing your own study.</p>
+<p><strong>Inspect at least 5 DDPs from persons in the population you are going to sample from</strong></p>
+<p>Because DDPs will be different for different people, you need to inspect a couple of them (preferably from people from your target population) to learn what those differences are.
+You need to verify that the extraction you have in mind works for all DDPs you might encounter.</p>
+<p><strong>DDP formats will change over time</strong></p>
+<p>DDP formats will change over time. Organization providing you with a DDP are under no obligation to keep the format of their DDP the same. The formats could change during data collection, be mindful of this fact.
+Before going live with a study request a fresh package of your own and check whether your extraction still works as expected, and in the worst case scenario be ready to change your script during your data donation study.</p>
+<p><strong>Validate the DDPs your participant submit and log the results</strong></p>
+<p>This is crucial to do for two reasons:</p>
+<ol class="arabic simple">
+<li><p>If there are multiple versions of a DDP, you need to know which version the participant submitted so you can handle it appropriately. As an example consider the Youtube DDP: depending on the language setting files in the DDP are named differently. Another example is for the Instagram DDPs, keys in json files can be different depending on the language.</p></li>
+<li><p>You probably want to give participants an incentive whenever they did a serious attempt of donating their data. In order to know whether they did a serious attempt you need to validate their DDP to see whether they submitted a package you expect. Example: a participant wants to participate in your study, but finds out its way too much work to request and download a DDP. They submit a random zipfile containing garbage, and they claim they completed the process succesfully. The only way for you to verify whether the participant gave it a fair shot is, to check what they submitted and why that did not result in you receiving data from that participant (If you would have received data its easy to verify they participated).</p></li>
+</ol>
+<p><strong>Write your extraction so it matches the DDP request defaults</strong></p>
+<p>Often when requesting a DDP participants have a choice, for example you can request a portion of the DDP in html format or json format. The most human readible format (html) is often the default. It will be worth while to tailor your extraction script to the request defaults because participants will not read your instructions where you tell them to get the DDP in json format instead of html. This goes wrong quite often.</p>
+<p>Our way of dealing with this is to bite the bullet and deal with the default DDP formats. This prevents mistakes and keeps the requests instruction for the participant as simple as possible.
+Another way of dealing with it is to provide feedback to the participant whenever you detected they submitted the DDP in a format you did not anticipate.</p>
+<p><strong>Make sure your code will not crash</strong></p>
+<p>A crash in your code causes the data donation task to be stuck. The participant will see an error screen with the stacktrace displayed. You don’t want this to happen. Carefull programming can prevent your code from crashing.
+A common cause for crashes is trying to access a key value pair in a dict that does not exist or sorting a <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code> column that does not exist. Most crashes will be caused by your expectation that the extraction is in a certain format, while in some cases it won’t be.</p>
+<p><strong>Make the least amount of assumptions possible about the data in a DDP</strong></p>
+<p>The more assumptions you make about the data the more opportunities your code has to fail. Some examples:</p>
+<ul class="simple">
+<li><p>Date parsing: Only parse date when its absolutely required. Date formats can be wildly different between participants, anticipating them all or writing code that can parse all dates you might encounter is less trivial than you might think.</p></li>
+<li><p>Files in a zip: You can look for file paths you are interested in, or only file names you are interested in. If the file name is unique, there is no need to check for the full file path. Example: if the folder structure in a zip changes but files remain the same, the code that looks only at file names will still work.</p></li>
+<li><p>Nested dictionaries: Sometimes you are interested in a value in a dict that is heavily nested. An approach you can take, instead of doing <code class="docutils literal notranslate"><span class="pre">dict[&quot;key1&quot;][&quot;key2&quot;][&quot;key3&quot;][&quot;key_that_sometimes_is_called_something_different&quot;][&quot;key_which_value_you_want&quot;]</span></code>, you can to first denest or flatten the dictionary start looking directly for “key_which_value_you_want”. You can find an example <a class="reference external" href="https://github.com/d3i-infra/port-vu-pilot/blob/master/src/framework/processing/py/port/helpers.py">here</a>, look for <code class="docutils literal notranslate"><span class="pre">dict_denester</span></code> and <code class="docutils literal notranslate"><span class="pre">find_items</span></code>.</p></li>
+</ul>
+<p><strong>The researcher is responsible for providing you with DDPs and should be knowledgeable about the data</strong></p>
+<p>If you are reading this checklist chances are you are going to create a data donation task. It could be the case that you are not the principal investigator of the project but just an engineer or person with some coding experience helping the researcher out. Some researchers expect you to be the one to have knowledge about a certain DDP they are interested in. Some researchers believe that because you are working with data, you also have that data available to you, know what it all means or whether data is present in a DDP. This is of course not always the case. Communicate clearly to the researcher that they responsible for the contents of their study, they should know what the data means and that they should tell you what to extract. In some cases the researcher might not even use the platform they are interested in, if that is the case, tell the researcher to start using the platform they are interested in so they can start instructing you on what to extract.</p>
+<p><strong>Test a study carefully before you go live</strong></p>
+<p>All researchers involved in the research group should test the study before you go live. A data donation study has more points of failure compared to traditional survey research, therefore its crucial that every researcher that is involved will test the complete data donation flow and shares their findings with you.</p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="next-in-docker.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Try out Next with Docker</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../api/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">API Reference</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
