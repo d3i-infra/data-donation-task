@@ -1,5 +1,6 @@
 import { DataSubmissionPageFactory, ScriptHostComponent } from "@eyra/feldspar";
 import { HelloWorldFactory } from "./components/hello_world";
+import { ConsentFormVizFactory } from "./factories/consent_form_viz";
 
 function App() {
   return (
@@ -9,7 +10,10 @@ function App() {
         standalone={process.env.NODE_ENV !== "production"}
         factories={[
           new DataSubmissionPageFactory({
-            promptFactories: [new HelloWorldFactory()],
+            promptFactories: [
+                new HelloWorldFactory(),
+                new ConsentFormVizFactory(),
+            ],
           }),
         ]}
       />

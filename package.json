@@ -29,6 +29,7 @@
     "husky": "^9.1.7"
   },
   "dependencies": {
-    "fdir": "^6.4.3"
+    "fdir": "^6.4.3",
+    "typescript": "^5.8.3"
   }
 }
