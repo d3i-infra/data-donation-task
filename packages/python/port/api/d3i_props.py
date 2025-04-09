@@ -90,7 +90,6 @@ class PropsUIPromptConsentFormViz:
         donate_question (Optional[Translatable]): Optional donation question.
         donate_button (Optional[Translatable]): Optional text for the donate button.
     """
-    id: str
     tables: list[PropsUIPromptConsentFormTableViz]
     description: Optional[props.Translatable] = None
     donate_question: Optional[props.Translatable] = None
@@ -117,7 +116,6 @@ class PropsUIPromptConsentFormViz:
         """
         dict = {}
         dict["__type__"] = "PropsUIPromptConsentFormViz"
-        dict["id"] = self.id
         dict["tables"] = self.translate_tables()
         dict["description"] = self.description and self.description.toDict()
         dict["donateQuestion"] = self.donate_question and self.donate_question.toDict()

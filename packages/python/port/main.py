@@ -1,5 +1,5 @@
 from collections.abc import Generator
-from port.script import process
+from port.d3i_example_script import process
 from port.api.commands import CommandSystemExit
 
 

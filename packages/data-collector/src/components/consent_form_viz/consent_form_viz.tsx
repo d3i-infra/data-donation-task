@@ -24,7 +24,7 @@ type Props = PropsUIPromptConsentFormViz & ReactFactoryContext
 
 export const ConsentFormViz = (props: Props): JSX.Element => {
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
-  const { locale, resolve, id } = props
+  const { locale, resolve } = props
   const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
   const [isDonating, setIsDonating] = useState(false)
 
@@ -89,11 +89,9 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
     const dataFrame = loadDataFrame(tableData.data_frame)
     const headCells = columnNames(dataFrame).map((column: string) => column)
     const head: PropsUITableHead = {
-      __type__: "PropsUITableHead",
       cells: headCells,
     }
     const body: PropsUITableBody = {
-      __type__: "PropsUITableBody",
       rows: rows(dataFrame),
     }
     return {
