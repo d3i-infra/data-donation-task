@@ -39,3 +39,13 @@ node_modules/
 
 # Act artifacts
 .artifacts/
+
+_build
+# Ignore all __pycache__ directories
+__pycache__/
+*/__pycache__/
+**/__pycache__/
+
+# Also ignore Python compiled files
+*.py[cod]
+*$py.class
