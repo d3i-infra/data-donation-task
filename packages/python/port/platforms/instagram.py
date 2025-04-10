@@ -8,9 +8,10 @@ import logging
 import pandas as pd
 
 import port.api.props as props
+import port.api.d3i_props as d3i_props
 import port.helpers.extraction_helpers as eh
-import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
+from port.platforms.flow_builder import FlowBuilder
 
 from port.helpers.validate import (
     DDPCategory,
@@ -340,274 +341,214 @@ def liked_posts_to_df(instagram_zip: str) -> pd.DataFrame:
     return out
 
 
+def extraction(instagram_zip: str) -> list[d3i_props.PropsUIPromptConsentFormTableViz]:
+    tables = [
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_posts_viewed",
+            data_frame=posts_viewed_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Posts viewed on Instagram",
+                "nl": "Berichten bekeken op Instagram"
+            }),
+            description=props.Translatable({
+                "en": "In this table you find the accounts of posts you viewed on Instagram sorted over time. Below, you find visualizations of different parts of this table. First, you find a timeline showing you the number of posts you viewed over time. Next, you find a histogram indicating how many posts you have viewed per hour of the day.",
+                "nl": "In deze tabel zie je de accounts van berichten die je op Instagram hebt bekeken, gesorteerd op tijd. Hieronder vind je visualisaties van verschillende onderdelen van deze tabel. Eerst zie je een tijdlijn met het aantal berichten dat je in de loop van de tijd hebt bekeken. Daarna zie je een histogram dat aangeeft hoeveel berichten je per uur van de dag hebt bekeken."
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "The total number of Instagram posts you viewed over time",
+                        "nl": "Het totale aantal Instagram-berichten dat je in de loop van de tijd hebt bekeken"
+                    },
+                    "type": "area",
+                    "group": {
+                        "column": "Date",
+                        "dateFormat": "auto",
+                    },
+                    "values": [{
+                        "label": "Count",
+                        "aggregate": "count",
+                    }]
+                },
+                {
+                    "title": {
+                        "en": "The total number of Instagram posts you have viewed per hour of the day",
+                        "nl": "Het totale aantal Instagram-berichten dat je per uur van de dag hebt bekeken"
+                    },
+                    "type": "bar",
+                    "group": {
+                        "column": "Date",
+                        "dateFormat": "hour_cycle",
+                        "label": "Hour of the day",
+                    },
+                    "values": [{
+                        "label": "Count"
+                    }]
+                }
+            ]
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_videos_watched",
+            data_frame=videos_watched_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Videos watched on Instagram",
+                "nl": "Video's bekeken op Instagram"
+            }),
+            description=props.Translatable({
+                "en": "In this table you find the accounts of videos you watched on Instagram sorted over time. Below, you find a timeline showing you the number of videos you watched over time.",
+                "nl": "In deze tabel zie je de accounts van video's die je op Instagram hebt bekeken, gesorteerd op tijd. Hieronder zie je een tijdlijn met het aantal video's dat je in de loop van de tijd hebt bekeken."
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "The total number of videos watched on Instagram over time",
+                        "nl": "Het totale aantal video's dat je op Instagram hebt bekeken in de loop van de tijd"
+                    },
+                    "type": "area",
+                    "group": {
+                        "column": "Date",
+                        "dateFormat": "auto"
+                    },
+                    "values": [{
+                        "aggregate": "count",
+                        "label": "Count"
+                    }]
+                }
+            ]
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_post_comments",
+            data_frame=post_comments_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Comments on Instagram posts",
+                "nl": "Reacties op Instagram-berichten",
+            }),
+            description=props.Translatable({
+                "en": "In this table, you find the comments that you left behind on Instagram posts sorted over time. Below, you find a wordcloud, where the size of the word indicates how frequently that word has been used in these comments.",
+                "nl": "In deze tabel zie je de reacties die je hebt achtergelaten op Instagram-berichten, gesorteerd op tijd. Hieronder zie je een woordwolk waarin de grootte van een woord aangeeft hoe vaak het is gebruikt in deze reacties."
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "Most common words in comments on posts",
+                        "nl": "Meest gebruikte woorden in reacties op berichten"
+                    },
+                    "type": "wordcloud",
+                    "textColumn": "Comment",
+                    "tokenize": True,
+                }
+            ]
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_accounts_not_interested_in",
+            data_frame=accounts_not_interested_in_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Instagram accounts not interested in",
+                "nl": "Instagram-accounts waarin je geen interesse hebt"
+            }),
+            description=props.Translatable({
+                "en": "",
+                "nl": ""
+            }),
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_ads_viewed",
+            data_frame=ads_viewed_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Ads you viewed on Instagram",
+                "nl": "Advertenties die je op Instagram hebt bekeken"
+            }),
+            description=props.Translatable({
+                "en": "In this table, you find the ads that you viewed on Instagram sorted over time.",
+                "nl": "In deze tabel zie je de advertenties die je op Instagram hebt bekeken, gesorteerd op tijd."
+            }),
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_posts_not_interested_in",
+            data_frame=posts_not_interested_in_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Instagram posts not interested in",
+                "nl": "Instagram-berichten waarin je geen interesse hebt"
+            }),
+            description=props.Translatable({
+                "en": "",
+                "nl": ""
+            }),
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_following",
+            data_frame=following_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Accounts that you follow on Instagram",
+                "nl": "Accounts die je volgt op Instagram"
+            }),
+            description=props.Translatable({
+                "en": "In this table, you find the accounts that you follow on Instagram.",
+                "nl": "In deze tabel zie je de accounts die je volgt op Instagram."
+            }),
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_liked_comments",
+            data_frame=liked_comments_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Instagram liked comments",
+                "nl": "Instagram-reacties die je leuk vond"
+            }),
+            description=props.Translatable({
+                "en": "",
+                "nl": ""
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "Accounts who's comments you liked most",
+                        "nl": "Accounts waarvan je de reacties het vaakst leuk vond"
+                    },
+                    "type": "wordcloud",
+                    "textColumn": "Account name",
+                    "tokenize": False,
+                }
+            ]
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="instagram_liked_posts",
+            data_frame=liked_posts_to_df(instagram_zip),
+            title=props.Translatable({
+                "en": "Instagram liked posts",
+                "nl": "Instagram-berichten die je leuk vond"
+            }),
+            description=props.Translatable({
+                "en": "",
+                "nl": ""
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "Most liked accounts",
+                        "nl": "Meest gelikete accounts"
+                    },
+                    "type": "wordcloud",
+                    "textColumn": "Account name",
+                    "tokenize": False,
+                }
+            ]
+        )
+    ]
 
-def extraction(instagram_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
-    tables_to_render = []
-
-    df = posts_viewed_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Posts viewed on Instagram",
-            "nl": "Posts viewed on Instagram"
-        })
-        table_description = props.Translatable({
-            "en": "In this table you find the accounts of posts you viewed on Instagram sorted over time. Below, you find visualizations of different parts of this table. First, you find a timeline showing you the number of posts you viewed over time. Next, you find a histogram indicating how many posts you have viewed per hour of the day.", 
-            "nl": "In this table you find the accounts of posts you viewed on Instagram sorted over time. Below, you find visualizations of different parts of this table. First, you find a timeline showing you the number of posts you viewed over time. Next, you find a histogram indicating how many posts you have viewed per hour of the day.", 
-        })
-        total_watched = {
-            "title": {
-                "en": "The total number of Instagram posts you viewed over time", 
-                "nl": "The total number of Instagram posts you viewed over time", 
-            },
-            "type": "area",
-            "group": {
-                "column": "Date",
-                "dateFormat": "auto",
-            },
-            "values": [{
-                "label": "Count",
-                "aggregate": "count",
-            }]
-        }
-
-        hour_of_the_day = {
-            "title": {
-                "en": "The total number of Instagram posts you have viewed per hour of the day", 
-                "nl": "The total number of Instagram posts you have viewed per hour of the day", 
-            },
-            "type": "bar",
-            "group": {
-                "column": "Date",
-                "dateFormat": "hour_cycle",
-                "label": "Hour of the day",
-            },
-            "values": [{
-                "label": "Count"
-            }]
-        }
-
-        table =  props.PropsUIPromptConsentFormTable("instagram_posts_viewed", table_title, df, table_description, [total_watched, hour_of_the_day]) 
-        tables_to_render.append(table)
-
-    df = videos_watched_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Videos watched on Instagram",
-            "nl": "Videos watched on Instagram"
-        })
-        table_description = props.Translatable({
-            "en": "In this table you find the accounts of videos you watched on Instagram sorted over time. Below, you find a timeline showing you the number of videos you watched over time.", 
-            "nl": "In this table you find the accounts of videos you watched on Instagram sorted over time. Below, you find a timeline showing you the number of videos you watched over time. ", 
-        })
-
-        total_watched = {
-            "title": {
-                "en": "The total number of videos watched on Instagram over time", 
-                "nl": "The total number of videos watched on Instagram over time", 
-            },
-            "type": "area",
-            "group": {
-                "column": "Date",
-                "dateFormat": "auto"
-            },
-            "values": [{
-                "aggregate": "count",
-                "label": "Count"
-            }]
-        }
-
-        table =  props.PropsUIPromptConsentFormTable("instagram_videos_watched", table_title, df, table_description, [total_watched]) 
-        tables_to_render.append(table)
-
-
-    df = post_comments_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Comments on Instagram posts",
-            "nl": "Comments on Instagram posts",
-        })
-        table_description = props.Translatable({
-            "en": "In this table, you find the comments that you left behind on Instagram posts sorted over time. Below, you find a wordcloud, where the size of the word indicates how frequently that word has been used in these comments.", 
-            "nl": "In this table, you find the comments that you left behind on Instagram posts sorted over time. Below, you find a wordcloud, where the size of the word indicates how frequently that word has been used in these comments.", 
-        })
-        wordcloud = {
-            "title": {
-                "en": "Most common words in comments on posts", 
-                "nl": "Most common words in comments on posts", 
-              },
-            "type": "wordcloud",
-            "textColumn": "Comment",
-            "tokenize": True,
-        }
-        table =  props.PropsUIPromptConsentFormTable("instagram_post_comments", table_title, df, table_description, [wordcloud]) 
-        tables_to_render.append(table)
-
-    df = accounts_not_interested_in_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Instagram accounts not interested in",
-            "nl": "Instagram accounts not interested in"
-        })
-        table_description = props.Translatable({
-            "en": "", 
-            "nl": "", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_accounts_not_interested_in", table_title, df, table_description) 
-        tables_to_render.append(table)
-
-    df = ads_viewed_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Ads you viewed on Instagram",
-            "nl": "Ads you viewed on Instagram"
-        })
-        table_description = props.Translatable({
-            "en": "In this table, you find the ads that you viewed on Instagram sorted over time.", 
-            "nl": "In this table, you find the ads that you viewed on Instagram sorted over time.", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_ads_viewed", table_title, df, table_description) 
-        tables_to_render.append(table)
-
-    df = posts_not_interested_in_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Instagram posts not interested in",
-            "nl": "Instagram posts not interested in"
-        })
-        table_description = props.Translatable({
-            "en": "", 
-            "nl": "", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_posts_not_interested_in", table_title, df, table_description) 
-        tables_to_render.append(table)
-
-
-    df = following_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Accounts that you follow on Instagram",
-            "nl": "Accounts that you follow on Instagram"
-        })
-        table_description = props.Translatable({
-            "en": "In this table, you find the accounts that you follow on Instagram.", 
-            "nl": "In this table, you find the accounts that you follow on Instagram.", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_following", table_title, df, table_description) 
-        tables_to_render.append(table)
-
-    df = liked_comments_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Instagram liked comments",
-            "nl": "Instagram liked comments",
-        })
-        wordcloud = {
-            "title": {
-                "en": "Accounts who's comments you liked most", 
-                "nl": "Accounts who's comments you liked most", 
-              },
-            "type": "wordcloud",
-            "textColumn": "Account name",
-            "tokenize": False,
-        }
-        table_description = props.Translatable({
-            "en": "", 
-            "nl": "", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_comments", table_title, df, table_description, [wordcloud]) 
-        tables_to_render.append(table)
-
-    df = liked_posts_to_df(instagram_zip)
-    if not df.empty:
-        table_description = props.Translatable({
-            "en": "", 
-            "nl": "", 
-        })
-        wordcloud = {
-            "title": {
-                "en": "Most liked accounts", 
-                "nl": "Most liked accounts", 
-              },
-            "type": "wordcloud",
-            "textColumn": "Account name",
-            "tokenize": False,
-        }
-        table_title = props.Translatable({
-            "en": "Instagram liked posts",
-            "nl": "Instagram liked posts",
-        })
-        table_description = props.Translatable({
-            "en": "", 
-            "nl": "", 
-        })
-        table =  props.PropsUIPromptConsentFormTable("instagram_liked_posts", table_title, df, table_description, [wordcloud]) 
-        tables_to_render.append(table)
-
-    return tables_to_render
+    return [table for table in tables if not table.data_frame.empty]
 
 
-# TEXTS
-SUBMIT_FILE_HEADER = props.Translatable({
-    "en": "Select your Instagram file", 
-    "nl": "Selecteer uw Instagram bestand"
-})
-
-REVIEW_DATA_HEADER = props.Translatable({
-    "en": "Your Instagram data", 
-    "nl": "Uw Instagram gegevens"
-})
-
-RETRY_HEADER = props.Translatable({
-    "en": "Try again", 
-    "nl": "Probeer opnieuw"
-})
-
-REVIEW_DATA_DESCRIPTION = props.Translatable({
-   "en": "Below you will find a currated selection of Instagram data.",
-   "nl": "Below you will find a currated selection of Instagram data.",
-})
+class InstagramFlow(FlowBuilder):
+    def __init__(self, session_id: int):
+        super().__init__(session_id, "Instagram")
+        
+    def validate_file(self, file):
+        return validate.validate_zip(DDP_CATEGORIES, file)
+        
+    def extract_data(self, file_value, validation):
+        return extraction(file_value)
 
 
-def process(session_id: int):
-    platform_name = "Instagram"
-
-    table_list = None
-    while True:
-        logger.info("Prompt for file for %s", platform_name)
-
-        file_prompt = ph.generate_file_prompt("application/zip")
-        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
-
-        if file_result.__type__ == "PayloadString":
-            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
-
-            # Happy flow: Valid DDP
-            if validation.get_status_code_id() == 0:
-                logger.info("Payload for %s", platform_name)
-                extraction_result = extraction(file_result.value)
-                table_list = extraction_result
-                break
-
-            # Enter retry flow, reason: if DDP was not a Instagram DDP
-            if validation.get_status_code_id() != 0:
-                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                retry_prompt = ph.generate_retry_prompt(platform_name)
-                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
-
-                if retry_result.__type__ == "PayloadTrue":
-                    continue
-                else:
-                    logger.info("Skipped during retry flow")
-                    break
-
-        else:
-            logger.info("Skipped at file selection ending flow")
-            break
-
-    if table_list is not None:
-        logger.info("Prompt consent; %s", platform_name)
-        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-instagram", REVIEW_DATA_DESCRIPTION, table_list)
-        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
-
-    yield ph.exit(0, "Success")
-    yield ph.render_end_page()
+def process(session_id):
+    flow = InstagramFlow(session_id)
+    return flow.start_flow()

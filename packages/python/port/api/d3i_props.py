@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Dict, Any
+from typing import Optional
 
 import pandas as pd
 
@@ -47,7 +47,7 @@ class PropsUIPromptConsentFormTableViz:
     """
     id: str
     title: props.Translatable
-    data_frame: pd.DataFrame | Dict[str, Dict[str, Any]]
+    data_frame: pd.DataFrame
     description: Optional[props.Translatable] = None
     visualizations: Optional[list] = None
     folded: Optional[bool] = False

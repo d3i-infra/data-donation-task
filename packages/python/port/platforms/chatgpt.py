@@ -8,9 +8,10 @@ import logging
 import pandas as pd
 
 import port.api.props as props
+import port.api.d3i_props as d3i_props
 import port.helpers.extraction_helpers as eh
-import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
+from port.platforms.flow_builder import FlowBuilder
 
 from port.helpers.validate import (
     DDPCategory,
@@ -75,97 +76,53 @@ def conversations_to_df(chatgpt_zip: str)  -> pd.DataFrame:
 
 
 
-def extraction(chatgpt_zip: str) -> list[props.PropsUIPromptConsentFormTable]:
-    tables_to_render = []
-    
-    df = conversations_to_df(chatgpt_zip)
-    if not df.empty:
-        table_title = props.Translatable({
-            "en": "Your conversations with ChatGPT",
-            "nl": "Uw gesprekken met ChatGPT"
-        })
-        table_description = props.Translatable({
-            "en": "In this table you find your conversations with ChatGPT sorted by time. Below, you find a wordcloud, where the size of the words represents how frequent these words have been used in the conversations.", 
-            "nl": "In this table you find your conversations with ChatGPT sorted by time. Below, you find a wordcloud, where the size of the words represents how frequent these words have been used in the conversations.", 
-        })
-        wordcloud = {
-            "title": {
-                "en": "Your messages in a wordcloud", 
-                "nl": "Your messages in a wordcloud"
-            },
-            "type": "wordcloud",
-            "textColumn": "message",
-            "tokenize": True,
-        }
-        table = props.PropsUIPromptConsentFormTable("chatgpt_conversations", table_title, df, table_description, [wordcloud])
-        tables_to_render.append(table)
+def extraction(chatgpt_zip: str) -> list[d3i_props.PropsUIPromptConsentFormTableViz]:
+    """
+    Add your table definitions below in the list
+    """
+    tables = [
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="chatgpt_conversations",
+            data_frame=conversations_to_df(chatgpt_zip),
+            title=props.Translatable({
+                "en": "Your conversations with ChatGPT",
+                "nl": "Uw gesprekken met ChatGPT"
+            }),
+            description=props.Translatable({
+                "en": "In this table you find your conversations with ChatGPT sorted by time. Below, you find a wordcloud, where the size of the words represents how frequent these words have been used in the conversations.", 
+                "nl": "In this table you find your conversations with ChatGPT sorted by time. Below, you find a wordcloud, where the size of the words represents how frequent these words have been used in the conversations.", 
+            }),
+            visualizations=[
+                {
+                    "title": {
+                        "en": "Your messages in a wordcloud", 
+                        "nl": "Your messages in a wordcloud"
+                    },
+                    "type": "wordcloud",
+                    "textColumn": "message",
+                    "tokenize": True,
+                }
+            ]
+        ),
+    ]
+
+    tables_to_render = [table for table in tables if not table.data_frame.empty]
 
     return tables_to_render
 
 
 
-# TEXTS
-SUBMIT_FILE_HEADER = props.Translatable({
-    "en": "Select your ChatGPT file", 
-    "nl": "Selecteer uw ChatGPT bestand"
-})
-
-REVIEW_DATA_HEADER = props.Translatable({
-    "en": "Your ChatGPT data", 
-    "nl": "Uw ChatGPT gegevens"
-})
-
-RETRY_HEADER = props.Translatable({
-    "en": "Try again", 
-    "nl": "Probeer opnieuw"
-})
-
-REVIEW_DATA_DESCRIPTION = props.Translatable({
-   "en": "Below you will find a currated selection of ChatGPT data. In this case only the conversations you had with ChatGPT are show on screen. The data represented in this way are much more insightfull because you can actually read back the conversations you had with ChatGPT",
-   "nl": "Below you will find a currated selection of ChatGPT data. In this case only the conversations you had with ChatGPT are show on screen. The data represented in this way are much more insightfull because you can actually read back the conversations you had with ChatGPT",
-})
+class ChatGPTFlow(FlowBuilder):
+    def __init__(self, session_id: int):
+        super().__init__(session_id, "ChatGPT")
+        
+    def validate_file(self, file):
+        return validate.validate_zip(DDP_CATEGORIES, file)
+        
+    def extract_data(self, file_value, validation):
+        return extraction(file_value)
 
 
-def process(session_id: int):
-    platform_name = "ChatGPT"
-
-    table_list = None
-    while True:
-        logger.info("Prompt for file for %s", platform_name)
-
-        file_prompt = ph.generate_file_prompt("application/zip")
-        file_result = yield ph.render_page(SUBMIT_FILE_HEADER, file_prompt)
-
-        if file_result.__type__ == "PayloadString":
-            validation = validate.validate_zip(DDP_CATEGORIES, file_result.value)
-
-            # Happy flow: Valid DDP
-            if validation.get_status_code_id() == 0:
-                logger.info("Payload for %s", platform_name)
-                extraction_result = extraction(file_result.value)
-                table_list = extraction_result
-                break
-
-            # Enter retry flow, reason: if DDP was not a ChatGPT DDP
-            if validation.get_status_code_id() != 0:
-                logger.info("Not a valid %s zip; No payload; prompt retry_confirmation", platform_name)
-                retry_prompt = ph.generate_retry_prompt(platform_name)
-                retry_result = yield ph.render_page(RETRY_HEADER, retry_prompt)
-
-                if retry_result.__type__ == "PayloadTrue":
-                    continue
-                else:
-                    logger.info("Skipped during retry flow")
-                    break
-
-        else:
-            logger.info("Skipped at file selection ending flow")
-            break
-
-    if table_list is not None:
-        logger.info("Prompt consent; %s", platform_name)
-        review_data_prompt = ph.generate_review_data_prompt(f"{session_id}-chatgpt", REVIEW_DATA_DESCRIPTION, table_list)
-        yield ph.render_page(REVIEW_DATA_HEADER, review_data_prompt)
-
-    yield ph.exit(0, "Success")
-    yield ph.render_end_page()
+def process(session_id):
+    flow = ChatGPTFlow(session_id)
+    return flow.start_flow()
