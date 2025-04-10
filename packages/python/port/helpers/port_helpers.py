@@ -166,3 +166,17 @@ def exit(code: int, info: str) -> CommandSystemExit:
         yield exit(0, "Success")
     """
     return CommandSystemExit(code, info)
+
+
+def generate_radio_prompt(
+        title: props.Translatable,
+        description: props.Translatable,
+        items: list[str]
+) -> props.PropsUIPromptRadioInput:
+    """
+    General purpose prompt selection menu
+    """
+    radio_items = [{"id": i, "value": item} for i, item in enumerate(items)]
+    print(radio_items)
+    return props.PropsUIPromptRadioInput(title, description, radio_items)
+

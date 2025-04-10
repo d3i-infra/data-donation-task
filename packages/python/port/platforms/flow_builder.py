@@ -4,6 +4,7 @@ This module contains a flow builder
 The flow builder provides an interface to easily maintain the most commonly used data donation flows for various platforms
 """
 from abc import abstractmethod
+from typing import Generator
 import json
 import logging
 import json
@@ -63,6 +64,9 @@ class FlowBuilder:
                 if validation.get_status_code_id() == 0:
                     logger.info(f"Payload for {self.platform_name}")
                     self.table_list = self.extract_data(file_result.value, validation)
+                    if isinstance(self.table_list, Generator):
+                        self.table_list = yield from self.table_list
+
                     break
                     
                 # Enter retry flow
