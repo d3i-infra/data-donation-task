@@ -41,7 +41,7 @@ jobs:
           poetry build --format wheel
 
       - name: Install Node Dependencies
-        run: npm ci
+        run: npm i --legacy-peer-deps
 
       - name: Copy Python Wheel
         run: |
