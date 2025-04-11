@@ -80,6 +80,17 @@ class StatusCode:
 
 
 @dataclass
+class BaseValidation:
+    """
+    Base validation class that can be used for validation purposes
+    """
+    status_code: int
+        
+    def get_status_code_id(self) -> int:
+        return self.status_code
+
+
+@dataclass
 class ValidateInput:
     """
     A class for validating input data against predefined categories and status codes.
