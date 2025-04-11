@@ -58,7 +58,7 @@ class FlowBuilder:
             file_result = yield ph.render_page(self.UI_TEXT["submit_file_header"], file_prompt)
             
             if file_result.__type__ == "PayloadString":
-                validation =self.validate_file(file_result.value)
+                validation = self.validate_file(file_result.value)
                 
                 # Happy flow: Valid file
                 if validation.get_status_code_id() == 0:

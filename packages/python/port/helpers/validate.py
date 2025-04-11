@@ -131,14 +131,14 @@ class ValidateInput:
 
         if max(prop_category.values()) >= 5:
             highest = max(prop_category, key=prop_category.get)  # type: ignore
-            self.ddp_category = self.ddp_categories_lookup[highest]
+            self.current_ddp_category = self.ddp_categories_lookup[highest]
             self.set_current_status_code_by_id(0)
-            logger.info("Detected DDP category: %s", self.ddp_category.id)
+            logger.info("Detected DDP category: %s", self.current_ddp_category.id)
             return True
         else:
             logger.info("Not a valid input; not enough files matched when performing input validation")
             self.set_current_status_code_by_id(1)
-            self.ddp_category = DDPCategory(id = "unknown", ddp_filetype=DDPFiletype.UNKOWN, language=Language.UNKNOWN, known_files=[])
+            self.current_ddp_category = DDPCategory(id = "unknown", ddp_filetype=DDPFiletype.UNKOWN, language=Language.UNKNOWN, known_files=[])
             return False
 
     def set_current_status_code_by_id(self, id: int) -> None:

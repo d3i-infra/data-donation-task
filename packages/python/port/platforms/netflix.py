@@ -248,7 +248,6 @@ class NetflixFlow(FlowBuilder):
             radio_prompt = ph.generate_radio_prompt(title, empty_text, users)
             selection = yield ph.render_page(empty_text, radio_prompt)
             selected_user = selection.value
-            print(selected_user)
             return extraction(file, selected_user)
 
 
