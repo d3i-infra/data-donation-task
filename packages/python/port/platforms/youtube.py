@@ -1,6 +1,10 @@
 """
-DDP YouTube module
+YouTube
 
+This module provides an example flow of a YouTube data donation study
+
+Assumptions:
+It handles DDPs in the dutch and english language with filetype JSON.
 """
 import logging
 

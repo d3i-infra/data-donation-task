@@ -2,6 +2,9 @@
 WhatsApp Group Chat
 
 This module contains an example flow of a WhatsApp Group Chat data donation study
+
+Assumptions:
+It handles DDPs containing a group chat. This extraction is not perfect because the text file containg the group chat does not follow a structure, however it performs well enough.
 """
 
 from typing import Tuple, TypedDict

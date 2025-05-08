@@ -2,6 +2,9 @@
 Netflix
 
 This module provides an example flow of a Netflix data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype CSV.
 """
 import logging
 

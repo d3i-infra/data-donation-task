@@ -2,6 +2,9 @@
 ChatGPT
 
 This module provides an example flow of a ChatGPT data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype JSON.
 """
 import logging
 

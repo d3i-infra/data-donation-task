@@ -2,6 +2,9 @@
 TikTok
 
 This module contains an example flow of a TikTok data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype txt.
 """
 
 from typing import Dict

@@ -2,6 +2,9 @@
 Facebook
 
 This module contains an example flow of a Facebook data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype JSON.
 """
 
 import logging

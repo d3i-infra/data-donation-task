@@ -2,7 +2,11 @@
 LinkedIn
 
 This module contains an example flow of a LinkedIn data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype CSV.
 """
+
 import logging
 import io
 import re

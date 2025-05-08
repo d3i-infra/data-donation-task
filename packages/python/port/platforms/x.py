@@ -1,7 +1,10 @@
 """
 X
 
-This module contains an example flow of a Instagram data donation study
+This module contains an example flow of a X data donation study
+
+Assumptions:
+It handles DDPs in the english language with filetype js.
 """
 
 import logging
