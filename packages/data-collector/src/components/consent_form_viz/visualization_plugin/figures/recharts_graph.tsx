@@ -1,4 +1,5 @@
 import { translate } from '../translate'
+import * as React from 'react'
 import { AxisSettings, TickerFormat, ChartVisualizationData } from '../types'
 
 import {
@@ -44,17 +45,20 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
     )
   }
 
-  function axes (minTickGap: number): JSX.Element | null {
+  function Xaxis (minTickGap: number): JSX.Element | null {
     const hasVisualizationData = Boolean(visualizationData)
     if (!hasVisualizationData) return null
 
     return (
-      <>
-        <XAxis dataKey={visualizationData.xKey} minTickGap={minTickGap} fontSize={12}>
-          <Label className=' font-bold text-sm' value={xLabel} offset={-6} position='insideBottom' />
-        </XAxis>
-        <YAxis yAxisId='left' tickFormatter={tickFormatter} fontSize={12} />
-      </>
+      <XAxis dataKey={visualizationData.xKey} minTickGap={minTickGap} fontSize={12}>
+        <Label className=' font-bold text-sm' value={xLabel} offset={-6} position='insideBottom' />
+      </XAxis>
+    )
+  }
+
+  function Yaxis (): JSX.Element | null {
+    return (
+      <YAxis yAxisId='left' tickFormatter={tickFormatter} fontSize={12} />
     )
   }
 
@@ -79,7 +83,8 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
   if (visualizationData.type === 'line') {
     chart = (
       <LineChart data={visualizationData.data} margin={margin}>
-        {axes(20)}
+        {Xaxis(20)}
+        {Yaxis()}
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
@@ -105,7 +110,8 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
   if (visualizationData.type === 'bar') {
     chart = (
       <BarChart data={visualizationData.data} margin={margin}>
-        {axes(0)}
+        {Xaxis(0)}
+        {Yaxis()}
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {
@@ -119,7 +125,8 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
   if (visualizationData.type === 'area') {
     chart = (
       <AreaChart data={visualizationData.data} margin={margin}>
-        {axes(20)}
+        {Xaxis(20)}
+        {Yaxis()}
         {tooltip()}
         {legend()}
         {Object.values(visualizationData.yKeys).map((yKey: AxisSettings, i: number) => {

@@ -49,3 +49,4 @@ __pycache__/
 # Also ignore Python compiled files
 *.py[cod]
 *$py.class
+release-for-website.sh
