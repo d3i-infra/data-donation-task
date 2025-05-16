@@ -125,10 +125,20 @@ function installPortPackage() {
 
 function generateErrorMessage(stacktrace) {
   return {
-    __type__: "CommandUIRender",
-    page: {
-      __type__: "PropsUIPageError",
-      stacktrace: stacktrace
+    "__type__": "CommandUIRender",
+    "page": {
+      "__type__": "PropsUIPageDataSubmission",
+      "platform": "Does not matter",
+      "header": {
+        "__type__": "PropsUIHeader",
+        "title": {
+          "translations": {}
+        }
+      },
+      "body": [{
+          "__type__": "PropsUIPageError",
+          "stacktrace": stacktrace
+        }]
     }
-  }
+  };
 }
