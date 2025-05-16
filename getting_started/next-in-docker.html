@@ -1,0 +1,677 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Try out Next with Docker &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/next-in-docker';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Data donation checklist" href="data-donation-checklist.html" />
+    <link rel="prev" title="Deployment of the data donation task" href="deployment.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/next-in-docker.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Try out Next with Docker</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unsplash">Unsplash</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#google-oidc">Google OIDC</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-next-in-a-docker-container">Run Next in a Docker container</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-the-next-docker-image">Build the Next Docker image</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-certificates-for-tls">Setup certificates for TLS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nginx-configuration">Nginx configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-certificates-for-postgres">Setup certificates for Postgres</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-compose-yaml">Docker compose yaml</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps-in-next">Next steps in Next</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="try-out-next-with-docker">
+<h1>Try out Next with Docker<a class="headerlink" href="#try-out-next-with-docker" title="Link to this heading">#</a></h1>
+<p>This tutorial outlines how you can run Next in a Docker container.</p>
+<p>This is great for trying out the Next platform and will show you the necessary settings you need to use in production.</p>
+<p>This tutorial is for advanced users.</p>
+<section id="prerequisites">
+<h2>Prerequisites<a class="headerlink" href="#prerequisites" title="Link to this heading">#</a></h2>
+<p>In order for you to try out Next you need to set up prerequisites.</p>
+<section id="unsplash">
+<h3>Unsplash<a class="headerlink" href="#unsplash" title="Link to this heading">#</a></h3>
+<p>Configure a developer account at <a class="reference external" href="https://unsplash.com/">unsplash</a> and get an API key. You can do this for free.</p>
+<p>Unsplash is used as the source for banner images used to customize studies.</p>
+</section>
+<section id="google-oidc">
+<h3>Google OIDC<a class="headerlink" href="#google-oidc" title="Link to this heading">#</a></h3>
+<p>Configure a google OIDC connect application in the <a class="reference external" href="https://console.cloud.google.com/welcome?project=stalwart-yen-241815">google cloud console</a>. For the details check the <a class="reference external" href="https://developers.google.com/identity/openid-connect/openid-connect">official instructions</a>.</p>
+<p>Google OIDC (OpenID Connect) is used to manage user authentication and account sign-ins.
+If you are following this example you should configure <code class="docutils literal notranslate"><span class="pre">https://localhost:443/google-sign-in/auth</span></code> as redirect url</p>
+</section>
+</section>
+<section id="run-next-in-a-docker-container">
+<h2>Run Next in a Docker container<a class="headerlink" href="#run-next-in-a-docker-container" title="Link to this heading">#</a></h2>
+<p>In this step, we will create and run the necessary containers using Docker Compose.</p>
+<p>We are going to create a folder with the following structure:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>.
+├── db
+│   ├── ca.crt
+│   ├── server.crt
+│   └── server.key
+├── docker-compose.yml
+└── proxy
+    ├── certs
+    │   ├── nginx-selfsigned.crt
+    │   └── nginx-selfsigned.key
+    └── conf
+        └── nginx.conf
+</pre></div>
+</div>
+<p>In the next step we are going to create the files.</p>
+<section id="build-the-next-docker-image">
+<h3>Build the Next Docker image<a class="headerlink" href="#build-the-next-docker-image" title="Link to this heading">#</a></h3>
+<p>Clone or fork <a class="reference external" href="https://github.com/eyra/mono">Next</a></p>
+<p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into <code class="docutils literal notranslate"><span class="pre">./mono/core</span></code></p>
+<p>and build the image with:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">build</span>  <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">VERSION</span><span class="o">=</span><span class="mf">1.0.0</span> <span class="o">--</span><span class="n">build</span><span class="o">-</span><span class="n">arg</span> <span class="n">BUNDLE</span><span class="o">=</span><span class="bp">self</span> <span class="o">.</span> <span class="o">-</span><span class="n">t</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span><span class="p">:</span><span class="n">latest</span>
+</pre></div>
+</div>
+</section>
+<section id="setup-certificates-for-tls">
+<h3>Setup certificates for TLS<a class="headerlink" href="#setup-certificates-for-tls" title="Link to this heading">#</a></h3>
+<p>Create certificates and put them in <code class="docutils literal notranslate"><span class="pre">proxy/certs</span></code></p>
+<p>Use the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">openssl</span> <span class="n">req</span> <span class="o">-</span><span class="n">x509</span> <span class="o">-</span><span class="n">nodes</span> <span class="o">-</span><span class="n">days</span> <span class="mi">365</span> <span class="o">-</span><span class="n">newkey</span> <span class="n">rsa</span><span class="p">:</span><span class="mi">2048</span> <span class="o">-</span><span class="n">keyout</span> <span class="n">nginx</span><span class="o">-</span><span class="n">selfsigned</span><span class="o">.</span><span class="n">key</span> <span class="o">-</span><span class="n">out</span> <span class="n">nginx</span><span class="o">-</span><span class="n">selfsigned</span><span class="o">.</span><span class="n">crt</span>
+</pre></div>
+</div>
+</section>
+<section id="nginx-configuration">
+<h3>Nginx configuration<a class="headerlink" href="#nginx-configuration" title="Link to this heading">#</a></h3>
+<p>We are going to use Nginx as <a class="reference external" href="https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/">reverse proxy</a>.</p>
+<p>Nginx will be used to provide TLS for our HTTP connections.</p>
+<p>Paste the following nginx configuration in <code class="docutils literal notranslate"><span class="pre">proxy/conf</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span># nginx.conf
+events {}
+http {
+    server {
+        listen 80;
+        listen [::]:80;
+        server_name localhost;
+        
+        # Redirect all HTTP requests to HTTPS
+        return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        server_name localhost;
+        
+        if ($scheme != &quot;https&quot;) {
+            return 301 https://$host$request_uri;
+        }
+        
+        location / {
+          allow all;
+          proxy_pass                http://app:8000;
+          proxy_set_header          X-Forwarded-Proto $scheme;
+          proxy_set_header          X-Forwarded-For $remote_addr;
+          proxy_set_header          X-Real-IP $remote_addr;
+          proxy_set_header          Host $http_host;
+          proxy_http_version        1.1;
+          proxy_set_header          Upgrade $http_upgrade;
+          proxy_set_header          Connection &quot;upgrade&quot;;
+          proxy_max_temp_file_size  1m;
+        }
+        
+        listen 443 ssl;
+        ssl_certificate /etc/nginx/certs/nginx-selfsigned.crt;
+        ssl_certificate_key /etc/nginx/certs/nginx-selfsigned.key;
+    }
+}
+</pre></div>
+</div>
+<p>This Nginx configuration works with websocket connections which Next (Phoenix web application) uses.</p>
+</section>
+<section id="setup-certificates-for-postgres">
+<h3>Setup certificates for Postgres<a class="headerlink" href="#setup-certificates-for-postgres" title="Link to this heading">#</a></h3>
+<p>Next uses TLS to communicate with Posgres. For this you need to setup certificates.</p>
+<p><code class="docutils literal notranslate"><span class="pre">cd</span></code> into <code class="docutils literal notranslate"><span class="pre">./mono/postgres_ssl</span></code> and run <code class="docutils literal notranslate"><span class="pre">./generate.sh</span></code>. Place  <code class="docutils literal notranslate"><span class="pre">ca.crt</span></code>, <code class="docutils literal notranslate"><span class="pre">server.crt</span></code>, and <code class="docutils literal notranslate"><span class="pre">server.key</span></code> in the <code class="docutils literal notranslate"><span class="pre">db</span></code> folder you have just created.</p>
+</section>
+<section id="docker-compose-yaml">
+<h3>Docker compose yaml<a class="headerlink" href="#docker-compose-yaml" title="Link to this heading">#</a></h3>
+<p>Now create the docker-compose.yaml:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1">#docker-compose.yaml</span>
+<span class="n">services</span><span class="p">:</span>
+  <span class="n">app</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="bp">self</span><span class="o">-</span><span class="n">d3i</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">environment</span><span class="p">:</span>
+      <span class="n">DB_TLS_VERIFY</span><span class="p">:</span> <span class="n">verify_peer</span>
+      <span class="n">DB_CA_PATH</span><span class="p">:</span> <span class="o">/</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span>
+      <span class="n">APP_NAME</span><span class="p">:</span> <span class="nb">next</span>
+      <span class="n">APP_DOMAIN</span><span class="p">:</span> <span class="n">localhost</span>
+      <span class="n">APP_MAIL_DOMAIN</span><span class="p">:</span> <span class="s2">&quot;@gmail&quot;</span>
+      <span class="n">APP_ADMINS</span><span class="p">:</span> <span class="n">youremail</span><span class="nd">@gmail</span><span class="o">.</span><span class="n">com</span>
+      <span class="n">DB_USER</span><span class="p">:</span> <span class="n">user</span>
+      <span class="n">DB_PASS</span><span class="p">:</span> <span class="n">password</span>
+      <span class="n">DB_HOST</span><span class="p">:</span> <span class="n">db</span>
+      <span class="n">DB_NAME</span><span class="p">:</span> <span class="n">test_database</span>
+      <span class="n">SECRET_KEY_BASE</span><span class="p">:</span> <span class="s2">&quot;aUMZobj7oJn58XIlMGVcwTYrCsAllwDCGlwDCGlwDCGwDChdhsjahdghaggdgdGt7MoQYJtJbA=&quot;</span>
+      <span class="n">STATIC_PATH</span><span class="p">:</span> <span class="s2">&quot;/tmp&quot;</span>
+      <span class="n">UNSPLASH_ACCESS_KEY</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-api-key&gt;&quot;</span>
+      <span class="n">UNSPLASH_APP_NAME</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-app-name&gt;&quot;</span>
+      <span class="n">GOOGLE_SIGN_IN_CLIENT_ID</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-id&gt;&quot;</span>
+      <span class="n">GOOGLE_SIGN_IN_CLIENT_SECRET</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-secret&gt;&quot;</span>
+      <span class="n">STORAGE_SERVICES</span><span class="p">:</span> <span class="s2">&quot;builtin&quot;</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">app_data</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">db</span><span class="o">/</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span><span class="p">:</span><span class="o">/</span><span class="n">ca</span><span class="o">.</span><span class="n">crt</span>
+    <span class="n">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">db</span>
+
+  <span class="n">db</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">postgres</span><span class="p">:</span><span class="mi">15</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">db</span><span class="o">-</span><span class="nb">next</span>
+    <span class="n">restart</span><span class="p">:</span> <span class="n">always</span>
+    <span class="n">user</span><span class="p">:</span> <span class="n">root</span>
+    <span class="n">environment</span><span class="p">:</span>
+      <span class="n">POSTGRES_USER</span><span class="p">:</span> <span class="n">user</span>
+      <span class="n">POSTGRES_PASSWORD</span><span class="p">:</span> <span class="n">password</span>
+      <span class="n">POSTGRES_DB</span><span class="p">:</span> <span class="n">test_database</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">postgres_data</span><span class="p">:</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">data</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">db</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span><span class="p">:</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">ssl</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">db</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">key</span><span class="p">:</span><span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">ssl</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">key</span>
+    <span class="n">command</span><span class="p">:</span> <span class="o">|</span>
+      <span class="n">bash</span> <span class="o">-</span><span class="n">c</span> <span class="s2">&quot;</span>
+        <span class="n">chown</span> <span class="n">postgres</span><span class="p">:</span><span class="n">postgres</span> <span class="o">/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">ssl</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">key</span> <span class="o">&amp;&amp;</span>
+        <span class="n">exec</span> <span class="n">docker</span><span class="o">-</span><span class="n">entrypoint</span><span class="o">.</span><span class="n">sh</span> <span class="n">postgres</span> <span class="o">-</span><span class="n">c</span> <span class="n">ssl</span><span class="o">=</span><span class="n">on</span> <span class="o">-</span><span class="n">c</span> <span class="n">ssl_cert_file</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">ssl</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">crt</span> <span class="o">-</span><span class="n">c</span> <span class="n">ssl_key_file</span><span class="o">=/</span><span class="n">var</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">postgresql</span><span class="o">/</span><span class="n">ssl</span><span class="o">/</span><span class="n">server</span><span class="o">.</span><span class="n">key</span>
+      <span class="s2">&quot;</span>
+
+  <span class="n">proxy</span><span class="p">:</span>
+    <span class="n">image</span><span class="p">:</span> <span class="n">nginx</span><span class="p">:</span><span class="n">latest</span>
+    <span class="n">container_name</span><span class="p">:</span> <span class="n">nginx</span>
+    <span class="n">ports</span><span class="p">:</span>
+      <span class="o">-</span> <span class="mi">443</span><span class="p">:</span><span class="mi">443</span>
+    <span class="n">volumes</span><span class="p">:</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">proxy</span><span class="o">/</span><span class="n">conf</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">conf</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">nginx</span><span class="o">.</span><span class="n">conf</span>
+      <span class="o">-</span> <span class="o">./</span><span class="n">proxy</span><span class="o">/</span><span class="n">certs</span><span class="p">:</span><span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">nginx</span><span class="o">/</span><span class="n">certs</span>
+    <span class="n">depends_on</span><span class="p">:</span>
+      <span class="o">-</span> <span class="n">app</span>
+
+<span class="n">volumes</span><span class="p">:</span>
+  <span class="n">postgres_data</span><span class="p">:</span>
+  <span class="n">app_data</span><span class="p">:</span>
+</pre></div>
+</div>
+<p>and replace the following variables with the values you obtained in the previous steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">UNSPLASH_ACCESS_KEY</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-api-key&gt;&quot;</span>
+<span class="n">UNSPLASH_APP_NAME</span><span class="p">:</span> <span class="s2">&quot;&lt;your-unsplash-app-name&gt;&quot;</span>
+<span class="n">GOOGLE_SIGN_IN_CLIENT_ID</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-id&gt;&quot;</span>
+<span class="n">GOOGLE_SIGN_IN_CLIENT_SECRET</span><span class="p">:</span> <span class="s2">&quot;&lt;your-google-oidc-client-secret&gt;&quot;</span>
+</pre></div>
+</div>
+<p>If you want to learn more about the variables you can read the <a class="reference external" href="https://github.com/eyra/mono/blob/master/SELFHOSTING.md">documentation</a>.</p>
+<p>Now you are ready to start the containers with the following command:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">docker</span> <span class="n">compose</span> <span class="n">up</span>
+</pre></div>
+</div>
+<p>Go to <code class="docutils literal notranslate"><span class="pre">https://localhost:80</span></code> and if everything went well you should see Next.</p>
+<p>Note: because you self-signed your TLS certificates your browser will complain: accept all the risks and continue.</p>
+</section>
+</section>
+<section id="next-steps-in-next">
+<h2>Next steps in Next<a class="headerlink" href="#next-steps-in-next" title="Link to this heading">#</a></h2>
+<p>Now you can play around in Next: to login as admin go to <code class="docutils literal notranslate"><span class="pre">/admin/login</span></code>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="deployment.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Deployment of the data donation task</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="data-donation-checklist.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Data donation checklist</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prerequisites">Prerequisites</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unsplash">Unsplash</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#google-oidc">Google OIDC</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#run-next-in-a-docker-container">Run Next in a Docker container</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#build-the-next-docker-image">Build the Next Docker image</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-certificates-for-tls">Setup certificates for TLS</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#nginx-configuration">Nginx configuration</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#setup-certificates-for-postgres">Setup certificates for Postgres</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#docker-compose-yaml">Docker compose yaml</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next-steps-in-next">Next steps in Next</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

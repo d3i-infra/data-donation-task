@@ -1,0 +1,694 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Adding data visualizations &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/visualizations';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Next and Port" href="next-and-port.html" />
+    <link rel="prev" title="Creating your own data donation task" href="creating-your-own-data-donation-task.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment of the data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/visualizations.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Adding data visualizations</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-visualizations-to-tables">Adding visualizations to tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualization-specification">Visualization Specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#categorical-variables-bar-chart-of-views-per-category">Categorical variables | Bar chart of views per category</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#date-variables-area-chart-of-views-per-month">Date variables | Area chart of views per month</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#second-level-aggregation-line-chart-of-views-over-time-per-category">Second-level aggregation | Line chart of views over time per category</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#text-variables-a-wordcloud">Text variables | A wordcloud</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-wrap-up">Example wrap-up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specification-guide">Specification guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#general-visualization-arguments">General visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chart-visualization-arguments">Chart visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#text-visualization-arguments">Text visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spec-details">Spec details</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#translation">- translation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dateformat">- dateFormat</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregate">- aggregate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="adding-data-visualizations">
+<h1>Adding data visualizations<a class="headerlink" href="#adding-data-visualizations" title="Link to this heading">#</a></h1>
+<p>You can add data visualizations to the consent form page, that will be shown below a data table. These visualizations will dynamically aggregate and visualize the data, responding to search queries and deleted items.</p>
+<p>Good visualizations can help participants to see and explore what data they are about to donate, and thereby support informed consent. Furthermore, it can make the data donation process more educational and enjoyable.</p>
+<section id="adding-visualizations-to-tables">
+<h2>Adding visualizations to tables<a class="headerlink" href="#adding-visualizations-to-tables" title="Link to this heading">#</a></h2>
+<p>Visualizations are always directly connected to a <strong>consent form table</strong>. When in script.py you create a consent form table, you can implement visualizations as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table_title</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span>
+    <span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;Table title&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Tabel titel&quot;</span>
+<span class="p">})</span>
+
+<span class="n">table</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTable</span><span class="p">(</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;tableId&quot;</span><span class="p">,</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">table_title</span><span class="p">,</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+    <span class="n">visualizations</span> <span class="o">=</span> <span class="p">[])</span>
+</pre></div>
+</div>
+<p>You can now add one or multiple <strong>visualization specifications</strong> to the <code class="docutils literal notranslate"><span class="pre">visualizations</span></code> list.</p>
+</section>
+<section id="visualization-specification">
+<h2>Visualization Specification<a class="headerlink" href="#visualization-specification" title="Link to this heading">#</a></h2>
+<p>A visualization specification provides instructions for creating a visualization based on the data in the table. This visualization will then be created dynamically, so that when the table is updated (e.g., when participants search the data or remove rows) the visualization is updated as well.</p>
+<p>A specification covers three main components:</p>
+<ul class="simple">
+<li><p><strong>Aggregation</strong>: How should the table data be aggregated. e.g., count the number of rows per day</p></li>
+<li><p><strong>Display</strong>: How should the aggregated data be displayed? e.g., line chart, bar chart, wordcloud</p></li>
+<li><p><strong>Labels</strong>: Any labels to help along interpretation, optionally with translations (as seen above in the table_title)</p></li>
+</ul>
+<p>A detailed explanation of the visualizatoin specification is shown below in the <strong>Specification Guide</strong>. But we recommend first having a look at the following examples.</p>
+</section>
+<section id="examples">
+<h2>Examples<a class="headerlink" href="#examples" title="Link to this heading">#</a></h2>
+<p>Say we have data about every time a participant viewed a certain channel, and we also also know the channel category (e.g., sports, entertainment) and the exact timestampe. We have put this in a <code class="docutils literal notranslate"><span class="pre">data_frame</span></code> with the columns: <strong>channel</strong>, <strong>category</strong> and <strong>timestamp</strong>. We can then make a number of different visualizations.</p>
+<section id="categorical-variables-bar-chart-of-views-per-category">
+<h3>Categorical variables | Bar chart of views per category<a class="headerlink" href="#categorical-variables-bar-chart-of-views-per-category" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis1</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views per category&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;bar&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Category&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">))]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The <strong>type</strong> determines the chart type, and can in this case be “bar”,”line” or “area”. The <strong>group</strong> determines how the data should be grouped and aggregated, which in this case is per category. The <strong>values</strong> determines the values to calculate per group, which here is just the count of the rows.</p>
+<p><strong>!!!</strong> Notice that <code class="docutils literal notranslate"><span class="pre">values</span></code> is a list, and not a single dictionary. Adding multiple value dictionaries will create multiple y-values, for grouped barcharts or multiple lines or areas.</p>
+<p>The <strong>label</strong>’s can be either a single <em>string</em> (as in the <code class="docutils literal notranslate"><span class="pre">group</span></code>) or a dictionary with different languages, where keys are country codes, and values are labels (as in the <code class="docutils literal notranslate"><span class="pre">values</span></code>).</p>
+</section>
+<section id="date-variables-area-chart-of-views-per-month">
+<h3>Date variables | Area chart of views per month<a class="headerlink" href="#date-variables-area-chart-of-views-per-month" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis2</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views over time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;area&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="s2">&quot;month&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span><span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">))]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>In this area chart (i.e. a line chart where the area below the line is coloured) we group the data by month, and use the same aggregation values as in the previous example to count the number of views per group.</p>
+<p>The <strong>dateFormat</strong> grouping variable can be set if the column is a date string in ISO format: <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code> for date or <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code> for datetime (You can also use <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DDTHH:SS:MM)</span></code>, but that doesn’t look niced in the table).</p>
+<p>The following formats are supported:</p>
+<ul class="simple">
+<li><p><strong>Fixed interval</strong>: “year”, “quarter”, “month”, “day”, “hour”</p></li>
+<li><p><strong>Automatic interval</strong>: “auto” will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with “hour” interval)</p></li>
+<li><p><strong>cycles / season</strong>: “month_cycle” (January - December), “weekday_cycle” (Monday - Sunday) and “hour_cycle” (1 - 24).</p></li>
+</ul>
+</section>
+<section id="second-level-aggregation-line-chart-of-views-over-time-per-category">
+<h3>Second-level aggregation | Line chart of views over time per category<a class="headerlink" href="#second-level-aggregation-line-chart-of-views-over-time-per-category" title="Link to this heading">#</a></h3>
+<p>Above we mentioned that you can add multiple values to create multiple y-values. But this only works if your data is <em>wide</em>. Alternatively, you can also perform a second-level aggregation on <em>long</em> data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis3</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;views per category over time&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;line&quot;</span><span class="p">,</span>
+    <span class="n">group</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">column</span> <span class="o">=</span> <span class="s2">&quot;timestamp&quot;</span><span class="p">,</span> <span class="n">dateFormat</span> <span class="o">=</span> <span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="s2">&quot;Month&quot;</span><span class="p">)</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">dict</span><span class="p">(</span>
+        <span class="n">aggregate</span> <span class="o">=</span> <span class="s2">&quot;count&quot;</span><span class="p">,</span>
+        <span class="n">label</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span> <span class="o">=</span> <span class="s2">&quot;number of views&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+        <span class="n">group_by</span> <span class="o">=</span> <span class="s2">&quot;category&quot;</span>
+    <span class="p">)]</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Here we changed three things. First, we changed the type to “line”, because that’s a bit easier on the eye with multiple y-values. Second, we added <code class="docutils literal notranslate"><span class="pre">group_by</span></code> to the aggregation value, setting it to “category”. This will break the values data into groups for categories, and calculate the aggregation statistic per category. This will be visualized as a line chart where the frequency of each category (e.g., sport, entertainment) will be displayed on separate lines.</p>
+<p>A third change is that we set the dateFormat to “auto” instead of fixing it to “month”. This will automatically pick a suitable time interval based on the range of column (last date - first date). This could mean that different participants see different intervals, depending on what works best for their own data.</p>
+</section>
+<section id="text-variables-a-wordcloud">
+<h3>Text variables | A wordcloud<a class="headerlink" href="#text-variables-a-wordcloud" title="Link to this heading">#</a></h3>
+<p>As a final example, we’ll look at a different sub-specification for visualizing textual data. We’ll make a wordcloud of channels, based on their frequency in the data.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">vis4</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">en</span><span class="o">=</span> <span class="s2">&quot;Most viewed channels&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">),</span>
+    <span class="nb">type</span> <span class="o">=</span> <span class="s2">&quot;wordcloud&quot;</span><span class="p">,</span>
+    <span class="n">textColumn</span> <span class="o">=</span> <span class="s1">&#39;channel&#39;</span><span class="p">,</span>
+    <span class="n">tokenize</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This creates a wordcloud of the full channel names. Note that we could also have tokenized the texts, but for channels (e.g., YouTube channels) the full names are probably most informative.</p>
+</section>
+</section>
+<section id="example-wrap-up">
+<h2>Example wrap-up<a class="headerlink" href="#example-wrap-up" title="Link to this heading">#</a></h2>
+<p>Now that we have created visualizations, we can add them to the consent form table. Note that above we assigned our specifications to <strong>vis1</strong> to <strong>vis4</strong>. We can now simply add them to the visualiations list.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">table</span> <span class="o">=</span> <span class="n">props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTable</span><span class="p">(</span>
+    <span class="nb">id</span> <span class="o">=</span> <span class="s2">&quot;tableId&quot;</span><span class="p">,</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">table_title</span><span class="p">,</span>
+    <span class="n">data_frame</span> <span class="o">=</span> <span class="n">df</span><span class="p">,</span>
+    <span class="n">visualizations</span> <span class="o">=</span> <span class="p">[</span><span class="n">vis1</span><span class="p">,</span> <span class="n">vis2</span><span class="p">,</span> <span class="n">vis3</span><span class="p">,</span> <span class="n">vis4</span><span class="p">])</span>
+</pre></div>
+</div>
+</section>
+<section id="specification-guide">
+<h2>Specification guide<a class="headerlink" href="#specification-guide" title="Link to this heading">#</a></h2>
+<p>This is an overview of the visualiation specification. First, there are some <strong>general visualization arguments</strong> that every visualization has. Second, there are specific arguments depending on the visualization <strong>type</strong></p>
+<section id="general-visualization-arguments">
+<h3>General visualization arguments<a class="headerlink" href="#general-visualization-arguments" title="Link to this heading">#</a></h3>
+<p>Every visualization has the following arguments</p>
+<ul class="simple">
+<li><p><strong>title</strong>: A title for the visualization. This has to be a translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>type</strong>: The type of the visualization. The type determines what specification you need to follow</p>
+<ul>
+<li><p><strong>Chart visualiation</strong>: “line”, “bar” or “area”</p></li>
+<li><p><strong>Text visualization</strong>: “wordcloud”</p></li>
+</ul>
+</li>
+<li><p><strong>height (optional)</strong>: The height of the chart in pixels</p></li>
+</ul>
+</section>
+<section id="chart-visualization-arguments">
+<h3>Chart visualization arguments<a class="headerlink" href="#chart-visualization-arguments" title="Link to this heading">#</a></h3>
+<p>Chart visualizations work by aggregating the data into X, Y and optionally Z axes. It’s the basis for most common charts.</p>
+<ul class="simple">
+<li><p><strong>type</strong>: “line”, “bar” or “area”</p></li>
+<li><p><strong>group</strong>: specifies the column to group and aggregate the data by. The group is visualized on the x-axis.</p>
+<ul>
+<li><p><strong>label</strong>: x-axis label. Either a string or translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>column</strong>: the name of the column</p></li>
+<li><p><strong>dateFormat (optional)</strong>: if column is a date, select how it should be grouped. (see <strong>dateFormat</strong> spec below)</p></li>
+<li><p><strong>levels (optional)</strong>. A list of strings with the specific column values to use. This also makes sure these values are displayed if they are missing in a participants data (also see <strong>values</strong> -&gt; <strong>addZeroes</strong>)</p></li>
+</ul>
+</li>
+<li><p><strong>values</strong>: A list (<strong>!!</strong>) of objects. Each object specifies an (aggregate) value to calculate per group. A value is visualized on the y-axis. Multiple values can be given for multiple y-values</p>
+<ul>
+<li><p><strong>label</strong>: y-axis label. Either a string or translation dictionary (see <strong>translation</strong> spec below)</p></li>
+<li><p><strong>column (optional)</strong>: the column based on which the value is calculated. Can be empty if just counting rows.</p></li>
+<li><p><strong>aggregate</strong>: The aggregation function. (see <strong>aggregate</strong> spec below)</p></li>
+<li><p><strong>addZeroes</strong>: Boolean. If true, add zeroes for empty groups. If <strong>levels</strong> are specified, participants will explicitly see that they occured zero times in their data. If <strong>dateFormat</strong> is used, this fills possible gaps (note that this mostly makes sense for row “count” aggregations where absense implies zero)</p></li>
+<li><p><strong>group_by (optional)</strong>: the name of a column to do a second-level aggregation. This will create multiple y-values where the value in the column becomes the label.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="text-visualization-arguments">
+<h3>Text visualization arguments<a class="headerlink" href="#text-visualization-arguments" title="Link to this heading">#</a></h3>
+<p>Text visualizations take a text column as input.</p>
+<ul class="simple">
+<li><p><strong>type</strong>: “wordcloud”</p></li>
+<li><p><strong>textColumn</strong>: A text (string) column in the data</p></li>
+<li><p><strong>tokenize (optional)</strong>: Boolean. If true, the text will be tokenized</p></li>
+<li><p><strong>valueColumn (optional)</strong>: By default, every text or token will be given a value based on the number of rows in which it occurs. Alternatively, you can specify a numeric column, in which case (the sum of) the values in this column will be used.</p></li>
+<li><p><strong>extract (optional)</strong>: Normally, all preprocessing of the data should be handled in the import scripts, but for convenience we will provide some common methods for extracting parts of a string. Currently supports:</p>
+<ul>
+<li><p>“url_domain”: If the column contains URLs, extract only the domain.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="spec-details">
+<h3>Spec details<a class="headerlink" href="#spec-details" title="Link to this heading">#</a></h3>
+<p>Here are some details for the more complicated spec components.</p>
+<section id="translation">
+<h4>- translation<a class="headerlink" href="#translation" title="Link to this heading">#</a></h4>
+<p>A translation dictionary has country codes as keys and the translations as values: <code class="docutils literal notranslate"><span class="pre">dict(en</span> <span class="pre">=</span> <span class="pre">&quot;english</span> <span class="pre">label&quot;,</span> <span class="pre">nl</span> <span class="pre">=</span> <span class="pre">&quot;dutch</span> <span class="pre">label&quot;)</span></code>. (This is identical to the dictionary used in the <code class="docutils literal notranslate"><span class="pre">props.Translatable</span></code>)</p>
+</section>
+<section id="dateformat">
+<h4>- dateFormat<a class="headerlink" href="#dateformat" title="Link to this heading">#</a></h4>
+<p>If column is a date (<code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span></code>, <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM</span></code> or <code class="docutils literal notranslate"><span class="pre">YYYY-MM-DD</span> <span class="pre">HH:MM:SS</span></code>), select how the date is grouped. options are:</p>
+<ul class="simple">
+<li><p><strong>Fixed interval</strong>: “year”, “quarter”, “month”, “day”, “hour”</p></li>
+<li><p><strong>Automatic interval</strong>: “auto” will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with “hour” interval)</p></li>
+<li><p><strong>cycles / season</strong>: “month_cycle” (January - December), “weekday_cycle” (Monday - Sunday) and “hour_cycle” (1 - 24).</p></li>
+</ul>
+</section>
+<section id="aggregate">
+<h4>- aggregate<a class="headerlink" href="#aggregate" title="Link to this heading">#</a></h4>
+<p>The function by which to aggregate the column in <code class="docutils literal notranslate"><span class="pre">values</span></code>. The following functions are currently supported</p>
+<ul class="simple">
+<li><p>“count” just counts the rows</p></li>
+<li><p>“mean” and “sum” require the value column to be numeric.</p></li>
+<li><p>“count_pct” gives the count as a percentage of the total number of rows.*</p></li>
+<li><p>“pct” sums the values of a numeric column and divides by the total sum.*</p></li>
+</ul>
+<p><strong>*</strong> <em>If a secondary aggregation is used, percentages are calculated within the primary aggregation group</em></p>
+</section>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="creating-your-own-data-donation-task.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Creating your own data donation task</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="next-and-port.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Next and Port</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-visualizations-to-tables">Adding visualizations to tables</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#visualization-specification">Visualization Specification</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#examples">Examples</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#categorical-variables-bar-chart-of-views-per-category">Categorical variables | Bar chart of views per category</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#date-variables-area-chart-of-views-per-month">Date variables | Area chart of views per month</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#second-level-aggregation-line-chart-of-views-over-time-per-category">Second-level aggregation | Line chart of views over time per category</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#text-variables-a-wordcloud">Text variables | A wordcloud</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example-wrap-up">Example wrap-up</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#specification-guide">Specification guide</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#general-visualization-arguments">General visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#chart-visualization-arguments">Chart visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#text-visualization-arguments">Text visualization arguments</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#spec-details">Spec details</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#translation">- translation</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dateformat">- dateFormat</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#aggregate">- aggregate</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
