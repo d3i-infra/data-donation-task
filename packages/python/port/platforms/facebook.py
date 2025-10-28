@@ -541,6 +541,7 @@ def your_saved_items_to_df(facebook_zip: str) -> pd.DataFrame:
 
 
 def comments_to_df(facebook_zip: str) -> pd.DataFrame:
+    # Needs fix
     b = eh.extract_file_from_zip(facebook_zip, "comments.json")
     d = eh.read_json_from_bytes(b)
 
