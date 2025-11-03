@@ -245,6 +245,7 @@ def read_chat_file(path_to_chat_file: str) -> list[str]:
             lines = f.readlines()
 
     out = [remove_unwanted_characters(line) for line in lines]
+    out.pop(0) # remove first element containing system message
 
     return out
 
