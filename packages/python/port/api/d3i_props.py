@@ -262,3 +262,26 @@ class PropsUIPromptQuestionnaire:
         dict["description"] = self.description.toDict()
         dict["questions"] = [q.toDict() for q in self.questions]
         return dict
+
+
+@dataclass
+class PropsUIPromptRetry:
+    """Retry submitting a file page
+
+    Prompt the user if they want to submit a new file.
+    This can be used in case a file could not be processed.
+
+    Attributes:
+        text: message to display
+        ok: message to display if the user wants to try again
+    """
+
+    text: props.Translatable
+    ok: props.Translatable
+
+    def toDict(self):
+        dict = {}
+        dict["__type__"] = "PropsUIPromptRetry"
+        dict["text"] = self.text.toDict()
+        dict["ok"] = self.ok.toDict()
+        return dict

@@ -1,15 +1,16 @@
-import { Weak } from '../../../../helpers'
-import { ReactFactoryContext } from '../../factory'
-import { PropsUIPromptConfirm } from '../../../../types/prompts'
-import { Translator } from '../../../../translator'
-import { BodyLarge } from '../elements/text'
-import { PrimaryButton } from '../elements/button'
+import {
+  BodyLarge,
+  Translator,
+  ReactFactoryContext,
+  PrimaryButton,
+} from "@eyra/feldspar"
+import { PropsUIPromptRetry } from "./types"
+
+type Props = PropsUIPromptRetry & ReactFactoryContext
+
 import { JSX } from 'react'
-import React from 'react'
 
-type Props = Weak<PropsUIPromptConfirm> & ReactFactoryContext
-
-export const Confirm = (props: Props): JSX.Element => {
+export const RetryPrompt = (props: Props): JSX.Element => {
   const { resolve } = props
   const { text, ok } = prepareCopy(props)
 

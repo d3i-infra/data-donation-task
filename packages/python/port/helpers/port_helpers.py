@@ -44,22 +44,22 @@ def render_page(
     page = props.PropsUIPageDataSubmission("does not matter", header, body)
     return CommandUIRender(page)
 
-
-def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
+def generate_retry_prompt(platform_name: str) -> d3i_props.PropsUIPromptRetry:
     """
-    Generates a confirmation prompt for retrying file processing.
+    Generate a bilingual retry prompt for file processing errors.
 
-    This function creates a bilingual (English and Dutch) confirmation prompt
-    when a file from a specific platform cannot be processed. It allows the user
-    to either try again with a different file or continue with the current file.
+    This function returns a bilingual (English and Dutch) retry prompt
+    when a file from a specific platform cannot be processed. It informs
+    the user that the file could not be processed and provides the option
+    to try again with a different file.
 
     Args:
         platform_name (str): The name of the platform associated with the file
-            that couldn't be processed. This is inserted into the prompt text.
+            that could not be processed. This name is inserted into the prompt text.
 
     Returns:
-        props.PropsUIPromptConfirm: A confirmation prompt object containing
-        the message, and labels for the "OK" (try again) and "Cancel" (continue) buttons.
+        d3i_props.PropsUIPromptRetry: A retry prompt object containing
+        the message text and the label for the "Try again" button.
     """
     text = props.Translatable({
         "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
@@ -69,11 +69,7 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
         "en": "Try again",
         "nl": "Probeer opnieuw"
     })
-    cancel = props.Translatable({
-        "en": "Continue",
-        "nl": "Verder"
-    })
-    return props.PropsUIPromptConfirm(text, ok, cancel)
+    return d3i_props.PropsUIPromptRetry(text, ok)
 
 
 def generate_file_prompt(extensions: str, multiple: bool = False) -> props.PropsUIPromptFileInput | d3i_props.PropsUIPromptFileInputMultiple:

@@ -73,12 +73,7 @@ class FlowBuilder:
                 if validation.get_status_code_id() != 0:
                     logger.info(f"Not a valid {self.platform_name} file; No payload; prompt retry_confirmation")
                     retry_prompt = self.generate_retry_prompt()
-                    retry_result = yield ph.render_page(self.UI_TEXT["retry_header"], retry_prompt)
-                    if retry_result.__type__ == "PayloadTrue":
-                        continue
-                    else:
-                        logger.info("Skipped during retry flow")
-                        break
+                    yield ph.render_page(self.UI_TEXT["retry_header"], retry_prompt)
             else:
                 logger.info("Skipped at file selection ending flow")
                 break
