@@ -354,7 +354,7 @@ def your_event_responses_to_df(facebook_zip: str) -> pd.DataFrame:
                 eh.epoch_to_iso(item.get("start_timestamp", ""))
             ))
 
-        out = pd.DataFrame(datapoints_sorted, columns=["Name", "Timestamp"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Name", "Timestamp"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -382,7 +382,7 @@ def group_posts_and_comments_to_df(facebook_zip: str) -> pd.DataFrame:
                 eh.find_item(denested_dict, "url"),
             ))
 
-        out = pd.DataFrame(datapoints_sorted, columns=["Title", "Post", "Date", "Url"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "Url"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -434,7 +434,7 @@ def your_comments_in_groups_to_df(facebook_zip: str) -> pd.DataFrame:
                 eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp")),
             ))
 
-        out = pd.DataFrame(datapoints_sorted, columns=["Title", "Comment", "Group", "Timestamp"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Title", "Comment", "Group", "Timestamp"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -531,7 +531,7 @@ def your_saved_items_to_df(facebook_zip: str) -> pd.DataFrame:
                 eh.epoch_to_iso(item.get("timestamp", ""))
             ))
 
-        out = pd.DataFrame(datapoints_sorted, columns=["Title", "Timestamp"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Title", "Timestamp"]) #pyright: ignore
         
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -558,7 +558,7 @@ def comments_to_df(facebook_zip: str) -> pd.DataFrame:
                 eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp")),
             ))
 
-        out = pd.DataFrame(datapoints_sorted, columns=["Title", "Comment", "Timestamp"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Title", "Comment", "Timestamp"]) #pyright: ignore
         
     except Exception as e:
         logger.error("Exception caught: %s", e)
