@@ -131,9 +131,9 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
   }
 
 
-  function serializeTable({ id, head, body: { rows } }: PropsUITable): any {
+  function serializeTable({ id, head, body: { rows }, deletedRowCount }: TableWithContext): any {
     const data = rows.map((row) => serializeRow(row, head))
-    return { [id]: data }
+    return { [id]: data, "deleted row count": deletedRowCount.toString() }
   }
 
   function serializeRow(row: PropsUITableRow, head: PropsUITableHead): any {
