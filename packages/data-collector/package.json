@@ -36,7 +36,7 @@
     "preview": "vite preview",
     "start": "vite",
     "test": "echo \"No tests specified\" && exit 0",
-    "clean": "rm -rf dist node_modules"
+    "clean": "rimraf dist node_modules"
   },
   "browserslist": {
     "production": [
