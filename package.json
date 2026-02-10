@@ -11,21 +11,26 @@
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
     "build:wheel": "cd packages/python && poetry build --format wheel",
-    "build:install-wheel": "cp -R packages/python/dist/*.whl packages/data-collector/public",
+    "build:install-wheel": "copyfiles -f packages/python/dist/*.whl packages/data-collector/public",
     "build:py": "pnpm run build:wheel && pnpm run build:install-wheel",
     "start:py": "nodemon --ext py --exec \"pnpm run build:py\"",
     "dev:feldspar": "pnpm run --filter @eyra/feldspar dev",
     "dev:demo": "pnpm run --filter @eyra/data-collector dev",
     "start": "pnpm run build:py && pnpm run --filter @eyra/feldspar build && concurrently \"pnpm run start:py\" \"pnpm run dev:feldspar\" \"pnpm run dev:demo\"",
     "clean": "pnpm run --recursive clean && rm -rf node_modules",
-    "release": "./release.sh"
+    "release": "node release.js"
   },
   "devDependencies": {
     "@playwright/test": "1.55.0",
     "@types/node": "24.3.1",
+    "archiver": "^7.0.1",
     "concurrently": "9.2.1",
+    "copyfiles": "^2.4.1",
+    "cross-env": "^10.1.0",
     "husky": "9.1.7",
-    "nodemon": "3.1.10"
+    "nodemon": "3.1.10",
+    "rimraf": "^6.1.2",
+    "shelljs": "^0.10.0"
   },
   "dependencies": {
     "fdir": "6.5.0",

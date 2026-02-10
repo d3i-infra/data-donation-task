@@ -11,12 +11,12 @@
         "dist/styles.css"
     ],
     "scripts": {
-        "build:css": "NODE_ENV=production postcss ./src/framework/styles.css -o ./dist/styles.css",
+        "build:css": "cross-env NODE_ENV=production postcss ./src/framework/styles.css -o ./dist/styles.css",
         "build:ts": "rollup -c",
         "build": "pnpm run build:css && pnpm run build:ts",
         "dev": "concurrently \"rollup -c -w\" \"tailwindcss build -i ./src/framework/styles.css -o ./dist/styles.css --watch\"",
         "test": "jest",
-        "clean": "rm -rf dist node_modules"
+        "clean": "rimraf dist node_modules"
     },
     "peerDependencies": {
         "react": "19.1.1",
