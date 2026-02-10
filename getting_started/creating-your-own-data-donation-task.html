@@ -1,0 +1,552 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating your own data donation task &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/creating-your-own-data-donation-task';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding data visualizations" href="visualizations.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/creating-your-own-data-donation-task.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Creating your own data donation task</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d3i-example-script-py"><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#start-writing-your-own-d3i-example-script-py-using-the-api">Start writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> using the api</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-usage-of-yield-in-d3i-example-script-py">The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code> in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-python-packages">Install Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#try-the-donation-task-from-the-perspective-of-the-participant">Try the donation task from the perspective of the participant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-when-writing-your-own-d3i-example-script-py">Tips when writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits-of-the-data-donation-task">Limits of the data donation task</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="creating-your-own-data-donation-task">
+<h1>Creating your own data donation task<a class="headerlink" href="#creating-your-own-data-donation-task" title="Link to this heading">#</a></h1>
+<p>After you have forked or cloned and installed the repository you can start creating your own donation task.</p>
+<p>You can create your own study by changing and/or adapting the code in the following directory <code class="docutils literal notranslate"><span class="pre">packages/python/port</span></code>
+This directory contains the following files:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code>: Contains your donation task logic; which screen the participants will see and in what order</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">api/commands.py</span></code>: Contains the render and the donate commands</p></li>
+</ul>
+<section id="d3i-example-script-py">
+<h2><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code><a class="headerlink" href="#d3i-example-script-py" title="Link to this heading">#</a></h2>
+<p>Lets look at the example script in <a class="reference external" href="https://github.com/d3i-infra/data-donation-task/blob/master/packages/python/port/d3i_example_script.py"><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> must contain a function called <code class="docutils literal notranslate"><span class="pre">process</span></code> this function determines the whole data donation task from start to finish (Which screens the participant will see and in what order, and what kind of data extraction will take place).</p>
+<p>In this example process defines the following data donation task:</p>
+<ol class="arabic simple">
+<li><p>Ask the participant to submit a zip file</p></li>
+<li><p>Perform validation on the submitted zip file, if not valid return to step 1</p></li>
+<li><p>Extract the data from the submitted zip file</p></li>
+<li><p>Render the extract data on screen in a table</p></li>
+<li><p>Send the data to the data storage upon consent</p></li>
+</ol>
+<p>Although these can vary per data donation task, they will be mostly similar.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> is annotated, read it carefully and see whether you can follow the logic.</p>
+</section>
+<section id="start-writing-your-own-d3i-example-script-py-using-the-api">
+<h2>Start writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> using the api<a class="headerlink" href="#start-writing-your-own-d3i-example-script-py-using-the-api" title="Link to this heading">#</a></h2>
+<p>Now that you have seen a full example, you can start to try and create your own data donation task. With the elements from the example you can already build some pretty intricate data donation tasks.
+Start creating your own by <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> by adapting this example to your own needs, for example, instead of file names you could extract data you would actually like to extract yourself.</p>
+<p>If you want to see which up what UI elements are available to you checkout <code class="docutils literal notranslate"><span class="pre">api/props.py</span></code> or <code class="docutils literal notranslate"><span class="pre">api/d3i_props.py</span></code>.</p>
+</section>
+<section id="the-usage-of-yield-in-d3i-example-script-py">
+<h2>The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code> in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code><a class="headerlink" href="#the-usage-of-yield-in-d3i-example-script-py" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">yield</span></code> makes sure that whenever the code resumes after a page render, it starts where it left off.
+If you render a page you need to use yield instead of return, just like in the example.</p>
+</section>
+<section id="install-python-packages">
+<h2>Install Python packages<a class="headerlink" href="#install-python-packages" title="Link to this heading">#</a></h2>
+<p>The data donation task runs in the browser of the participant, it is important to understand that when Python is running in your browser it is not using the Python version you have installed on your system.
+The data donation task is using <a class="reference external" href="https://pyodide.org/en/stable/">Pyodide</a> this is Python compiled to web assembly that runs in the browser.
+This means that packages you have available on your system install of Python, won’t be available in the browser.</p>
+<p>If you want to use external packages they should be available for Pyodide, you can check the list of available packages <a class="reference external" href="https://pyodide.org/en/stable/usage/packages-in-pyodide.html">here</a>.
+If you have found a package you want to use you can installed it by adding it to the array in the <code class="docutils literal notranslate"><span class="pre">loadPackages</span></code> function in <code class="docutils literal notranslate"><span class="pre">src/framework/processing/py_worker.js</span></code> as shown below:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// src/framework/processing/py_worker.js</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">loadPackages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ProcessingWorker] loading packages&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="c1">// These packages are now installed and usable: micropip, numpy, pandas, and lxml</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">self</span><span class="p">.</span><span class="nx">pyodide</span><span class="p">.</span><span class="nx">loadPackage</span><span class="p">([</span><span class="s1">&#39;micropip&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pandas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lxml&#39;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can now import the packages as you would normally do in Python.</p>
+</section>
+<section id="try-the-donation-task-from-the-perspective-of-the-participant">
+<h2>Try the donation task from the perspective of the participant<a class="headerlink" href="#try-the-donation-task-from-the-perspective-of-the-participant" title="Link to this heading">#</a></h2>
+<p>If you want to try out the above example, follow the installation instructions and start the server with <code class="docutils literal notranslate"><span class="pre">pnpm</span> <span class="pre">run</span> <span class="pre">start</span></code>.</p>
+</section>
+<section id="tips-when-writing-your-own-d3i-example-script-py">
+<h2>Tips when writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code><a class="headerlink" href="#tips-when-writing-your-own-d3i-example-script-py" title="Link to this heading">#</a></h2>
+<p><strong>Split the extraction logic from the data donation task logic</strong>
+You can define your own modules where you create your data extraction, you can <code class="docutils literal notranslate"><span class="pre">import</span></code> those modules in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></p>
+<p><strong>Develop in separate script</strong>
+You are better off engineering your extraction logic in different scripts and put them in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> whenever you are finished developing. Only do small tweaks in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></p>
+<p><strong>Use the console in your browser</strong>
+In case of errors they will show up in the browser console. You can use <code class="docutils literal notranslate"><span class="pre">print</span></code> in the Python script and it will show up in the browser console.</p>
+<p><strong>Keep the diverse nature of DDPs into account</strong>
+At least check a couple of DDPs to make sure its reflective of the population you are interesed in. Thinks you can check are: data formats (html, json, plain text, csv, etc.), language settings (they somethines lead to json keys being in a different language or file names other than English).</p>
+<p><strong>Keep your code efficient</strong>
+If your code is not efficient the extraction will take longer, which can result in a bad experience for the participant. In practice I have found that in most cases it’s not really an issue, and don’t have to pay that much attention to efficiency of your code.
+Where efficiency really matters is when you have parse huge html files, beautifulsoup4 is a library that is commonly used to do this, this library is too slow however. As an alternative you can use lxml which is fast enough.</p>
+<p><strong>Don’t let your code crash</strong>
+You cannot have your script crash, if your Python script crashes the task stops as well. This is not a good experience for your participant.
+For example in the code you do the following: <code class="docutils literal notranslate"><span class="pre">value_i_want_to_extract</span> <span class="pre">=</span> <span class="pre">extracted_data_in_a_dictionary[&quot;interesting</span> <span class="pre">key&quot;]</span></code> if the key <code class="docutils literal notranslate"><span class="pre">&quot;interesting</span> <span class="pre">key&quot;</span></code> does not exists, because it does not occur in the data of the participant, the script crashes and the participant cannot continue the data donation task.</p>
+<p><strong>Data donation checklist</strong>
+Creating a good data donation task can be hard due to the variety of DDPs you will encounted.
+Check out the following <a class="reference external" href="https://github.com/d3i-infra/data-donation-task/wiki/Data-donation-checklist">wiki article</a></p>
+</section>
+<section id="limits-of-the-data-donation-task">
+<h2>Limits of the data donation task<a class="headerlink" href="#limits-of-the-data-donation-task" title="Link to this heading">#</a></h2>
+<p>Currently the data donation task has the following limitations:</p>
+<ul class="simple">
+<li><p>The data donation task is a frontend, you need to package this together with Next to deploy it. If you want to use it with your own backend you have to make the data donation task compatible with it yourself. A tutorial on how to do this might be added in the future.</p></li>
+<li><p>The data donation task is running in the browser of the participant that brings in limitations, such as constraints on the files participant can submit. The limits are around 4 GiB thats what Pyodide can handle. But less is better. So keep that in mind whenever you, for example, want to collect data from YouTube: your participants should exclude their own personal videos from their DDP (including these would result in a huge number of separate DDPs of around 4 GiB).</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualizations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adding data visualizations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#d3i-example-script-py"><code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#start-writing-your-own-d3i-example-script-py-using-the-api">Start writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code> using the api</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-usage-of-yield-in-d3i-example-script-py">The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code> in <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-python-packages">Install Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#try-the-donation-task-from-the-perspective-of-the-participant">Try the donation task from the perspective of the participant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips-when-writing-your-own-d3i-example-script-py">Tips when writing your own <code class="docutils literal notranslate"><span class="pre">d3i_example_script.py</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits-of-the-data-donation-task">Limits of the data donation task</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
