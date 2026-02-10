@@ -21,14 +21,14 @@
     "release": "node release.js"
   },
   "devDependencies": {
-    "@playwright/test": "1.55.0",
-    "@types/node": "24.3.1",
+    "@playwright/test": "1.58.2",
+    "@types/node": "25.2.3",
     "archiver": "^7.0.1",
     "concurrently": "9.2.1",
     "copyfiles": "^2.4.1",
     "cross-env": "^10.1.0",
     "husky": "9.1.7",
-    "nodemon": "3.1.10",
+    "nodemon": "3.1.11",
     "rimraf": "^6.1.2",
     "shelljs": "^0.10.0"
   },
