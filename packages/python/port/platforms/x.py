@@ -5,6 +5,26 @@ This module contains an example flow of a X data donation study
 
 Assumptions:
 It handles DDPs in the english language with filetype js.
+
+Configuration
+-------------
+The ``extraction`` function is driven by ``port_config.json``.  Generate one with::
+
+    pnpm generate-config x
+
+Each extractor function carries its own table config in a ``Table config::``
+JSON block inside its docstring.  The generator reads those blocks and
+assembles the JSON file.
+
+Platform info::
+
+    {
+        "name": "X",
+        "filetypes": ["js"],
+        "languages": ["en", "nl"],
+        "description": "Handles DDPs in English. DDP files use the .js extension with a JavaScript variable assignment prefix. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
+        "time_last_tested": "not yet implemented"
+    }
 """
 
 import logging
@@ -12,13 +32,10 @@ from collections import Counter
 import json
 import io
 import re
-from typing import Any
+from typing import Any, Callable
 
 import pandas as pd
 
-import port.api.props as props
-import port.api.d3i_props as d3i_props
-from port.api.d3i_props import ExtractionResult
 import port.helpers.extraction_helpers as eh
 import port.helpers.validate as validate
 from port.helpers.extraction_helpers import ZipArchiveReader
@@ -28,6 +45,11 @@ from port.helpers.validate import (
     DDPCategory,
     DDPFiletype,
     Language,
+)
+from port.api.d3i_props import ExtractionResult
+from port.helpers.table_extractor import (
+    load_port_config,
+    run_extraction,
 )
 
 logger = logging.getLogger(__name__)
@@ -75,7 +97,51 @@ def bytesio_to_listdict(bytes_to_read: io.BytesIO) -> list[dict[Any, Any]]:
 
 
 def ad_engagement_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract ad engagement data from X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Text``, ``Impression time``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one advertisement the participant engaged with on X (Twitter), including the tweet text and the time of the impression.",
+          "source_file": "ad-engagements.js",
+          "columns": {
+            "Text": "Text of the promoted tweet shown to the participant.",
+            "Impression time": "Timestamp of when the ad impression occurred."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_ad_engagement",
+          "title": {
+            "en": "Your engagement with ads",
+            "nl": "Je interactie met advertenties"
+          },
+          "description": {
+            "en": "Shows data about your interactions with advertisements on the platform",
+            "nl": "Toont gegevens over uw interacties met advertenties op het platform"
+          },
+          "headers": {
+            "Text": {"en": "Text", "nl": "Tekst"},
+            "Impression time": {"en": "Impression time", "nl": "Impressietijd"}
+          }
+        }
+    """
     result = reader.raw("ad-engagements.js")
     if not result.found:
         return pd.DataFrame()
@@ -101,7 +167,51 @@ def ad_engagement_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
 
 
 def personalization_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract X (Twitter) personalization interests.
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Interest``, ``is disabled``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one interest category X (Twitter) has associated with the participant's account for personalization purposes.",
+          "source_file": "personalization.js",
+          "columns": {
+            "Interest": "Name of the interest category.",
+            "is disabled": "Whether this interest is disabled for personalization."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_personalization",
+          "title": {
+            "en": "Your personalization",
+            "nl": "Je personalisatie"
+          },
+          "description": {
+            "en": "Information about your personalization settings and preferences",
+            "nl": "Informatie over uw personalisatie-instellingen en voorkeuren"
+          },
+          "headers": {
+            "Interest": {"en": "Interest", "nl": "Interesse"},
+            "is disabled": {"en": "Is disabled", "nl": "Uitgeschakeld"}
+          }
+        }
+    """
     result = reader.raw("personalization.js")
     if not result.found:
         return pd.DataFrame()
@@ -128,10 +238,46 @@ def personalization_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
 
 
 def follower_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    following.js
-    """
+    """Extract the participant's X (Twitter) followers.
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Link to user``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one account that follows the participant on X (Twitter).",
+          "source_file": "follower.js",
+          "columns": {
+            "Link to user": "URL link to the follower's X profile."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_follower",
+          "title": {"en": "Your followers", "nl": "Je volgers"},
+          "description": {
+            "en": "List of accounts that follow your profile",
+            "nl": "Lijst van accounts die jouw profiel volgen"
+          },
+          "headers": {
+            "Link to user": {"en": "Link to user", "nl": "Link naar gebruiker"}
+          }
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -154,10 +300,46 @@ def follower_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def following_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    following.js
-    """
+    """Extract the accounts the participant follows on X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Link to user``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one account the participant follows on X (Twitter).",
+          "source_file": "following.js",
+          "columns": {
+            "Link to user": "URL link to the followed account's X profile."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_following",
+          "title": {"en": "Accounts you follow", "nl": "Accounts die je volgt"},
+          "description": {
+            "en": "List of accounts that you are following",
+            "nl": "Lijst van accounts die je volgt"
+          },
+          "headers": {
+            "Link to user": {"en": "Link to user", "nl": "Link naar gebruiker"}
+          }
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -179,12 +361,60 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     return out
 
 
-
 def like_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    like.js
-    """
+    """Extract the participant's liked posts on X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Tweet Id``, ``Tweet``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one post the participant liked on X (Twitter), including a link to the tweet and its full text.",
+          "source_file": "like.js",
+          "columns": {
+            "Tweet Id": "URL link to the liked tweet.",
+            "Tweet": "Full text of the liked tweet."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_like",
+          "title": {"en": "Posts that you liked", "nl": "Berichten die je leuk vond"},
+          "description": {
+            "en": "Posts that you've marked as liked",
+            "nl": "Berichten die je hebt geliked"
+          },
+          "headers": {
+            "Tweet Id": {"en": "Tweet Id", "nl": "Tweet-id"},
+            "Tweet": {"en": "Tweet", "nl": "Tweet"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Words in Tweets you liked, larger words mean they occur more often",
+                "nl": "Woorden in Tweets die je leuk vond, grotere woorden komen vaker voor"
+              },
+              "type": "wordcloud",
+              "textColumn": "Tweet",
+              "tokenize": true
+            }
+          ]
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -209,10 +439,61 @@ def like_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def tweets_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    tweets.js
-    """
+    """Extract the participant's tweets from X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Date``, ``Tweet``, ``Retweeted``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one tweet posted by the participant on X (Twitter).",
+          "source_file": "tweets.js",
+          "columns": {
+            "Date": "Timestamp of when the tweet was created.",
+            "Tweet": "Full text of the tweet.",
+            "Retweeted": "Whether the tweet was a retweet."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_tweet",
+          "title": {"en": "Your tweets", "nl": "Jouw Tweets"},
+          "description": {
+            "en": "Posts you have created on the platform",
+            "nl": "Berichten die je hebt geplaatst op het platform"
+          },
+          "headers": {
+            "Date": {"en": "Date", "nl": "Datum en tijd"},
+            "Tweet": {"en": "Tweet", "nl": "Tweet"},
+            "Retweeted": {"en": "Retweeted", "nl": "Geretweeted"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Words in your Tweets, larger words mean they occur more often in your Tweets",
+                "nl": "Woorden in je Tweets, grotere woorden komen vaker voor"
+              },
+              "type": "wordcloud",
+              "textColumn": "Tweet",
+              "tokenize": true
+            }
+          ]
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -237,10 +518,46 @@ def tweets_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def block_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    block.js
-    """
+    """Extract the accounts the participant has blocked on X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Blocked users``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one account the participant has blocked on X (Twitter).",
+          "source_file": "block.js",
+          "columns": {
+            "Blocked users": "URL link to the blocked account's X profile."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_block",
+          "title": {"en": "Accounts you blocked", "nl": "Accounts die je hebt geblokkeerd"},
+          "description": {
+            "en": "List of accounts you have blocked",
+            "nl": "Lijst van accounts die je hebt geblokkeerd"
+          },
+          "headers": {
+            "Blocked users": {"en": "Blocked users", "nl": "Geblokkeerde gebruikers"}
+          }
+        }
+    """
     result = reader.raw("block.js")
     if not result.found:
         return pd.DataFrame()
@@ -264,10 +581,46 @@ def block_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def mute_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """
-    mute.js
-    """
+    """Extract the accounts the participant has muted on X (Twitter).
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Muted users``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one account the participant has muted on X (Twitter).",
+          "source_file": "mute.js",
+          "columns": {
+            "Muted users": "URL link to the muted account's X profile."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_mute",
+          "title": {"en": "Accounts you muted", "nl": "Accounts die je hebt gedempt"},
+          "description": {
+            "en": "List of accounts you have muted",
+            "nl": "Lijst van accounts die je hebt gedempt"
+          },
+          "headers": {
+            "Muted users": {"en": "Muted users", "nl": "Gedempte gebruikers"}
+          }
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -290,6 +643,50 @@ def mute_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def tweet_headers_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract tweet header metadata from X (Twitter).
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Tweet id``, ``User id``, ``Created at``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents metadata for one tweet posted by the participant, without the full tweet text.",
+          "source_file": "tweet-headers.js",
+          "columns": {
+            "Tweet id": "Unique identifier of the tweet.",
+            "User id": "Unique identifier of the tweet author.",
+            "Created at": "Timestamp of when the tweet was created."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_tweet_headers",
+          "title": {"en": "Tweet headers", "nl": "Tweet-headers"},
+          "description": {
+            "en": "Metadata information about your tweets",
+            "nl": "Metadata-informatie over uw tweets"
+          },
+          "headers": {
+            "Tweet id": {"en": "Tweet id", "nl": "Tweet-id"},
+            "User id": {"en": "User id", "nl": "Gebruikers-id"},
+            "Created at": {"en": "Created at", "nl": "Aangemaakt op"}
+          }
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -316,6 +713,50 @@ def tweet_headers_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
 
 
 def user_link_clicks_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract links clicked by the participant on X (Twitter).
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Tweet id``, ``Link``, ``Datum en tijd``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one link the participant clicked while using X (Twitter).",
+          "source_file": "user-link-clicks.js",
+          "columns": {
+            "Tweet id": "ID of the tweet containing the clicked link.",
+            "Link": "The final URL that was clicked.",
+            "Datum en tijd": "Timestamp of when the link was clicked."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "x_user_link_clicks",
+          "title": {"en": "Links you clicked", "nl": "Links die je hebt aangeklikt"},
+          "description": {
+            "en": "Record of links you've clicked on while using the platform",
+            "nl": "Overzicht van links waarop je hebt geklikt tijdens het gebruik van het platform"
+          },
+          "headers": {
+            "Tweet id": {"en": "Tweet id", "nl": "Tweet-id"},
+            "Link": {"en": "Link", "nl": "Link"},
+            "Datum en tijd": {"en": "Date", "nl": "Datum en tijd"}
+          }
+        }
+    """
     datapoints = []
     out = pd.DataFrame()
 
@@ -341,173 +782,57 @@ def user_link_clicks_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Data
     return out
 
 
+# ---------------------------------------------------------------------------
+# Extractor registry & platform info
+# ---------------------------------------------------------------------------
 
-def extraction(reader: ZipArchiveReader) -> ExtractionResult:
-    errors = reader.errors
-    tables = [
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_ad_engagement",
-            data_frame=ad_engagement_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Your engagement with ads",
-                "nl": "Ad engagement"
-            }),
-            description=props.Translatable({
-                "en": "Shows data about your interactions with advertisements on the platform",
-                "nl": "Toont gegevens over uw interacties met advertenties op het platform"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_follower",
-            data_frame=follower_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Your followers",
-                "nl": "Follower"
-            }),
-            description=props.Translatable({
-                "en": "List of accounts that follow your profile",
-                "nl": "Lijst van accounts die jouw profiel volgen"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_following",
-            data_frame=following_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Accounts you follow",
-                "nl": "Following"
-            }),
-            description=props.Translatable({
-                "en": "List of accounts that you are following",
-                "nl": "Lijst van accounts die je volgt"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_block",
-            data_frame=block_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Accounts you blocked",
-                "nl": "Block"
-            }),
-            description=props.Translatable({
-                "en": "List of accounts you have blocked",
-                "nl": "Lijst van accounts die je hebt geblokkeerd"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_like",
-            data_frame=like_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Posts that you liked",
-                "nl": "Like"
-            }),
-            description=props.Translatable({
-                "en": "Posts that you've marked as liked",
-                "nl": "Berichten die je hebt geliked"
-            }),
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Words in Tweets you liked, larger words mean they occur more often",
-                        "nl": "Words in Tweets you liked, larger words mean they occur more often"
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Tweet",
-                    "tokenize": True,
-                }
-            ]
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_tweet",
-            data_frame=tweets_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Your tweets",
-                "nl": "Jouw Tweets"
-            }),
-            description=props.Translatable({
-                "en": "Posts you have created on the platform",
-                "nl": "Berichten die je hebt geplaatst op het platform"
-            }),
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Words in your Tweets, larger words mean they occur more often in your Tweets",
-                        "nl": "Words in your Tweets, larger words mean they occur more often in your Tweets"
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Tweet",
-                    "tokenize": True,
-                }
-            ]
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_personalization",
-            data_frame=personalization_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Your personalization",
-                "nl": "Personalization"
-            }),
-            description=props.Translatable({
-                "en": "Information about your personalization settings and preferences",
-                "nl": "Informatie over uw personalisatie-instellingen en voorkeuren"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_mute",
-            data_frame=mute_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Accounts you muted",
-                "nl": "Mute"
-            }),
-            description=props.Translatable({
-                "en": "List of accounts you have muted",
-                "nl": "Lijst van accounts die je hebt gedempt"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_tweet_headers",
-            data_frame=tweet_headers_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Tweet headers",
-                "nl": "Tweet headers"
-            }),
-            description=props.Translatable({
-                "en": "Metadata information about your tweets",
-                "nl": "Metadata-informatie over uw tweets"
-            })
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="x_user_link_clicks",
-            data_frame=user_link_clicks_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Links you clicked",
-                "nl": "User link clicks"
-            }),
-            description=props.Translatable({
-                "en": "Record of links you've clicked on while using the platform",
-                "nl": "Overzicht van links waarop je hebt geklikt tijdens het gebruik van het platform"
-            })
-        )
-    ]
+#: Mapping from the string names used in port_config.json to actual extractor functions.
+EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "ad_engagement_to_df": ad_engagement_to_df,
+    "follower_to_df": follower_to_df,
+    "following_to_df": following_to_df,
+    "block_to_df": block_to_df,
+    "like_to_df": like_to_df,
+    "tweets_to_df": tweets_to_df,
+    "personalization_to_df": personalization_to_df,
+    "mute_to_df": mute_to_df,
+    "tweet_headers_to_df": tweet_headers_to_df,
+    "user_link_clicks_to_df": user_link_clicks_to_df,
+}
 
-    # Filter out tables with empty dataframes
-    return ExtractionResult(
-        tables=[table for table in tables if not table.data_frame.empty],
-        errors=errors,
-    )
 
+# ---------------------------------------------------------------------------
+# Main extraction & flow
+# ---------------------------------------------------------------------------
+
+def extraction(x_zip: str, validation) -> ExtractionResult:
+    """Extract data from an X (Twitter) DDP zip and return consent-form tables.
+
+    Parameters
+    ----------
+    x_zip:
+        Path to the X DDP zip archive on disk.
+    validation:
+        Validation result object whose ``archive_members`` attribute is passed
+        to ``ZipArchiveReader``.
+    """
+    config = load_port_config(EXTRACTOR_REGISTRY)
+    errors: Counter = Counter()
+    reader = ZipArchiveReader(x_zip, validation.archive_members, errors)
+    return run_extraction(reader, errors, config)
 
 
 class XFlow(FlowBuilder):
+    """Flow implementation for the X data donation study."""
+
     def __init__(self, session_id: str):
         super().__init__(session_id, "X")
-        
+
     def validate_file(self, file):
         return validate.validate_zip(DDP_CATEGORIES, file)
-        
+
     def extract_data(self, file_value, validation):
-        errors = Counter()
-        reader = ZipArchiveReader(file_value, validation.archive_members, errors)
-        return extraction(reader)
+        return extraction(file_value, validation)
 
 
 def process(session_id):

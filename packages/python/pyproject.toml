@@ -3,7 +3,10 @@ name = "port"
 version = "0.0.0"
 description = "Port package with Data DataSubmission"
 authors = ["Emiel van der Veen <e.vanderveen@eyra.co>"]
-include = [{ path = "port/assets", format = ["sdist", "wheel"] }]
+include = [
+  { path = "port/assets", format = ["sdist", "wheel"] },
+  { path = "port/port_config.json", format = ["sdist", "wheel"] },
+]
 
 [tool.poetry.dependencies]
 python = ">=3.11"
