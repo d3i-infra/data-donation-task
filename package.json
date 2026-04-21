@@ -23,6 +23,7 @@
     "clean": "pnpm run --recursive clean && rm -rf node_modules",
     "release": "node release.js",
     "release:platforms": "bash release.sh",
+    "generate-config": "bash scripts/gen_port_config.sh",
     "doctor": "bash scripts/doctor.sh"
   },
   "devDependencies": {

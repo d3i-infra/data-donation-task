@@ -5,9 +5,26 @@ This module contains an example flow of a WhatsApp Group Chat data donation stud
 
 Assumptions:
 It handles DDPs containing a group chat. This extraction is not perfect because the text file containg the group chat does not follow a structure, however it performs well enough.
+
+Note: WhatsApp DDPs are plain-text chat exports rather than structured JSON/CSV
+archives.  The extraction pipeline parses the chat file into a DataFrame before
+any per-table function runs, so these functions cannot conform to the standard
+``(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame`` extractor
+signature used by other platforms.  Accordingly, WhatsApp does not use
+``EXTRACTOR_REGISTRY`` or ``run_extraction``.
+
+Platform info::
+
+    {
+        "name": "WhatsApp Group Chat",
+        "filetypes": ["txt", "zip"],
+        "languages": ["en", "nl"],
+        "description": "Handles WhatsApp group chat exports in plain-text format. Multiple date/time formats and locales are supported. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
+        "time_last_tested": "not yet implemented"
+    }
 """
 
-from typing import Tuple, TypedDict
+from typing import Callable, Tuple, TypedDict
 from collections import Counter
 from dateutil import parser
 import unicodedata
@@ -17,8 +34,6 @@ import re
 
 import pandas as pd
 
-import port.api.props as props
-import port.api.d3i_props as d3i_props
 from port.api.d3i_props import ExtractionResult
 import port.helpers.validate as validate
 from port.helpers.flow_builder import FlowBuilder
@@ -373,101 +388,240 @@ def favorite_emoji(df: pd.DataFrame, name: str) -> str:
     return most_common_emoji
 
 
-def user_statistics_to_df(df, user):
-    statistics = [
-        ("who reacted to you the most", who_reacted_to_you_the_most(df, user)),
-        ("who you reacted to the most", who_you_reacted_to_the_most(df, user)),
-        ("total number of messages you send", total_number_of_messages(df, user)),
-        ("total number of words you send", total_number_of_words(df, user)),
-        ("The emoji you used most", favorite_emoji(df, user)),
-    ]
-    return pd.DataFrame(statistics, columns=["Description", "Statistic"]) # pyright: ignore
+def chat_messages_to_df(df: pd.DataFrame, errors: Counter) -> pd.DataFrame:
+    """Return the full group chat as a DataFrame.
 
+    Parameters
+    ----------
+    df:
+        Pre-parsed chat DataFrame with columns ``date``, ``name``,
+        ``chat_message``.
+    errors:
+        Mutable counter for error accumulation.  Unused here but required by
+        the extractor protocol.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Timestamp``, ``Name``, ``Message``.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one message in the WhatsApp group chat, including the sender name, message text, and timestamp.",
+          "source_file": "WhatsApp chat export (.txt or .zip)",
+          "columns": {
+            "Timestamp": "ISO 8601 timestamp of the message.",
+            "Name": "Display name of the message sender.",
+            "Message": "Text content of the message."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "whatsapp_group_chat",
+          "title": {
+            "en": "Your group chat",
+            "nl": "Je groepsgesprek"
+          },
+          "description": {
+            "en": "The contents of your group chat. Timestamps (and therefore some tables) can be incorrect as it assumes the European format.",
+            "nl": "De inhoud van je groepsgesprek. Tijdstempels (en dus sommige tabellen) kunnen onjuist zijn omdat het Europese formaat wordt aangenomen."
+          },
+          "headers": {
+            "Timestamp": {"en": "Timestamp", "nl": "Tijdstempel"},
+            "Name": {"en": "Name", "nl": "Naam"},
+            "Message": {"en": "Message", "nl": "Bericht"}
+          },
+          "visualizations": [
+            {
+              "title": {"en": "Most common words in your chats", "nl": "Meest gebruikte woorden in je gesprekken"},
+              "type": "wordcloud",
+              "textColumn": "Message",
+              "tokenize": true
+            },
+            {
+              "title": {"en": "Total chats per month of the year", "nl": "Totaal chats per maand"},
+              "type": "area",
+              "group": {"column": "Timestamp", "dateFormat": "month"},
+              "values": [{}]
+            },
+            {
+              "title": {"en": "Total chats per hour of the day", "nl": "Totaal chats per uur van de dag"},
+              "type": "bar",
+              "group": {"column": "Timestamp", "dateFormat": "hour_cycle"},
+              "values": [{}]
+            }
+          ]
+        }
+    """
+    return df.rename(columns={"date": "Timestamp", "name": "Name", "chat_message": "Message"})
+
+
+def emoji_usage_to_df(df: pd.DataFrame, errors: Counter) -> pd.DataFrame:
+    """Return the 100 most used emojis across all chat members.
+
+    Parameters
+    ----------
+    df:
+        Pre-parsed chat DataFrame with a ``chat_message`` column.
+    errors:
+        Mutable counter for error accumulation.  Unused here but required by
+        the extractor protocol.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Emoji``, ``Count``.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one emoji used in the group chat, ranked by frequency across all members.",
+          "source_file": "WhatsApp chat export (.txt or .zip)",
+          "columns": {
+            "Emoji": "The emoji character.",
+            "Count": "Total number of times this emoji was used."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "whatsapp_emoji_usage",
+          "title": {
+            "en": "The 100 most used emojis in the group",
+            "nl": "De 100 meest gebruikte emojis in de groep"
+          },
+          "description": {
+            "en": "Analysis of emoji frequency used by all members in the chat.",
+            "nl": "Analyse van emoji-frequentie gebruikt door alle leden in de chat."
+          },
+          "headers": {
+            "Emoji": {"en": "Emoji", "nl": "Emoji"},
+            "Count": {"en": "Count", "nl": "Aantal"}
+          }
+        }
+    """
+    return find_emojis(df)
+
+
+def user_statistics_to_df(df: pd.DataFrame, errors: Counter) -> pd.DataFrame:
+    """Return messaging statistics for every detected user in the chat.
+
+    Parameters
+    ----------
+    df:
+        Pre-parsed chat DataFrame with columns ``date``, ``name``,
+        ``chat_message``.
+    errors:
+        Mutable counter for error accumulation.  Unused here but required by
+        the extractor protocol.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``User``, ``Description``, ``Statistic``.
+        One row per (user, metric) combination.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents a messaging statistic for one detected chat participant, including who they interact with most and their emoji usage.",
+          "source_file": "WhatsApp chat export (.txt or .zip)",
+          "columns": {
+            "User": "Display name of the chat participant.",
+            "Description": "Name of the statistic.",
+            "Statistic": "Value of the statistic."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "whatsapp_user_statistics",
+          "title": {
+            "en": "Chat statistics per user",
+            "nl": "Chatstatistieken per gebruiker"
+          },
+          "description": {
+            "en": "Detailed messaging patterns and activity metrics for each participant in the group chat.",
+            "nl": "Gedetailleerde berichtpatronen en activiteitsgegevens voor elke deelnemer in het groepsgesprek."
+          },
+          "headers": {
+            "User": {"en": "User", "nl": "Gebruiker"},
+            "Description": {"en": "Description", "nl": "Beschrijving"},
+            "Statistic": {"en": "Statistic", "nl": "Statistiek"}
+          }
+        }
+    """
+    users = extract_users(df)
+    rows = []
+    for user in users:
+        rows.extend([
+            (user, "who reacted to you the most", who_reacted_to_you_the_most(df, user)),
+            (user, "who you reacted to the most", who_you_reacted_to_the_most(df, user)),
+            (user, "total number of messages you send", total_number_of_messages(df, user)),
+            (user, "total number of words you send", total_number_of_words(df, user)),
+            (user, "the emoji you used most", favorite_emoji(df, user)),
+        ])
+    return pd.DataFrame(rows, columns=["User", "Description", "Statistic"])  # pyright: ignore
+
+
+# ---------------------------------------------------------------------------
+# Extractor registry & platform info
+# ---------------------------------------------------------------------------
+
+#: Mapping from the string names used in port_config.json to actual extractor functions.
+#: WhatsApp extractors take ``(df: pd.DataFrame, errors: Counter)`` instead of
+#: ``(reader: ZipArchiveReader, errors: Counter)`` because the chat file is
+#: pre-parsed into a DataFrame before extraction runs.
+EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "chat_messages_to_df": chat_messages_to_df,
+    "emoji_usage_to_df": emoji_usage_to_df,
+    "user_statistics_to_df": user_statistics_to_df,
+}
+
+
+# ---------------------------------------------------------------------------
+# Main extraction & flow
+# ---------------------------------------------------------------------------
 
 def extraction(df: pd.DataFrame) -> ExtractionResult:
-    errors = Counter()
-    tables = [
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="whatsapp_grou_chat",
-            data_frame=df.rename(columns={"date": "Timestamp", "name": "Name", "chat_message": "Message"}),
-            title=props.Translatable({
-                "en": "Your group chat", 
-                "nl": "Your group chat"
-            }),
-            description=props.Translatable({
-                "en": "The contents of your group chat. Try searching for stuff in your group chat, the figures should change accordingly! Timestamps (and therefore some tables) can be incorrect as it assumes the European format.",
-                "nl": "The contents of your group chat. Try searching for stuff in your group chat, the figures should change accordingly! Timestamps (and therefore some tables) can be incorrect as it assumes the European format."
-            }),
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Most common words in your chats", 
-                        "nl": "Most common words in your chats"
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Message",
-                    "tokenize": True
-                },
-                {
-                    "title": {
-                        "en": "Total chats per month of the year",
-                        "nl": "Total chats per month of the year"
-                    },
-                    "type": "area",
-                    "group": {
-                        "column": "Timestamp",
-                        "dateFormat": "month"
-                    },
-                    "values": [{}]
-                },
-                {
-                    "title": {
-                        "en": "Total chats per hour of the day",
-                        "nl": "Total chats per hour of the day"
-                    },
-                    "type": "bar",
-                    "group": {
-                        "column": "Timestamp",
-                        "dateFormat": "hour_cycle"
-                    },
-                    "values": [{}]
-                }
-            ]
-        ),
-        
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="emoji_usage",
-            data_frame=find_emojis(df),
-            title=props.Translatable({
-                "en": "The 100 most used emojis in the group",
-                "nl": "De 100 meest gebbruikte emojis in the groep"
-            }),
-            description=props.Translatable({
-                "en": "Analysis of emoji frequency used by all members in the chat",
-                "nl": "Analyse van emoji-frequentie gebruikt door alle leden in de chat"
-            })
-        )
-    ]
-    
-    users = extract_users(df)
-    for i, user in enumerate(users):
-        tables.append(
-            d3i_props.PropsUIPromptConsentFormTableViz(
-                id=f"user_statistics_{i}",
-                data_frame=user_statistics_to_df(df, user),
-                title=props.Translatable({
-                    "en": f"Chat statistics for user: {user}",
-                    "nl": f"Chat statistics for user: {user}"
-                }),
-                description=props.Translatable({
-                    "en": f"Detailed messaging patterns and activity metrics for {user}",
-                    "nl": f"Gedetailleerde berichtpatronen en activiteitsgegevens voor {user}"
-                })
-            )
-        )
-    
+    """Extract tables from a pre-parsed WhatsApp chat DataFrame.
+
+    WhatsApp DDPs are plain-text exports rather than structured archives, so
+    extraction pre-parses the chat into *df* before calling individual
+    extractors.  Extractors therefore receive ``(df, errors)`` instead of the
+    usual ``(reader, errors)``.
+
+    Parameters
+    ----------
+    df:
+        Pre-parsed, filtered chat DataFrame with columns ``date``, ``name``,
+        ``chat_message``.
+    """
+    from port.helpers.table_extractor import load_port_config
+    from port.api.d3i_props import PropsUIPromptConsentFormTableViz
+
+    config = load_port_config(EXTRACTOR_REGISTRY)
+    errors: Counter = Counter()
+    tables = []
+    for table_cfg in config:
+        result_df = table_cfg.extractor(df, errors, **table_cfg.extractor_kwargs)
+        if table_cfg.variables is not None:
+            result_df = result_df[[c for c in table_cfg.variables if c in result_df.columns]]
+        tables.append(PropsUIPromptConsentFormTableViz(
+            id=table_cfg.id,
+            data_frame=result_df,
+            title=table_cfg.title,
+            description=table_cfg.description,
+            headers=table_cfg.headers,
+            visualizations=table_cfg.visualizations if table_cfg.visualizations else None,
+        ))
     return ExtractionResult(
-        tables=[table for table in tables if not table.data_frame.empty],
+        tables=[t for t in tables if not t.data_frame.empty],
         errors=errors,
     )
 

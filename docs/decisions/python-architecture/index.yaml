@@ -153,6 +153,23 @@ decisions:
             - author: Danielle McCool
               date: "2026-03-20 13:12:24"
               comment: "2"
+    "0012":
+        adr_id: "0012"
+        title: Declarative TableConfig for platform extraction scripts
+        status: accepted
+        tags:
+            - extraction
+            - configuration
+            - helpers
+            - consent-ui
+        links:
+            precedes: []
+            succeeds:
+                - "0006"
+        comments:
+            - author: Niek de Schipper
+              date: "2026-04-22 00:00:00"
+              comment: "1"
     "0011":
         adr_id: "0011"
         title: Use explicit host milestone commands for flow observability — keep local diagnostics local — reserve full error details for consent-gated donation
