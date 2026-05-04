@@ -7,10 +7,10 @@ include = [{ path = "port/assets", format = ["sdist", "wheel"] }]
 
 [tool.poetry.dependencies]
 python = ">=3.11"
-pandas = "^3.0.0"
+pandas = "^2.3.0"
 
 [tool.poetry.group.test.dependencies]
-pytest = "^9.0.0"
+pytest = "^8.4.0"
 
 
 [tool.poetry.group.dev.dependencies]
