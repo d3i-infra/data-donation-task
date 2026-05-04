@@ -1,0 +1,606 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>System Overview &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/01-overview';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/architecture/01-overview.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>System Overview</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-with-eyra-mono">Relationship with Eyra mono</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-components">Main components</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyodide-webworker">Pyodide WebWorker</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#js-framework-feldspar">JS Framework (feldspar)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#application-layer-data-collector">Application layer (data-collector)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bridge">The bridge</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-packages">Python packages</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">Next</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="system-overview">
+<h1>System Overview<a class="headerlink" href="#system-overview" title="Link to this heading">#</a></h1>
+<p>The data donation task is a web application that runs entirely inside a
+participant’s browser. It guides a participant through uploading their data
+download package (DDP), extracts the relevant data locally using Python, shows
+the participant what will be shared, and — with their consent — sends the
+extracted data to a researcher’s storage.</p>
+<hr class="docutils" />
+<section id="relationship-with-eyra-mono">
+<h2>Relationship with Eyra mono<a class="headerlink" href="#relationship-with-eyra-mono" title="Link to this heading">#</a></h2>
+<p>The task runs as an <strong>iframe</strong> embedded in <a class="reference external" href="https://next.eyra.co/">Eyra mono</a>,
+the host platform. The two communicate via a <strong>MessageChannel</strong> established
+at startup: mono sends a <code class="docutils literal notranslate"><span class="pre">live-init</span></code> message with a <code class="docutils literal notranslate"><span class="pre">MessagePort</span></code>; the
+iframe uses that port for all subsequent communication.</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart LR
+    subgraph Browser
+        subgraph Iframe[&quot;Data donation task (iframe)&quot;]
+            PY[&quot;Pyodide WebWorker\nPython&quot;]
+            JS[&quot;JS Framework\nReact + TypeScript&quot;]
+            BR[&quot;Bridge\nLiveBridge&quot;]
+            PY -- &quot;Commands&quot; --&gt; JS
+            JS -- &quot;send / sendLogs&quot; --&gt; BR
+        end
+        Mono[&quot;Eyra mono\n(host page)&quot;]
+    end
+    BR -- &quot;port.postMessage()\nMessageChannel&quot; --&gt; Mono
+
+    Participant((&quot;Participant&quot;)) -- &quot;interacts&quot; --&gt; Iframe
+    Mono -- &quot;stores donations\nserves pages&quot; --&gt; Storage[(&quot;Researcher\nstorage&quot;)]
+</pre></div>
+</div>
+<p>In local development, <code class="docutils literal notranslate"><span class="pre">FakeBridge</span></code> replaces <code class="docutils literal notranslate"><span class="pre">LiveBridge</span></code>. It logs commands
+to the console and POSTs donations to a local <code class="docutils literal notranslate"><span class="pre">/data-submission</span></code> endpoint,
+so the full flow can be tested without a running Eyra instance.</p>
+</section>
+<hr class="docutils" />
+<section id="main-components">
+<h2>Main components<a class="headerlink" href="#main-components" title="Link to this heading">#</a></h2>
+<section id="pyodide-webworker">
+<h3>Pyodide WebWorker<a class="headerlink" href="#pyodide-webworker" title="Link to this heading">#</a></h3>
+<p>A standard browser <a class="reference external" href="https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API">Web Worker</a>
+that loads <a class="reference external" href="https://pyodide.org/">Pyodide</a> — a Python runtime compiled to
+WebAssembly. The port Python package is installed inside it at startup.</p>
+<p>The worker runs the donation script (<code class="docutils literal notranslate"><span class="pre">script.py</span></code>). Because it is a separate
+thread, it cannot block the UI.</p>
+<p><strong>Key file:</strong> <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code></p>
+</section>
+<section id="js-framework-feldspar">
+<h3>JS Framework (feldspar)<a class="headerlink" href="#js-framework-feldspar" title="Link to this heading">#</a></h3>
+<p>The framework library. Runs on the browser’s main thread. Responsible for:</p>
+<ul class="simple">
+<li><p>Managing the worker lifecycle (<code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine</span></code>)</p></li>
+<li><p>Routing commands from Python to the bridge or to the React UI (<code class="docutils literal notranslate"><span class="pre">CommandRouter</span></code>)</p></li>
+<li><p>Rendering interactive pages (<code class="docutils literal notranslate"><span class="pre">ReactEngine</span></code>) via a pluggable factory system</p></li>
+<li><p>Capturing and forwarding JavaScript-side log entries (<code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>, <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code>)</p></li>
+<li><p>Wiring all of the above together (<code class="docutils literal notranslate"><span class="pre">Assembly</span></code>)</p></li>
+<li><p>Providing base UI components and default prompt factories</p></li>
+</ul>
+<p>feldspar is a library — it does not run on its own.</p>
+<p><strong>Key files:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/</span></code></p>
+</section>
+<section id="application-layer-data-collector">
+<h3>Application layer (data-collector)<a class="headerlink" href="#application-layer-data-collector" title="Link to this heading">#</a></h3>
+<p>The Vite app that gets built and served. This is the composition root that
+wires feldspar together with D3I-specific components:</p>
+<ul class="simple">
+<li><p>Hosts <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code> (the worker entry point) and the Python wheel
+(<code class="docutils literal notranslate"><span class="pre">port-0.0.0.tar.gz</span></code>) in its <code class="docutils literal notranslate"><span class="pre">public/</span></code> directory</p></li>
+<li><p>Registers custom prompt factories for D3I UI components (consent form with
+visualizations, multi-file input, questionnaire, error page, retry prompt)</p></li>
+<li><p>Configures <code class="docutils literal notranslate"><span class="pre">ScriptHostComponent</span></code> with the worker URL, log level, and
+standalone/production toggle</p></li>
+<li><p>Manages the iframe lifecycle (app-loaded signal, resize observer)</p></li>
+</ul>
+<p>See <a class="reference internal" href="08-rendering.html"><span class="std std-doc">Rendering and the factory system</span></a> for how data-collector
+plugs into feldspar’s rendering pipeline.</p>
+<p><strong>Key files:</strong> <code class="docutils literal notranslate"><span class="pre">packages/data-collector/src/App.tsx</span></code>, <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/</span></code></p>
+</section>
+<section id="the-bridge">
+<h3>The bridge<a class="headerlink" href="#the-bridge" title="Link to this heading">#</a></h3>
+<p>An abstraction layer with two implementations:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">LiveBridge</span></code></p></th>
+<th class="head"><p><code class="docutils literal notranslate"><span class="pre">FakeBridge</span></code></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Used in</p></td>
+<td><p>Production</p></td>
+<td><p>Dev / test</p></td>
+</tr>
+<tr class="row-odd"><td><p>Transport</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">MessagePort.postMessage()</span></code> to Eyra mono</p></td>
+<td><p>Console log + HTTP POST to <code class="docutils literal notranslate"><span class="pre">/data-submission</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p>File</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/live_bridge.ts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/fake_bridge.ts</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Both implement the same <code class="docutils literal notranslate"><span class="pre">Bridge</span></code> interface: <code class="docutils literal notranslate"><span class="pre">send(command)</span></code> for Python-originated
+commands, and <code class="docutils literal notranslate"><span class="pre">sendLogs(entries)</span></code> for JS-side log entries.</p>
+</section>
+<section id="python-packages">
+<h3>Python packages<a class="headerlink" href="#python-packages" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Package</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.script</span></code></p></td>
+<td><p>Entry point — <code class="docutils literal notranslate"><span class="pre">process()</span></code> iterates through platforms</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port.helpers.flow_builder</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> base class — per-platform flow orchestration</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.helpers.validate</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ValidateInput</span></code>, <code class="docutils literal notranslate"><span class="pre">DDPCategory</span></code> — zip structure validation</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port.helpers.uploads</span></code></p></td>
+<td><p>File materialization and safety checks</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.helpers.extraction_helpers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> and CSV/JSON parsing utilities</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port.helpers.port_helpers</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">emit_log</span></code>, <code class="docutils literal notranslate"><span class="pre">render_page</span></code>, <code class="docutils literal notranslate"><span class="pre">donate</span></code> and other helpers</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.api.commands</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CommandSystem*</span></code> and <code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code> classes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port.api.d3i_props</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ExtractionResult</span></code>, consent form table types</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.api.props</span></code></p></td>
+<td><p>Core UI prop types (<code class="docutils literal notranslate"><span class="pre">Translatable</span></code>, <code class="docutils literal notranslate"><span class="pre">PropsUIHeader</span></code>, etc.)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">port.platforms.*</span></code></p></td>
+<td><p>Per-platform <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> subclasses</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">port.main</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> and <code class="docutils literal notranslate"><span class="pre">error_flow</span></code> — the exception safety layer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="next">
+<h2>Next<a class="headerlink" href="#next" title="Link to this heading">#</a></h2>
+<p>→ <a class="reference internal" href="02-run-cycle.html"><span class="std std-doc">The run cycle</span></a> — how Python and JavaScript take turns</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#relationship-with-eyra-mono">Relationship with Eyra mono</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#main-components">Main components</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#pyodide-webworker">Pyodide WebWorker</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#js-framework-feldspar">JS Framework (feldspar)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#application-layer-data-collector">Application layer (data-collector)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-bridge">The bridge</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#python-packages">Python packages</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#next">Next</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

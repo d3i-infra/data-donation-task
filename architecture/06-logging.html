@@ -1,0 +1,642 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Logging &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/06-logging';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/architecture/06-logging.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Logging</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-paths-to-the-host">Two paths to the host</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-a-python-emit-log">Path A: Python <code class="docutils literal notranslate"><span class="pre">emit_log</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-b-js-logforwarder">Path B: JS <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-stays-local">What stays local</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemlog-format"><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code> format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="logging">
+<h1>Logging<a class="headerlink" href="#logging" title="Link to this heading">#</a></h1>
+<p>Log messages reach the host (Eyra mono’s <code class="docutils literal notranslate"><span class="pre">/api/feldspar/log</span></code>) via two
+separate paths. Understanding which path a message takes, and why, is
+important for knowing what the host will see and what PII rules apply.</p>
+<hr class="docutils" />
+<section id="two-paths-to-the-host">
+<h2>Two paths to the host<a class="headerlink" href="#two-paths-to-the-host" title="Link to this heading">#</a></h2>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
+    participant FB as FlowBuilder&lt;br/&gt;flow_builder.py
+    participant SW as ScriptWrapper&lt;br/&gt;main.py
+    participant WB as Worker boundary&lt;br/&gt;py_worker.js
+    participant WPE as WorkerProcessingEngine&lt;br/&gt;worker_engine.ts
+    participant LF as LogForwarder&lt;br/&gt;logging.ts
+    participant CR as CommandRouter&lt;br/&gt;command_router.ts
+    participant LB as LiveBridge&lt;br/&gt;live_bridge.ts
+    participant HOST as Eyra mono
+
+    note over FB,SW: Path A — Python emit_log
+
+    FB-&gt;&gt;SW: yield CommandSystemLog(level, message)
+    SW-&gt;&gt;WB: postMessage runCycleDone
+    WB-&gt;&gt;WPE: handleEvent(&#39;runCycleDone&#39;)
+    WPE-&gt;&gt;CR: handleRunCycle → onCommand(CommandSystemLog)
+    CR-&gt;&gt;LB: bridge.send(command)
+    LB-&gt;&gt;HOST: port.postMessage(CommandSystemLog)
+    WPE-&gt;&gt;LF: logger.flush()
+
+    note over WPE,LF: Path B — JS LogForwarder
+
+    WPE-&gt;&gt;LF: worker.onerror → logger.log(&#39;error&#39;, ...)
+    LF-&gt;&gt;LB: flush → sendLogs(entries)
+    LB-&gt;&gt;HOST: port.postMessage(CommandSystemLog ×N)
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="path-a-python-emit-log">
+<h2>Path A: Python <code class="docutils literal notranslate"><span class="pre">emit_log</span></code><a class="headerlink" href="#path-a-python-emit-log" title="Link to this heading">#</a></h2>
+<p><strong>Origin:</strong> Python code explicitly calls <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">from</span> <span class="pre">ph.emit_log(level,</span> <span class="pre">message)</span></code>.</p>
+<p><strong>Route:</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ph.emit_log()</span></code> yields a <code class="docutils literal notranslate"><span class="pre">CommandSystemLog(level,</span> <span class="pre">message)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">ScriptWrapper.send()</span></code> serialises it via <code class="docutils literal notranslate"><span class="pre">.toDict()</span></code> and returns it</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code> posts <code class="docutils literal notranslate"><span class="pre">runCycleDone</span></code> with the command dict</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine.handleRunCycle()</span></code> passes it to <code class="docutils literal notranslate"><span class="pre">CommandRouter</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommandRouter.onCommandSystem()</span></code> calls <code class="docutils literal notranslate"><span class="pre">bridge.send(command)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LiveBridge.send()</span></code> calls <code class="docutils literal notranslate"><span class="pre">port.postMessage(command)</span></code> — the message arrives at Eyra mono</p></li>
+</ol>
+<p><strong>PII rule:</strong> All messages on Path A <strong>must be PII-free</strong>. This means:</p>
+<ul class="simple">
+<li><p>Error counts from <code class="docutils literal notranslate"><span class="pre">ExtractionResult.errors</span></code> (type names and counts only)</p></li>
+<li><p>Flow milestone strings (e.g. <code class="docutils literal notranslate"><span class="pre">[LinkedIn]</span> <span class="pre">Consent:</span> <span class="pre">accepted</span></code>)</p></li>
+<li><p>File size in bytes</p></li>
+<li><p>No exception messages, no file paths, no participant data</p></li>
+</ul>
+<p><strong>Where to use it:</strong> In <code class="docutils literal notranslate"><span class="pre">FlowBuilder.start_flow()</span></code> and <code class="docutils literal notranslate"><span class="pre">script.py</span></code>. Already
+called for you at every standard milestone — you only need to add custom
+<code class="docutils literal notranslate"><span class="pre">emit_log</span></code> calls if you add non-standard flow steps.</p>
+</section>
+<hr class="docutils" />
+<section id="path-b-js-logforwarder">
+<h2>Path B: JS <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code><a class="headerlink" href="#path-b-js-logforwarder" title="Link to this heading">#</a></h2>
+<p><strong>Origin:</strong> JavaScript-side errors and infrastructure events.</p>
+<p><strong>Sources that feed into <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>:</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Source</p></th>
+<th class="head"><p>Scope</p></th>
+<th class="head"><p>What it captures</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> <code class="docutils literal notranslate"><span class="pre">error</span></code> listener</p></td>
+<td><p>Main thread (<code class="docutils literal notranslate"><span class="pre">window</span></code>)</p></td>
+<td><p>Synchronous JS errors on the main thread</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> <code class="docutils literal notranslate"><span class="pre">unhandledrejection</span></code> listener</p></td>
+<td><p>Main thread (<code class="docutils literal notranslate"><span class="pre">window</span></code>)</p></td>
+<td><p>Unhandled promise rejections on the main thread only — <strong>not</strong> in the worker</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine.worker.onerror</span></code></p></td>
+<td><p>Main thread (listening on worker)</p></td>
+<td><p>Synchronous worker errors that propagate to the main thread</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine</span></code> internal</p></td>
+<td><p>Main thread</p></td>
+<td><p>Worker lifecycle events at <code class="docutils literal notranslate"><span class="pre">debug</span></code> level</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Scope gap:</strong> Unhandled promise rejections inside the worker (e.g. an
+<code class="docutils literal notranslate"><span class="pre">unwrap()</span></code> failure in <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code>) are not captured by any of these
+sources. <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> listens on <code class="docutils literal notranslate"><span class="pre">window</span></code>, not the worker’s global scope.
+These rejections are silently lost — visible only in the worker’s DevTools
+console.</p>
+<p><strong>Route:</strong></p>
+<ol class="arabic simple">
+<li><p>Error is captured by <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> or <code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LogForwarder.log(level,</span> <span class="pre">message,</span> <span class="pre">context)</span></code> adds it to an in-memory buffer</p></li>
+<li><p>Error-level entries trigger an immediate <code class="docutils literal notranslate"><span class="pre">flush()</span></code>; all other levels flush
+after each run cycle</p></li>
+<li><p>The flush callback (wired in <code class="docutils literal notranslate"><span class="pre">Assembly</span></code>) calls <code class="docutils literal notranslate"><span class="pre">bridge.sendLogs(entries)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">LiveBridge.sendLogs()</span></code> formats each entry as a <code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code>-shaped
+<code class="docutils literal notranslate"><span class="pre">postMessage</span></code> and posts it to the host</p></li>
+</ol>
+<p><strong>PII rule:</strong> <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> captures rich context (memory usage, filename,
+line number) into the <code class="docutils literal notranslate"><span class="pre">LogEntry</span></code>, and <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> records a <code class="docutils literal notranslate"><span class="pre">timestamp</span></code>.
+<code class="docutils literal notranslate"><span class="pre">LiveBridge.sendLogs()</span></code> <strong>drops both <code class="docutils literal notranslate"><span class="pre">context</span></code> and <code class="docutils literal notranslate"><span class="pre">timestamp</span></code></strong> — it only
+posts <code class="docutils literal notranslate"><span class="pre">level</span></code> and <code class="docutils literal notranslate"><span class="pre">message</span></code> to the host (plus a <code class="docutils literal notranslate"><span class="pre">json_string</span></code> duplicate for
+backwards compatibility). The full <code class="docutils literal notranslate"><span class="pre">LogEntry</span></code> exists in the JS runtime’s
+<code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> buffer (visible in DevTools) but those extra fields never cross
+the bridge. Raw Python tracebacks also never reach Path B — that is handled by
+<a class="reference internal" href="07-error-handling.html"><span class="std std-doc">error_flow</span></a> instead.</p>
+<p><strong>Dead handler note:</strong> <code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine.handleEvent()</span></code> has a case for
+<code class="docutils literal notranslate"><span class="pre">eventType:</span> <span class="pre">'error'</span></code> (a custom worker message), but <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code> never posts
+this event type. The handler exists but is inert on this branch.</p>
+</section>
+<hr class="docutils" />
+<section id="what-stays-local">
+<h2>What stays local<a class="headerlink" href="#what-stays-local" title="Link to this heading">#</a></h2>
+<p>Not everything is forwarded to the host. The standard Python <code class="docutils literal notranslate"><span class="pre">logging</span></code> module
+(via <code class="docutils literal notranslate"><span class="pre">logger</span> <span class="pre">=</span> <span class="pre">logging.getLogger(__name__)</span></code>) writes to the Pyodide worker’s
+<code class="docutils literal notranslate"><span class="pre">stderr</span></code>, which appears in the browser’s DevTools console. This is the place
+for verbose diagnostic detail — full exception messages, intermediate values,
+file contents. It never leaves the participant’s browser.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Where</p></th>
+<th class="head"><p>What it contains</p></th>
+<th class="head"><p>Visible to host?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">emit_log</span></code> (Path A)</p></td>
+<td><p>PII-free milestones and error counts</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> (Path B)</p></td>
+<td><p>JS errors, worker crashes, context</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">logger.info/error(...)</span></code> (Python logging)</p></td>
+<td><p>Full diagnostic detail</p></td>
+<td><p>No — browser console only</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="commandsystemlog-format">
+<h2><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code> format<a class="headerlink" href="#commandsystemlog-format" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Python</span>
+<span class="n">CommandSystemLog</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="s2">&quot;info&quot;</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;[LinkedIn] Consent: accepted&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">toDict</span><span class="p">()</span>
+
+<span class="c1"># Produces:</span>
+<span class="p">{</span>
+    <span class="s2">&quot;__type__&quot;</span><span class="p">:</span> <span class="s2">&quot;CommandSystemLog&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;info&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;[LinkedIn] Consent: accepted&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;json_string&quot;</span><span class="p">:</span> <span class="s1">&#39;{&quot;level&quot;: &quot;info&quot;, &quot;message&quot;: &quot;[LinkedIn] Consent: accepted&quot;}&#39;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">json_string</span></code> is a temporary field for backwards compatibility with older Eyra
+mono versions that expect it. It will be removed once the host is updated.</p>
+</section>
+<hr class="docutils" />
+<section id="key-files">
+<h2>Key files<a class="headerlink" href="#key-files" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/helpers/port_helpers.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">emit_log()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/api/commands.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">CommandSystemLog.toDict()</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/logging.ts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>, <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/processing/worker_engine.ts</span></code></p></td>
+<td><p>Flush trigger, <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/assembly.ts</span></code></p></td>
+<td><p>Wires <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> flush callback to bridge</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/live_bridge.ts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">sendLogs()</span></code>, <code class="docutils literal notranslate"><span class="pre">send()</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<p>→ <a class="reference internal" href="07-error-handling.html"><span class="std std-doc">Error handling</span></a> — what happens when Python throws an unhandled exception</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#two-paths-to-the-host">Two paths to the host</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-a-python-emit-log">Path A: Python <code class="docutils literal notranslate"><span class="pre">emit_log</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#path-b-js-logforwarder">Path B: JS <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#what-stays-local">What stays local</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemlog-format"><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code> format</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

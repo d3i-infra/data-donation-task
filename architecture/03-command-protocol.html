@@ -1,0 +1,595 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Command Protocol &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/03-command-protocol';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/architecture/03-command-protocol.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Command Protocol</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-types">Command types</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commanduirender"><code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemdonate"><code class="docutils literal notranslate"><span class="pre">CommandSystemDonate</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemlog"><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemexit"><code class="docutils literal notranslate"><span class="pre">CommandSystemExit</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialisation">Serialisation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#response-types">Response types</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="command-protocol">
+<h1>Command Protocol<a class="headerlink" href="#command-protocol" title="Link to this heading">#</a></h1>
+<p>Every interaction between Python and the rest of the system goes through a
+<strong>command</strong>. Python yields a command object; <code class="docutils literal notranslate"><span class="pre">ScriptWrapper.send()</span></code> serialises
+it to a dict via <code class="docutils literal notranslate"><span class="pre">.toDict()</span></code>; the worker posts it to the JS thread; and the
+JS framework handles it and returns a response that Python receives as the
+return value of the <code class="docutils literal notranslate"><span class="pre">yield</span></code>.</p>
+<p>All command classes live in <code class="docutils literal notranslate"><span class="pre">packages/python/port/api/commands.py</span></code>. Their
+TypeScript counterparts are in
+<code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/types/commands.ts</span></code>.</p>
+<hr class="docutils" />
+<section id="command-types">
+<h2>Command types<a class="headerlink" href="#command-types" title="Link to this heading">#</a></h2>
+<section id="commanduirender">
+<h3><code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code><a class="headerlink" href="#commanduirender" title="Link to this heading">#</a></h3>
+<p>Tells the JS framework to render a page and wait for the participant to
+interact with it.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span><span class="p">:</span>  <span class="k">yield</span> <span class="n">CommandUIRender</span><span class="p">(</span><span class="n">page</span><span class="p">)</span>
+<span class="n">Returns</span><span class="p">:</span> <span class="n">a</span> <span class="n">Payload</span><span class="o">*</span> <span class="n">matching</span> <span class="n">the</span> <span class="n">UI</span> <span class="n">component</span> <span class="n">shown</span>
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Response type</p></th>
+<th class="head"><p>When returned</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadFile</span></code></p></td>
+<td><p>Participant selected a file</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadString</span></code></p></td>
+<td><p>File delivered via WORKERFS path (legacy)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadTrue</span></code></p></td>
+<td><p>Participant clicked the “ok” / confirm button</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadFalse</span></code></p></td>
+<td><p>Participant clicked the “cancel” / decline button</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadJSON</span></code></p></td>
+<td><p>Participant submitted a consent form or questionnaire</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadVoid</span></code></p></td>
+<td><p>Error or unexpected state in the renderer</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In practice, <code class="docutils literal notranslate"><span class="pre">ph.render_page(header,</span> <span class="pre">body)</span></code> wraps this — you rarely yield
+<code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code> directly.</p>
+</section>
+<hr class="docutils" />
+<section id="commandsystemdonate">
+<h3><code class="docutils literal notranslate"><span class="pre">CommandSystemDonate</span></code><a class="headerlink" href="#commandsystemdonate" title="Link to this heading">#</a></h3>
+<p>Sends a key/value pair to the host for storage.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Python</span><span class="p">:</span>  <span class="k">yield</span> <span class="n">CommandSystemDonate</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">json_string</span><span class="p">)</span>
+<span class="n">Returns</span><span class="p">:</span> <span class="n">PayloadVoid</span> <span class="p">(</span><span class="n">fire</span><span class="o">-</span><span class="ow">and</span><span class="o">-</span><span class="n">forget</span><span class="p">,</span> <span class="n">older</span> <span class="n">hosts</span><span class="p">)</span>
+         <span class="n">PayloadResponse</span> <span class="p">(</span><span class="n">newer</span> <span class="n">hosts</span> <span class="k">with</span> <span class="n">VITE_ASYNC_DONATIONS</span><span class="o">=</span><span class="n">true</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">PayloadResponse.value</span></code> has the shape <code class="docutils literal notranslate"><span class="pre">{</span> <span class="pre">success:</span> <span class="pre">bool,</span> <span class="pre">key:</span> <span class="pre">str,</span> <span class="pre">status:</span> <span class="pre">int,</span> <span class="pre">error?:</span> <span class="pre">str</span> <span class="pre">}</span></code>.
+<code class="docutils literal notranslate"><span class="pre">port_helpers.handle_donate_result()</span></code> normalises both response types into a
+single <code class="docutils literal notranslate"><span class="pre">bool</span></code>.</p>
+<p>The donation key is conventionally <code class="docutils literal notranslate"><span class="pre">&quot;{session_id}-{platform_name}&quot;</span></code>, e.g.
+<code class="docutils literal notranslate"><span class="pre">&quot;1741234567890-linkedin&quot;</span></code>. The <code class="docutils literal notranslate"><span class="pre">json_string</span></code> is whatever the participant
+consented to share.</p>
+</section>
+<hr class="docutils" />
+<section id="commandsystemlog">
+<h3><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code><a class="headerlink" href="#commandsystemlog" title="Link to this heading">#</a></h3>
+<p>Sends a log message to the host. The host forwards it to its logging
+infrastructure (Eyra mono routes these to <code class="docutils literal notranslate"><span class="pre">/api/feldspar/log</span></code>).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Python:  yield CommandSystemLog(level, message)
+Returns: PayloadVoid (always — the response is discarded)
+</pre></div>
+</div>
+<p>Use via <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">from</span> <span class="pre">ph.emit_log(level,</span> <span class="pre">message)</span></code>. Messages <strong>must be
+PII-free</strong> — error counts and milestone strings only. See
+<a class="reference internal" href="06-logging.html"><span class="std std-doc">Logging</span></a> for the full rules.</p>
+</section>
+<hr class="docutils" />
+<section id="commandsystemexit">
+<h3><code class="docutils literal notranslate"><span class="pre">CommandSystemExit</span></code><a class="headerlink" href="#commandsystemexit" title="Link to this heading">#</a></h3>
+<p>Signals that the script has finished. The JS engine does not send a
+<code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code> after receiving this — the run loop halts.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>Python:  yield CommandSystemExit(code, info)
+Returns: (nothing — the promise never resolves; the loop stops)
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ScriptWrapper.send()</span></code> raises <code class="docutils literal notranslate"><span class="pre">StopIteration</span></code> when the generator is
+exhausted, and returns <code class="docutils literal notranslate"><span class="pre">CommandSystemExit(0,</span> <span class="pre">&quot;End</span> <span class="pre">of</span> <span class="pre">script&quot;)</span></code> automatically.
+You should not yield this manually from <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> flows.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="serialisation">
+<h2>Serialisation<a class="headerlink" href="#serialisation" title="Link to this heading">#</a></h2>
+<p>Every command class has a <code class="docutils literal notranslate"><span class="pre">.toDict()</span></code> method that produces a plain dict with
+a <code class="docutils literal notranslate"><span class="pre">__type__</span></code> field. The worker passes this to the JS thread via
+<code class="docutils literal notranslate"><span class="pre">postMessage()</span></code>, which uses the structured clone algorithm (no manual
+JSON serialisation needed for most types).</p>
+<p>The TypeScript side uses type guard functions (<code class="docutils literal notranslate"><span class="pre">isCommandSystemLog()</span></code>, etc.)
+in <code class="docutils literal notranslate"><span class="pre">commands.ts</span></code> to narrow the type before routing.</p>
+</section>
+<hr class="docutils" />
+<section id="response-types">
+<h2>Response types<a class="headerlink" href="#response-types" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Type</p></th>
+<th class="head"><p>Fields</p></th>
+<th class="head"><p>Produced by</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadFile</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value:</span> <span class="pre">File</span></code></p></td>
+<td><p>File input prompt</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadString</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value:</span> <span class="pre">string</span></code></p></td>
+<td><p>WORKERFS file path (legacy)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadTrue</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Confirm / ok button</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadFalse</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Cancel / decline button</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadJSON</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value:</span> <span class="pre">string</span></code></p></td>
+<td><p>Consent form, questionnaire</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadVoid</span></code></p></td>
+<td><p>—</p></td>
+<td><p>Host acknowledgement (fire-and-forget)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">PayloadResponse</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">value:</span> <span class="pre">{</span> <span class="pre">success,</span> <span class="pre">key,</span> <span class="pre">status,</span> <span class="pre">error?</span> <span class="pre">}</span></code></p></td>
+<td><p>Host donation result (async mode)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<p>→ <a class="reference internal" href="04-flowbuilder.html"><span class="std std-doc">FlowBuilder</span></a> — how Python uses these commands to drive a donation flow</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#command-types">Command types</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commanduirender"><code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemdonate"><code class="docutils literal notranslate"><span class="pre">CommandSystemDonate</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemlog"><code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#commandsystemexit"><code class="docutils literal notranslate"><span class="pre">CommandSystemExit</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#serialisation">Serialisation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#response-types">Response types</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

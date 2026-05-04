@@ -1,0 +1,770 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Error Handling &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/07-error-handling';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/architecture/07-error-handling.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Error Handling</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-1-expected-extraction-errors">Category 1: Expected extraction errors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-2-uncaught-python-exceptions-three-defense-layers">Category 2: Uncaught Python exceptions — three defense layers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-1-scriptwrapper-python-consent-gated">Layer 1: <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> (Python) — consent-gated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-2-runcycle-try-catch-js-worker-shown-on-screen-not-forwarded">Layer 2: <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> try/catch (JS worker) — shown on screen, not forwarded</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-3-worker-onerror-js-main-thread-limited-to-synchronous-errors">Layer 3: <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> (JS main thread) — limited to synchronous errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-the-three-layers">Summary of the three layers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-3-javascript-side-errors">Category 3: JavaScript-side errors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pii-safety-boundary">PII safety boundary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="error-handling">
+<h1>Error Handling<a class="headerlink" href="#error-handling" title="Link to this heading">#</a></h1>
+<p>There are three categories of error in the system, each handled differently.
+The dividing lines are chosen to protect participant PII.</p>
+<hr class="docutils" />
+<section id="category-1-expected-extraction-errors">
+<h2>Category 1: Expected extraction errors<a class="headerlink" href="#category-1-expected-extraction-errors" title="Link to this heading">#</a></h2>
+<p>These are foreseeable failures during file parsing — a missing file in the
+zip, a malformed CSV, an unexpected encoding. They are caught inside
+<code class="docutils literal notranslate"><span class="pre">extract_data()</span></code>, counted by exception type, and reported as a summary after
+extraction completes.</p>
+<p><strong>How it works:</strong></p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> catches parsing exceptions internally and increments
+<code class="docutils literal notranslate"><span class="pre">errors[ExceptionType.__name__]</span></code> in the shared <code class="docutils literal notranslate"><span class="pre">Counter</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extract_data()</span></code> returns <code class="docutils literal notranslate"><span class="pre">ExtractionResult(tables=...,</span> <span class="pre">errors=errors)</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FlowBuilder.start_flow()</span></code> reads <code class="docutils literal notranslate"><span class="pre">result.errors</span></code> and formats the counts:
+<code class="docutils literal notranslate"><span class="pre">&quot;errors:</span> <span class="pre">FileNotFoundInZipError×2,</span> <span class="pre">KeyError×1&quot;</span></code></p></li>
+<li><p>This string is forwarded via <code class="docutils literal notranslate"><span class="pre">ph.emit_log()</span></code> → Path A → host</p></li>
+</ol>
+<p><strong>What the host sees:</strong> Exception type names and counts. No messages, no
+tracebacks, no file contents.</p>
+<p><strong>Where errors accumulate:</strong> <code class="docutils literal notranslate"><span class="pre">packages/python/port/helpers/extraction_helpers.py</span></code>
+(<code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code>) and in per-file functions in each platform module.</p>
+</section>
+<hr class="docutils" />
+<section id="category-2-uncaught-python-exceptions-three-defense-layers">
+<h2>Category 2: Uncaught Python exceptions — three defense layers<a class="headerlink" href="#category-2-uncaught-python-exceptions-three-defense-layers" title="Link to this heading">#</a></h2>
+<p>If an exception escapes <code class="docutils literal notranslate"><span class="pre">extract_data()</span></code> — or any other part of the script
+generator — there are three layers of defense preventing it from reaching the
+host unsanitised. Each layer catches what the previous one missed, with
+decreasing PII protection.</p>
+<section id="layer-1-scriptwrapper-python-consent-gated">
+<h3>Layer 1: <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> (Python) — consent-gated<a class="headerlink" href="#layer-1-scriptwrapper-python-consent-gated" title="Link to this heading">#</a></h3>
+<p>The primary defense. <code class="docutils literal notranslate"><span class="pre">ScriptWrapper.send()</span></code> wraps every call to the script
+generator in a try/except. If an exception escapes, it is caught in Python
+and routed through <code class="docutils literal notranslate"><span class="pre">error_flow</span></code>.</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart TD
+    A[&quot;ScriptWrapper.send()\nmain.py&quot;]
+    B{&quot;Exception\nescaped?&quot;}
+    C[&quot;traceback.format_exc()\ncaptured in Python only\nnever forwarded automatically&quot;]
+    D[&quot;self._error_handler =\nerror_flow(platform, tb)&quot;]
+    E[&quot;yield CommandUIRender\nconsent page shown to participant\n&#39;Would you like to report this error?&#39;&quot;]
+    F{&quot;Participant\nconsents?&quot;}
+    G[&quot;yield CommandSystemDonate\nkey=&#39;error-report&#39;\nvalue: platform + traceback + timestamp&quot;]
+    H[&quot;Sent via bridge\nreaches host as a donation payload&quot;]
+    I[&quot;CommandSystemExit(0)\nscript ends silently&quot;]
+
+    A --&gt; B
+    B -- yes --&gt; C --&gt; D --&gt; E --&gt; F
+    F -- PayloadTrue --&gt; G --&gt; H
+    F -- &quot;PayloadFalse / skip&quot; --&gt; I
+    B -- no --&gt; Z[&quot;Normal command\nreturned to JS&quot;]
+</pre></div>
+</div>
+<p><strong>Key behaviours:</strong></p>
+<ul class="simple">
+<li><p>The traceback is shown to the participant on screen, so they can see what
+went wrong. It is not forwarded to the host without their explicit consent.</p></li>
+<li><p>If the participant consents, the traceback is donated as structured JSON to
+the key <code class="docutils literal notranslate"><span class="pre">&quot;error-report&quot;</span></code>.</p></li>
+<li><p>If the participant declines, the script ends silently — no error is recorded
+anywhere the host can see.</p></li>
+<li><p>Once <code class="docutils literal notranslate"><span class="pre">self._error_handler</span></code> is set, all subsequent <code class="docutils literal notranslate"><span class="pre">send()</span></code> calls are routed
+through <code class="docutils literal notranslate"><span class="pre">error_flow</span></code> until it completes.</p></li>
+</ul>
+<p><strong>What the host sees:</strong> Either nothing, or a full donation payload containing
+the traceback — but only with consent.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/python/port/main.py</span></code></p>
+</section>
+<section id="layer-2-runcycle-try-catch-js-worker-shown-on-screen-not-forwarded">
+<h3>Layer 2: <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> try/catch (JS worker) — shown on screen, not forwarded<a class="headerlink" href="#layer-2-runcycle-try-catch-js-worker-shown-on-screen-not-forwarded" title="Link to this heading">#</a></h3>
+<p>If <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> fails to catch the exception (e.g. a bug in <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code>
+itself, or an error during Pyodide object conversion), it propagates into
+<code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code>. The <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> function has a try/catch that converts the
+error into a <code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code> via <code class="docutils literal notranslate"><span class="pre">generateErrorMessage()</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="c1">// py_worker.js</span>
+<span class="kd">function</span><span class="w"> </span><span class="nx">runCycle</span><span class="p">(</span><span class="nx">payload</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">try</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">scriptEvent</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="nx">pyScript</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">payload</span><span class="p">);</span>
+<span class="w">    </span><span class="c1">// ... post runCycleDone with command</span>
+<span class="w">  </span><span class="p">}</span><span class="w"> </span><span class="k">catch</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">self</span><span class="p">.</span><span class="nx">postMessage</span><span class="p">({</span>
+<span class="w">      </span><span class="nx">eventType</span><span class="o">:</span><span class="w"> </span><span class="s2">&quot;runCycleDone&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nx">scriptEvent</span><span class="o">:</span><span class="w"> </span><span class="nx">generateErrorMessage</span><span class="p">(</span><span class="nb">String</span><span class="p">(</span><span class="nx">error</span><span class="p">)),</span>
+<span class="w">    </span><span class="p">});</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">generateErrorMessage()</span></code> constructs a <code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission</span></code> with the
+error text. This is posted as a normal <code class="docutils literal notranslate"><span class="pre">runCycleDone</span></code> event, so it flows
+through <code class="docutils literal notranslate"><span class="pre">CommandRouter</span></code> → <code class="docutils literal notranslate"><span class="pre">ReactEngine</span></code> and is <strong>rendered on screen</strong> — not
+forwarded to the host via the bridge.</p>
+<p><strong>PII note:</strong> The traceback is shown directly to the participant via
+<code class="docutils literal notranslate"><span class="pre">String(error)</span></code> with no consent gate. However, it does not reach the host —
+the command is a <code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code>, not a <code class="docutils literal notranslate"><span class="pre">CommandSystemLog</span></code> or
+<code class="docutils literal notranslate"><span class="pre">CommandSystemDonate</span></code>.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code></p>
+<blockquote>
+<div><p><strong>Branch note:</strong> This try/catch was added in commit <code class="docutils literal notranslate"><span class="pre">f0b77fa</span></code> (part of
+<code class="docutils literal notranslate"><span class="pre">integration/extraction-consolidation</span></code>), which builds on
+<code class="docutils literal notranslate"><span class="pre">integration/bridge-alignment</span></code>. It is not present in <code class="docutils literal notranslate"><span class="pre">bridge-alignment</span></code>
+itself — the Layer 2 defense is introduced in the next PR in the stack.</p>
+</div></blockquote>
+</section>
+<section id="layer-3-worker-onerror-js-main-thread-limited-to-synchronous-errors">
+<h3>Layer 3: <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> (JS main thread) — limited to synchronous errors<a class="headerlink" href="#layer-3-worker-onerror-js-main-thread-limited-to-synchronous-errors" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine</span></code> registers a <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> handler:</p>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span class="c1">// worker_engine.ts</span>
+<span class="k">this</span><span class="p">.</span><span class="nx">worker</span><span class="p">.</span><span class="nx">onerror</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="nx">error</span><span class="p">)</span><span class="w"> </span><span class="p">=&gt;</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">this</span><span class="p">.</span><span class="nx">logger</span><span class="o">?</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;error&#39;</span><span class="p">,</span><span class="w"> </span><span class="sb">`Python error: </span><span class="si">${</span><span class="nx">error</span><span class="p">.</span><span class="nx">message</span><span class="si">}</span><span class="sb">`</span><span class="p">,</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nx">filename</span><span class="o">:</span><span class="w"> </span><span class="kt">error.filename</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">lineno</span><span class="o">:</span><span class="w"> </span><span class="kt">error.lineno</span><span class="p">,</span>
+<span class="w">    </span><span class="nx">colno</span><span class="o">:</span><span class="w"> </span><span class="kt">error.colno</span><span class="p">,</span>
+<span class="w">  </span><span class="p">})</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>This logs to <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>, which flushes immediately (error-level entries
+trigger auto-flush), and the message reaches the host via
+<code class="docutils literal notranslate"><span class="pre">LiveBridge.sendLogs()</span></code>.</p>
+<p><strong>However, this only catches synchronous errors.</strong> In <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code>, there
+are two call sites for <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code>:</p>
+<ul class="simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">firstRunCycle</span></code></strong> — calls <code class="docutils literal notranslate"><span class="pre">runCycle(null)</span></code> synchronously from <code class="docutils literal notranslate"><span class="pre">onmessage</span></code>.
+If it throws, the error propagates synchronously → <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> fires.
+This only happens once at startup.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code></strong> — calls <code class="docutils literal notranslate"><span class="pre">runCycle(userInput)</span></code> inside a <code class="docutils literal notranslate"><span class="pre">.then()</span></code> callback.
+If it throws, the synchronous throw inside <code class="docutils literal notranslate"><span class="pre">.then()</span></code> becomes a <strong>rejected
+promise</strong>. There is no <code class="docutils literal notranslate"><span class="pre">.catch()</span></code>. This is an unhandled promise rejection
+in the worker’s global scope — <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> on the main thread does
+<strong>not</strong> fire for these. <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code>’s <code class="docutils literal notranslate"><span class="pre">unhandledrejection</span></code> listener
+is on <code class="docutils literal notranslate"><span class="pre">window</span></code> (main thread), not the worker’s global scope.</p></li>
+</ul>
+<p>In practice, every run cycle after the first goes through <code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code>. So
+for the common case, <strong>an exception escaping both Layer 1 and Layer 2 would
+be silently swallowed</strong> — visible only in the worker’s DevTools console,
+never reaching <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> or the host.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/processing/worker_engine.ts</span></code></p>
+</section>
+<section id="summary-of-the-three-layers">
+<h3>Summary of the three layers<a class="headerlink" href="#summary-of-the-three-layers" title="Link to this heading">#</a></h3>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart TD
+    EX[&quot;Python exception thrown&quot;]
+    L1{&quot;Layer 1:\nScriptWrapper\ncatches?&quot;}
+    EF[&quot;error_flow\nconsent-gated\nmain.py&quot;]
+    L2{&quot;Layer 2:\nrunCycle() try/catch\ncatches?&quot;}
+    GEM[&quot;generateErrorMessage()\nrendered on screen\npy_worker.js&quot;]
+    L3{&quot;firstRunCycle\n(synchronous)?&quot;}
+    OE[&quot;worker.onerror fires\nLogForwarder → sendLogs()\nmessage reaches host&quot;]
+    LOST[&quot;nextRunCycle:\nunhandled promise rejection\nsilently lost in worker&quot;]
+
+    EX --&gt; L1
+    L1 -- yes --&gt; EF
+    L1 -- no --&gt; L2
+    L2 -- yes --&gt; GEM
+    L2 -- no --&gt; L3
+    L3 -- yes --&gt; OE
+    L3 -- no --&gt; LOST
+</pre></div>
+</div>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Layer</p></th>
+<th class="head"><p>Where</p></th>
+<th class="head"><p>Consent?</p></th>
+<th class="head"><p>Reaches host?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>1. <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code></p></td>
+<td><p>Python (main.py)</p></td>
+<td><p>Yes — participant must opt in</p></td>
+<td><p>Only if consented</p></td>
+</tr>
+<tr class="row-odd"><td><p>2. <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> catch</p></td>
+<td><p>JS worker (py_worker.js)</p></td>
+<td><p>No — shown on screen directly</p></td>
+<td><p>No — rendered as UI, not logged</p></td>
+</tr>
+<tr class="row-even"><td><p>3. <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code></p></td>
+<td><p>JS main thread (worker_engine.ts)</p></td>
+<td><p>No</p></td>
+<td><p>Only for <code class="docutils literal notranslate"><span class="pre">firstRunCycle</span></code> (synchronous); silently lost for <code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code> (promise rejection)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</section>
+<hr class="docutils" />
+<section id="category-3-javascript-side-errors">
+<h2>Category 3: JavaScript-side errors<a class="headerlink" href="#category-3-javascript-side-errors" title="Link to this heading">#</a></h2>
+<p>Errors originating in JavaScript that are not caused by Python exceptions
+never touch <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> or <code class="docutils literal notranslate"><span class="pre">error_flow</span></code>. They go through
+<a class="reference internal" href="06-logging.html#path-b-js-logforwarder"><span class="std std-ref">Path B of the logging system</span></a>, but
+only if they occur in the right scope:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Error type</p></th>
+<th class="head"><p>Where it fires</p></th>
+<th class="head"><p>Reaches host?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Synchronous main-thread error</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> <code class="docutils literal notranslate"><span class="pre">error</span></code> listener on <code class="docutils literal notranslate"><span class="pre">window</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unhandled promise rejection on <strong>main thread</strong></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> <code class="docutils literal notranslate"><span class="pre">unhandledrejection</span></code> listener on <code class="docutils literal notranslate"><span class="pre">window</span></code></p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-even"><td><p>Synchronous worker error</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> on main thread</p></td>
+<td><p>Yes</p></td>
+</tr>
+<tr class="row-odd"><td><p>Unhandled promise rejection <strong>in worker</strong></p></td>
+<td><p>Nothing — <code class="docutils literal notranslate"><span class="pre">window</span></code> listeners don’t see worker-scope rejections</p></td>
+<td><p>No — silently lost</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>What the host sees (when it reaches the host):</strong> Error level log entries with
+<code class="docutils literal notranslate"><span class="pre">level</span></code> and <code class="docutils literal notranslate"><span class="pre">message</span></code> only. The context fields captured by <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code>
+(memory usage, filename, line number) and the timestamp are dropped by
+<code class="docutils literal notranslate"><span class="pre">LiveBridge.sendLogs()</span></code> and never reach the host.</p>
+<p><strong>Scope gap:</strong> <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> listens on <code class="docutils literal notranslate"><span class="pre">window</span></code> (main thread). The worker
+has its own global scope. An unhandled promise rejection inside the worker
+(e.g. an <code class="docutils literal notranslate"><span class="pre">unwrap()</span></code> failure in <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code>) does not bubble to the main
+thread’s <code class="docutils literal notranslate"><span class="pre">window</span></code> — it is invisible to <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> and <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>.
+This is the same gap that affects Layer 3 of Category 2: the worker has no
+<code class="docutils literal notranslate"><span class="pre">self.addEventListener('unhandledrejection',</span> <span class="pre">...)</span></code> handler.</p>
+</section>
+<hr class="docutils" />
+<section id="pii-safety-boundary">
+<h2>PII safety boundary<a class="headerlink" href="#pii-safety-boundary" title="Link to this heading">#</a></h2>
+<p>The architecture is designed so that raw exception text — which may contain
+participant data (file paths, field values, etc.) — is never forwarded to the
+host without consent.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Path</p></th>
+<th class="head"><p>Raw exception text reaches host?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">emit_log</span></code> (Path A)</p></td>
+<td><p>No — counts and type names only</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">error_flow</span></code> (Layer 1)</p></td>
+<td><p>Only with explicit participant consent</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> catch (Layer 2)</p></td>
+<td><p>No — rendered on screen, not forwarded</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> (Layer 3, <code class="docutils literal notranslate"><span class="pre">firstRunCycle</span></code> only)</p></td>
+<td><p>Yes — forwarded via <code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code>, but only for the synchronous first cycle</p></td>
+</tr>
+<tr class="row-even"><td><p>Escaped exception in <code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code></p></td>
+<td><p>No — silently lost as unhandled promise rejection in worker</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">LogForwarder</span></code> (Path B, main-thread JS errors)</p></td>
+<td><p>Message only (context and timestamp dropped), no Python tracebacks under normal operation</p></td>
+</tr>
+<tr class="row-even"><td><p>Unhandled promise rejection in worker</p></td>
+<td><p>No — silently lost; <code class="docutils literal notranslate"><span class="pre">WindowLogSource</span></code> listens on <code class="docutils literal notranslate"><span class="pre">window</span></code>, not worker scope</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">logger.error(...)</span></code> (Python logging)</p></td>
+<td><p>No — browser console only</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>This boundary is documented in ADR AD0009. The critical design decisions are:</p>
+<ol class="arabic simple">
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code></strong> catches exceptions in Python before they can propagate
+to the JS engine. This is the primary defense and the only one with a
+consent gate.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> try/catch</strong> (Layer 2) prevents host forwarding if Layer 1
+fails, but shows the traceback to the participant without consent.</p></li>
+<li><p><strong><code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code></strong> (Layer 3) is a narrow fallback — it only catches
+synchronous errors from <code class="docutils literal notranslate"><span class="pre">firstRunCycle</span></code>. For <code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code> (the common
+case), an exception escaping both Layer 1 and Layer 2 would be silently
+lost. This is arguably a safer failure mode (no PII leak to the host), but
+it means the error is invisible to everyone, including the researcher.</p></li>
+</ol>
+</section>
+<hr class="docutils" />
+<section id="key-files">
+<h2>Key files<a class="headerlink" href="#key-files" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/main.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code>, <code class="docutils literal notranslate"><span class="pre">error_flow()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/helpers/extraction_helpers.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> — catches extraction errors</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/api/d3i_props.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ExtractionResult.errors</span></code> Counter</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/helpers/flow_builder.py</span></code></p></td>
+<td><p>Formats error counts for <code class="docutils literal notranslate"><span class="pre">emit_log</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/processing/worker_engine.ts</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> — JS-side catch</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<p>→ <a class="reference internal" href="08-rendering.html"><span class="std std-doc">Rendering and the factory system</span></a> — how commands become React components on screen</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-1-expected-extraction-errors">Category 1: Expected extraction errors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-2-uncaught-python-exceptions-three-defense-layers">Category 2: Uncaught Python exceptions — three defense layers</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-1-scriptwrapper-python-consent-gated">Layer 1: <code class="docutils literal notranslate"><span class="pre">ScriptWrapper</span></code> (Python) — consent-gated</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-2-runcycle-try-catch-js-worker-shown-on-screen-not-forwarded">Layer 2: <code class="docutils literal notranslate"><span class="pre">runCycle()</span></code> try/catch (JS worker) — shown on screen, not forwarded</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#layer-3-worker-onerror-js-main-thread-limited-to-synchronous-errors">Layer 3: <code class="docutils literal notranslate"><span class="pre">worker.onerror</span></code> (JS main thread) — limited to synchronous errors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-of-the-three-layers">Summary of the three layers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#category-3-javascript-side-errors">Category 3: JavaScript-side errors</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pii-safety-boundary">PII safety boundary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

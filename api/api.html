@@ -1,0 +1,1152 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API Reference &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'api/api';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Platform Documentation" href="../standard_scripts/index.html" />
+    <link rel="prev" title="API Reference" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Architecture</a></li>
+</ul>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">API Reference</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/api/api.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>API Reference</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-port.api.props">Props</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.donate_question"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.donate_question</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.donate_button"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.donate_button</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.waiting"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.waiting</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIFooter"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIFooter.progressPercentage"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter.progressPercentage</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIHeader"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIHeader.title"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader.title</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.platform"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.platform</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.header"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.header</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.body"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.body</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageError"><code class="docutils literal notranslate"><span class="pre">PropsUIPageError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.text</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.ok"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.ok</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.cancel"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.cancel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.tables</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.donate_question"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_question</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.donate_button"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_button</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.id"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.number"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.number</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.data_frame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame_max_size"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.data_frame_max_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.headers"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.headers</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput.extensions"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.extensions</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptHelloWorld"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptHelloWorld</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptHelloWorld.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptHelloWorld.text</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress.message"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.message</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.items"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.items</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText.text</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem"><code class="docutils literal notranslate"><span class="pre">RadioItem</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem.id"><code class="docutils literal notranslate"><span class="pre">RadioItem.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem.value"><code class="docutils literal notranslate"><span class="pre">RadioItem.value</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translatable"><code class="docutils literal notranslate"><span class="pre">Translatable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations"><code class="docutils literal notranslate"><span class="pre">Translations</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.en"><code class="docutils literal notranslate"><span class="pre">Translations.en</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.nl"><code class="docutils literal notranslate"><span class="pre">Translations.nl</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.es"><code class="docutils literal notranslate"><span class="pre">Translations.es</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extraction-helpers">Extraction helpers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#port-helpers">Port helpers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flowbuilder">FlowBuilder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-safety">Upload safety</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="api-reference">
+<h1>API Reference<a class="headerlink" href="#api-reference" title="Link to this heading">#</a></h1>
+<section id="module-port.api.props">
+<span id="props"></span><h2>Props<a class="headerlink" href="#module-port.api.props" title="Link to this heading">#</a></h2>
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIDataSubmissionButtons">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIDataSubmissionButtons</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">donate_question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">donate_button</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">waiting</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIDataSubmissionButtons" title="Link to this definition">#</a></dt>
+<dd><p>Buttons for data submission actions</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIDataSubmissionButtons.donate_question">
+<span class="sig-name descname"><span class="pre">donate_question</span></span><a class="headerlink" href="#port.api.props.PropsUIDataSubmissionButtons.donate_question" title="Link to this definition">#</a></dt>
+<dd><p>Optional question text above buttons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIDataSubmissionButtons.donate_button">
+<span class="sig-name descname"><span class="pre">donate_button</span></span><a class="headerlink" href="#port.api.props.PropsUIDataSubmissionButtons.donate_button" title="Link to this definition">#</a></dt>
+<dd><p>Optional text for donate button</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIDataSubmissionButtons.waiting">
+<span class="sig-name descname"><span class="pre">waiting</span></span><a class="headerlink" href="#port.api.props.PropsUIDataSubmissionButtons.waiting" title="Link to this definition">#</a></dt>
+<dd><p>Whether the data submission is in progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIFooter">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIFooter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">progressPercentage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIFooter" title="Link to this definition">#</a></dt>
+<dd><p>Page footer</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIFooter.progressPercentage">
+<span class="sig-name descname"><span class="pre">progressPercentage</span></span><a class="headerlink" href="#port.api.props.PropsUIFooter.progressPercentage" title="Link to this definition">#</a></dt>
+<dd><p>float indicating the progress in the flow</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>float</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIHeader">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIHeader</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIHeader" title="Link to this definition">#</a></dt>
+<dd><p>Page header</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIHeader.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIHeader.title" title="Link to this definition">#</a></dt>
+<dd><p>title of the page</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDataSubmission">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPageDataSubmission</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">platform</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">header</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIHeader" title="port.api.props.PropsUIHeader"><span class="pre">PropsUIHeader</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">body</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput" title="port.api.props.PropsUIPromptRadioInput"><span class="pre">PropsUIPromptRadioInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm"><span class="pre">PropsUIPromptConsentForm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput"><span class="pre">PropsUIPromptFileInput</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm"><span class="pre">PropsUIPromptConfirm</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptProgress" title="port.api.props.PropsUIPromptProgress"><span class="pre">PropsUIPromptProgress</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptHelloWorld" title="port.api.props.PropsUIPromptHelloWorld"><span class="pre">PropsUIPromptHelloWorld</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><span class="pre">PropsUIPromptConsentFormTable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.PropsUIDataSubmissionButtons" title="port.api.props.PropsUIDataSubmissionButtons"><span class="pre">PropsUIDataSubmissionButtons</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">list</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPageDataSubmission" title="Link to this definition">#</a></dt>
+<dd><p>A multi-purpose page that gets shown to the user</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDataSubmission.platform">
+<span class="sig-name descname"><span class="pre">platform</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDataSubmission.platform" title="Link to this definition">#</a></dt>
+<dd><p>the platform name the user is curently in the process of donating data from</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDataSubmission.header">
+<span class="sig-name descname"><span class="pre">header</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDataSubmission.header" title="Link to this definition">#</a></dt>
+<dd><p>page header</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIHeader" title="port.api.props.PropsUIHeader">port.api.props.PropsUIHeader</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageDataSubmission.body">
+<span class="sig-name descname"><span class="pre">body</span></span><a class="headerlink" href="#port.api.props.PropsUIPageDataSubmission.body" title="Link to this definition">#</a></dt>
+<dd><p>main body of the page, see the individual classes for an explanation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.PropsUIPromptRadioInput" title="port.api.props.PropsUIPromptRadioInput">port.api.props.PropsUIPromptRadioInput</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptConsentForm" title="port.api.props.PropsUIPromptConsentForm">port.api.props.PropsUIPromptConsentForm</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptFileInput" title="port.api.props.PropsUIPromptFileInput">port.api.props.PropsUIPromptFileInput</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptConfirm" title="port.api.props.PropsUIPromptConfirm">port.api.props.PropsUIPromptConfirm</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptProgress" title="port.api.props.PropsUIPromptProgress">port.api.props.PropsUIPromptProgress</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptHelloWorld" title="port.api.props.PropsUIPromptHelloWorld">port.api.props.PropsUIPromptHelloWorld</a> | <a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable">port.api.props.PropsUIPromptConsentFormTable</a> | <a class="reference internal" href="#port.api.props.PropsUIDataSubmissionButtons" title="port.api.props.PropsUIDataSubmissionButtons">port.api.props.PropsUIDataSubmissionButtons</a> | list | Any</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPageError">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPageError</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPageError" title="Link to this definition">#</a></dt>
+<dd><p>An error page to show when something goes wrong</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConfirm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">ok</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">cancel</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm" title="Link to this definition">#</a></dt>
+<dd><p>Retry submitting a file page</p>
+<p>Prompt the user if they want to submit a new file.
+This can be used in case a file could not be processed.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.text" title="Link to this definition">#</a></dt>
+<dd><p>message to display</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.ok">
+<span class="sig-name descname"><span class="pre">ok</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.ok" title="Link to this definition">#</a></dt>
+<dd><p>message to display if the user wants to try again</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConfirm.cancel">
+<span class="sig-name descname"><span class="pre">cancel</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConfirm.cancel" title="Link to this definition">#</a></dt>
+<dd><p>message to display if the user wants to continue regardless</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConsentForm</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tables</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable"><span class="pre">PropsUIPromptConsentFormTable</span></a><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">donate_question</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">donate_button</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm" title="Link to this definition">#</a></dt>
+<dd><p>Tables to be shown to the participant prior to data submission</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.tables">
+<span class="sig-name descname"><span class="pre">tables</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.tables" title="Link to this definition">#</a></dt>
+<dd><p>a list of tables, including both editable and read-only tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.PropsUIPromptConsentFormTable" title="port.api.props.PropsUIPromptConsentFormTable">port.api.props.PropsUIPromptConsentFormTable</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.description" title="Link to this definition">#</a></dt>
+<dd><p>Optional description text</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.donate_question">
+<span class="sig-name descname"><span class="pre">donate_question</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.donate_question" title="Link to this definition">#</a></dt>
+<dd><p>Optional question text for data submission button</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentForm.donate_button">
+<span class="sig-name descname"><span class="pre">donate_button</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentForm.donate_button" title="Link to this definition">#</a></dt>
+<dd><p>Optional text for data submission button</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptConsentFormTable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_frame</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">data_frame_max_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10000</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">headers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable" title="Link to this definition">#</a></dt>
+<dd><p>Table to be shown to the participant prior to data_submission</p>
+<p>It is truncated to a maximum number of rows to avoid overloading the UI.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.id" title="Link to this definition">#</a></dt>
+<dd><p>a unique string to itentify the table after donation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.number">
+<span class="sig-name descname"><span class="pre">number</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.number" title="Link to this definition">#</a></dt>
+<dd><p>the number of table in the list of tables</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.title" title="Link to this definition">#</a></dt>
+<dd><p>title of the table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.description" title="Link to this definition">#</a></dt>
+<dd><p>description of the table</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.data_frame">
+<span class="sig-name descname"><span class="pre">data_frame</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame" title="Link to this definition">#</a></dt>
+<dd><p>table to be shown</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>pandas.DataFrame</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.data_frame_max_size">
+<span class="sig-name descname"><span class="pre">data_frame_max_size</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame_max_size" title="Link to this definition">#</a></dt>
+<dd><p>maximum size of the table (in rows)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptConsentFormTable.headers">
+<span class="sig-name descname"><span class="pre">headers</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptConsentFormTable.headers" title="Link to this definition">#</a></dt>
+<dd><p>optional headers for the table columns</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, <a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a>] | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptFileInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">extensions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput" title="Link to this definition">#</a></dt>
+<dd><p>Prompt the user to submit a file</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput.description" title="Link to this definition">#</a></dt>
+<dd><p>text with an explanation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptFileInput.extensions">
+<span class="sig-name descname"><span class="pre">extensions</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptFileInput.extensions" title="Link to this definition">#</a></dt>
+<dd><p>accepted mime types, example: “application/zip, text/plain”</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptHelloWorld">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptHelloWorld</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptHelloWorld" title="Link to this definition">#</a></dt>
+<dd><p>Hello world component to welcome users</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptHelloWorld.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptHelloWorld.text" title="Link to this definition">#</a></dt>
+<dd><p>welcome message to display</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptProgress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">message</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentage</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress" title="Link to this definition">#</a></dt>
+<dd><p>Prompt the user information during the extraction</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.description" title="Link to this definition">#</a></dt>
+<dd><p>text with an explanation</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptProgress.message">
+<span class="sig-name descname"><span class="pre">message</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptProgress.message" title="Link to this definition">#</a></dt>
+<dd><p>can be used to show extraction progress</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptRadioInput</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">description</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">items</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><a class="reference internal" href="#port.api.props.RadioItem" title="port.api.props.RadioItem"><span class="pre">RadioItem</span></a><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput" title="Link to this definition">#</a></dt>
+<dd><p>Radio group</p>
+<p>This radio group can be used get a mutiple choice answer from a user</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.title" title="Link to this definition">#</a></dt>
+<dd><p>title of the radio group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.description">
+<span class="sig-name descname"><span class="pre">description</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.description" title="Link to this definition">#</a></dt>
+<dd><p>short description of the radio group</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptRadioInput.items">
+<span class="sig-name descname"><span class="pre">items</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptRadioInput.items" title="Link to this definition">#</a></dt>
+<dd><p>a list of radio buttons</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>list[<a class="reference internal" href="#port.api.props.RadioItem" title="port.api.props.RadioItem">port.api.props.RadioItem</a>]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptText">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">PropsUIPromptText</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">text</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">title</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable"><span class="pre">Translatable</span></a><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.PropsUIPromptText" title="Link to this definition">#</a></dt>
+<dd><p>Text block to display information to the user</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptText.title">
+<span class="sig-name descname"><span class="pre">title</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptText.title" title="Link to this definition">#</a></dt>
+<dd><p>optional title for the text block</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a> | None</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.PropsUIPromptText.text">
+<span class="sig-name descname"><span class="pre">text</span></span><a class="headerlink" href="#port.api.props.PropsUIPromptText.text" title="Link to this definition">#</a></dt>
+<dd><p>main text content to display</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#port.api.props.Translatable" title="port.api.props.Translatable">port.api.props.Translatable</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.RadioItem">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">RadioItem</span></span><a class="headerlink" href="#port.api.props.RadioItem" title="Link to this definition">#</a></dt>
+<dd><p>Radio button</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.RadioItem.id">
+<span class="sig-name descname"><span class="pre">id</span></span><a class="headerlink" href="#port.api.props.RadioItem.id" title="Link to this definition">#</a></dt>
+<dd><p>id of radio button</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>int</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.RadioItem.value">
+<span class="sig-name descname"><span class="pre">value</span></span><a class="headerlink" href="#port.api.props.RadioItem.value" title="Link to this definition">#</a></dt>
+<dd><p>text to be displayed</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.Translatable">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">Translatable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">translations</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#port.api.props.Translations" title="port.api.props.Translations"><span class="pre">Translations</span></a></span></em><span class="sig-paren">)</span><a class="headerlink" href="#port.api.props.Translatable" title="Link to this definition">#</a></dt>
+<dd><p>Wrapper class for Translations</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="port.api.props.Translations">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">port.api.props.</span></span><span class="sig-name descname"><span class="pre">Translations</span></span><a class="headerlink" href="#port.api.props.Translations" title="Link to this definition">#</a></dt>
+<dd><p>Typed dict containing text displayed in a specific language.</p>
+<p>en and nl are required. Additional languages are optional.
+The feldspar Translator falls back gracefully for missing locales.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.Translations.en">
+<span class="sig-name descname"><span class="pre">en</span></span><a class="headerlink" href="#port.api.props.Translations.en" title="Link to this definition">#</a></dt>
+<dd><p>English string to display</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.Translations.nl">
+<span class="sig-name descname"><span class="pre">nl</span></span><a class="headerlink" href="#port.api.props.Translations.nl" title="Link to this definition">#</a></dt>
+<dd><p>Dutch string to display</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="port.api.props.Translations.es">
+<span class="sig-name descname"><span class="pre">es</span></span><a class="headerlink" href="#port.api.props.Translations.es" title="Link to this definition">#</a></dt>
+<dd><p>Spanish string to display (optional)</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+</section>
+<section id="extraction-helpers">
+<h2>Extraction helpers<a class="headerlink" href="#extraction-helpers" title="Link to this heading">#</a></h2>
+</section>
+<section id="port-helpers">
+<h2>Port helpers<a class="headerlink" href="#port-helpers" title="Link to this heading">#</a></h2>
+</section>
+<section id="validation">
+<h2>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h2>
+</section>
+<section id="flowbuilder">
+<h2>FlowBuilder<a class="headerlink" href="#flowbuilder" title="Link to this heading">#</a></h2>
+</section>
+<section id="upload-safety">
+<h2>Upload safety<a class="headerlink" href="#upload-safety" title="Link to this heading">#</a></h2>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">API Reference</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../standard_scripts/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Platform Documentation</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-port.api.props">Props</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.donate_question"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.donate_question</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.donate_button"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.donate_button</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIDataSubmissionButtons.waiting"><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons.waiting</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIFooter"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIFooter.progressPercentage"><code class="docutils literal notranslate"><span class="pre">PropsUIFooter.progressPercentage</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIHeader"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIHeader.title"><code class="docutils literal notranslate"><span class="pre">PropsUIHeader.title</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.platform"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.platform</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.header"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.header</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageDataSubmission.body"><code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission.body</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPageError"><code class="docutils literal notranslate"><span class="pre">PropsUIPageError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.text</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.ok"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.ok</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConfirm.cancel"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm.cancel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.tables"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.tables</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.donate_question"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_question</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentForm.donate_button"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentForm.donate_button</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.id"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.number"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.number</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.data_frame</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.data_frame_max_size"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.data_frame_max_size</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptConsentFormTable.headers"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable.headers</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptFileInput.extensions"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput.extensions</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptHelloWorld"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptHelloWorld</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptHelloWorld.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptHelloWorld.text</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptProgress.message"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress.message</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.description"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.description</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptRadioInput.items"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput.items</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText.title"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText.title</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.PropsUIPromptText.text"><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText.text</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem"><code class="docutils literal notranslate"><span class="pre">RadioItem</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem.id"><code class="docutils literal notranslate"><span class="pre">RadioItem.id</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.RadioItem.value"><code class="docutils literal notranslate"><span class="pre">RadioItem.value</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translatable"><code class="docutils literal notranslate"><span class="pre">Translatable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations"><code class="docutils literal notranslate"><span class="pre">Translations</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.en"><code class="docutils literal notranslate"><span class="pre">Translations.en</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.nl"><code class="docutils literal notranslate"><span class="pre">Translations.nl</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#port.api.props.Translations.es"><code class="docutils literal notranslate"><span class="pre">Translations.es</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#extraction-helpers">Extraction helpers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#port-helpers">Port helpers</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#flowbuilder">FlowBuilder</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#upload-safety">Upload safety</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

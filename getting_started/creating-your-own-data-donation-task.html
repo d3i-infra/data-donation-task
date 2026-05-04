@@ -1,0 +1,613 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating your own data donation task &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/creating-your-own-data-donation-task';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding data visualizations" href="visualizations.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../architecture/index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/creating-your-own-data-donation-task.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Creating your own data donation task</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-flowbuilder-works">How FlowBuilder works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-your-platform-in-script-py">Registering your platform in script.py</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ddp-categories">DDP_CATEGORIES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-usage-of-yield">The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-python-packages">Install Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#try-the-donation-task-from-the-perspective-of-the-participant">Try the donation task from the perspective of the participant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="creating-your-own-data-donation-task">
+<h1>Creating your own data donation task<a class="headerlink" href="#creating-your-own-data-donation-task" title="Link to this heading">#</a></h1>
+<p>After you have forked or cloned and installed the repository you can start creating your own donation task.</p>
+<p>The extraction code lives in <code class="docutils literal notranslate"><span class="pre">packages/python/port</span></code>. The key pieces are:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">script.py</span></code> — orchestrator that sequences platforms and delegates to FlowBuilder</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">platforms/</span></code> — one module per platform, each containing a FlowBuilder subclass</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">helpers/flow_builder.py</span></code> — the shared donation flow (file prompt → validate → extract → consent → donate)</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">helpers/validate.py</span></code> — DDP validation using <code class="docutils literal notranslate"><span class="pre">DDP_CATEGORIES</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">helpers/extraction_helpers.py</span></code> — <code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> and data parsing utilities</p></li>
+</ul>
+<section id="how-flowbuilder-works">
+<h2>How FlowBuilder works<a class="headerlink" href="#how-flowbuilder-works" title="Link to this heading">#</a></h2>
+<p>Each platform implements a <strong>FlowBuilder subclass</strong> with two methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">validate_file(file)</span></code> — check whether the uploaded zip is a valid DDP for this platform</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">extract_data(file_value,</span> <span class="pre">validation)</span></code> — extract tables from the zip and return an <code class="docutils literal notranslate"><span class="pre">ExtractionResult</span></code></p></li>
+</ul>
+<p>FlowBuilder handles everything else: prompting the participant for a file, retry on invalid uploads, safety checks, rendering consent tables, and submitting the donation.</p>
+<p>Here is a minimal example (based on <a class="reference external" href="https://github.com/d3i-infra/data-donation-task/blob/master/packages/python/port/platforms/linkedin.py">LinkedIn</a>):</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># platforms/my_platform.py</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">port.api.props</span> <span class="k">as</span> <span class="nn">props</span>
+<span class="kn">import</span> <span class="nn">port.api.d3i_props</span> <span class="k">as</span> <span class="nn">d3i_props</span>
+<span class="kn">from</span> <span class="nn">port.api.d3i_props</span> <span class="kn">import</span> <span class="n">ExtractionResult</span>
+<span class="kn">from</span> <span class="nn">port.helpers.extraction_helpers</span> <span class="kn">import</span> <span class="n">ZipArchiveReader</span>
+<span class="kn">from</span> <span class="nn">port.helpers.flow_builder</span> <span class="kn">import</span> <span class="n">FlowBuilder</span>
+<span class="kn">import</span> <span class="nn">port.helpers.validate</span> <span class="k">as</span> <span class="nn">validate</span>
+<span class="kn">from</span> <span class="nn">port.helpers.validate</span> <span class="kn">import</span> <span class="n">DDPCategory</span><span class="p">,</span> <span class="n">DDPFiletype</span><span class="p">,</span> <span class="n">Language</span>
+
+<span class="n">DDP_CATEGORIES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">DDPCategory</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;json_en&quot;</span><span class="p">,</span>
+        <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span>
+        <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data.json&quot;</span><span class="p">,</span> <span class="s2">&quot;profile.json&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+<span class="p">]</span>
+
+<span class="k">def</span> <span class="nf">extraction</span><span class="p">(</span><span class="n">zip_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">validation</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtractionResult</span><span class="p">:</span>
+    <span class="n">errors</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">ZipArchiveReader</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">validation</span><span class="o">.</span><span class="n">archive_members</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="s2">&quot;data.json&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">found</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+
+    <span class="n">tables</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">d3i_props</span><span class="o">.</span><span class="n">PropsUIPromptConsentFormTableViz</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;my_table&quot;</span><span class="p">,</span>
+            <span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span>
+            <span class="n">title</span><span class="o">=</span><span class="n">props</span><span class="o">.</span><span class="n">Translatable</span><span class="p">({</span><span class="s2">&quot;en&quot;</span><span class="p">:</span> <span class="s2">&quot;My Data&quot;</span><span class="p">,</span> <span class="s2">&quot;nl&quot;</span><span class="p">:</span> <span class="s2">&quot;Mijn gegevens&quot;</span><span class="p">}),</span>
+        <span class="p">)</span>
+    <span class="p">]</span>
+    <span class="k">return</span> <span class="n">ExtractionResult</span><span class="p">(</span><span class="n">tables</span><span class="o">=</span><span class="n">tables</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="n">errors</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">MyPlatformFlow</span><span class="p">(</span><span class="n">FlowBuilder</span><span class="p">):</span>
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;MyPlatform&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">validate_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">validate</span><span class="o">.</span><span class="n">validate_zip</span><span class="p">(</span><span class="n">DDP_CATEGORIES</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">extract_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file_value</span><span class="p">,</span> <span class="n">validation</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">extraction</span><span class="p">(</span><span class="n">file_value</span><span class="p">,</span> <span class="n">validation</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">process</span><span class="p">(</span><span class="n">session_id</span><span class="p">):</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="n">MyPlatformFlow</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_flow</span><span class="p">()</span>
+</pre></div>
+</div>
+</section>
+<section id="registering-your-platform-in-script-py">
+<h2>Registering your platform in script.py<a class="headerlink" href="#registering-your-platform-in-script-py" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">script.py</span></code> maintains a registry of platforms. Add your platform:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">PLATFORM_REGISTRY</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">(</span><span class="s2">&quot;MyPlatform&quot;</span><span class="p">,</span> <span class="s2">&quot;port.platforms.my_platform&quot;</span><span class="p">,</span> <span class="s2">&quot;MyPlatformFlow&quot;</span><span class="p">),</span>
+    <span class="c1"># ... other platforms</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>Platforms are imported lazily, so only the platform(s) needed for a given build are loaded.</p>
+</section>
+<section id="ddp-categories">
+<h2>DDP_CATEGORIES<a class="headerlink" href="#ddp-categories" title="Link to this heading">#</a></h2>
+<p>Each platform defines which DDP formats it supports. <code class="docutils literal notranslate"><span class="pre">validate.validate_zip()</span></code> checks the uploaded file against these categories by comparing the zip’s file list against the <code class="docutils literal notranslate"><span class="pre">known_files</span></code> for each category.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">DDP_CATEGORIES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">DDPCategory</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;json_en&quot;</span><span class="p">,</span>
+        <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span>
+        <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;conversations.json&quot;</span><span class="p">,</span> <span class="s2">&quot;user.json&quot;</span><span class="p">]</span>
+    <span class="p">),</span>
+    <span class="n">DDPCategory</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;csv_en&quot;</span><span class="p">,</span>
+        <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">CSV</span><span class="p">,</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span>
+        <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;data.csv&quot;</span><span class="p">,</span> <span class="s2">&quot;profile.csv&quot;</span><span class="p">]</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>If your participants use a DDP format not covered by the existing categories, add a new <code class="docutils literal notranslate"><span class="pre">DDPCategory</span></code> entry with the expected files.</p>
+</section>
+<section id="the-usage-of-yield">
+<h2>The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code><a class="headerlink" href="#the-usage-of-yield" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">yield</span></code> makes sure that whenever the code resumes after a page render, it starts where it left off. FlowBuilder uses <code class="docutils literal notranslate"><span class="pre">yield</span></code> internally — your extraction code does not need to yield unless you want to show progress messages during extraction.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">script.py</span></code> orchestrator uses <code class="docutils literal notranslate"><span class="pre">yield</span> <span class="pre">from</span> <span class="pre">flow.start_flow()</span></code> to delegate the full flow to FlowBuilder.</p>
+</section>
+<section id="install-python-packages">
+<h2>Install Python packages<a class="headerlink" href="#install-python-packages" title="Link to this heading">#</a></h2>
+<p>The data donation task runs in the browser of the participant using <a class="reference external" href="https://pyodide.org/en/stable/">Pyodide</a> — Python compiled to WebAssembly. Packages available on your system install of Python won’t automatically be available in the browser.</p>
+<p>If you want to use external packages they should be available for Pyodide. You can check the list of available packages <a class="reference external" href="https://pyodide.org/en/stable/usage/packages-in-pyodide.html">here</a>.
+If you have found a package you want to use, add it to the <code class="docutils literal notranslate"><span class="pre">loadPackages</span></code> function in <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">loadPackages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;[ProcessingWorker] loading packages&#39;</span><span class="p">)</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">self</span><span class="p">.</span><span class="nx">pyodide</span><span class="p">.</span><span class="nx">loadPackage</span><span class="p">([</span><span class="s1">&#39;micropip&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pandas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lxml&#39;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>You can now import the packages as you would normally do in Python.</p>
+</section>
+<section id="try-the-donation-task-from-the-perspective-of-the-participant">
+<h2>Try the donation task from the perspective of the participant<a class="headerlink" href="#try-the-donation-task-from-the-perspective-of-the-participant" title="Link to this heading">#</a></h2>
+<p>Follow the installation instructions and start the server with <code class="docutils literal notranslate"><span class="pre">pnpm</span> <span class="pre">start</span></code>. Visit <code class="docutils literal notranslate"><span class="pre">http://localhost:3000</span></code> to see the donation flow.</p>
+</section>
+<section id="tips">
+<h2>Tips<a class="headerlink" href="#tips" title="Link to this heading">#</a></h2>
+<p><strong>Use ZipArchiveReader for file access.</strong>
+<code class="docutils literal notranslate"><span class="pre">reader.json()</span></code>, <code class="docutils literal notranslate"><span class="pre">reader.csv()</span></code>, and <code class="docutils literal notranslate"><span class="pre">reader.raw()</span></code> return found/not-found results instead of raising exceptions. This avoids error cascades when DDP files are missing (which is expected — DDPs vary by platform version and language).</p>
+<p><strong>Use the browser console for debugging.</strong>
+<code class="docutils literal notranslate"><span class="pre">print()</span></code> and <code class="docutils literal notranslate"><span class="pre">logging.getLogger()</span></code> output appears in the browser console. These logs stay local and are not sent to the host platform.</p>
+<p><strong>Keep the diverse nature of DDPs in mind.</strong>
+Check a variety of DDPs to make sure your extraction handles: different data formats (HTML, JSON, CSV), language settings (which affect file names and JSON keys), and different download options (which affect which files are present).</p>
+<p><strong>Don’t let your code crash.</strong>
+Uncaught exceptions stop the donation task. Use try/except in extraction functions and count errors via <code class="docutils literal notranslate"><span class="pre">errors[type(e).__name__]</span> <span class="pre">+=</span> <span class="pre">1</span></code> rather than letting them propagate.</p>
+<p><strong>Data donation checklist.</strong>
+Check out the <a class="reference external" href="https://github.com/d3i-infra/data-donation-task/wiki/Data-donation-checklist">wiki article</a> for a comprehensive checklist.</p>
+</section>
+<section id="limits">
+<h2>Limits<a class="headerlink" href="#limits" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>The data donation task is a frontend — you need Next (or a compatible host) to deploy it.</p></li>
+<li><p>Pyodide can handle files up to around 4 GiB, but less is better. For platforms like YouTube, participants should exclude personal videos from their DDP.</p></li>
+</ul>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualizations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adding data visualizations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-flowbuilder-works">How FlowBuilder works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#registering-your-platform-in-script-py">Registering your platform in script.py</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#ddp-categories">DDP_CATEGORIES</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-usage-of-yield">The usage of <code class="docutils literal notranslate"><span class="pre">yield</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#install-python-packages">Install Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#try-the-donation-task-from-the-perspective-of-the-participant">Try the donation task from the perspective of the participant</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tips">Tips</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#limits">Limits</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,907 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Rendering and the Factory System &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=a746c00c" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'architecture/08-rendering';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+        
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting Started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/creating-your-own-data-donation-task.html">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/deployment.html">Data donation task in a study</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/next-in-docker.html">Try out Next with Docker</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="index.html">Architecture</a></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/architecture/08-rendering.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Rendering and the Factory System</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-packages">The two packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-a-commanduirender-becomes-a-react-component">How a CommandUIRender becomes a React component</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#level-1-page-factories">Level 1: Page factories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#level-2-prompt-factories">Level 2: Prompt factories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-factory-reference">Prompt factory reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feldspar-built-in-factories">feldspar built-in factories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-collector-custom-factories">data-collector custom factories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-consent-form-data-round-trip">The consent form data round-trip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-resolve-callback">The resolve callback</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iframe-lifecycle">Iframe lifecycle</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app-loaded-signal">1. <code class="docutils literal notranslate"><span class="pre">app-loaded</span></code> signal</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resize-observer">2. Resize observer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lifecycle-sequence">Lifecycle sequence</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-wheel">The Python wheel</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-s-built">How it’s built</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-s-loaded">How it’s loaded</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-in-the-repo-vs-what-s-built">What’s in the repo vs what’s built</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dev-workflow">Dev workflow</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="rendering-and-the-factory-system">
+<h1>Rendering and the Factory System<a class="headerlink" href="#rendering-and-the-factory-system" title="Link to this heading">#</a></h1>
+<p>When Python yields a <code class="docutils literal notranslate"><span class="pre">CommandUIRender</span></code>, the JS framework must turn it into a
+React component on screen. This is handled by a two-level factory system:
+<strong>page factories</strong> decide which page layout to use, and <strong>prompt factories</strong>
+decide how to render each item in the page’s body.</p>
+<hr class="docutils" />
+<section id="the-two-packages">
+<h2>The two packages<a class="headerlink" href="#the-two-packages" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Package</p></th>
+<th class="head"><p>Role</p></th>
+<th class="head"><p>Depends on</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">feldspar</span></code></p></td>
+<td><p>Framework — run cycle, bridge, command routing, logging, base UI components</p></td>
+<td><p>Nothing (library)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">data-collector</span></code></p></td>
+<td><p>Application — composition root, custom UI components, worker entry point, Python wheel</p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">feldspar</span></code></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">data-collector</span></code> is the Vite app that gets built and served. <code class="docutils literal notranslate"><span class="pre">feldspar</span></code> is a
+library it consumes via <code class="docutils literal notranslate"><span class="pre">&#64;eyra/feldspar</span></code> (workspace dependency). The split
+matters because feldspar provides the engine, while data-collector provides the
+D3I-specific experience.</p>
+<p><code class="docutils literal notranslate"><span class="pre">data-collector/src/App.tsx</span></code> is the composition root:</p>
+<div class="highlight-tsx notranslate"><div class="highlight"><pre><span></span>&lt;ScriptHostComponent
+  workerUrl=&quot;./py_worker.js&quot;
+  standalone={import.meta.env.DEV}
+  logLevel={import.meta.env.DEV ? &quot;debug&quot; : &quot;info&quot;}
+  factories={[
+    new DataSubmissionPageFactory({
+      promptFactories: [
+        new ConsentFormVizFactory(),
+        new FileInputMultipleFactory(),
+        new ErrorPageFactory(),
+        new QuestionnaireFactory(),
+        new RetryPromptFactory(),
+      ],
+    }),
+  ]}
+/&gt;
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">standalone</span></code> flag determines <code class="docutils literal notranslate"><span class="pre">LiveBridge</span></code> (production, inside Eyra iframe)
+vs <code class="docutils literal notranslate"><span class="pre">FakeBridge</span></code> (dev, console + HTTP POST). The <code class="docutils literal notranslate"><span class="pre">factories</span></code> array is where
+data-collector plugs its custom components into feldspar’s rendering pipeline.</p>
+</section>
+<hr class="docutils" />
+<section id="how-a-commanduirender-becomes-a-react-component">
+<h2>How a CommandUIRender becomes a React component<a class="headerlink" href="#how-a-commanduirender-becomes-a-react-component" title="Link to this heading">#</a></h2>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart TD
+    CMD[&quot;CommandUIRender&lt;br/&gt;{page: {__type__, header, body[]}}&quot;]
+    CR[&quot;CommandRouter.onCommand()&quot;]
+    RE[&quot;ReactEngine.render(page)&quot;]
+    RF[&quot;ReactFactory.createPage(page, context)&quot;]
+    PF{{&quot;iterate PageFactory[]&lt;br/&gt;first match wins&quot;}}
+    DSP[&quot;DataSubmissionPageFactory&lt;br/&gt;matches PropsUIPageDataSubmission&quot;]
+    BODY[&quot;DataSubmissionPage&lt;br/&gt;iterates body[] items&quot;]
+    PROMPT{{&quot;iterate PromptFactory[]&lt;br/&gt;first match wins&quot;}}
+    COMPONENT[&quot;Matched React component&lt;br/&gt;rendered on screen&quot;]
+
+    CMD --&gt; CR --&gt; RE --&gt; RF --&gt; PF
+    PF --&gt; DSP
+    DSP --&gt; BODY --&gt; PROMPT --&gt; COMPONENT
+</pre></div>
+</div>
+<section id="level-1-page-factories">
+<h3>Level 1: Page factories<a class="headerlink" href="#level-1-page-factories" title="Link to this heading">#</a></h3>
+<p><code class="docutils literal notranslate"><span class="pre">ReactFactory</span></code> holds a list of <code class="docutils literal notranslate"><span class="pre">PageFactory</span></code> instances. When <code class="docutils literal notranslate"><span class="pre">createPage()</span></code> is
+called, it tries each factory in order. The first one whose <code class="docutils literal notranslate"><span class="pre">createPage()</span></code>
+returns non-null wins.</p>
+<p>feldspar always appends one default at the end of the list:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DataSubmissionPageFactory</span></code> — matches <code class="docutils literal notranslate"><span class="pre">PropsUIPageDataSubmission</span></code></p></li>
+</ul>
+<p>data-collector passes its own <code class="docutils literal notranslate"><span class="pre">DataSubmissionPageFactory</span></code> (with custom prompt
+factories) as the first entry, so it takes priority over feldspar’s default.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/factory.tsx</span></code></p>
+</section>
+<section id="level-2-prompt-factories">
+<h3>Level 2: Prompt factories<a class="headerlink" href="#level-2-prompt-factories" title="Link to this heading">#</a></h3>
+<p>When <code class="docutils literal notranslate"><span class="pre">DataSubmissionPage</span></code> renders, it iterates the page’s <code class="docutils literal notranslate"><span class="pre">body</span></code> array. Each
+body item has a <code class="docutils literal notranslate"><span class="pre">__type__</span></code> field. For each item, <code class="docutils literal notranslate"><span class="pre">DataSubmissionPage</span></code> tries
+every registered <code class="docutils literal notranslate"><span class="pre">PromptFactory</span></code> in order until one returns a JSX element.</p>
+<p>Custom factories (from data-collector) are prepended; feldspar’s defaults are
+appended by <code class="docutils literal notranslate"><span class="pre">createPromptFactoriesWithDefaults()</span></code>:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Custom</span><span class="p">:</span>   <span class="n">ConsentFormVizFactory</span><span class="p">,</span> <span class="n">FileInputMultipleFactory</span><span class="p">,</span> <span class="n">ErrorPageFactory</span><span class="p">,</span>
+          <span class="n">QuestionnaireFactory</span><span class="p">,</span> <span class="n">RetryPromptFactory</span>
+<span class="n">Default</span><span class="p">:</span>  <span class="n">FileInputFactory</span><span class="p">,</span> <span class="n">ProgressFactory</span><span class="p">,</span> <span class="n">ConfirmFactory</span><span class="p">,</span> <span class="n">RadioInputFactory</span><span class="p">,</span>
+          <span class="n">TableFactory</span><span class="p">,</span> <span class="n">DonateButtonsFactory</span><span class="p">,</span> <span class="n">TextBlockFactory</span>
+</pre></div>
+</div>
+<p>Each factory checks <code class="docutils literal notranslate"><span class="pre">body.__type__</span></code> and returns a component or <code class="docutils literal notranslate"><span class="pre">null</span></code>:</p>
+<div class="highlight-typescript notranslate"><div class="highlight"><pre><span></span><span class="kd">class</span><span class="w"> </span><span class="nx">ErrorPageFactory</span><span class="w"> </span><span class="k">implements</span><span class="w"> </span><span class="nx">PromptFactory</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">create</span><span class="p">(</span><span class="nx">body</span><span class="o">:</span><span class="w"> </span><span class="kt">unknown</span><span class="p">,</span><span class="w"> </span><span class="nx">context</span><span class="o">:</span><span class="w"> </span><span class="kt">ReactFactoryContext</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="p">((</span><span class="nx">body</span><span class="w"> </span><span class="kr">as</span><span class="w"> </span><span class="nx">any</span><span class="p">).</span><span class="nx">__type__</span><span class="w"> </span><span class="o">===</span><span class="w"> </span><span class="s2">&quot;PropsUIPageError&quot;</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="k">return</span><span class="w"> </span><span class="o">&lt;</span><span class="nx">ErrorPage</span><span class="w"> </span><span class="p">{...</span><span class="nx">body</span><span class="p">}</span><span class="w"> </span><span class="p">{...</span><span class="nx">context</span><span class="p">}</span><span class="w"> </span><span class="o">/&gt;</span><span class="p">;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="kc">null</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/ui/prompts/factory.ts</span></code></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="prompt-factory-reference">
+<h2>Prompt factory reference<a class="headerlink" href="#prompt-factory-reference" title="Link to this heading">#</a></h2>
+<section id="feldspar-built-in-factories">
+<h3>feldspar built-in factories<a class="headerlink" href="#feldspar-built-in-factories" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Factory</p></th>
+<th class="head"><p>Matches <code class="docutils literal notranslate"><span class="pre">__type__</span></code></p></th>
+<th class="head"><p>Component</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">FileInputFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInput</span></code></p></td>
+<td><p>Single file picker</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">ProgressFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptProgress</span></code></p></td>
+<td><p>Progress bar</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ConfirmFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm</span></code></p></td>
+<td><p>Confirm / cancel buttons</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">RadioInputFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRadioInput</span></code></p></td>
+<td><p>Radio button selection</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TableFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormTable</span></code></p></td>
+<td><p>Read-only data table</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">DonateButtonsFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIDataSubmissionButtons</span></code></p></td>
+<td><p>Donate / cancel buttons</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">TextBlockFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptText</span></code></p></td>
+<td><p>Static text block</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data-collector-custom-factories">
+<h3>data-collector custom factories<a class="headerlink" href="#data-collector-custom-factories" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Factory</p></th>
+<th class="head"><p>Matches <code class="docutils literal notranslate"><span class="pre">__type__</span></code></p></th>
+<th class="head"><p>Component</p></th>
+<th class="head"><p>Purpose</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ConsentFormVizFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptConsentFormViz</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ConsentFormViz</span></code></p></td>
+<td><p>Tables with search, row deletion, pagination, visualizations</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">FileInputMultipleFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptFileInputMultiple</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">FileInputMultiple</span></code></p></td>
+<td><p>Multi-file upload</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">ErrorPageFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPageError</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ErrorPage</span></code></p></td>
+<td><p>Error display (including synthetic errors from <code class="docutils literal notranslate"><span class="pre">generateErrorMessage</span></code>)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">QuestionnaireFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptQuestionnaire</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">Questionnaire</span></code></p></td>
+<td><p>Open and multiple-choice questions</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">RetryPromptFactory</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">PropsUIPromptRetry</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">RetryPrompt</span></code></p></td>
+<td><p>Single-button retry (registered but <strong>not used</strong> by standard FlowBuilder — see note below)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Note on retry:</strong> The standard <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> retry prompt uses feldspar’s
+<code class="docutils literal notranslate"><span class="pre">PropsUIPromptConfirm</span></code> (matched by the built-in <code class="docutils literal notranslate"><span class="pre">ConfirmFactory</span></code>), not
+<code class="docutils literal notranslate"><span class="pre">PropsUIPromptRetry</span></code>. This is because the retry flow needs both “Try again”
+and “Continue” buttons, while <code class="docutils literal notranslate"><span class="pre">RetryPrompt</span></code> only renders a single button.
+<code class="docutils literal notranslate"><span class="pre">RetryPromptFactory</span></code> is registered and available for custom flows but is not
+exercised by the standard path. See <code class="docutils literal notranslate"><span class="pre">port_helpers.generate_retry_prompt()</span></code>.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="the-consent-form-data-round-trip">
+<h2>The consent form data round-trip<a class="headerlink" href="#the-consent-form-data-round-trip" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ConsentFormViz</span></code> is the most complex UI component and the one participants
+interact with most. It handles the full cycle from extracted data to donated
+payload.</p>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>flowchart LR
+    EX[&quot;ExtractionResult.tables&lt;br/&gt;(Python DataFrames)&quot;]
+    SER[&quot;Serialised to JSON&lt;br/&gt;via .toDict()&quot;]
+    CMD[&quot;CommandUIRender&lt;br/&gt;body: PropsUIPromptConsentFormViz&quot;]
+    CFV[&quot;ConsentFormViz&lt;br/&gt;parses JSON → tables&quot;]
+    PART((&quot;Participant&lt;br/&gt;reviews, searches,&lt;br/&gt;deletes rows&quot;))
+    DON[&quot;handleDonate()&lt;br/&gt;serializeConsentData()&quot;]
+    PJ[&quot;resolve(PayloadJSON)&lt;br/&gt;edited data as JSON string&quot;]
+    PY[&quot;Python receives&lt;br/&gt;yield return value&quot;]
+
+    EX --&gt; SER --&gt; CMD --&gt; CFV --&gt; PART --&gt; DON --&gt; PJ --&gt; PY
+</pre></div>
+</div>
+<p><strong>What the participant can do:</strong></p>
+<ul class="simple">
+<li><p><strong>Search</strong> within tables (via <code class="docutils literal notranslate"><span class="pre">SearchBar</span></code>)</p></li>
+<li><p><strong>Delete rows</strong> they don’t want to share (via checkboxes)</p></li>
+<li><p><strong>Paginate</strong> through large tables</p></li>
+<li><p><strong>View visualizations</strong> (word clouds, charts) if the table defines them</p></li>
+</ul>
+<p><strong>What gets donated:</strong></p>
+<p>When the participant clicks “Yes, share for research”, <code class="docutils literal notranslate"><span class="pre">serializeConsentData()</span></code>
+walks the (possibly modified) tables and produces a JSON string. This includes
+the remaining rows and a <code class="docutils literal notranslate"><span class="pre">&quot;deleted</span> <span class="pre">row</span> <span class="pre">count&quot;</span></code> per table. The result is sent
+back to Python as <code class="docutils literal notranslate"><span class="pre">PayloadJSON</span></code>, where <code class="docutils literal notranslate"><span class="pre">FlowBuilder.start_flow()</span></code> passes it
+to <code class="docutils literal notranslate"><span class="pre">ph.donate()</span></code> → <code class="docutils literal notranslate"><span class="pre">CommandSystemDonate</span></code> → bridge → host.</p>
+<p>The key point: <strong>the data that reaches the host may differ from what was
+extracted</strong>, because the participant can delete rows before consenting.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/data-collector/src/components/consent_form_viz/consent_form_viz.tsx</span></code></p>
+</section>
+<hr class="docutils" />
+<section id="the-resolve-callback">
+<h2>The resolve callback<a class="headerlink" href="#the-resolve-callback" title="Link to this heading">#</a></h2>
+<p>Every page component receives a <code class="docutils literal notranslate"><span class="pre">resolve</span></code> function via <code class="docutils literal notranslate"><span class="pre">ReactFactoryContext</span></code>.
+This is the mechanism that returns the participant’s response back to the run
+cycle:</p>
+<ol class="arabic simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">ReactEngine.renderPage()</span></code> creates a <code class="docutils literal notranslate"><span class="pre">Promise</span></code> and passes its <code class="docutils literal notranslate"><span class="pre">resolve</span></code>
+to the page component via context</p></li>
+<li><p>The component calls <code class="docutils literal notranslate"><span class="pre">resolve(payload)</span></code> when the participant acts — e.g.
+<code class="docutils literal notranslate"><span class="pre">resolve({</span> <span class="pre">__type__:</span> <span class="pre">&quot;PayloadJSON&quot;,</span> <span class="pre">value:</span> <span class="pre">jsonString</span> <span class="pre">})</span></code></p></li>
+<li><p>The promise resolves, <code class="docutils literal notranslate"><span class="pre">ReactEngine.render()</span></code> returns the <code class="docutils literal notranslate"><span class="pre">Response</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">CommandRouter</span></code> returns the response to <code class="docutils literal notranslate"><span class="pre">WorkerProcessingEngine</span></code></p></li>
+<li><p>WPE sends <code class="docutils literal notranslate"><span class="pre">nextRunCycle</span></code> to the worker, which calls <code class="docutils literal notranslate"><span class="pre">pyScript.send(payload)</span></code></p></li>
+<li><p>Python’s <code class="docutils literal notranslate"><span class="pre">yield</span></code> receives the payload</p></li>
+</ol>
+<p>This is how the co-routine loop described in <a class="reference internal" href="02-run-cycle.html"><span class="std std-doc">02-run-cycle</span></a>
+connects to visible UI: <code class="docutils literal notranslate"><span class="pre">resolve</span></code> is the bridge from React back into the
+run cycle.</p>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/engine.tsx</span></code></p>
+</section>
+<hr class="docutils" />
+<section id="iframe-lifecycle">
+<h2>Iframe lifecycle<a class="headerlink" href="#iframe-lifecycle" title="Link to this heading">#</a></h2>
+<p><code class="docutils literal notranslate"><span class="pre">ScriptHostComponent</span></code> manages two communication channels with the parent
+window that are separate from the <code class="docutils literal notranslate"><span class="pre">MessageChannel</span></code> bridge:</p>
+<section id="app-loaded-signal">
+<h3>1. <code class="docutils literal notranslate"><span class="pre">app-loaded</span></code> signal<a class="headerlink" href="#app-loaded-signal" title="Link to this heading">#</a></h3>
+<p>On mount, <code class="docutils literal notranslate"><span class="pre">ScriptHostComponent</span></code> posts <code class="docutils literal notranslate"><span class="pre">{action:</span> <span class="pre">&quot;app-loaded&quot;}</span></code> to
+<code class="docutils literal notranslate"><span class="pre">window.parent</span></code>. Eyra mono listens for this and responds with <code class="docutils literal notranslate"><span class="pre">live-init</span></code>,
+which carries the <code class="docutils literal notranslate"><span class="pre">MessagePort</span></code> used to create <code class="docutils literal notranslate"><span class="pre">LiveBridge</span></code>. This is the
+handshake that establishes the bridge.</p>
+</section>
+<section id="resize-observer">
+<h3>2. Resize observer<a class="headerlink" href="#resize-observer" title="Link to this heading">#</a></h3>
+<p>A <code class="docutils literal notranslate"><span class="pre">ResizeObserver</span></code> watches <code class="docutils literal notranslate"><span class="pre">document.body</span></code> and posts <code class="docutils literal notranslate"><span class="pre">{action:</span> <span class="pre">&quot;resize&quot;,</span> <span class="pre">height}</span></code>
+to <code class="docutils literal notranslate"><span class="pre">window.parent</span></code> whenever the content height changes. Mono uses this to
+adjust the iframe height so there are no scrollbars inside the iframe.</p>
+</section>
+<section id="lifecycle-sequence">
+<h3>Lifecycle sequence<a class="headerlink" href="#lifecycle-sequence" title="Link to this heading">#</a></h3>
+<div class="highlight-mermaid notranslate"><div class="highlight"><pre><span></span>sequenceDiagram
+    participant DC as data-collector&lt;br/&gt;(iframe)
+    participant MONO as Eyra mono&lt;br/&gt;(parent)
+
+    DC-&gt;&gt;MONO: postMessage {action: &quot;app-loaded&quot;}
+    MONO-&gt;&gt;DC: postMessage {action: &quot;live-init&quot;, port, locale}
+    DC-&gt;&gt;DC: LiveBridge.create(port)
+    DC-&gt;&gt;DC: Assembly wires all components
+    DC-&gt;&gt;DC: processingEngine.start()
+
+    loop On content resize
+        DC-&gt;&gt;MONO: postMessage {action: &quot;resize&quot;, height}
+    end
+
+    note over DC,MONO: All subsequent communication&lt;br/&gt;goes through the MessagePort&lt;br/&gt;(bridge.send / bridge.sendLogs)
+</pre></div>
+</div>
+<p><strong>File:</strong> <code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/components/script_host_component.tsx</span></code></p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="key-files">
+<h2>Key files<a class="headerlink" href="#key-files" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/src/App.tsx</span></code></p></td>
+<td><p>Composition root — registers factories, configures ScriptHostComponent</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/src/index.tsx</span></code></p></td>
+<td><p>React entry point</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code></p></td>
+<td><p>Worker entry point (hosted by data-collector, not feldspar)</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/port-0.0.0-py3-none-any.whl</span></code></p></td>
+<td><p>Python wheel installed in Pyodide at startup (see below)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/components/script_host_component.tsx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ScriptHostComponent</span></code> — bridge creation, iframe lifecycle</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/assembly.ts</span></code></p></td>
+<td><p>Wires ReactFactory, ReactEngine, CommandRouter, LogForwarder, WorkerProcessingEngine</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/factory.tsx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ReactFactory</span></code> — page factory dispatch</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/engine.tsx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ReactEngine</span></code> — renders pages, manages resolve callbacks</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/ui/prompts/factory.ts</span></code></p></td>
+<td><p>Built-in prompt factories, <code class="docutils literal notranslate"><span class="pre">createPromptFactoriesWithDefaults()</span></code></p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/feldspar/src/framework/visualization/react/factories/data_submission_page.tsx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">DataSubmissionPageFactory</span></code></p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/src/components/consent_form_viz/consent_form_viz.tsx</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ConsentFormViz</span></code> — table rendering, row deletion, donate serialization</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="the-python-wheel">
+<h2>The Python wheel<a class="headerlink" href="#the-python-wheel" title="Link to this heading">#</a></h2>
+<p>The entire <code class="docutils literal notranslate"><span class="pre">packages/python/port</span></code> package — FlowBuilder, extraction helpers,
+platform modules, commands, everything — is shipped to the browser as a single
+Python wheel: <code class="docutils literal notranslate"><span class="pre">port-0.0.0-py3-none-any.whl</span></code>.</p>
+<section id="how-it-s-built">
+<h3>How it’s built<a class="headerlink" href="#how-it-s-built" title="Link to this heading">#</a></h3>
+<p>The root <code class="docutils literal notranslate"><span class="pre">package.json</span></code> defines two build steps:</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span>build:wheel        →  cd packages/python &amp;&amp; poetry build --format wheel
+build:install-wheel →  copyfiles -f packages/python/dist/*.whl packages/data-collector/public
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">pnpm</span> <span class="pre">run</span> <span class="pre">build:py</span></code> runs both in sequence. Poetry reads
+<code class="docutils literal notranslate"><span class="pre">packages/python/pyproject.toml</span></code> (name: <code class="docutils literal notranslate"><span class="pre">port</span></code>, version: <code class="docutils literal notranslate"><span class="pre">0.0.0</span></code>), produces
+<code class="docutils literal notranslate"><span class="pre">dist/port-0.0.0-py3-none-any.whl</span></code>, and the second step copies it into
+data-collector’s <code class="docutils literal notranslate"><span class="pre">public/</span></code> directory where Vite serves it as a static asset.</p>
+</section>
+<section id="how-it-s-loaded">
+<h3>How it’s loaded<a class="headerlink" href="#how-it-s-loaded" title="Link to this heading">#</a></h3>
+<p>During worker initialisation, <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code> runs:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="k">await</span><span class="w"> </span><span class="nx">micropip</span><span class="p">.</span><span class="nx">install</span><span class="p">(</span><span class="s2">&quot;./port-0.0.0-py3-none-any.whl&quot;</span><span class="p">,</span><span class="w"> </span><span class="nx">deps</span><span class="o">=</span><span class="nx">False</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">micropip</span></code> fetches the wheel from the same origin (it’s a relative URL to
+data-collector’s public directory), unpacks it into Pyodide’s virtual
+filesystem, and makes <code class="docutils literal notranslate"><span class="pre">import</span> <span class="pre">port</span></code> available. <code class="docutils literal notranslate"><span class="pre">deps=False</span></code> skips dependency
+resolution — pandas and numpy are pre-loaded by <code class="docutils literal notranslate"><span class="pre">pyodide.loadPackage()</span></code> in
+the previous step.</p>
+</section>
+<section id="what-s-in-the-repo-vs-what-s-built">
+<h3>What’s in the repo vs what’s built<a class="headerlink" href="#what-s-in-the-repo-vs-what-s-built" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>In git?</p></th>
+<th class="head"><p>Notes</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/port/</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Source code — the actual Python package</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/pyproject.toml</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Poetry project definition (name, version, deps)</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/python/dist/*.whl</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Build artifact, gitignored</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/port-0.0.0-py3-none-any.whl</span></code></p></td>
+<td><p>No</p></td>
+<td><p>Copied from dist, gitignored</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/port-0.0.0.tar.gz</span></code></p></td>
+<td><p>Yes</p></td>
+<td><p>Legacy committed sdist — not used by <code class="docutils literal notranslate"><span class="pre">py_worker.js</span></code> (which loads the <code class="docutils literal notranslate"><span class="pre">.whl</span></code>)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>The version is hardcoded at <code class="docutils literal notranslate"><span class="pre">0.0.0</span></code> because it is never published to PyPI —
+it only needs to be loadable by micropip inside the worker.</p>
+</section>
+<section id="dev-workflow">
+<h3>Dev workflow<a class="headerlink" href="#dev-workflow" title="Link to this heading">#</a></h3>
+<p>During development, <code class="docutils literal notranslate"><span class="pre">pnpm</span> <span class="pre">start</span></code> runs <code class="docutils literal notranslate"><span class="pre">nodemon</span> <span class="pre">--ext</span> <span class="pre">py</span> <span class="pre">--exec</span> <span class="pre">&quot;pnpm</span> <span class="pre">run</span> <span class="pre">build:py&quot;</span></code>,
+which watches for <code class="docutils literal notranslate"><span class="pre">.py</span></code> file changes and rebuilds + copies the wheel
+automatically. A browser refresh then picks up the new wheel.</p>
+<p><strong>Key files:</strong> <code class="docutils literal notranslate"><span class="pre">packages/python/pyproject.toml</span></code>, <code class="docutils literal notranslate"><span class="pre">package.json</span></code> (root, build scripts), <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code> (install step)</p>
+<hr class="docutils" />
+<p>→ Back to <a class="reference internal" href="01-overview.html"><span class="std std-doc">overview</span></a> — the full system in context</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-two-packages">The two packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-a-commanduirender-becomes-a-react-component">How a CommandUIRender becomes a React component</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#level-1-page-factories">Level 1: Page factories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#level-2-prompt-factories">Level 2: Prompt factories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#prompt-factory-reference">Prompt factory reference</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#feldspar-built-in-factories">feldspar built-in factories</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-collector-custom-factories">data-collector custom factories</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-consent-form-data-round-trip">The consent form data round-trip</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-resolve-callback">The resolve callback</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#iframe-lifecycle">Iframe lifecycle</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#app-loaded-signal">1. <code class="docutils literal notranslate"><span class="pre">app-loaded</span></code> signal</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resize-observer">2. Resize observer</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lifecycle-sequence">Lifecycle sequence</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#key-files">Key files</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-python-wheel">The Python wheel</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-s-built">How it’s built</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-s-loaded">How it’s loaded</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-s-in-the-repo-vs-what-s-built">What’s in the repo vs what’s built</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dev-workflow">Dev workflow</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
