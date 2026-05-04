@@ -38,6 +38,16 @@ class AsyncFileAdapter:
 
         Returns:
             bytes: The data read from the file.
+
+        Note:
+            Upload-pipeline code must NEVER call this with size=-1 (or no
+            argument). A full-file read issues a single
+            FileReaderSync.readAsArrayBuffer() call against the entire
+            blob, which fails with NotReadableError above the DOM File
+            API's ~2 GiB ArrayBuffer cap regardless of available RAM.
+            Pass this adapter directly to zipfile.ZipFile (which chunks
+            reads at its own discretion) or call read(size=N) with a
+            bounded N. See extraction/AD0007.
         """
         if self._closed:
             raise ValueError("I/O operation on closed file")

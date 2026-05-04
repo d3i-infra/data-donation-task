@@ -62,29 +62,40 @@ class FlowBuilder:
             # 1. Render file prompt → receive payload
             logger.info("Prompt for file for %s", self.platform_name)
             file_prompt = self.generate_file_prompt()
+            yield from ph.emit_log("info", f"[{self.platform_name}] Upload prompt sent")
             file_result = yield ph.render_page(self.UI_TEXT["submit_file_header"], file_prompt)
 
-            # Skip: user didn't select a file
-            if file_result.__type__ not in ("PayloadFile", "PayloadString"):
+            # Skip: anything other than a PayloadFile. PayloadString/
+            # WORKERFS support was retired with extraction/AD0007.
+            # Distinguish the participant-skip case from an unexpected
+            # payload type so a legacy/mismatched worker is observable.
+            if file_result.__type__ != "PayloadFile":
                 logger.info("Skipped at file selection for %s", self.platform_name)
+                yield from ph.emit_log(
+                    "info",
+                    f"[{self.platform_name}] Upload skipped: type={file_result.__type__}",
+                )
                 return
 
-            # 2. Materialize upload to path
-            path = uploads.materialize_file(file_result)
-            file_size = getattr(file_result.value, "size", None) if file_result.__type__ == "PayloadFile" else None
-            yield from ph.emit_log("info", f"[{self.platform_name}] File received: {file_size or 'unknown'} bytes, {file_result.__type__}")
+            # AsyncFileAdapter — file-like, passed directly to validators
+            # and extractors. Never materialized to a path. See AD0007.
+            archive = file_result.value
+            yield from ph.emit_log(
+                "info",
+                f"[{self.platform_name}] Upload received: size={archive.size}",
+            )
 
-            # 3. Safety check
+            # 2. Safety check (size only — uses JS metadata, no read)
             try:
-                uploads.check_file_safety(path)
+                uploads.check_payload_size(file_result)
             except (uploads.FileTooLargeError, uploads.ChunkedExportError) as e:
                 logger.error("Safety check failed for %s: %s", self.platform_name, e)
                 yield from ph.emit_log("info", f"[{self.platform_name}] Safety check failed: {type(e).__name__}")
                 _ = yield ph.render_safety_error_page(self.platform_name, e)
                 return
 
-            # 4. Validate
-            validation = self.validate_file(path)
+            # 3. Validate
+            validation = self.validate_file(archive)
             status = validation.get_status_code_id()
             category = getattr(validation, "current_ddp_category", None)
             category_id = getattr(category, "id", "unknown") if category else "unknown"
@@ -94,7 +105,7 @@ class FlowBuilder:
             else:
                 yield from ph.emit_log("info", f"[{self.platform_name}] Validation: invalid")
 
-            # 5. If invalid → retry prompt
+            # 4. If invalid → retry prompt
             if status != 0:
                 logger.info("Invalid %s file; prompting retry", self.platform_name)
                 retry_prompt = self.generate_retry_prompt()
@@ -103,15 +114,15 @@ class FlowBuilder:
                     continue  # loop back to step 1
                 return  # user declined retry
 
-            # 6. Extract
+            # 5. Extract
             logger.info("Extracting data for %s", self.platform_name)
-            raw_result = self.extract_data(path, validation)
+            raw_result = self.extract_data(archive, validation)
             if isinstance(raw_result, Generator):
                 result = yield from raw_result
             else:
                 result = raw_result
 
-            # 7. Log extraction summary (PII-free: counts only)
+            # 6. Log extraction summary (PII-free: counts only)
             total_rows = sum(len(t.data_frame) for t in result.tables)
             if result.errors:
                 error_summary = ", ".join(f"{k}×{v}" for k, v in result.errors.items())
@@ -119,7 +130,7 @@ class FlowBuilder:
             else:
                 yield from ph.emit_log("info", f"[{self.platform_name}] Extraction complete: {len(result.tables)} tables, {total_rows} rows; errors: none")
 
-            # 8. If no tables → no-data page
+            # 7. If no tables → no-data page
             if not result.tables:
                 logger.info("No data extracted for %s", self.platform_name)
                 _ = yield ph.render_no_data_page(self.platform_name)
@@ -127,12 +138,12 @@ class FlowBuilder:
 
             break  # proceed to consent
 
-        # 9. Render consent form
+        # 8. Render consent form
         yield from ph.emit_log("info", f"[{self.platform_name}] Consent form shown")
         review_data_prompt = self.generate_review_data_prompt(result.tables)
         consent_result = yield ph.render_page(self.UI_TEXT["review_data_header"], review_data_prompt)
 
-        # 10. Donate with per-platform key
+        # 9. Donate with per-platform key
         if consent_result.__type__ == "PayloadJSON":
             reviewed_data = consent_result.value
             yield from ph.emit_log("info", f"[{self.platform_name}] Consent: accepted")

@@ -8,6 +8,7 @@ Which can be used and acted upon
 from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
+from typing import IO, Union
 import zipfile
 
 import logging
@@ -202,35 +203,39 @@ class ValidateInput:
         }
 
 
-def validate_zip(ddp_categories: list[DDPCategory], path_to_zip: str) -> ValidateInput:
+def validate_zip(
+    ddp_categories: list[DDPCategory],
+    path_to_zip: Union[str, IO[bytes]],
+) -> ValidateInput:
     """
-    Validates a DDP zip file against a list of DDP categories.
+    Validates a DDP zip archive against a list of DDP categories.
 
-    This function attempts to open and read the contents of a zip file, then uses
-    the ValidateInput class to infer the DDP category based on the files in the zip.
-    If the zip file is invalid or cannot be read, it sets an error status code (an integer greather than 0).
+    This function attempts to open and read the contents of a zip archive,
+    then uses the ValidateInput class to infer the DDP category based on the
+    files in the zip. If the archive is invalid or cannot be read, it sets
+    an error status code (an integer greater than 0).
 
     Args:
-        ddp_categories (List[DDPCategory]): A list of valid DDP categories to compare against.
-        path_to_zip (str): The file path to the zip file to be validated.
+        ddp_categories (List[DDPCategory]): A list of valid DDP categories
+            to compare against.
+        path_to_zip: Anything `zipfile.ZipFile` accepts in read mode — either
+            a filesystem path string or a seekable binary file-like object
+            (e.g. an `AsyncFileAdapter` for browser uploads). Per
+            extraction/AD0007, the upload pipeline passes the file-like
+            adapter directly so the zip is never materialized into Pyodide's
+            heap. The parameter name is retained for backwards compatibility
+            with researcher-fork callers; PR 2 (type tightening) will rename
+            this to `archive`.
 
     Returns:
-        ValidateInput: An instance of ValidateInput containing the validation results.
+        ValidateInput: An instance of ValidateInput containing the
+            validation results.
 
     Raises:
-        zipfile.BadZipFile: This exception is caught internally and results in an error status code.
-
-    Examples:
-        >>> categories = [DDPCategory(id="cat1", ddp_filetype=DDPFiletype.JSON, language=Language.EN, known_files=["file1.txt", "file2.txt"])]
-        >>> result = validate_zip(categories, "path/to/valid.zip")
-        >>> result.get_status_code_id()
-        0
-
-        >>> result = validate_zip(categories, "path/to/invalid.zip")
-        >>> result.get_status_code_id()
-        1
+        zipfile.BadZipFile: This exception is caught internally and results
+            in an error status code.
     """
-    
+
     status_codes = [
         StatusCode(id=0, description="Detected a zip from the DDPCategory list"),
         StatusCode(id=1, description="Undetected zip or bad zipfile"),

@@ -4,6 +4,67 @@ This project follows [semantic versioning](https://semver.org/) starting from v2
 Earlier releases used sequential numbering (#1-#5) matching the upstream
 [eyra/feldspar](https://github.com/eyra/feldspar) convention.
 
+## [Unreleased]
+
+## v2.0.1 — 2026-05-04
+
+### Fixed
+
+* 2+ GiB upload `NotReadableError` regression. `FlowBuilder` no longer
+  materializes `PayloadFile` uploads to a path; the
+  `AsyncFileAdapter` is passed directly to `zipfile.ZipFile`,
+  validators, and extractors (extraction/AD0007). Restores the
+  streaming behavior of upstream eyra/feldspar PR
+  [#482](https://github.com/eyra/feldspar/pull/482), which the
+  FlowBuilder rewrite (`68c59d8`) silently reverted by adding a
+  full-file `adapter.read()` inside `materialize_file()`. The
+  resulting single-`ArrayBuffer` request triggered
+  `FileReaderSync.readAsArrayBuffer`'s ~2 GiB cap with
+  `NotReadableError`, often after a long apparent hang. Empirical
+  reproduction and full diagnosis:
+  [#61](https://github.com/d3i-infra/data-donation-task/issues/61).
+
+### Changed
+
+* Upload-path size validation now uses `adapter.size` (JS metadata,
+  no read) before any byte transfer, instead of `os.path.getsize`
+  on a materialized `/tmp` copy. The new helper is
+  `uploads.check_payload_size(file_result)`. The previous
+  `materialize_file()` and `check_file_safety(path)` are removed.
+* `ZipArchiveReader.__init__` and `validate.validate_zip` now accept
+  any seekable binary file-like (`IO[bytes]`) or a path string; the
+  upload pipeline passes an `AsyncFileAdapter` directly. Parameter
+  names (`zip_path`, `path_to_zip`) are retained for backwards
+  compatibility with researcher-fork callers and will be renamed in a
+  follow-up release.
+* `FlowBuilder.start_flow()` accepts only `PayloadFile` uploads.
+  `PayloadString`/WORKERFS support (kept for SURF Research Cloud
+  backwards compatibility per `feldspar/AD0003`) is retired; SRC
+  consumers must migrate to `PayloadFile`.
+* New host log milestones: `[<Platform>] Upload prompt sent`
+  (emitted before the file prompt render command goes to the host),
+  `[<Platform>] Upload received: size=…` (emitted immediately after
+  a `PayloadFile` upload, before the safety check), and
+  `[<Platform>] Upload skipped: type=<X>` (emitted when a
+  non-`PayloadFile` payload arrives, distinguishing participant-skip
+  from unexpected payload types). Replaces the previous
+  post-materialize `[<Platform>] File received` message.
+
+### Removed
+
+* `materialize_file()` and `check_file_safety()` from
+  `port.helpers.uploads` — see Changed above for replacements.
+* The dual-payload-type branch (`PayloadFile` or `PayloadString`)
+  in `FlowBuilder` upload handling. Closes the deprecation window
+  opened by `feldspar/AD0003`.
+
+### Architectural Decisions
+
+* `extraction/AD0007` — Stream `PayloadFile` uploads end-to-end and
+  never materialize to a path. Succeeds `extraction/AD0003` (whose
+  ownership decision is preserved; only the size-check placement
+  changes).
+
 ## v2.0.0 — 2026-03-23
 
 Incorporates upstream eyra/feldspar #6 (2026-02-25) and #7 (2026-03-05), plus

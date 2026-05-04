@@ -1,7 +1,14 @@
 """Tests for FlowBuilder.start_flow() — all six flow paths.
 
-FlowBuilder now yields CommandSystemLog milestones between UI commands.
-Tests use consume_logs() to skip past log commands to the next UI/donate command.
+FlowBuilder yields CommandSystemLog milestones between UI commands.
+Tests use advance_past_logs() / start_and_skip_logs() to skip past
+log commands to the next UI/donate command.
+
+Per extraction/AD0007, PayloadFile is the only accepted upload type;
+PayloadString/WORKERFS support was retired. The upload pipeline does
+not materialize the file to a path — the AsyncFileAdapter is passed
+directly to validate_file/extract_data, and size policy is enforced
+via check_payload_size() against adapter.size before any read.
 """
 import json
 import sys
@@ -52,6 +59,18 @@ def make_payload(type_name, **attrs):
     return p
 
 
+def make_payload_file(size: int = 1024) -> MagicMock:
+    """Build a PayloadFile-shaped payload whose adapter reports `size` bytes.
+
+    AD0007: the upload-path safety check reads adapter.size from JS
+    metadata, never the bytes themselves. Tests construct adapters that
+    only need a `.size` attribute set.
+    """
+    adapter = MagicMock()
+    adapter.size = size
+    return make_payload("PayloadFile", value=adapter)
+
+
 def advance_past_logs(gen, response=None):
     """Send response to generator, skip any CommandSystemLog commands, return next non-log command."""
     cmd = gen.send(response)
@@ -71,9 +90,7 @@ def start_and_skip_logs(gen):
 class TestHappyPath:
     """User uploads valid file → extraction has data → consents → donates."""
 
-    @patch("port.helpers.flow_builder.uploads.check_file_safety")
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_happy_path_yields_donate(self, mock_mat, mock_safety):
+    def test_happy_path_yields_donate(self):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -82,8 +99,7 @@ class TestHappyPath:
         assert isinstance(cmd, CommandUIRender)
 
         # Step 2: user uploads file → milestones → consent form
-        file_payload = make_payload("PayloadFile", value=MagicMock())
-        cmd = advance_past_logs(gen, file_payload)
+        cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
         # Step 3: user consents → milestones → donate command
@@ -100,9 +116,7 @@ class TestHappyPath:
 class TestRetryPath:
     """User uploads invalid file → retries → uploads valid file → succeeds."""
 
-    @patch("port.helpers.flow_builder.uploads.check_file_safety")
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_retry_loops_back(self, mock_mat, mock_safety):
+    def test_retry_loops_back(self):
         call_count = [0]
         flow = StubFlow()
 
@@ -122,7 +136,7 @@ class TestRetryPath:
         assert isinstance(cmd, CommandUIRender)
 
         # Upload invalid file → milestones → retry prompt
-        cmd = advance_past_logs(gen, make_payload("PayloadString", value="/tmp/bad.zip"))
+        cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
         # User clicks "Try again" → loops back → file prompt
@@ -130,12 +144,12 @@ class TestRetryPath:
         assert isinstance(cmd, CommandUIRender)
 
         # Upload valid file → milestones → consent form
-        cmd = advance_past_logs(gen, make_payload("PayloadString", value="/tmp/good.zip"))
+        cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
 
 class TestSkipPath:
-    """User skips file selection (not PayloadFile or PayloadString)."""
+    """User skips file selection (anything other than PayloadFile)."""
 
     def test_skip_returns_immediately(self):
         flow = StubFlow()
@@ -145,17 +159,29 @@ class TestSkipPath:
         cmd = start_and_skip_logs(gen)
         assert isinstance(cmd, CommandUIRender)
 
-        # User skips
+        # User skips with non-PayloadFile response — emits an
+        # "Upload skipped" diagnostic log, then returns.
         with pytest.raises(StopIteration):
-            gen.send(make_payload("PayloadFalse"))
+            advance_past_logs(gen, make_payload("PayloadFalse"))
+
+    def test_payload_string_now_treated_as_skip(self):
+        """SRC compat dropped per AD0007: PayloadString is not a valid upload."""
+        flow = StubFlow()
+        gen = flow.start_flow()
+
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # PayloadString hits the same skip branch as any other non-PayloadFile,
+        # which now emits an "Upload skipped" diagnostic log before returning.
+        with pytest.raises(StopIteration):
+            advance_past_logs(gen, make_payload("PayloadString", value="/tmp/legacy.zip"))
 
 
 class TestNoDataPath:
     """Valid file but extraction returns empty table list."""
 
-    @patch("port.helpers.flow_builder.uploads.check_file_safety")
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_no_data_shows_page_then_returns(self, mock_mat, mock_safety):
+    def test_no_data_shows_page_then_returns(self):
         flow = StubFlow(tables=[])
         gen = flow.start_flow()
 
@@ -164,7 +190,7 @@ class TestNoDataPath:
         assert isinstance(cmd, CommandUIRender)
 
         # Upload valid file → milestones → no-data page
-        cmd = advance_past_logs(gen, make_payload("PayloadString", value="/tmp/empty.zip"))
+        cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
         # User acknowledges
@@ -173,11 +199,13 @@ class TestNoDataPath:
 
 
 class TestSafetyErrorPath:
-    """File fails safety check."""
+    """File fails safety check (oversize / chunked-export sentinel)."""
 
-    @patch("port.helpers.flow_builder.uploads.check_file_safety", side_effect=FileTooLargeError("too big"))
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_safety_error_shows_page_then_returns(self, mock_mat, mock_safety):
+    @patch(
+        "port.helpers.flow_builder.uploads.check_payload_size",
+        side_effect=FileTooLargeError("too big"),
+    )
+    def test_safety_error_shows_page_then_returns(self, mock_check):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -186,7 +214,7 @@ class TestSafetyErrorPath:
         assert isinstance(cmd, CommandUIRender)
 
         # Upload file that fails safety → milestones → safety error page
-        cmd = advance_past_logs(gen, make_payload("PayloadFile", value=MagicMock()))
+        cmd = advance_past_logs(gen, make_payload_file(size=3 * 1024**3))
         assert isinstance(cmd, CommandUIRender)
 
         # User acknowledges
@@ -198,9 +226,7 @@ class TestDonateFailurePath:
     """Donation fails after consent."""
 
     @patch("port.helpers.flow_builder.ph.handle_donate_result", return_value=False)
-    @patch("port.helpers.flow_builder.uploads.check_file_safety")
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_donate_failure_shows_page_then_returns(self, mock_mat, mock_safety, mock_handle):
+    def test_donate_failure_shows_page_then_returns(self, mock_handle):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -208,7 +234,7 @@ class TestDonateFailurePath:
         cmd = start_and_skip_logs(gen)
 
         # Upload valid file → milestones → consent form
-        cmd = advance_past_logs(gen, make_payload("PayloadString", value="/tmp/test.zip"))
+        cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
         # User consents → milestones → donate command
@@ -231,13 +257,57 @@ class TestSessionIdType:
 
 
 class TestDonateKeyFormat:
-    @patch("port.helpers.flow_builder.uploads.check_file_safety")
-    @patch("port.helpers.flow_builder.uploads.materialize_file", return_value="/tmp/test.zip")
-    def test_donate_key_includes_platform(self, mock_mat, mock_safety):
+    def test_donate_key_includes_platform(self):
         """Donate key should be '{session_id}-{platform_name.lower()}'."""
         flow = StubFlow(session_id="sess-42")
         gen = flow.start_flow()
         start_and_skip_logs(gen)  # file prompt
-        advance_past_logs(gen, make_payload("PayloadString", value="/tmp/test.zip"))  # consent form
+        advance_past_logs(gen, make_payload_file())  # consent form
         cmd = advance_past_logs(gen, make_payload("PayloadJSON", value="{}"))  # donate
         assert cmd.key == "sess-42-testplatform"
+
+
+class TestUploadAdapterPassthrough:
+    """Verify the adapter (file_result.value) is passed to validate/extract,
+    not a path string. AD0007 streaming invariant.
+    """
+
+    def test_validate_file_receives_adapter(self):
+        """validate_file is called with file_result.value, not a path."""
+        flow = StubFlow()
+        observed = []
+        original_validate = flow.validate_file
+
+        def spy_validate(file):
+            observed.append(file)
+            return original_validate(file)
+
+        flow.validate_file = spy_validate
+
+        gen = flow.start_flow()
+        start_and_skip_logs(gen)
+        adapter = MagicMock()
+        adapter.size = 1024
+        advance_past_logs(gen, make_payload("PayloadFile", value=adapter))
+
+        assert observed == [adapter]
+
+    def test_extract_data_receives_adapter(self):
+        """extract_data is called with file_result.value, not a path."""
+        flow = StubFlow()
+        observed = []
+        original_extract = flow.extract_data
+
+        def spy_extract(file, validation):
+            observed.append(file)
+            return original_extract(file, validation)
+
+        flow.extract_data = spy_extract
+
+        gen = flow.start_flow()
+        start_and_skip_logs(gen)
+        adapter = MagicMock()
+        adapter.size = 1024
+        advance_past_logs(gen, make_payload("PayloadFile", value=adapter))
+
+        assert observed == [adapter]

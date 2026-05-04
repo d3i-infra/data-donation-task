@@ -7,7 +7,7 @@ import logging
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import IO, Any, Callable, Union
 from pathlib import Path
 import zipfile
 import csv
@@ -597,10 +597,17 @@ class RawExtractionResult:
 class ZipArchiveReader:
     """Reads files from a zip archive using cached member inventory.
 
-    Encapsulates the zip path, archive member list (from validation),
-    and error counter. Provides json()/csv()/raw() methods with
-    found/not-found signaling to eliminate cascading errors for
+    Encapsulates the zip path or file-like, archive member list (from
+    validation), and error counter. Provides json()/csv()/raw() methods
+    with found/not-found signaling to eliminate cascading errors for
     expected-missing files.
+
+    Per extraction/AD0007, the upload pipeline passes a file-like
+    `AsyncFileAdapter` here directly so the zip is never materialized
+    into Pyodide's heap. `zipfile.ZipFile` accepts both paths and
+    seekable binary file-likes; the `zip_path` parameter and
+    attribute name are retained for backwards compatibility with
+    researcher-fork callers and will be renamed in PR 2.
 
     Usage:
         reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
@@ -609,7 +616,12 @@ class ZipArchiveReader:
             data = result.data  # parsed dict/list
     """
 
-    def __init__(self, zip_path: str, archive_members: list[str], errors: Counter):
+    def __init__(
+        self,
+        zip_path: Union[str, IO[bytes]],
+        archive_members: list[str],
+        errors: Counter,
+    ):
         self.zip_path = zip_path
         self.archive_members = archive_members
         self.errors = errors

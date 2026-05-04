@@ -41,7 +41,8 @@ decisions:
             - uploads
             - flowbuilder
         links:
-            precedes: []
+            precedes:
+                - "0007"
             succeeds:
                 - "0002"
         comments:
@@ -108,3 +109,20 @@ decisions:
             - author: Danielle McCool
               date: "2026-03-21 15:24:08"
               comment: "4"
+    "0007":
+        adr_id: "0007"
+        title: Stream PayloadFile uploads end-to-end and never materialize to a path
+        status: decided
+        tags:
+            - uploads
+            - streaming
+            - memory-safety
+            - file-api
+        links:
+            precedes: []
+            succeeds:
+                - "0003"
+        comments:
+            - author: Danielle McCool
+              date: "2026-04-30 19:11:46"
+              comment: "1"

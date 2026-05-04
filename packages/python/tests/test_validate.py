@@ -1,4 +1,5 @@
 """Tests for ValidateInput archive_members caching."""
+import io
 import sys
 import zipfile
 from unittest.mock import MagicMock
@@ -59,3 +60,30 @@ class TestArchiveMembers:
         )]
         v = ValidateInput(status_codes, categories)
         assert v.archive_members == []
+
+
+class TestFileLikeAcceptance:
+    """validate_zip must accept a seekable binary file-like (e.g. AsyncFileAdapter).
+
+    Per extraction/AD0007, the upload pipeline passes the AsyncFileAdapter
+    directly so the zip is never materialized to a path.
+    """
+
+    def test_validate_zip_accepts_bytesio(self):
+        """validate_zip works against an in-memory BytesIO archive."""
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("data/following.json", '{}')
+            zf.writestr("data/posts.json", '{}')
+        buf.seek(0)
+
+        categories = [DDPCategory(
+            id="test", ddp_filetype=DDPFiletype.JSON,
+            language=Language.EN, known_files=["following.json", "posts.json"]
+        )]
+        result = validate_zip(categories, buf)
+        assert "data/following.json" in result.archive_members
+        assert "data/posts.json" in result.archive_members
+        # Detected as the test category, not unknown.
+        assert result.current_ddp_category is not None
+        assert result.current_ddp_category.id == "test"

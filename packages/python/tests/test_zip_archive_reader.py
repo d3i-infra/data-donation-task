@@ -166,3 +166,45 @@ class TestJsonAll:
         reader = ZipArchiveReader(path, members, Counter())
         results = reader.json_all(r"nonexistent_\d+\.json$")
         assert results == []
+
+
+class TestFileLikeAcceptance:
+    """ZipArchiveReader must accept a seekable binary file-like archive
+    (e.g. AsyncFileAdapter), not just a path string. AD0007.
+    """
+
+    @pytest.fixture
+    def sample_archive_buf(self):
+        """Build the same archive as `sample_zip` but as a BytesIO buffer."""
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr("data/following.json", json.dumps({"relationships_following": []}))
+            zf.writestr("ratings.csv", "Title,Rating\nMovie A,5\nMovie B,3\n")
+        members = ["data/following.json", "ratings.csv"]
+        return buf, members
+
+    def test_json_extraction_from_bytesio(self, sample_archive_buf):
+        """Reader extracts JSON from a BytesIO-backed archive."""
+        buf, members = sample_archive_buf
+        reader = ZipArchiveReader(buf, members, Counter())
+        result = reader.json("data/following.json")
+        assert result.found is True
+        assert result.data == {"relationships_following": []}
+
+    def test_csv_extraction_from_bytesio(self, sample_archive_buf):
+        """Reader extracts CSV from a BytesIO-backed archive."""
+        buf, members = sample_archive_buf
+        reader = ZipArchiveReader(buf, members, Counter())
+        result = reader.csv("ratings.csv")
+        assert result.found is True
+        assert len(result.data) == 2
+
+    def test_multiple_reads_from_same_bytesio(self, sample_archive_buf):
+        """Successive ZipFile contexts on the same archive object work
+        (mirrors AsyncFileAdapter reuse across member accesses).
+        """
+        buf, members = sample_archive_buf
+        reader = ZipArchiveReader(buf, members, Counter())
+        r1 = reader.json("data/following.json")
+        r2 = reader.csv("ratings.csv")
+        assert r1.found and r2.found
