@@ -8,10 +8,11 @@ Which can be used and acted upon
 from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
-from typing import IO, Union
 import zipfile
 
 import logging
+
+from port.api.file_utils import SeekableBinaryReader
 
 logger = logging.getLogger(__name__)
 
@@ -205,7 +206,7 @@ class ValidateInput:
 
 def validate_zip(
     ddp_categories: list[DDPCategory],
-    path_to_zip: Union[str, IO[bytes]],
+    archive: SeekableBinaryReader,
 ) -> ValidateInput:
     """
     Validates a DDP zip archive against a list of DDP categories.
@@ -218,14 +219,11 @@ def validate_zip(
     Args:
         ddp_categories (List[DDPCategory]): A list of valid DDP categories
             to compare against.
-        path_to_zip: Anything `zipfile.ZipFile` accepts in read mode — either
-            a filesystem path string or a seekable binary file-like object
-            (e.g. an `AsyncFileAdapter` for browser uploads). Per
-            extraction/AD0007, the upload pipeline passes the file-like
-            adapter directly so the zip is never materialized into Pyodide's
-            heap. The parameter name is retained for backwards compatibility
-            with researcher-fork callers; PR 2 (type tightening) will rename
-            this to `archive`.
+        archive: A seekable binary file-like object — typically an
+            `AsyncFileAdapter` from a browser upload, or an `io.BytesIO`
+            in tests. Per extraction/AD0007, the upload pipeline never
+            materializes uploads to a path; consumers accept the file-like
+            adapter directly to avoid `FileReaderSync`'s ~2 GiB cap.
 
     Returns:
         ValidateInput: An instance of ValidateInput containing the
@@ -244,7 +242,7 @@ def validate_zip(
 
     try:
         paths = []
-        with zipfile.ZipFile(path_to_zip, "r") as zf:
+        with zipfile.ZipFile(archive, "r") as zf:
             all_members = zf.namelist()
             for f in all_members:
                 p = Path(f)

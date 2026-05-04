@@ -6,6 +6,26 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ## [Unreleased]
 
+### Changed
+
+* **Breaking:** `ZipArchiveReader.__init__` and `validate.validate_zip`
+  narrow their archive parameter from `Union[str, IO[bytes]]`
+  (introduced in v2.0.1) to a new `SeekableBinaryReader` Protocol
+  (`read | seek | tell`) — path strings are no longer accepted. The
+  upload pipeline passes an `AsyncFileAdapter` directly; tests
+  construct fixtures via `io.BytesIO`. Type narrowing makes the
+  streaming invariant from `extraction/AD0007` checkable: passing a
+  `str` path to a consumer fails Pyright. CI does not currently run
+  type-checking, so this is a local / IDE / code-review aid rather
+  than a CI gate. Combined with the absence of `materialize_file()`
+  (deleted in v2.0.1), the protection is defense-in-depth — the
+  offending function no longer exists, and consumer signatures
+  reject path inputs.
+* **Breaking:** Archive parameter rename — `validate_zip(path_to_zip=…)`
+  and `ZipArchiveReader(zip_path=…)` keyword arguments are now
+  `archive=…`. The `ZipArchiveReader.zip_path` attribute is renamed to
+  `ZipArchiveReader.archive`. Positional callers are unaffected.
+
 ## v2.0.1 — 2026-05-04
 
 ### Fixed
