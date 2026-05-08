@@ -17,6 +17,10 @@
 # testing
 /coverage
 
+# Real DDP fixtures — must not enter version control (see AD0001)
+packages/python/tests/ddp/*
+!packages/python/tests/ddp/.gitkeep
+
 # production
 /build
 /releases

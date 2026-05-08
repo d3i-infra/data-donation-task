@@ -47,3 +47,18 @@ decisions:
             - author: Danielle McCool
               date: "2026-03-16 16:46:26"
               comment: "2"
+    "0004":
+        adr_id: "0004"
+        title: ExtractorSpec dataclass for extractor integration tests
+        status: accepted
+        tags:
+            - integration-testing
+            - extractors
+            - fixtures
+        links:
+            precedes: []
+            succeeds: []
+        comments:
+            - author: Danielle McCool
+              date: "2026-05-08 00:00:00"
+              comment: "1"
