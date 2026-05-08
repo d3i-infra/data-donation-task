@@ -57,7 +57,7 @@ DDP_CATEGORIES = [
         language=Language.EN,
         known_files=[
             "chat.html",
-            "conversations.json",
+            "conversations-000.json",
             "message_feedback.json",
             "model_comparisons.json",
             "user.json"
@@ -87,7 +87,7 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
 
         {
           "summary": "Each row represents one message turn in a ChatGPT conversation, including the role (user or assistant), the message text, the model used, and the timestamp.",
-          "source_file": "conversations.json",
+          "source_file": "conversations files (conversations-000.json, conversations-001.json, ...)",
           "columns": {
             "conversation title": "Title of the conversation as stored in the export.",
             "role": "Role of the message author: 'user' or 'assistant'.",
@@ -129,10 +129,10 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
           ]
         }
     """
-    result = reader.json("conversations.json")
-    if not result.found:
+    results = reader.json_all(r"conversations-.*\.json")
+    if not results:
         return pd.DataFrame()
-    conversations = result.data
+    conversations = [conv for result in results for conv in result.data]
 
     datapoints = []
     out = pd.DataFrame()
