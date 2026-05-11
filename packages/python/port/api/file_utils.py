@@ -5,8 +5,34 @@ This module provides adapters to bridge async browser File APIs with
 synchronous Python file operations, avoiding the need to copy entire
 files into Pyodide's virtual filesystem.
 """
+from typing import Protocol, runtime_checkable
 
 import js
+
+
+@runtime_checkable
+class SeekableBinaryReader(Protocol):
+    """File-like contract for upload-pipeline consumers.
+
+    Per extraction/AD0007, archive-consuming functions
+    (zipfile.ZipFile, validate.validate_zip,
+    extraction_helpers.ZipArchiveReader, per-platform
+    extraction()/validate_file()/extract_data()) accept this
+    Protocol — never a path string. Path inputs are forbidden in the
+    upload pipeline because the only way to obtain a path from a
+    PayloadFile is to materialize it, which defeats streaming and
+    re-introduces the FileReaderSync ~2 GiB ArrayBuffer cap (see
+    issue #61).
+
+    AsyncFileAdapter satisfies this Protocol. Tests construct
+    fixtures via io.BytesIO, which also satisfies it.
+    """
+
+    def read(self, size: int = -1, /) -> bytes: ...
+
+    def seek(self, offset: int, whence: int = 0, /) -> int: ...
+
+    def tell(self) -> int: ...
 
 
 class AsyncFileAdapter:

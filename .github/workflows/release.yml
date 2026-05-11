@@ -1,0 +1,58 @@
+name: Release on tag
+
+# When an annotated tag matching `v*` is pushed, extract that
+# version's section from CHANGELOG.md and create a GitHub release
+# using it as the body. This lets `git push origin vX.Y.Z` be the
+# entire release flow — no `gh` CLI, no web UI, no PAT needed
+# beyond the workflow's automatic GITHUB_TOKEN.
+#
+# Convention: each released version has a heading of the form
+#   ## vX.Y.Z — YYYY-MM-DD
+# in CHANGELOG.md. The workflow extracts the body between that
+# heading and the next `## v[0-9]` heading.
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write    # required to create releases
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Extract release notes from CHANGELOG
+        env:
+          # Bind the tag name (e.g. "v2.0.1") into a shell variable
+          # via env: rather than ${{ }} interpolation. Safer pattern
+          # for any field GitHub populates from a context, even when
+          # the field (a tag name) is not user-content-controlled.
+          TAG_NAME: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          version="${TAG_NAME#v}"
+          awk -v ver="$version" '
+            $0 ~ ("^## v" ver " ") { flag = 1; next }
+            flag && /^## v[0-9]/   { exit }
+            flag                   { print }
+          ' CHANGELOG.md > /tmp/notes.md
+
+          if [ ! -s /tmp/notes.md ]; then
+            echo "::error::No CHANGELOG section found for ${TAG_NAME}. Expected '## ${TAG_NAME} — <date>' heading in CHANGELOG.md."
+            exit 1
+          fi
+
+          echo "::group::Extracted notes"
+          cat /tmp/notes.md
+          echo "::endgroup::"
+
+      - name: Create release
+        uses: softprops/action-gh-release@v2
+        with:
+          body_path: /tmp/notes.md

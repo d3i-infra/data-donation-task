@@ -7,9 +7,11 @@ import logging
 from collections import Counter
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import IO, Any, Callable, Union
+from typing import Any, Callable
 from pathlib import Path
 import zipfile
+
+from port.api.file_utils import SeekableBinaryReader
 import csv
 import io
 import json
@@ -597,20 +599,18 @@ class RawExtractionResult:
 class ZipArchiveReader:
     """Reads files from a zip archive using cached member inventory.
 
-    Encapsulates the zip path or file-like, archive member list (from
-    validation), and error counter. Provides json()/csv()/raw() methods
-    with found/not-found signaling to eliminate cascading errors for
-    expected-missing files.
+    Encapsulates a seekable binary archive (`SeekableBinaryReader`),
+    archive member list (from validation), and error counter. Provides
+    json()/csv()/raw() methods with found/not-found signaling to
+    eliminate cascading errors for expected-missing files.
 
-    Per extraction/AD0007, the upload pipeline passes a file-like
-    `AsyncFileAdapter` here directly so the zip is never materialized
-    into Pyodide's heap. `zipfile.ZipFile` accepts both paths and
-    seekable binary file-likes; the `zip_path` parameter and
-    attribute name are retained for backwards compatibility with
-    researcher-fork callers and will be renamed in PR 2.
+    Per extraction/AD0007, the upload pipeline passes the
+    `AsyncFileAdapter` from a browser upload here directly so the zip
+    is never materialized into Pyodide's heap. Path-string inputs are
+    not accepted; tests construct fixtures via `io.BytesIO`.
 
     Usage:
-        reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
+        reader = ZipArchiveReader(archive, validation.archive_members, errors)
         result = reader.json("following.json")
         if result.found:
             data = result.data  # parsed dict/list
@@ -618,11 +618,11 @@ class ZipArchiveReader:
 
     def __init__(
         self,
-        zip_path: Union[str, IO[bytes]],
+        archive: SeekableBinaryReader,
         archive_members: list[str],
         errors: Counter,
     ):
-        self.zip_path = zip_path
+        self.archive = archive
         self.archive_members = archive_members
         self.errors = errors
 
@@ -659,7 +659,7 @@ class ZipArchiveReader:
     def _read_member_bytes(self, member_path: str) -> io.BytesIO:
         """Read a specific member from the zip by exact path."""
         try:
-            with zipfile.ZipFile(self.zip_path, "r") as zf:
+            with zipfile.ZipFile(self.archive, "r") as zf:
                 return io.BytesIO(zf.read(member_path))
         except Exception as e:
             logger.error("Error reading zip member: %s", type(e).__name__)
