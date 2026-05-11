@@ -51,6 +51,10 @@ node_modules/
 release-for-website.sh
 
 _build
+
+# Poetry
+poetry.lock
+
 # Ignore all __pycache__ directories
 __pycache__/
 */__pycache__/
