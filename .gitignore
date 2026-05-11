@@ -84,4 +84,3 @@ structure_donations/Processed_structure_donations/Twitter/Input_test
 pytests/scenarios/*PRIVATE.json
 
 .~lock.*#
-*port_config.json
