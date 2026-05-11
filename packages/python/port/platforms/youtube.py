@@ -5,16 +5,34 @@ This module provides an example flow of a YouTube data donation study
 
 Assumptions:
 It handles DDPs in the Dutch and English language with filetype JSON.
+
+Configuration
+-------------
+The ``extraction`` function is driven by ``port_config.json``.  Generate one with::
+
+    pnpm generate-config youtube
+
+Each extractor function carries its own table config in a ``Table config::``
+JSON block inside its docstring.  The generator reads those blocks and
+assembles the JSON file.
+
+Platform info::
+
+    {
+        "name": "YouTube",
+        "filetypes": ["json", "csv"],
+        "languages": ["en", "nl"],
+        "description": "Handles DDPs in both English and Dutch. English and Dutch filenames are tried automatically. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
+        "time_last_tested": "not yet implemented"
+    }
 """
 import json
 import logging
 from collections import Counter
+from typing import Callable
 
 import pandas as pd
 
-import port.api.props as props
-import port.api.d3i_props as d3i_props
-from port.api.d3i_props import ExtractionResult
 import port.helpers.extraction_helpers as eh
 import port.helpers.validate as validate
 from port.helpers.extraction_helpers import ZipArchiveReader
@@ -24,7 +42,11 @@ from port.helpers.validate import (
     DDPCategory,
     DDPFiletype,
     Language,
-    ValidateInput,
+)
+from port.api.d3i_props import ExtractionResult
+from port.helpers.table_extractor import (
+    load_port_config,
+    run_extraction,
 )
 
 logger = logging.getLogger(__name__)
@@ -55,16 +77,91 @@ DDP_CATEGORIES = [
 ]
 
 
-def watch_history_to_df(reader: ZipArchiveReader, validation, errors: Counter) -> pd.DataFrame:
+def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract watch history from the YouTube DDP.
 
-    if validation.current_ddp_category.language == Language.NL:
-        result = reader.json("kijkgeschiedenis.json")
-    elif validation.current_ddp_category.language == Language.EN:
-        result = reader.json("watch-history.json")
-    else:
-        return pd.DataFrame()
+    Tries the English filename ``watch-history.json`` first, then the Dutch
+    ``kijkgeschiedenis.json``.
 
-    if not result.found:
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load JSON files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one video the participant watched on YouTube, including the video title, URL, and timestamp.",
+          "source_file": "watch-history.json or kijkgeschiedenis.json",
+          "columns": {
+            "Title": "Title of the watched video.",
+            "URL": "URL of the watched video.",
+            "Timestamp": "ISO 8601 timestamp of when the video was watched."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_watch_history",
+          "title": {"en": "Your watch history", "nl": "Je kijkgeschiedenis"},
+          "description": {
+            "en": "Videos you have watched on YouTube, including timestamps.",
+            "nl": "Video's die je op YouTube hebt bekeken, inclusief tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Title", "nl": "Titel"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Videos watched over time",
+                "nl": "Bekeken video's in de loop van de tijd"
+              },
+              "type": "area",
+              "group": {"column": "Timestamp", "dateFormat": "auto"},
+              "values": [{"aggregate": "count", "label": "Count"}]
+            },
+            {
+              "title": {
+                "en": "Videos watched by hour of the day",
+                "nl": "Bekeken video's per uur van de dag"
+              },
+              "type": "bar",
+              "group": {"column": "Timestamp", "dateFormat": "hour_cycle", "label": "Hour of the day"},
+              "values": [{"label": "Count"}]
+            },
+            {
+              "title": {
+                "en": "Words in video titles you watched",
+                "nl": "Woorden in titels van bekeken video's"
+              },
+              "type": "wordcloud",
+              "textColumn": "Title",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    result = None
+    for filename in ("watch-history.json", "kijkgeschiedenis.json"):
+        r = reader.json(filename)
+        if r.found:
+            result = r
+            break
+
+    if result is None or not result.found:
         return pd.DataFrame()
     d = result.data
 
@@ -88,16 +185,78 @@ def watch_history_to_df(reader: ZipArchiveReader, validation, errors: Counter) -
     return out
 
 
-def search_history_to_df(reader: ZipArchiveReader, validation, errors: Counter) -> pd.DataFrame:
+def search_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract search history from the YouTube DDP.
 
-    if validation.current_ddp_category.language == Language.NL:
-        result = reader.json("zoekgeschiedenis.json")
-    elif validation.current_ddp_category.language == Language.EN:
-        result = reader.json("search-history.json")
-    else:
-        return pd.DataFrame()
+    Tries the English filename ``search-history.json`` first, then the Dutch
+    ``zoekgeschiedenis.json``.
 
-    if not result.found:
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load JSON files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``, ``Ad``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one search query or video watch registered in the YouTube search and watch history, including whether an ad was seen.",
+          "source_file": "search-history.json or zoekgeschiedenis.json",
+          "columns": {
+            "Title": "Title of the search result or watched video.",
+            "URL": "URL of the search result or watched video.",
+            "Timestamp": "ISO 8601 timestamp of when the search was performed.",
+            "Ad": "Boolean indicating whether an ad detail was associated with this entry."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_search_history",
+          "title": {
+            "en": "Your search and watch history",
+            "nl": "Je zoek- en kijkgeschiedenis"
+          },
+          "description": {
+            "en": "Your search queries, videos watched, and ads seen on YouTube, with timestamps.",
+            "nl": "Je zoekopdrachten, bekeken video's en geziene advertenties op YouTube, met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Title", "nl": "Titel"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"},
+            "Ad": {"en": "Ad", "nl": "Advertentie"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Words in your search and watch history",
+                "nl": "Woorden in je zoek- en kijkgeschiedenis"
+              },
+              "type": "wordcloud",
+              "textColumn": "Title",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    result = None
+    for filename in ("search-history.json", "zoekgeschiedenis.json"):
+        r = reader.json(filename)
+        if r.found:
+            result = r
+            break
+
+    if result is None or not result.found:
         return pd.DataFrame()
     d = result.data
 
@@ -122,21 +281,62 @@ def search_history_to_df(reader: ZipArchiveReader, validation, errors: Counter) 
     return out
 
 
-def subscriptions_to_df(reader: ZipArchiveReader, validation, errors: Counter) -> pd.DataFrame:
-    """
-    Parses 'subscriptions.csv' or 'abonnementen.csv' from a YouTube DDP.
+def subscriptions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract subscriptions from the YouTube DDP.
+
+    Tries ``subscriptions.csv`` first, then the Dutch ``abonnementen.csv``.
     Normalises column names to English regardless of export language.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load CSV files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Channel Id``, ``Channel URL``, ``Channel Name``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one YouTube channel the participant is subscribed to.",
+          "source_file": "subscriptions.csv or abonnementen.csv",
+          "columns": {
+            "Channel Id": "Unique identifier of the subscribed channel.",
+            "Channel URL": "URL of the subscribed channel.",
+            "Channel Name": "Display name of the subscribed channel."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_subscriptions",
+          "title": {"en": "Your subscriptions", "nl": "Je abonnementen"},
+          "description": {
+            "en": "YouTube channels you are subscribed to.",
+            "nl": "YouTube-kanalen waarop je bent geabonneerd."
+          },
+          "headers": {
+            "Channel Id": {"en": "Channel Id", "nl": "Kanaal-id"},
+            "Channel URL": {"en": "Channel URL", "nl": "Kanaal-URL"},
+            "Channel Name": {"en": "Channel Name", "nl": "Kanaalnaam"}
+          }
+        }
     """
+    result = None
+    for filename in ("subscriptions.csv", "abonnementen.csv"):
+        r = reader.csv(filename)
+        if r.found:
+            result = r
+            break
 
-    if validation.current_ddp_category.language == Language.NL:
-        file_name = "abonnementen.csv"
-    elif validation.current_ddp_category.language == Language.EN:
-        file_name = "subscriptions.csv"
-    else:
-        return pd.DataFrame()
-
-    result = reader.csv(file_name)
-    if not result.found:
+    if result is None or not result.found:
         return pd.DataFrame()
     df = result.data
 
@@ -154,19 +354,84 @@ def _parse_comment_text(raw: str) -> str:
         return raw
 
 
-def comments_to_df(reader: ZipArchiveReader, validation, errors: Counter) -> pd.DataFrame:
-    if validation.current_ddp_category.language == Language.NL:
-        file_name = "reacties.csv"
-    else:
-        file_name = "comments.csv"
+def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract comments from the YouTube DDP.
 
-    result = reader.csv(file_name)
-    if not result.found:
+    Tries ``comments.csv`` first, then the Dutch ``reacties.csv``.
+    Normalises column names to English and parses comment text segments.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load CSV files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Timestamp``, ``Channel ID``, ``Comment text``, ``Comment ID``,
+        ``Video ID``, ``Price`` (subset available depends on export).
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one comment the participant posted on a YouTube video or post.",
+          "source_file": "comments.csv or reacties.csv",
+          "columns": {
+            "Timestamp": "ISO 8601 timestamp of when the comment was created.",
+            "Channel ID": "ID of the channel where the comment was posted.",
+            "Comment text": "Full text of the comment.",
+            "Comment ID": "Unique identifier for the comment.",
+            "Video ID": "ID of the video the comment was posted on.",
+            "Price": "Super Chat amount, if applicable."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_comments",
+          "title": {"en": "Your comments", "nl": "Je reacties"},
+          "description": {
+            "en": "Comments you posted on YouTube videos and posts.",
+            "nl": "Reacties die je op YouTube-video's en -posts hebt geplaatst."
+          },
+          "headers": {
+            "Comment ID": {"en": "Comment ID", "nl": "Reactie-ID"},
+            "Channel ID": {"en": "Channel ID", "nl": "Kanaal-ID"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"},
+            "Price": {"en": "Price", "nl": "Prijs"},
+            "Video ID": {"en": "Video ID", "nl": "Video-ID"},
+            "Comment text": {"en": "Comment text", "nl": "Reactietekst"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Most common words in your comments",
+                "nl": "Meest voorkomende woorden in je reacties"
+              },
+              "type": "wordcloud",
+              "textColumn": "Comment text",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    result = None
+    for filename in ("comments.csv", "reacties.csv"):
+        r = reader.csv(filename)
+        if r.found:
+            result = r
+            break
+
+    if result is None or not result.found:
         return pd.DataFrame()
     df = result.data
 
     if not df.empty:
-        # Normalise NL column names to English
         df = df.rename(columns={
             "Reactie-ID": "Comment ID",
             "Kanaal-ID": "Channel ID",
@@ -184,154 +449,43 @@ def comments_to_df(reader: ZipArchiveReader, validation, errors: Counter) -> pd.
     return df
 
 
-def extraction(zip: str, validation: ValidateInput) -> ExtractionResult:
-    errors = Counter()
-    reader = ZipArchiveReader(zip, validation.archive_members, errors)
-    tables = [
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="youtube_watch_history",
-            data_frame=watch_history_to_df(reader, validation, errors),
-            title=props.Translatable({
-                "en": "Your watch history",
-                "nl": "Je kijkgeschiedenis",
-            }),
-            description=props.Translatable({
-                "en": "Videos you have watched on YouTube, including timestamps.",
-                "nl": "Video's die je op YouTube hebt bekeken, inclusief tijdstippen.",
-            }),
-            headers={
-                "Title": props.Translatable({"en": "Title", "nl": "Titel"}),
-                "URL": props.Translatable({"en": "URL", "nl": "URL"}),
-                "Timestamp": props.Translatable({"en": "Timestamp", "nl": "Datum en tijd"}),
-            },
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Videos watched over time",
-                        "nl": "Bekeken video's in de loop van de tijd",
-                    },
-                    "type": "area",
-                    "group": {
-                        "column": "Timestamp",
-                        "dateFormat": "auto",
-                    },
-                    "values": [{
-                        "aggregate": "count",
-                        "label": "Count",
-                    }],
-                },
-                {
-                    "title": {
-                        "en": "Videos watched by hour of the day",
-                        "nl": "Bekeken video's per uur van de dag",
-                    },
-                    "type": "bar",
-                    "group": {
-                        "column": "Timestamp",
-                        "dateFormat": "hour_cycle",
-                        "label": "Hour of the day",
-                    },
-                    "values": [{
-                        "label": "Count",
-                    }],
-                },
-                {
-                    "title": {
-                        "en": "Words in video titles you watched",
-                        "nl": "Woorden in titels van bekeken video's",
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Title",
-                    "tokenize": True,
-                },
-            ]
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="youtube_search_history",
-            data_frame=search_history_to_df(reader, validation, errors),
-            title=props.Translatable({
-                "en": "Your search and watch history",
-                "nl": "Je zoek- en kijkgeschiedenis",
-            }),
-            description=props.Translatable({
-                "en": "Your search queries, videos watched, and ads seen on YouTube, with timestamps.",
-                "nl": "Je zoekopdrachten, bekeken video's en geziene advertenties op YouTube, met tijdstippen.",
-            }),
-            headers={
-                "Title": props.Translatable({"en": "Title", "nl": "Titel"}),
-                "URL": props.Translatable({"en": "URL", "nl": "URL"}),
-                "Timestamp": props.Translatable({"en": "Timestamp", "nl": "Datum en tijd"}),
-                "Ad": props.Translatable({"en": "Ad", "nl": "Advertentie"}),
-            },
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Words in your search and watch history",
-                        "nl": "Woorden in je zoek- en kijkgeschiedenis",
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Title",
-                    "tokenize": True,
-                }
-            ]
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="youtube_subscriptions",
-            data_frame=subscriptions_to_df(reader, validation, errors),
-            title=props.Translatable({
-                "en": "Your subscriptions",
-                "nl": "Je abonnementen",
-            }),
-            description=props.Translatable({
-                "en": "YouTube channels you are subscribed to.",
-                "nl": "YouTube-kanalen waarop je bent geabonneerd.",
-            }),
-            headers={
-                "Channel Id": props.Translatable({"en": "Channel Id", "nl": "Kanaal-id"}),
-                "Channel URL": props.Translatable({"en": "Channel URL", "nl": "Kanaal-URL"}),
-                "Channel Name": props.Translatable({"en": "Channel Name", "nl": "Kanaalnaam"}),
-            },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="youtube_comments",
-            data_frame=comments_to_df(reader, validation, errors),
-            title=props.Translatable({
-                "en": "Your comments",
-                "nl": "Je reacties",
-            }),
-            description=props.Translatable({
-                "en": "Comments you posted on YouTube videos and posts.",
-                "nl": "Reacties die je op YouTube-video's en -posts hebt geplaatst.",
-            }),
-            headers={
-                "Comment ID": props.Translatable({"en": "Comment ID", "nl": "Reactie-ID"}),
-                "Channel ID": props.Translatable({"en": "Channel ID", "nl": "Kanaal-ID"}),
-                "Timestamp": props.Translatable({"en": "Timestamp", "nl": "Datum en tijd"}),
-                "Price": props.Translatable({"en": "Price", "nl": "Prijs"}),
-                "Video ID": props.Translatable({"en": "Video ID", "nl": "Video-ID"}),
-                "Comment text": props.Translatable({"en": "Comment text", "nl": "Reactietekst"}),
-            },
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Most common words in your comments",
-                        "nl": "Meest voorkomende woorden in je reacties",
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Comment text",
-                    "tokenize": True,
-                }
-            ],
-        ),
-    ]
+# ---------------------------------------------------------------------------
+# Extractor registry & platform info
+# ---------------------------------------------------------------------------
 
-    return ExtractionResult(
-        tables=[table for table in tables if not table.data_frame.empty],
-        errors=errors,
-    )
+#: Mapping from the string names used in port_config.json to actual extractor functions.
+EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "watch_history_to_df": watch_history_to_df,
+    "search_history_to_df": search_history_to_df,
+    "subscriptions_to_df": subscriptions_to_df,
+    "comments_to_df": comments_to_df,
+}
+
+
+# ---------------------------------------------------------------------------
+# Main extraction & flow
+# ---------------------------------------------------------------------------
+
+def extraction(youtube_zip: str, validation) -> ExtractionResult:
+    """Extract data from a YouTube DDP zip and return consent-form tables.
+
+    Parameters
+    ----------
+    youtube_zip:
+        Path to the YouTube DDP zip archive on disk.
+    validation:
+        Validation result object whose ``archive_members`` attribute is passed
+        to ``ZipArchiveReader``.
+    """
+    config = load_port_config(EXTRACTOR_REGISTRY)
+    errors: Counter = Counter()
+    reader = ZipArchiveReader(youtube_zip, validation.archive_members, errors)
+    return run_extraction(reader, errors, config)
 
 
 class YouTubeFlow(FlowBuilder):
+    """Flow implementation for the YouTube data donation study."""
+
     def __init__(self, session_id: str):
         super().__init__(session_id, "YouTube")
 

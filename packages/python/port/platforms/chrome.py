@@ -5,16 +5,34 @@ This module contains a Chrome browser history data donation flow.
 
 Assumptions:
 It handles DDPs in English and Dutch with filetype JSON.
+
+Configuration
+-------------
+The ``extraction`` function is driven by ``port_config.json``.  Generate one with::
+
+    pnpm generate-config chrome
+
+Each extractor function carries its own table config in a ``Table config::``
+JSON block inside its docstring.  The generator reads those blocks and
+assembles the JSON file.
+
+Platform info::
+
+    {
+        "name": "Chrome",
+        "filetypes": ["json"],
+        "languages": ["en", "nl"],
+        "description": "Handles DDPs in English and Dutch. Both language filenames are tried automatically. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
+        "time_last_tested": "not yet implemented"
+    }
 """
 from collections import Counter
 from html.parser import HTMLParser
 import logging
+from typing import Callable
 
 import pandas as pd
 
-import port.api.props as props
-import port.api.d3i_props as d3i_props
-from port.api.d3i_props import ExtractionResult
 import port.helpers.extraction_helpers as eh
 import port.helpers.validate as validate
 from port.helpers.extraction_helpers import ZipArchiveReader
@@ -24,6 +42,11 @@ from port.helpers.validate import (
     DDPCategory,
     DDPFiletype,
     Language,
+)
+from port.api.d3i_props import ExtractionResult
+from port.helpers.table_extractor import (
+    load_port_config,
+    run_extraction,
 )
 
 logger = logging.getLogger(__name__)
@@ -94,8 +117,67 @@ class _BookmarkParser(HTMLParser):
 
 
 def browser_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract browser history from History.json, BrowserHistory.json, or Geschiedenis.json (NL)."""
+    """Extract browser history from the Chrome DDP.
 
+    Tries ``History.json``, ``BrowserHistory.json``, and ``Geschiedenis.json``
+    (NL) in order.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load JSON files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Transition``, ``Date``.
+        Capped at 10 000 most recent entries.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one page visit in the participant's Chrome browser history, including the page title, URL, transition type, and visit date.",
+          "source_file": "BrowserHistory.json, History.json, or Geschiedenis.json",
+          "columns": {
+            "Title": "Title of the visited web page.",
+            "URL": "URL of the visited web page.",
+            "Transition": "Page transition type (e.g. LINK, TYPED, RELOAD).",
+            "Date": "ISO 8601 timestamp of the visit."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "chrome_browser_history",
+          "title": {
+            "en": "Chrome browser history",
+            "nl": "Chrome browsergeschiedenis"
+          },
+          "description": {
+            "en": "The websites you have visited using Chrome",
+            "nl": "De websites die u heeft bezocht met Chrome"
+          },
+          "headers": {
+            "Title": {"en": "Title", "nl": "Titel"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Transition": {"en": "Transition type", "nl": "Transitietype"},
+            "Date": {"en": "Date", "nl": "Datum"}
+          },
+          "visualizations": [
+            {
+              "title": {"en": "Most visited websites", "nl": "Meest bezochte websites"},
+              "type": "wordcloud",
+              "textColumn": "URL",
+              "tokenize": false
+            }
+          ]
+        }
+    """
     d: dict | list = {}
     for filename in ("Geschiedenis.json", "BrowserHistory.json", "History.json"):
         result = reader.json(filename)
@@ -126,8 +208,53 @@ def browser_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
 
 
 def bookmarks_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract bookmarks from Bookmarks.html."""
+    """Extract bookmarks from the Chrome DDP.
 
+    Reads ``Bookmarks.html`` and parses all ``<a>`` tags.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Bookmark``, ``URL``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one bookmark saved in Chrome, including the bookmark label and URL.",
+          "source_file": "Bookmarks.html",
+          "columns": {
+            "Bookmark": "Display name of the bookmarked page.",
+            "URL": "URL of the bookmarked page."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "chrome_bookmarks",
+          "title": {
+            "en": "Chrome bookmarks",
+            "nl": "Chrome bladwijzers"
+          },
+          "description": {
+            "en": "Websites you have bookmarked in Chrome",
+            "nl": "Websites die u heeft opgeslagen als bladwijzer in Chrome"
+          },
+          "headers": {
+            "Bookmark": {"en": "Bookmark", "nl": "Bladwijzer"},
+            "URL": {"en": "URL", "nl": "URL"}
+          }
+        }
+    """
     result = reader.raw("Bookmarks.html")
     if not result.found:
         return pd.DataFrame()
@@ -146,8 +273,56 @@ def bookmarks_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 
 
 def omnibox_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract omnibox (address bar) history from Omnibox.json or History.json."""
+    """Extract omnibox (address bar) typed URL history from the Chrome DDP.
 
+    Tries ``Omnibox.json`` then ``History.json``.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load JSON files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``Number of visits``, ``URL``.
+        Sorted by visit count descending.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one URL the participant typed directly into the Chrome address bar, including the visit count.",
+          "source_file": "Omnibox.json or History.json",
+          "columns": {
+            "Title": "Title of the page at the typed URL.",
+            "Number of visits": "Total number of times this URL was typed.",
+            "URL": "The URL that was typed."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "chrome_omnibox",
+          "title": {
+            "en": "Chrome address bar history",
+            "nl": "Chrome adresbalk geschiedenis"
+          },
+          "description": {
+            "en": "URLs you have typed directly into the Chrome address bar",
+            "nl": "URLs die u direct in de Chrome adresbalk heeft ingevoerd"
+          },
+          "headers": {
+            "Title": {"en": "Title", "nl": "Titel"},
+            "Number of visits": {"en": "Number of visits", "nl": "Aantal bezoeken"},
+            "URL": {"en": "URL", "nl": "URL"}
+          }
+        }
+    """
     d: dict | list = {}
     for filename in ("Omnibox.json", "History.json"):
         result = reader.json(filename)
@@ -176,78 +351,42 @@ def omnibox_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     return out
 
 
-def extraction(chrome_zip: str, validation) -> ExtractionResult:
-    errors = Counter()
-    reader = ZipArchiveReader(chrome_zip, validation.archive_members, errors)
-    tables = [
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="chrome_browser_history",
-            data_frame=browser_history_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Chrome browser history",
-                "nl": "Chrome browsergeschiedenis",
-            }),
-            description=props.Translatable({
-                "en": "The websites you have visited using Chrome",
-                "nl": "De websites die u heeft bezocht met Chrome",
-            }),
-            headers={
-                "Title": props.Translatable({"en": "Title", "nl": "Titel"}),
-                "URL": props.Translatable({"en": "URL", "nl": "URL"}),
-                "Transition": props.Translatable({"en": "Transition type", "nl": "Transitietype"}),
-                "Date": props.Translatable({"en": "Date", "nl": "Datum"}),
-            },
-            visualizations=[
-                {
-                    "title": {"en": "Most visited websites", "nl": "Meest bezochte websites"},
-                    "type": "wordcloud",
-                    "textColumn": "URL",
-                    "tokenize": False,
-                }
-            ],
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="chrome_bookmarks",
-            data_frame=bookmarks_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Chrome bookmarks",
-                "nl": "Chrome bladwijzers",
-            }),
-            description=props.Translatable({
-                "en": "Websites you have bookmarked in Chrome",
-                "nl": "Websites die u heeft opgeslagen als bladwijzer in Chrome",
-            }),
-            headers={
-                "Bookmark": props.Translatable({"en": "Bookmark", "nl": "Bladwijzer"}),
-                "URL": props.Translatable({"en": "URL", "nl": "URL"}),
-            },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="chrome_omnibox",
-            data_frame=omnibox_to_df(reader, errors),
-            title=props.Translatable({
-                "en": "Chrome address bar history",
-                "nl": "Chrome adresbalk geschiedenis",
-            }),
-            description=props.Translatable({
-                "en": "URLs you have typed directly into the Chrome address bar",
-                "nl": "URLs die u direct in de Chrome adresbalk heeft ingevoerd",
-            }),
-            headers={
-                "Title": props.Translatable({"en": "Title", "nl": "Titel"}),
-                "Number of visits": props.Translatable({"en": "Number of visits", "nl": "Aantal bezoeken"}),
-                "URL": props.Translatable({"en": "URL", "nl": "URL"}),
-            },
-        ),
-    ]
+# ---------------------------------------------------------------------------
+# Extractor registry & platform info
+# ---------------------------------------------------------------------------
 
-    return ExtractionResult(
-        tables=[table for table in tables if not table.data_frame.empty],
-        errors=errors,
-    )
+#: Mapping from the string names used in port_config.json to actual extractor functions.
+EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "browser_history_to_df": browser_history_to_df,
+    "bookmarks_to_df": bookmarks_to_df,
+    "omnibox_to_df": omnibox_to_df,
+}
+
+
+# ---------------------------------------------------------------------------
+# Main extraction & flow
+# ---------------------------------------------------------------------------
+
+def extraction(chrome_zip: str, validation) -> ExtractionResult:
+    """Extract data from a Chrome DDP zip and return consent-form tables.
+
+    Parameters
+    ----------
+    chrome_zip:
+        Path to the Chrome DDP zip archive on disk.
+    validation:
+        Validation result object whose ``archive_members`` attribute is passed
+        to ``ZipArchiveReader``.
+    """
+    config = load_port_config(EXTRACTOR_REGISTRY)
+    errors: Counter = Counter()
+    reader = ZipArchiveReader(chrome_zip, validation.archive_members, errors)
+    return run_extraction(reader, errors, config)
 
 
 class ChromeFlow(FlowBuilder):
+    """Flow implementation for the Chrome data donation study."""
+
     def __init__(self, session_id: str):
         super().__init__(session_id, "Chrome")
 
