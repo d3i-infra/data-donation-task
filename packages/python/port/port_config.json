@@ -1,0 +1,75 @@
+{
+  "platform_info": {
+    "name": "example",
+    "filetypes": [
+      "zip"
+    ],
+    "languages": [
+      "en",
+      "nl"
+    ],
+    "description": "Example platform: accepts any zip and returns a table of file statistics. Use this as a starting point when adding a new platform.",
+    "time_last_tested": "not yet implemented"
+  },
+  "tables": [
+    {
+      "id": "example_file_stats",
+      "title": {
+        "en": "Files in the zip",
+        "nl": "Bestanden in de zip"
+      },
+      "description": {
+        "en": "This table lists every file found inside the uploaded zip archive together with its size and date information.",
+        "nl": "Deze tabel bevat alle bestanden in het geüploade zip-archief, inclusief grootte en datuminformatie."
+      },
+      "headers": {
+        "filename": {
+          "en": "Filename",
+          "nl": "Bestandsnaam"
+        },
+        "size": {
+          "en": "Size (bytes)",
+          "nl": "Grootte (bytes)"
+        },
+        "compressed_size": {
+          "en": "Compressed size (bytes)",
+          "nl": "Gecomprimeerde grootte (bytes)"
+        },
+        "date_modified": {
+          "en": "Date modified",
+          "nl": "Datum gewijzigd"
+        }
+      },
+      "visualizations": [
+        {
+          "title": {
+            "en": "File sizes",
+            "nl": "Bestandsgroottes"
+          },
+          "type": "bar",
+          "group": "filename",
+          "values": [
+            {
+              "label": {
+                "en": "Size (bytes)",
+                "nl": "Grootte (bytes)"
+              },
+              "column": "size"
+            }
+          ]
+        }
+      ],
+      "extractor": "file_stats_to_df",
+      "documentation": {
+        "summary": "Each row represents one file entry inside the donated zip archive, including its name, original size, compressed size, and last-modified date.",
+        "source_file": "the zip archive itself (central directory)",
+        "columns": {
+          "filename": "Path of the file inside the zip archive.",
+          "size": "Uncompressed file size in bytes.",
+          "compressed_size": "Compressed size in bytes as stored in the zip.",
+          "date_modified": "ISO 8601 timestamp of the file's last-modified date recorded in the zip."
+        }
+      }
+    }
+  ]
+}
