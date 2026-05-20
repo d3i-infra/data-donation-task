@@ -588,7 +588,7 @@ def extraction(linkedin_zip: str, validation: validate.ValidateInput) -> Extract
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.
     """
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "linkedin")
     errors: Counter = Counter()
     reader = ZipArchiveReader(linkedin_zip, validation.archive_members, errors)
     return run_extraction(reader, errors, config)

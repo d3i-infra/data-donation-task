@@ -12,7 +12,7 @@ Example
 The script reads ``packages/python/port/platforms/<platform>.py`` as source
 text (no import needed), extracts the ``EXTRACTOR_REGISTRY`` key order and
 each extractor's ``Table config::`` JSON block from docstrings, then writes
-the assembled config to ``packages/python/port/port_config.json``.
+the assembled config to ``packages/python/port/configs/<platform>_config.json``.
 """
 
 import ast
@@ -24,7 +24,7 @@ from pathlib import Path
 
 _REPO_ROOT = Path(__file__).parent.parent
 _PLATFORMS_DIR = _REPO_ROOT / "packages" / "python" / "port" / "platforms"
-_OUTPUT_PATH = _REPO_ROOT / "packages" / "python" / "port" / "port_config.json"
+_CONFIGS_DIR = _REPO_ROOT / "packages" / "python" / "port" / "configs"
 
 _SECTION_RE = re.compile(r"^(\s*)Table config::\s*$", re.MULTILINE)
 _TABLE_DOC_RE = re.compile(r"^(\s*)Table documentation::\s*$", re.MULTILINE)
@@ -192,8 +192,13 @@ def generate(platform: str, *, stdout: bool = False) -> None:
     if stdout:
         sys.stdout.write(serialized)
     else:
-        _OUTPUT_PATH.write_text(serialized, encoding="utf-8")
-        print(f"Written: {_OUTPUT_PATH}")
+        _CONFIGS_DIR.mkdir(parents=True, exist_ok=True)
+        output_path = _CONFIGS_DIR / f"{platform}_config.json"
+        if output_path.exists():
+            print(f"ERROR: Config already exists: {output_path}", file=sys.stderr)
+            sys.exit(1)
+        output_path.write_text(serialized, encoding="utf-8")
+        print(f"Written: {output_path}")
 
 
 def main() -> None:

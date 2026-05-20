@@ -477,7 +477,7 @@ def extraction(youtube_zip: str, validation) -> ExtractionResult:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.
     """
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "youtube")
     errors: Counter = Counter()
     reader = ZipArchiveReader(youtube_zip, validation.archive_members, errors)
     return run_extraction(reader, errors, config)

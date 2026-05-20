@@ -28,11 +28,11 @@ How to add your own platform
    you care about and return a ``pd.DataFrame``.
 4. Update ``EXTRACTOR_REGISTRY`` so it maps the string names used in
    ``port_config.json`` to your extractor functions.
-5. Generate ``port_config.json`` with ``pnpm generate-config <platform_name>``.
+5. Generate ``configs/<platform>_config.json`` with ``pnpm generate-config <platform_name>``.
 
 Configuration
 -------------
-The ``extraction`` function is driven by ``port_config.json``.  Generate one
+The ``extraction`` function is driven by ``configs/<platform>_config.json``.  Generate one
 with::
 
     pnpm generate-config example
@@ -211,7 +211,7 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 # Extractor registry & platform wiring
 # ---------------------------------------------------------------------------
 
-#: Maps string names used in port_config.json to the actual extractor functions.
+#: Maps string names used in configs/<platform>_config.json to the actual extractor functions.
 #: Add an entry here for every extractor function you add above.
 EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "file_stats_to_df": file_stats_to_df,
@@ -229,7 +229,7 @@ def extraction(zip_path: str, validation: ValidateInput) -> ExtractionResult:
         Validation result whose ``archive_members`` list is forwarded to
         ``ZipArchiveReader`` so it does not have to re-open the zip.
     """
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "example")
     errors: Counter = Counter()
     reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
     return run_extraction(reader, errors, config)

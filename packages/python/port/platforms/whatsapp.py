@@ -605,7 +605,7 @@ def extraction(df: pd.DataFrame) -> ExtractionResult:
     from port.helpers.table_extractor import load_port_config
     from port.api.d3i_props import PropsUIPromptConsentFormTableViz
 
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "whatsapp")
     errors: Counter = Counter()
     tables = []
     for table_cfg in config:

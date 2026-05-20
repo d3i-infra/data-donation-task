@@ -816,7 +816,7 @@ def extraction(x_zip: str, validation) -> ExtractionResult:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.
     """
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "x")
     errors: Counter = Counter()
     reader = ZipArchiveReader(x_zip, validation.archive_members, errors)
     return run_extraction(reader, errors, config)

@@ -427,7 +427,7 @@ def extraction(reader: ZipArchiveReader, selected_user: str) -> ExtractionResult
     selected_user:
         Profile name chosen by the participant during the flow.
     """
-    config = load_port_config(EXTRACTOR_REGISTRY)
+    config = load_port_config(EXTRACTOR_REGISTRY, "netflix")
     for table_cfg in config:
         table_cfg.extractor_kwargs["selected_user"] = selected_user
     return run_extraction(reader, reader.errors, config)

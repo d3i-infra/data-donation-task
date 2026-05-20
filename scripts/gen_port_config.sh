@@ -18,7 +18,7 @@ cd "$PYTHON_PKG"
 if [[ "$stdout_flag" == "--stdout" ]]; then
     python3 "$REPO_ROOT/scripts/generate_port_config.py" "$platform" --stdout
 else
-    echo "Generating port_config.json for platform: $platform"
+    echo \"Generating configs/\${platform}_config.json\"
     python3 "$REPO_ROOT/scripts/generate_port_config.py" "$platform"
     echo "Done."
 fi

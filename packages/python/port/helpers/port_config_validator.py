@@ -1,4 +1,4 @@
-"""Validate port_config.py against a platform's live extractor registry.
+"""Validate ``configs/<platform>_config.json`` against a platform's live extractor registry.
 
 Intended for use at runtime or in tests::
 
@@ -7,7 +7,7 @@ Intended for use at runtime or in tests::
 
 Checks performed
 ----------------
-1. port_config.py exists.
+1. ``configs/<platform>_config.json`` exists.
 2. File is valid JSON.
 3. Top-level schema: ``platform_info`` (dict) and ``tables`` (list) are present.
 4. Per-table schema: required fields have correct types; optional fields have
@@ -49,11 +49,11 @@ _OPTIONAL_FIELDS: list[tuple[str, type]] = [
 
 
 class ValidationError(Exception):
-    """Raised when port_config.py fails validation."""
+    """Raised when ``configs/<platform>_config.json`` fails schema or registry validation."""
 
 
 def validate(platform: str) -> tuple[list[str], list[str]]:
-    """Validate port_config.py for *platform* using the live module.
+    """Validate ``configs/<platform>_config.json`` for *platform* using the live module.
 
     Parameters
     ----------
@@ -68,23 +68,34 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
 
     Raises
     ------
+    FileNotFoundError
+        If the config file does not exist (early-exit condition).
     ValidationError
-        If port_config.py is missing or unparseable (early-exit conditions).
+        If the config file is not valid JSON or otherwise unparseable (early-exit condition).
     """
     errors: list[str] = []
     warnings: list[str] = []
 
     # 1. Config file exists.
+    config_filename = f"{platform}_config.json"
     try:
-        ref = importlib.resources.files("port") / "port_config.json"
-        raw = json.loads(ref.read_text(encoding="utf-8"))
+        ref = importlib.resources.files("port") / "configs" / config_filename
+        text = ref.read_text(encoding="utf-8")
     except (FileNotFoundError, TypeError) as exc:
-        raise ValidationError(
-            "port_config.json not found. "
-            "Generate it first by running:  pnpm generate-config <platform>"
+        raise FileNotFoundError(
+            f"configs/{config_filename} not found. "
+            f"Generate it first by running:  pnpm generate-config {platform}"
         ) from exc
 
-    # 2. Top-level schema.
+    # 2. File is valid JSON.
+    try:
+        raw = json.loads(text)
+    except json.JSONDecodeError as exc:
+        raise ValidationError(
+            f"configs/{config_filename} is not valid JSON: {exc}"
+        ) from exc
+
+    # 3. Top-level schema.
     if not isinstance(raw.get("platform_info"), dict):
         errors.append("top-level 'platform_info' key must be a dict")
     if not isinstance(raw.get("tables"), list):
@@ -111,7 +122,7 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
                     f"got {type(entry[field]).__name__}"
                 )
 
-    # 5. Import live module to get registry.
+    # Load live module and registry (prerequisite for checks 5–6).
     try:
         platform_module = import_module(f"port.platforms.{platform}")
     except ModuleNotFoundError:
@@ -158,7 +169,7 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
     # 8. Runtime load via load_port_config.
     if not errors:
         try:
-            load_port_config(registry)
+            load_port_config(registry, platform)
         except Exception as exc:
             errors.append(f"load_port_config() failed at runtime: {exc}")
 
@@ -166,7 +177,7 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
 
 
 def validate_or_raise(platform: str) -> None:
-    """Validate port_config.py and raise ``ValidationError`` on any error.
+    """Validate ``configs/<platform>_config.json`` and raise on any error.
 
     Logs warnings.  Intended for use at startup or in tests.
 
@@ -174,6 +185,13 @@ def validate_or_raise(platform: str) -> None:
     ----------
     platform:
         Platform name, e.g. ``"instagram"``.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the config file does not exist.
+    ValidationError
+        If the config file is malformed (invalid JSON or schema/registry errors).
     """
     errors, warnings = validate(platform)
     for msg in warnings:

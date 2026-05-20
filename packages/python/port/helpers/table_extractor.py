@@ -104,13 +104,16 @@ def _build_config(
 
 def load_port_config(
     registry: dict[str, Callable[..., pd.DataFrame]],
+    platform: str,
 ) -> list[TableConfig]:
-    """Load the active config from ``port_config.json``.
+    """Load the config for *platform* from ``configs/<platform>_config.json``.
 
     Parameters
     ----------
     registry:
         Mapping from extractor name strings to callable extractor functions.
+    platform:
+        Platform name, e.g. ``"chatgpt"``.
 
     Returns
     -------
@@ -118,19 +121,12 @@ def load_port_config(
 
     Raises
     ------
-    ImportError
-        If ``port_config.json`` has not been generated yet.
     KeyError
         If a table entry references an extractor name not present in *registry*.
     """
-    try:
-        ref = importlib.resources.files("port") / "port_config.json"
-        raw = json.loads(ref.read_text(encoding="utf-8"))
-    except (FileNotFoundError, TypeError) as exc:
-        raise ImportError(
-            "port_config.json not found. "
-            "Generate it first by running:  pnpm generate-config <platform>"
-        ) from exc
+    config_filename = f"{platform}_config.json"
+    ref = importlib.resources.files("port") / "configs" / config_filename
+    raw = json.loads(ref.read_text(encoding="utf-8"))
     return _build_config(raw, registry)
 
 
