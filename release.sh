@@ -40,7 +40,7 @@ else
 fi
 
 echo "Found ${#platforms[@]} platform(s): ${platforms[*]}"
-mkdir -p releases/${TIMESTAMP}
+mkdir -p releases
 
 for PLATFORM in "${platforms[@]}"; do
     echo "Building for platform: ${PLATFORM}..."
@@ -49,10 +49,10 @@ for PLATFORM in "${platforms[@]}"; do
 
     RELEASE_NAME="${NAME}_${PLATFORM}_${BRANCH}_${TIMESTAMP}.zip"
     cd packages/data-collector/dist
-    zip -r ../../../releases/${TIMESTAMP}/${RELEASE_NAME} .
+    zip -r ../../../releases/${RELEASE_NAME} .
     cd ../../..
-    echo "Created: releases/${TIMESTAMP}/${RELEASE_NAME}"
+    echo "Created: releases/${RELEASE_NAME}"
 done
 
 echo ""
-echo "Done. ${#platforms[@]} platform release(s) created in releases/${TIMESTAMP}/"
+echo "Done. ${#platforms[@]} platform release(s) created in releases/"
