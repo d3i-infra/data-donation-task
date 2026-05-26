@@ -1,40 +1,53 @@
 ---
 adr_id: "0012"
+status: accepted
+date: 2026-05-20
 comments:
-    - author: Niek de Schipper
+    - author: Danielle McCool
       date: "2026-04-23 00:00:00"
       comment: "Rewritten to reflect docstring-driven config generation replacing DEFAULT_TABLE_CONFIG_JSON"
-links:
-    precedes: []
-    succeeds:
-        - "0006"
-status: accepted
 tags:
-    - extraction
-    - configuration
-    - helpers
-    - consent-ui
-title: Docstring-driven TableConfig generation for platform extraction scripts
+  - extraction
+  - configuration
+  - docstrings
+ title: Docstring-driven UI metadata for extractor functions
+links:
+  succeeds: []
 ---
 
-## Decision
+## Context and Problem Statement
 
-All platform extraction scripts live in `port/platforms/`. Each file (e.g. `chatgpt.py`, `facebook.py`, `instagram.py`, `linkedin.py`, `netflix.py`, `tiktok.py`, `whatsapp.py`, `x.py`, `youtube.py`, `chrome.py`) is a self-contained module for one data source. An `example.py` is included as a template and reference for adding new platforms.
-The purpose of this folder is to concentrate all platform-specific knowledge — which files to read from a donation, how to parse them, and what tables to expose in the consent UI — in one place, separate from the shared extraction infrastructure in `port/helpers/`. Each module registers its extractor functions in an `EXTRACTOR_REGISTRY` and provides a thin `extraction()` entry point; the shared helpers handle the rest.
+Each platform module exposes 5-25 extractor functions, each producing a table shown to participants in the consent UI. Each table needs translatable UI metadata: id, title, description, per-column headers, optional visualizations. That metadata has to live somewhere. Where?
 
-Table UI metadata lives in extractor docstrings. Each extractor function carries two JSON blocks: `Table documentation::` (human-readable summary, source file, column descriptions) and `Table config::` (the UI config with `id`, `title`, `description`, `headers`, optional `visualizations` — all translatable). The `extractor` field is omitted from the docstring; the generator infers it from the function's key in `EXTRACTOR_REGISTRY`.
+Before this PR, the metadata was inlined in each platform's `extraction()` functions, as a long list of `PropsUIPromptConsentFormTableViz()` constructor calls, duplicating UI strings across platforms and forcing edits to Python code for any text change. As the platform count grew, this became unmaintainable, and it blocked external tooling (selector, builder) from reading metadata without importing Pyodide-dependent code.
 
-`pnpm generate-config <platform>` runs `scripts/generate_port_config.py`, which reads the platform module as source text (no import), walks `EXTRACTOR_REGISTRY` key order, extracts each `Table config::` block, injects `"extractor": fn_name`, and writes `port/configs/<platform>_config.json` as `{"platform_info": {...}, "tables": [...]}`. Generating one platform never touches another's file.
+## Considered Options
+ 
+1. Separate JSON files per extractor, mantained by hand alongside the Python source.
+2. Python constants (DEFAULT_TABLE_CONFIG = {}) at the bottom of each platform module -- the previous in-progress pattern
+3. Docstring-embedded JSON blocks parsed via AST by a build-time generator.
 
-`table_extractor.load_port_config(registry, platform)` reads that file and raises with an actionable message if absent — no fallback to any embedded default. `table_extractor.run_extraction(reader, errors, config)` is the shared extraction runner: it iterates `list[TableConfig]`, calls each extractor, builds `PropsUIPromptConsentFormTableViz` tables, and returns an `ExtractionResult` with only non-empty tables. Platform modules call both via a thin `extraction()` wrapper.
+## Decision Drivers
 
-`port_config_validator.validate_or_raise(platform)` checks JSON validity, top-level schema, per-table required/optional fields, extractor names against `EXTRACTOR_REGISTRY`, extractor uniqueness, and table ID uniqueness. A registry key absent from the config is a non-fatal warning; a config key absent from the registry is an error.
+- UI metadata must be co-located with the extractor function that produces the table.
+- External tooling (dd-script-selector, dd-script-builder) must be able to parse metadata without importing the Python module (port.platforms.* imports Pyodide-only code, which fails outside the browser).
+- A single source of truth: editing the docstring should be the only place a developer touches
+- The metadata must be human-readable in code review.
 
-## What was removed
+## Decision Outcome
 
-`DEFAULT_TABLE_CONFIG_JSON` and `DEFAULT_TABLE_CONFIG` constants, `resolve_config(default_json, registry)`, `resolve_platform()` (platform name now comes from `platform_info.name` in the config), and `extractor_config.py` (merged into `table_extractor.py`).
+Chosen: Option 3 -- Docstring JSON blocks parsed via AST
 
+Each extractor function carries two labelled JSON sections in its docstring: `Table documentation::` (developer-facing summary + column descriptions) and `Table config::` (runtime UI metadata: id, title, description, headers, optional visualizations). The extractor field is omitted from the block -- the generator infers it from the function's key in EXTRACTOR_REGISTRY.
 
-## See also
+scripts/generate_port_config.py parses these blocks via the ast module, so no Python import is required
 
-Dispatch, module interface contract, and dev/release workflow: [AD0013](AD0013-standard-platform-module-interface-with-required-config-artifacts.md). `FlowBuilder` pattern: [AD0006](AD0006-consolidate-donation_flows-and-platforms-into-single-extraction-architecture.md).
+## Consequences
+
+- Good: One source of truth per extractor; metadata travels with the code.
+- Good: AST-only parsing means desktop tooling (selector, builder, generator) doesn't load Pyodide-dependent modules
+- Good: Code review sees both code and metadata in one diff
+- Bad: Docstrings become long -- translations x header-columns x N extractors. Some platform modules cross 80KB.
+- Bad: JSON syntax errors in docstrings don't surface using Python's type system
+- Bad: Refactoring an extractor's column names does not propgagate to the docstring's header keys; nothing cross-checks them.
+

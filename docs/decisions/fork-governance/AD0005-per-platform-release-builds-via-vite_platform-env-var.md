@@ -63,7 +63,8 @@ See [feldspar/AD0001](../feldspar/AD0001-factory-pattern-for-ui-extensibility.md
 
 * Good: Produces one deployable zip per platform from one `bash release.sh` invocation; platform list is derived automatically from the `configs/` folder
 * Good: Adding a platform to the release requires only generating its config — no `release.sh` edits needed
-* Good: `VITE_PLATFORM=<platform> pnpm release` builds and zips only that one platform, avoiding the N× build cost when only one platform needs releasing
+* Good: `VITE_PLATFORM=<platform> pnpm release` builds and zips only that one platform at 1x build time, for cases where only one platform needs updating.
+* Bad: Researchers maintaining multi-platform studies hand-maintain N config files; there is no longer a single overridable file to inspect or grep.
 
 ## <a name="comments"></a> Comments
 <a name="comment-1"></a>1. (2026-03-13 13:26:44) Danielle McCool: marked decision as decided
