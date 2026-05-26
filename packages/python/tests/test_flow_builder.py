@@ -11,11 +11,8 @@ directly to validate_file/extract_data, and size policy is enforced
 via check_payload_size() against adapter.size before any read.
 """
 import json
-import sys
 from collections import Counter
 from unittest.mock import MagicMock, patch
-
-sys.modules["js"] = MagicMock()
 
 import pytest
 from port.helpers.flow_builder import FlowBuilder

@@ -6,12 +6,9 @@ Verifies that:
 - Helper error counting works
 - emit_log produces CommandSystemLog commands
 """
-import sys
 import logging
 from collections import Counter
 from unittest.mock import MagicMock
-
-sys.modules["js"] = MagicMock()
 
 import pytest
 from port.api.d3i_props import ExtractionResult, PropsUIPromptConsentFormTableViz

@@ -1,8 +1,5 @@
 """Tests for new port_helpers functions."""
-import sys
 from unittest.mock import MagicMock
-
-sys.modules["js"] = MagicMock()
 
 import port.helpers.port_helpers as ph
 from port.api.commands import CommandUIRender

@@ -21,8 +21,8 @@
     "dev:demo": "./check-deps.sh && pnpm run --filter @eyra/data-collector dev",
     "start": "./check-deps.sh && pnpm run build:py && pnpm run --filter @eyra/feldspar build && concurrently \"pnpm run start:py\" \"pnpm run dev:feldspar\" \"pnpm run dev:demo\"",
     "clean": "pnpm run --recursive clean && rm -rf node_modules",
-    "release": "node release.js",
-    "release:platforms": "bash release.sh",
+    "release": "bash release.sh",
+    "generate-config": "bash scripts/gen_port_config.sh",
     "doctor": "bash scripts/doctor.sh"
   },
   "devDependencies": {

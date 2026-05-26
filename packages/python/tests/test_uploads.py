@@ -5,15 +5,11 @@ PayloadFile uploads must reach consumers (zipfile.ZipFile, validators,
 extractors) without materialization, and size policy decisions must
 use JS-reported metadata rather than reading the upload.
 """
-import io
-import sys
-import zipfile
-from unittest.mock import MagicMock
-
-# Mock js module before any port imports (Pyodide-only at runtime).
-sys.modules["js"] = MagicMock()
 
 import pytest
+import zipfile
+import io
+from unittest.mock import MagicMock
 
 from port.helpers.uploads import (
     check_payload_size,

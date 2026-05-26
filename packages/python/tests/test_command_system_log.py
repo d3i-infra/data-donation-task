@@ -1,7 +1,3 @@
-import sys
-from unittest.mock import MagicMock
-sys.modules['js'] = MagicMock()
-
 from port.api.commands import CommandSystemLog
 import json
 
