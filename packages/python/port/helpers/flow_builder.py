@@ -28,7 +28,7 @@ class FlowBuilder:
         """Initialize UI text based on platform name."""
         self.UI_TEXT = {
             "submit_file_header": props.Translatable({
-                "en": f"Select your {self.platform_name} file",
+                "en": f"Please select your {self.platform_name} zip file",
                 "nl": f"Selecteer uw {self.platform_name} bestand",
             }),
             "review_data_header": props.Translatable({
@@ -40,7 +40,7 @@ class FlowBuilder:
                 "nl": "Probeer opnieuw",
             }),
             "review_data_description": props.Translatable({
-                "en": f"Below you will find a curated selection of {self.platform_name} data.",
+                "en": f"Please review your TikTok data below. Use the search fields to find specific information. You can remove any data you prefer not to share. Thank you for supporting this research project!",
                 "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van {self.platform_name} gegevens.",
             }),
         }

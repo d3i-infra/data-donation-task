@@ -13,16 +13,8 @@ import port.helpers.port_helpers as ph
 
 # Registry: platform display name → (module path, class name)
 PLATFORM_REGISTRY = [
-    ("LinkedIn", "port.platforms.linkedin", "LinkedInFlow"),
-    ("Instagram", "port.platforms.instagram", "InstagramFlow"),
-    ("Facebook", "port.platforms.facebook", "FacebookFlow"),
-    ("YouTube", "port.platforms.youtube", "YouTubeFlow"),
+
     ("TikTok", "port.platforms.tiktok", "TikTokFlow"),
-    ("Netflix", "port.platforms.netflix", "NetflixFlow"),
-    ("ChatGPT", "port.platforms.chatgpt", "ChatGPTFlow"),
-    ("WhatsApp", "port.platforms.whatsapp", "WhatsAppFlow"),
-    ("X", "port.platforms.x", "XFlow"),
-    ("Chrome", "port.platforms.chrome", "ChromeFlow"),
 ]
 
 

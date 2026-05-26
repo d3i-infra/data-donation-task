@@ -11,6 +11,7 @@ also changed; both old and new names are tried when navigating the JSON.
 
 import logging
 from collections import Counter
+import os
 
 import pandas as pd
 
@@ -120,9 +121,8 @@ def activity_summary_to_df(data: dict, errors: Counter) -> pd.DataFrame:
 
         metric_priority = [
             ("Videos watched since registration", ["videoCount"]),
-            ("Videos watched to the end since registration", ["videosWatchedToTheEndSinceAccountRegistration"]),
-            ("Videos commented on since registration", ["videosCommentedOnSinceAccountRegistration", "commentVideoCount"]),
-            ("Videos shared since registration", ["videosSharedSinceAccountRegistration", "sharedVideoCount"]),
+            ("Videos watched to the end", ["videosWatchedToTheEndSinceAccountRegistration"]),
+            ("Videos shared", ["videosSharedSinceAccountRegistration", "sharedVideoCount"]),
         ]
         rows = []
         for label, keys in metric_priority:
@@ -189,11 +189,39 @@ def watch_history_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out["sort_date"] = pd.to_datetime(out["Date"], errors="coerce")
+        out = out.sort_values("sort_date", ascending=False)
+        out = out[['Date', 'Link']]  # pyright: ignore
+        out = out.reset_index(drop=True)
+
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
     return out
+    
+def repost_history_to_df(data: dict, errors: Counter) -> pd.DataFrame:
+    """
+    Activity > Reposts > RepostsList
+    Columns: Date, Link
+    """
+    out = pd.DataFrame()
+    try:
+        items = _get(
+            data,
+            ["Activity", "Your Activity"],
+            ["Reposts"],
+            "RepostList",
+        )
+        if not isinstance(items, list):
+            return out
+        rows = [(_item_get(item, "Date"), _item_get(item, "Link")) for item in items]
+        out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
+        out = out.sort_values("Date", ascending=True)
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+    return out
+
 
 
 def favorite_videos_to_df(data: dict, errors: Counter) -> pd.DataFrame:
@@ -212,7 +240,7 @@ def favorite_videos_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -235,7 +263,7 @@ def follower_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "UserName")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "UserName"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -258,7 +286,7 @@ def following_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "UserName")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "UserName"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -307,12 +335,13 @@ def like_list_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
     return out
-
+    
+    
 
 def searches_to_df(data: dict, errors: Counter) -> pd.DataFrame:
     """
@@ -331,7 +360,7 @@ def searches_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             return out
         rows = [(_item_get(item, "Date"), _item_get(item, "SearchTerm")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "SearchTerm"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -358,12 +387,12 @@ def share_history_to_df(data: dict, errors: Counter) -> pd.DataFrame:
                 _item_get(item, "Date"),
                 _item_get(item, "SharedContent"),
                 _item_get(item, "Link"),
-                _item_get(item, "Method"),
             )
             for item in items
         ]
-        out = pd.DataFrame(rows, columns=["Date", "SharedContent", "Link", "Method"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = pd.DataFrame(rows, columns=["Date", "SharedContent", "Link"])  # pyright: ignore
+        out = out.sort_values("Date", ascending=True)
+        out.drop(out[out["Link"] == 'https://www.tiktok.com/'].index, inplace=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -390,7 +419,7 @@ def comments_to_df(data: dict, errors: Counter) -> pd.DataFrame:
             for item in items
         ]
         out = pd.DataFrame(rows, columns=["Date", "Comment", "Photo", "Url"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
+        out = out.sort_values("Date", ascending=True)
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -401,74 +430,69 @@ def comments_to_df(data: dict, errors: Counter) -> pd.DataFrame:
 # Extraction
 # ---------------------------------------------------------------------------
 
+
+
+
 def extraction(tiktok_zip: str, validation) -> ExtractionResult:
     errors = Counter()
     reader = ZipArchiveReader(tiktok_zip, validation.archive_members, errors)
     data = _load_user_data(reader)
-
+    
+    if len(watch_history_to_df(data, errors)) < 10000:
+        watch_description = props.Translatable({
+    		"en": f"The {len(watch_history_to_df(data, errors))} TikTok videos you have watched.",
+    		"nl": "TikTok-video's die je hebt bekeken.",
+            })
+    else:
+        watch_description = props.Translatable({
+    		"en": "The 10000 most recent TikTok videos you have watched.",
+    		"nl": "TikTok-video's die je hebt bekeken.",
+            })
+    
     tables = [
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="tiktok_activity_summary",
-            data_frame=activity_summary_to_df(data, errors),
-            title=props.Translatable({
-                "en": "Your TikTok activity summary",
-                "nl": "Samenvatting van je TikTok-activiteit",
-            }),
-            description=props.Translatable({
-                "en": "Summary counts of videos watched, commented on, and shared since account registration.",
-                "nl": "Overzicht van het aantal bekeken, becommentarieerde en gedeelde video's sinds registratie.",
-            }),
-            headers={
-                "Metric": props.Translatable({"en": "Metric", "nl": "Metriek"}),
-                "Count": props.Translatable({"en": "Count", "nl": "Aantal"}),
-            },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="tiktok_settings",
-            data_frame=settings_to_df(data, errors),
-            title=props.Translatable({
-                "en": "Content preference keyword filters",
-                "nl": "Zoekwoordfilters voor contentvoorkeuren",
-            }),
-            description=props.Translatable({
-                "en": "Keyword filters applied to your Following and For You feeds.",
-                "nl": "Zoekwoordfilters die worden toegepast op je Volgend- en Voor Jou-feeds.",
-            }),
-            headers={
-                "Setting": props.Translatable({"en": "Setting", "nl": "Instelling"}),
-                "Keywords": props.Translatable({"en": "Keywords", "nl": "Trefwoorden"}),
-            },
-        ),
         d3i_props.PropsUIPromptConsentFormTableViz(
             id="tiktok_watch_history",
             data_frame=watch_history_to_df(data, errors),
             title=props.Translatable({
-                "en": "Watch history",
+                "en": "Your watch history",
+                "nl": "Kijkgeschiedenis",
+            }),
+            description=watch_description,
+            headers={
+                "Date": props.Translatable({"en": "Date video watched", "nl": "Datum en tijd"}),
+                "Link": props.Translatable({"en": "Video link", "nl": "URL"}),
+            },
+        ),
+        d3i_props.PropsUIPromptConsentFormTableViz(
+            id="tiktok_repost_history",
+            data_frame=repost_history_to_df(data, errors),
+            title=props.Translatable({
+                "en": "Your repost history",
                 "nl": "Kijkgeschiedenis",
             }),
             description=props.Translatable({
-                "en": "TikTok videos you have watched.",
+                "en": f"The {len(repost_history_to_df(data, errors))} TikTok videos you have reposted.",
                 "nl": "TikTok-video's die je hebt bekeken.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
-                "Link": props.Translatable({"en": "Link", "nl": "URL"}),
+                "Date": props.Translatable({"en": "Date video reposted", "nl": "Datum en tijd"}),
+                "Link": props.Translatable({"en": "Video link", "nl": "URL"}),
             },
         ),
         d3i_props.PropsUIPromptConsentFormTableViz(
             id="tiktok_favorite_videos",
             data_frame=favorite_videos_to_df(data, errors),
             title=props.Translatable({
-                "en": "Favorite videos",
+                "en": "Your favorite videos",
                 "nl": "Favoriete video's",
             }),
             description=props.Translatable({
-                "en": "Videos you have marked as favorites on TikTok.",
+                "en": f"The {len(favorite_videos_to_df(data, errors))} videos you have marked as favorites on TikTok.",
                 "nl": "Video's die je als favoriet hebt gemarkeerd op TikTok.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
-                "Link": props.Translatable({"en": "Link", "nl": "URL"}),
+                "Date": props.Translatable({"en": "Date video favorited", "nl": "Datum en tijd"}),
+                "Link": props.Translatable({"en": "Video link", "nl": "URL"}),
             },
         ),
         d3i_props.PropsUIPromptConsentFormTableViz(
@@ -479,11 +503,11 @@ def extraction(tiktok_zip: str, validation) -> ExtractionResult:
                 "nl": "Je volgers",
             }),
             description=props.Translatable({
-                "en": "Accounts that follow you on TikTok.",
+                "en": f"You have {len(follower_to_df(data, errors))} on TikTok",
                 "nl": "Accounts die jou volgen op TikTok.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
+                "Date": props.Translatable({"en": "Date they followed you", "nl": "Datum en tijd"}),
                 "UserName": props.Translatable({"en": "UserName", "nl": "Gebruikersnaam"}),
             },
         ),
@@ -495,28 +519,12 @@ def extraction(tiktok_zip: str, validation) -> ExtractionResult:
                 "nl": "Accounts die je volgt",
             }),
             description=props.Translatable({
-                "en": "Accounts you follow on TikTok.",
+                "en": f"You follow {len(following_to_df(data, errors))} accounts on TikTok",
                 "nl": "Accounts die je volgt op TikTok.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
+                "Date": props.Translatable({"en": "Date you followed them", "nl": "Datum en tijd"}),
                 "UserName": props.Translatable({"en": "UserName", "nl": "Gebruikersnaam"}),
-            },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="tiktok_hashtag",
-            data_frame=hashtag_to_df(data, errors),
-            title=props.Translatable({
-                "en": "Hashtags",
-                "nl": "Hashtags",
-            }),
-            description=props.Translatable({
-                "en": "Hashtags associated with your TikTok activity.",
-                "nl": "Hashtags gekoppeld aan je TikTok-activiteit.",
-            }),
-            headers={
-                "HashtagName": props.Translatable({"en": "HashtagName", "nl": "Hashtagnaam"}),
-                "HashtagLink": props.Translatable({"en": "HashtagLink", "nl": "Hashtag-link"}),
             },
         ),
         d3i_props.PropsUIPromptConsentFormTableViz(
@@ -527,85 +535,31 @@ def extraction(tiktok_zip: str, validation) -> ExtractionResult:
                 "nl": "Video's die je leuk vond",
             }),
             description=props.Translatable({
-                "en": "Videos you have liked on TikTok.",
+                "en": f"The {len(like_list_to_df(data, errors))} videos you have liked on TikTok.",
                 "nl": "Video's die je leuk hebt gevonden op TikTok.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
+                "Date": props.Translatable({"en": "Date video liked", "nl": "Datum en tijd"}),
                 "Link": props.Translatable({"en": "Link", "nl": "URL"}),
             },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="tiktok_searches",
-            data_frame=searches_to_df(data, errors),
-            title=props.Translatable({
-                "en": "Search history",
-                "nl": "Zoekgeschiedenis",
-            }),
-            description=props.Translatable({
-                "en": "Search terms you have used on TikTok.",
-                "nl": "Zoektermen die je hebt gebruikt op TikTok.",
-            }),
-            headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
-                "SearchTerm": props.Translatable({"en": "SearchTerm", "nl": "Zoekterm"}),
-            },
-            visualizations=[
-                {
-                    "title": {"en": "Most searched terms", "nl": "Meest gezochte termen"},
-                    "type": "wordcloud",
-                    "textColumn": "SearchTerm",
-                    "tokenize": False,
-                }
-            ],
         ),
         d3i_props.PropsUIPromptConsentFormTableViz(
             id="tiktok_share_history",
             data_frame=share_history_to_df(data, errors),
             title=props.Translatable({
-                "en": "Share history",
+                "en": "Your share history",
                 "nl": "Deelgeschiedenis",
             }),
             description=props.Translatable({
-                "en": "Content you have shared on TikTok, including when, what, and how.",
+                "en": "The Content you have shared on TikTok",
                 "nl": "Inhoud die je hebt gedeeld op TikTok, inclusief wanneer, wat en hoe.",
             }),
             headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
-                "SharedContent": props.Translatable({"en": "SharedContent", "nl": "Gedeelde inhoud"}),
+                "Date": props.Translatable({"en": "Date video shared", "nl": "Datum en tijd"}),
+                "SharedContent": props.Translatable({"en": "Type of content shared", "nl": "Gedeelde inhoud"}),
                 "Link": props.Translatable({"en": "Link", "nl": "URL"}),
-                "Method": props.Translatable({"en": "Method", "nl": "Methode"}),
             },
-        ),
-        d3i_props.PropsUIPromptConsentFormTableViz(
-            id="tiktok_comments",
-            data_frame=comments_to_df(data, errors),
-            title=props.Translatable({
-                "en": "Your comments",
-                "nl": "Je reacties",
-            }),
-            description=props.Translatable({
-                "en": "Comments you have left on TikTok videos.",
-                "nl": "Reacties die je hebt achtergelaten op TikTok-video's.",
-            }),
-            headers={
-                "Date": props.Translatable({"en": "Date", "nl": "Datum en tijd"}),
-                "Comment": props.Translatable({"en": "Comment", "nl": "Reactie"}),
-                "Photo": props.Translatable({"en": "Photo", "nl": "Foto"}),
-                "Url": props.Translatable({"en": "Url", "nl": "URL"}),
-            },
-            visualizations=[
-                {
-                    "title": {
-                        "en": "Most common words in your comments",
-                        "nl": "Meest voorkomende woorden in je reacties",
-                    },
-                    "type": "wordcloud",
-                    "textColumn": "Comment",
-                    "tokenize": True,
-                }
-            ],
-        ),
+        )
     ]
 
     tables_to_render = [table for table in tables if not table.data_frame.empty]
@@ -613,6 +567,9 @@ def extraction(tiktok_zip: str, validation) -> ExtractionResult:
         tables=tables_to_render,
         errors=errors,
     )
+
+
+
 
 
 class TikTokFlow(FlowBuilder):
