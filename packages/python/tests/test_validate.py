@@ -4,12 +4,9 @@ Per extraction/AD0007, validate_zip accepts a seekable binary file-like
 (SeekableBinaryReader Protocol) — never a path string. Test fixtures use
 io.BytesIO; production callers pass an AsyncFileAdapter directly.
 """
-import io
-import sys
-import zipfile
-from unittest.mock import MagicMock
 
-sys.modules["js"] = MagicMock()
+import zipfile
+import io
 
 from port.helpers.validate import ValidateInput, validate_zip, DDPCategory, DDPFiletype, Language, StatusCode
 

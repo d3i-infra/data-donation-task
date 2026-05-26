@@ -4,14 +4,11 @@ Per extraction/AD0007, ZipArchiveReader accepts a seekable binary file-like
 (SeekableBinaryReader Protocol) — never a path string. Test fixtures use
 io.BytesIO; production callers pass an AsyncFileAdapter directly.
 """
-import sys
+
 import io
 import json
 import zipfile
 from collections import Counter
-from unittest.mock import MagicMock
-
-sys.modules["js"] = MagicMock()
 
 import pytest
 import pandas as pd

@@ -5,12 +5,9 @@ Verifies that commands yielded by the script generator are correctly
 processed and returned, that error handling works, and that
 CommandSystemLog milestones pass through the command protocol.
 """
-import sys
 import logging
 import pytest
 from unittest.mock import MagicMock
-
-sys.modules['js'] = MagicMock()
 
 from port.main import ScriptWrapper
 from port.api.commands import CommandSystemLog

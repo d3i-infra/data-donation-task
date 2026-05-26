@@ -1,8 +1,5 @@
-import sys
 import logging
 from collections import deque
-from unittest.mock import MagicMock
-sys.modules['js'] = MagicMock()
 
 from port.api.logging import LogForwardingHandler
 

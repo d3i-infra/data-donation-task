@@ -6,12 +6,6 @@ Requires a real ChatGPT DDP zip at::
 
 Tests skip when no fixture is found — CI runs clean without real data.
 """
-import sys
-from unittest.mock import MagicMock
-
-# Must precede all port imports — see AD0002.
-sys.modules["js"] = MagicMock()
-
 import pytest
 
 from extractor_integration_helpers import ExtractorSpec, find_fixture, make_reader
