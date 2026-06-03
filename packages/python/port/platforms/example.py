@@ -52,6 +52,7 @@ Platform info::
     }
 """
 import logging
+import os
 import zipfile
 from collections import Counter
 from datetime import datetime
@@ -139,7 +140,7 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        Columns: ``filename``, ``size``, ``compressed_size``, ``date_modified``.
+        Columns: ``filename``, ``basename``, ``size``, ``compressed_size``, ``date_modified``.
         Empty DataFrame when the zip cannot be read.
 
     Table documentation::
@@ -148,7 +149,8 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           "summary": "Each row represents one file entry inside the donated zip archive, including its name, original size, compressed size, and last-modified date.",
           "source_file": "the zip archive itself (central directory)",
           "columns": {
-            "filename": "Path of the file inside the zip archive.",
+            "filename": "Full path of the file inside the zip archive.",
+            "basename": "File name without directory path.",
             "size": "Uncompressed file size in bytes.",
             "compressed_size": "Compressed size in bytes as stored in the zip.",
             "date_modified": "ISO 8601 timestamp of the file's last-modified date recorded in the zip."
@@ -169,23 +171,23 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           },
           "headers": {
             "filename":        {"en": "Filename",                "nl": "Bestandsnaam"},
+            "basename":        {"en": "File name",               "nl": "Bestandsnaam (kort)"},
             "size":            {"en": "Size (bytes)",            "nl": "Grootte (bytes)"},
             "compressed_size": {"en": "Compressed size (bytes)", "nl": "Gecomprimeerde grootte (bytes)"},
             "date_modified":   {"en": "Date modified",           "nl": "Datum gewijzigd"}
           },
           "visualizations": [
             {
-              "title": {"en": "File sizes", "nl": "Bestandsgroottes"},
-              "type": "bar",
-              "group": "filename",
-              "values": [{"label": {"en": "Size (bytes)", "nl": "Grootte (bytes)"}, "column": "size"}]
+              "title": {"en": "File names", "nl": "Bestandsnamen"},
+              "type": "wordcloud",
+              "textColumn": "basename"
             }
           ]
         }
     """
     rows = []
     try:
-        with zipfile.ZipFile(reader.zip_path, "r") as zf:
+        with zipfile.ZipFile(reader.archive, "r") as zf:
             for info in zf.infolist():
                 if info.is_dir():
                     continue
@@ -197,6 +199,7 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
                         pass
                 rows.append({
                     "filename": info.filename,
+                    "basename": os.path.basename(info.filename),
                     "size": info.file_size,
                     "compressed_size": info.compress_size,
                     "date_modified": date_str,

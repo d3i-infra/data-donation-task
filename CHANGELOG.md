@@ -6,25 +6,57 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ## [Unreleased]
 
-### Changed
+## v3.0.0 — 2026-06-03
 
-* **Breaking:** `ZipArchiveReader.__init__` and `validate.validate_zip`
-  narrow their archive parameter from `Union[str, IO[bytes]]`
-  (introduced in v2.0.1) to a new `SeekableBinaryReader` Protocol
-  (`read | seek | tell`) — path strings are no longer accepted. The
-  upload pipeline passes an `AsyncFileAdapter` directly; tests
-  construct fixtures via `io.BytesIO`. Type narrowing makes the
-  streaming invariant from `extraction/AD0007` checkable: passing a
-  `str` path to a consumer fails Pyright. CI does not currently run
-  type-checking, so this is a local / IDE / code-review aid rather
-  than a CI gate. Combined with the absence of `materialize_file()`
-  (deleted in v2.0.1), the protection is defense-in-depth — the
-  offending function no longer exists, and consumer signatures
-  reject path inputs.
-* **Breaking:** Archive parameter rename — `validate_zip(path_to_zip=…)`
-  and `ZipArchiveReader(zip_path=…)` keyword arguments are now
-  `archive=…`. The `ZipArchiveReader.zip_path` attribute is renamed to
+### Breaking
+
+* `ZipArchiveReader.__init__` and `validate.validate_zip` narrow their
+  archive parameter from `Union[str, IO[bytes]]` (introduced in v2.0.1)
+  to a new `SeekableBinaryReader` Protocol (`read | seek | tell`) — path
+  strings are no longer accepted. The upload pipeline passes an
+  `AsyncFileAdapter` directly; tests construct fixtures via `io.BytesIO`.
+  Type narrowing makes the streaming invariant from `extraction/AD0007`
+  checkable: passing a `str` path to a consumer fails Pyright.
+* Archive parameter rename — `validate_zip(path_to_zip=…)` and
+  `ZipArchiveReader(zip_path=…)` keyword arguments are now `archive=…`.
+  The `ZipArchiveReader.zip_path` attribute is renamed to
   `ZipArchiveReader.archive`. Positional callers are unaffected.
+* `VITE_PLATFORM` is now required in dev mode. Starting `pnpm start`
+  without it emits an error in the study UI. Use
+  `VITE_PLATFORM=<platform> pnpm start` to target a single platform.
+* Release zips are written to a flat `releases/` folder. The previous
+  `releases/<timestamp>/` subdirectory layout is gone; scripts that
+  consumed the timestamped path must be updated.
+
+### Added
+
+* Config-driven extraction: each platform has a
+  `configs/<platform>_config.json` declaring table titles, column
+  headers, and visualizations (python-architecture/AD0012).
+* `pnpm generate-config <platform>` — generates a config from extractor
+  docstrings. The generator refuses to overwrite an existing file; delete
+  it first to re-bootstrap (python-architecture/AD0014).
+* `packages/python/port/platforms/example.py` — canonical template for
+  new platforms. Copy it and generate a config to add a platform without
+  touching `script.py` (python-architecture/AD0013).
+* `release.sh` auto-discovers platforms by globbing `configs/` — no
+  hardcoded platform list. Adding a platform to a release requires only
+  generating its config (fork-governance/AD0005 amendment).
+* `VITE_PLATFORM=<platform> pnpm release` builds a single-platform zip
+  at 1× build time.
+* Extractor integration-test framework: `conftest.py` fixtures plus
+  `ExtractorSpec` dataclass; ChatGPT is the first platform covered
+  (testing/AD0004).
+
+### Architectural Decisions
+
+* `python-architecture/AD0012` — Declarative `TableConfig` for platform
+  extraction scripts.
+* `python-architecture/AD0013` — Standard platform module interface with
+  required config artifacts.
+* `python-architecture/AD0014` — Config lifecycle and generator overwrite
+  policy.
+* `testing/AD0004` — `ExtractorSpec` dataclass for integration tests.
 
 ## v2.0.1 — 2026-05-04
 

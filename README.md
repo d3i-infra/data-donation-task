@@ -5,9 +5,9 @@ Next is a software as a service platform developed by [Eyra](https://eyra.co/) t
 
 For detailed tutorials and API reference, see the [documentation site](https://d3i-infra.github.io/data-donation-task/).
 
-### What's new in v2.0.0
+### What's new in v3.0.0
 
-The extraction architecture has been consolidated around **FlowBuilder** — a standard template for per-platform donation flows. All 10 platforms have been updated with bilingual headers, improved error handling, and deterministic file resolution. The bridge layer now supports PayloadFile, structured logging, and async donation responses.
+Platform extraction is now config-driven: each platform has a `configs/<platform>_config.json` that declares table titles, column headers, and visualizations. Generate one with `pnpm generate-config <platform>`. The generator refuses to overwrite existing files, protecting researcher edits. `release.sh` auto-discovers platforms from `configs/` — no hardcoded list needed. `VITE_PLATFORM` is now required in dev mode.
 
 See [CHANGELOG.md](CHANGELOG.md) for the full list of changes and [MIGRATION.md](MIGRATION.md) for upgrading downstream forks.
 
@@ -37,7 +37,7 @@ pnpm doctor
 ### Start local dev server
 
 ```sh
-pnpm start
+VITE_PLATFORM=example pnpm start
 ```
 
 Visit [`http://localhost:3000`](http://localhost:3000).
@@ -48,7 +48,8 @@ Visit [`http://localhost:3000`](http://localhost:3000).
 
 | Command | Description |
 |---|---|
-| `pnpm start` | Start dev server with hot reload |
+| `VITE_PLATFORM=<platform> pnpm start` | Start dev server with hot reload |
+| `pnpm generate-config <platform>` | Generate `configs/<platform>_config.json` from extractor docstrings |
 | `pnpm run build` | Full production build (Python wheel + feldspar + data-collector) |
 | `pnpm doctor` | Check environment setup (13 checks) |
 
@@ -66,10 +67,23 @@ Visit [`http://localhost:3000`](http://localhost:3000).
 
 | Command | Description |
 |---|---|
-| `pnpm release` | Build single all-platform release zip |
-| `pnpm release:platforms` | Build one zip per platform (for Eyra Next) |
+| `pnpm release` | Build one zip per platform (auto-discovered from `configs/`) |
+| `VITE_PLATFORM=<platform> pnpm release` | Build a release zip for a single platform |
 
-Per-platform releases are created in `releases/<timestamp>/` with one zip per platform, each filtered via `VITE_PLATFORM`.
+Releases are created in `releases/`.
+
+## Working with platforms
+
+Generate a config for a platform, then edit it to suit your study:
+
+```sh
+pnpm generate-config instagram
+# edit packages/python/port/configs/instagram_config.json
+```
+
+To add a new platform, copy `packages/python/port/platforms/example.py` as your starting point.
+
+See the [documentation site](https://d3i-infra.github.io/data-donation-task/) for full tutorials.
 
 ## Architecture
 
