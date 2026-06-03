@@ -1,3 +1,33 @@
+# Migrating to v3.0.0
+
+## Breaking changes
+
+**`VITE_PLATFORM` required in dev**
+
+`pnpm start` now errors without it:
+
+```sh
+VITE_PLATFORM=linkedin pnpm start
+```
+
+## New features
+
+**Per-platform configs** — `configs/<platform>_config.json` declares table titles, columns, and visualizations. Generate one from extractor docstrings:
+
+```sh
+pnpm generate-config <platform>   # errors if config already exists. 
+```
+
+**New platform template** — copy `packages/python/port/platforms/example.py` as your starting point. With a config generated, `release.sh` auto-discovers the platform — no edits to `script.py` needed.
+
+**Single-platform release build:**
+
+```sh
+VITE_PLATFORM=<platform> pnpm release
+```
+
+---
+
 # Migrating to v2.0.0
 
 This guide is for researchers with downstream forks of d3i-infra/data-donation-task
