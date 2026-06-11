@@ -46,11 +46,11 @@ We decided for [Option 2](#option-2) because: a thin test-layer dataclass keeps 
 
 ### Confirmation
 
-Each platform gets a test file `tests/test_extractor_integration_<platform>.py`. A missing fixture at `~/data/d3i/test_packages/` causes `pytest.skip()`, not a failure. CI runs without real data and skips all extractor integration tests. `CLAUDE.md` documents the local fixture path and onboarding steps for obtaining sample DDPs.
+Each platform gets a test file `tests/test_extractor_integration_<platform>.py`. A missing fixture at `tests/ddp/` causes `pytest.skip()`, not a failure. CI runs without real data and skips all extractor integration tests. Drop real DDP zips into `packages/python/tests/ddp/` using the naming pattern `<platform>_<anything>.zip` — that directory is git-ignored.
 
 ## More Information
 
-Real DDP storage location and the policy against committing participant data are established in [testing/AD0001](AD0001-no-real-participant-data-in-version-control.md). `TableConfig` is defined in `packages/python/port/table_extractor.py` and carries the extractor callable and runtime kwargs used by `ExtractorSpec`.
+Real DDP storage location and the policy against committing participant data are established in [testing/AD0001](AD0001-no-real-participant-data-in-version-control.md). `TableConfig` is defined in `packages/python/port/helpers/table_extractor.py` and carries the extractor callable and runtime kwargs used by `ExtractorSpec`.
 
 ## <a name="comments"></a> Comments
 <a name="comment-1"></a>1. (2026-05-08 00:00:00) Danielle McCool: marked decision as decided

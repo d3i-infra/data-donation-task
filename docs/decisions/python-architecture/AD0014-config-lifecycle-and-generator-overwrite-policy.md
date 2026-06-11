@@ -44,7 +44,7 @@ if output_path.exists():
 
 To re-bootstrap a platform, the researcher must explicitly `rm configs/<platform>_config.json` first. This is deliberately a two-step action.
 
-The hand-editable surface is documented in the schema reference (see `docs/python-platforms/config-format.md`): title, description, headers, variables (subset and order), table inclusion/exclusion, visualizations.
+The hand-editable surface includes: title, description, headers, variables (subset and order), table inclusion/exclusion, visualizations. See `packages/python/port/configs/example_config.json` as the canonical reference for the config schema.
 
 ## Consequences
 

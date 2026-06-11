@@ -1,7 +1,6 @@
 ---
 adr_id: "0013"
-comments:
-    - author: Danielle McCool
+comments: []
 links:
     precedes:
         - "0012"
@@ -36,7 +35,7 @@ title: Standard platform module interface and config file contract
 
 Chosen: Option 3 -- Conventional contract with documented exceptions
 
-Every module in `port/platform` exposes:
+Every module in `port/platforms` exposes:
 
 - `EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]]` -- string named extractor functions, in declaration order (preserved by Python dict)
 - `extraction(...)` -- the module's entry point that orchestrates ``load_port_config(EXTRACTOR_REGISTRY, "<platform>"` and `run_extraction(reader, errors, config)`. Signature varies
@@ -45,7 +44,7 @@ Every module in `port/platform` exposes:
 
 ## Consequences
 
-- Good: `script.py` is fully platform-agnostic; adding a platform requires only a new moduke + config file
+- Good: `script.py` is fully platform-agnostic; adding a platform requires only a new module + config file
 - Good: `example.py` serves as the canonical template for new platforms
 - Bad: The string "<platform>" is duplicated in three places per module (folename, module path, load_port_config argument) and nothing cross-checks them.
 - Bad: The exceptions create a contract that's strict-in-principle but loose-in-practice

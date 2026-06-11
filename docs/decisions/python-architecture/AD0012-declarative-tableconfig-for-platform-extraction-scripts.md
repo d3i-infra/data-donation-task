@@ -10,7 +10,7 @@ tags:
   - extraction
   - configuration
   - docstrings
- title: Docstring-driven UI metadata for extractor functions
+title: Docstring-driven UI metadata for extractor functions
 links:
   succeeds: []
 ---
@@ -49,5 +49,5 @@ scripts/generate_port_config.py parses these blocks via the ast module, so no Py
 - Good: Code review sees both code and metadata in one diff
 - Bad: Docstrings become long -- translations x header-columns x N extractors. Some platform modules cross 80KB.
 - Bad: JSON syntax errors in docstrings don't surface using Python's type system
-- Bad: Refactoring an extractor's column names does not propgagate to the docstring's header keys; nothing cross-checks them.
+- Bad: Refactoring an extractor's column names does not propagate to the docstring's header keys; nothing cross-checks them.
 
