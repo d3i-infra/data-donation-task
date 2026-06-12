@@ -22,7 +22,7 @@ Platform info::
         "name": "LinkedIn",
         "filetypes": ["csv"],
         "languages": ["en", "nl"],
-        "description": "Handles DDPs in English. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
+        "description": "Handles DDPs in English. Our current knowledge is that the DDP will be in English for Dutch persons. If you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
         "time_last_tested": "not yet implemented"
     }
 """
@@ -55,33 +55,26 @@ logger = logging.getLogger(__name__)
 
 DDP_CATEGORIES = [
     DDPCategory(
-        id="csv_en",
+        id="csv_en_basic",
         ddp_filetype=DDPFiletype.CSV,
         language=Language.EN,
         known_files=[
-            "Ad_Targeting.csv",
-            "Endorsement_Given_Info.csv",
-            "Member_Follows.csv",
-            "Recommendations_Given.csv",
+            "Job Seeker Preferences.csv",
             "Company Follows.csv",
-            "Endorsement_Received_Info.csv",
-            "messages.csv",
-            "Registration.csv",
-            "Connections.csv",
-            "Inferences_about_you.csv",
+            "guide_messages.csv",
+            "Rich_Media.csv",
             "PhoneNumbers.csv",
-            "Rich Media.csv",
-            "Contacts.csv",
-            "Invitations.csv",
-            "Positions.csv",
-            "Skills.csv",
-            "Education.csv",
             "Profile.csv",
-            "Votes.csv",
+            "Endorsement_Received_Info.csv",
+            "Endorsement_Given_Info.csv",
+            "Whatsapp Phone Numbers.csv",
+            "Education.csv",
+            "Positions.csv",
+            "learning_coach_messages.csv",
             "Email Addresses.csv",
-            "Learning.csv",
-            "Reactions.csv",
-            "LAN Ads Engagement.csv",
+            "Profile Summary.csv",
+            "Registration.csv",
+            "Skills.csv",
         ]
     ),
 ]
