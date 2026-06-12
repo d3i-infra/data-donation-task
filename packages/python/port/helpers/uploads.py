@@ -53,10 +53,10 @@ def check_payload_size(file_result) -> None:
     size = file_result.value.size  # JS metadata, no read
     if size == CHUNKED_EXPORT_SENTINEL_BYTES:
         raise ChunkedExportError(
-            f"File is exactly {CHUNKED_EXPORT_SENTINEL_BYTES} bytes — "
+            f"File is exactly {CHUNKED_EXPORT_SENTINEL_BYTES / (1024 ** 2):.2f} MiB — "
             "likely a chunked export sentinel"
         )
     if size > MAX_FILE_SIZE_BYTES:
         raise FileTooLargeError(
-            f"File is {size} bytes, exceeding limit of {MAX_FILE_SIZE_BYTES} bytes"
+            f"File is {size / (1024 ** 2):.2f} MiB, exceeding limit of {MAX_FILE_SIZE_BYTES / (1024 ** 2):.2f} MiB"
         )
