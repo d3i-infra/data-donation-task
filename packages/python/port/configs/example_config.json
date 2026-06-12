@@ -43,20 +43,11 @@
       "visualizations": [
         {
           "title": {
-            "en": "File sizes",
-            "nl": "Bestandsgroottes"
+            "en": "Filenames",
+            "nl": "Bestandsnamen"
           },
-          "type": "bar",
-          "group": "filename",
-          "values": [
-            {
-              "label": {
-                "en": "Size (bytes)",
-                "nl": "Grootte (bytes)"
-              },
-              "column": "size"
-            }
-          ]
+          "type": "wordcloud",
+          "textColumn": "filename"
         }
       ],
       "extractor": "file_stats_to_df",

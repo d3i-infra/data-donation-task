@@ -131,7 +131,7 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     Parameters
     ----------
     reader:
-        Archive reader whose ``zip_path`` attribute points to the zip on disk.
+        Archive reader whose ``archive`` attribute points to the zip on disk.
     errors:
         Mutable counter that accumulates error type counts encountered during
         extraction.  Updated in-place.
@@ -175,17 +175,16 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           },
           "visualizations": [
             {
-              "title": {"en": "File sizes", "nl": "Bestandsgroottes"},
-              "type": "bar",
-              "group": "filename",
-              "values": [{"label": {"en": "Size (bytes)", "nl": "Grootte (bytes)"}, "column": "size"}]
+              "title": {"en": "Filenames", "nl": "Bestandsnamen"},
+              "type": "wordcloud",
+              "textColumn": "filename"
             }
           ]
         }
     """
     rows = []
     try:
-        with zipfile.ZipFile(reader.zip_path, "r") as zf:
+        with zipfile.ZipFile(reader.archive, "r") as zf:
             for info in zf.infolist():
                 if info.is_dir():
                     continue
