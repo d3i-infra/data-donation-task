@@ -1,8 +1,8 @@
-"""Integration tests for ChatGPT extractor functions.
+"""Integration tests for TikTok extractor functions.
 
-Requires a real ChatGPT DDP zip at::
+Requires a real TikTok DDP zip at::
 
-    tests/ddp/chatgpt_<anything>.zip
+    tests/ddp/TikTok_<anything>.zip
 
 Tests skip when no fixture is found — CI runs clean without real data.
 """
