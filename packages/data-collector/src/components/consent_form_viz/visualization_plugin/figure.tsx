@@ -118,7 +118,7 @@ export const FigureComponent = ({
         <div className='flex flex-col '>
           <div
             // ref={ref}
-            className='grid relative z-50 w-full pr-1  min-w-[500px]'
+            className='grid relative z-50 w-full pr-1  min-w-[250px]'
             style={{ gridTemplateRows: String(height) + 'px' }}
           >
             <RenderVisualization
