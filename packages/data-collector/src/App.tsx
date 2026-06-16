@@ -1,6 +1,6 @@
 import { DataSubmissionPageFactory, ScriptHostComponent } from "@eyra/feldspar";
 import { ConsentFormVizFactory } from "./factories/consent_form_viz";
-import { FileInputMultipleFactory } from "./components/file_input_multiple/factory"
+import { FileInputFactory } from "./components/file_input/factory"
 import { ErrorPageFactory } from "./components/error_page/factory"
 import { QuestionnaireFactory } from "./components/questionnaire/factory"
 import { RetryPromptFactory } from "./components/retry_prompt/factory"
@@ -16,7 +16,7 @@ function App() {
           new DataSubmissionPageFactory({
             promptFactories: [
                 new ConsentFormVizFactory(),
-                new FileInputMultipleFactory(),
+                new FileInputFactory(),
                 new ErrorPageFactory(),
                 new QuestionnaireFactory(),
                 new RetryPromptFactory(),

@@ -138,6 +138,7 @@ class PropsUIPromptFileInputMultiple:
     """
     description: props.Translatable
     extensions: str
+    multiple: bool = False
 
     def toDict(self):
         """
@@ -147,9 +148,10 @@ class PropsUIPromptFileInputMultiple:
             dict: A dictionary representation of the object.
         """
         dict = {}
-        dict["__type__"] = "PropsUIPromptFileInputMultiple"
+        dict["__type__"] = "PropsUIPromptFileInputD3I"
         dict["description"] = self.description.toDict()
         dict["extensions"] = self.extensions
+        dict["multiple"] = self.multiple
         return dict
 
 

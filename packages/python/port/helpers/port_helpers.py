@@ -72,7 +72,7 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
 
 def generate_file_prompt(
     extensions: str, multiple: bool = False
-) -> props.PropsUIPromptFileInput | d3i_props.PropsUIPromptFileInputMultiple:
+) -> d3i_props.PropsUIPromptFileInputMultiple:
     """
     Generates a file input prompt for selecting file(s) for a platform.
     This function creates a bilingual (English and Dutch) file input prompt
@@ -101,10 +101,7 @@ def generate_file_prompt(
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
         }
     )
-    if multiple:
-        return d3i_props.PropsUIPromptFileInputMultiple(description, extensions)
-
-    return props.PropsUIPromptFileInput(description, extensions)
+    return d3i_props.PropsUIPromptFileInputMultiple(description, extensions, multiple)
 
 
 def generate_review_data_prompt(

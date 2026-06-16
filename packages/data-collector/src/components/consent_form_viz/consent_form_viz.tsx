@@ -1,10 +1,10 @@
 import {
   LabelButton,
-  PrimaryButton,
   BodyLarge,
   Translator,
   ReactFactoryContext,
 } from "@eyra/feldspar"
+import { PrimaryButton } from "../ui/primary_button"
 import TextBundle from "@eyra/feldspar"
 import { 
     TableWithContext,
