@@ -725,7 +725,7 @@ class ZipArchiveReader:
 
         Returns RawExtractionResult(found=False, data=io.BytesIO())
         if member not in archive. Used for HTML (Chrome bookmarks),
-        text files (WhatsApp), and .js files (X — caller applies
+        text files (WhatsApp, TikTok), and .js files (X — caller applies
         bytesio_to_listdict for JS prefix stripping).
         """
         member = self.resolve_member(filename)
