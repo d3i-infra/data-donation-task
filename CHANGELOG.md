@@ -6,6 +6,15 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ## [Unreleased]
 
+### Fixed
+
+* Facebook HTML-format DDPs were misdetected as the `json_en` category.
+  `no-data.txt` — Facebook's empty-section placeholder, emitted in both
+  JSON and HTML exports — was a `json_en` known file, so an HTML package
+  with several empty sections scored well above the 5% match threshold
+  despite containing zero `.json` data files. Removed `no-data.txt` from
+  the `json_en` known-file list (#74).
+
 ## v2.0.1 — 2026-05-04
 
 ### Fixed
