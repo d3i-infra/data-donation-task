@@ -4,7 +4,7 @@ YouTube
 This module provides an example flow of a YouTube data donation study
 
 Assumptions:
-It handles DDPs in the Dutch and English language with filetype JSON.
+It handles DDPs in the Dutch and English language with filetype JSON or HTML for the watch and search histories and CSV for other files.
 
 Configuration
 -------------
@@ -20,16 +20,19 @@ Platform info::
 
     {
         "name": "YouTube",
-        "filetypes": ["json", "csv"],
+        "filetypes": ["json", "html", "csv"],
         "languages": ["en", "nl"],
-        "description": "Handles DDPs in both English and Dutch. English and Dutch filenames are tried automatically. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
-        "time_last_tested": "not yet implemented"
+        "description": "Handles DDPs in both English and Dutch. Both JSON and HTML formats are supported for watch and search histories. Comments and subscriptions are always extracted in CSV format. Tested for Dutch DDPs with both JSON and HTML formats. English DDPs have not yet been tested. If you find anything wrong with this script, report to datadonation@uu.nl and they will be fixed!",
+        "time_last_tested": "22-06-2026"
     }
 """
 import json
 import logging
 from collections import Counter
 from typing import Callable
+import re
+import io
+from dateutil import parser
 
 import pandas as pd
 
@@ -74,14 +77,145 @@ DDP_CATEGORIES = [
             "reacties.csv",
         ],
     ),
+    DDPCategory(
+        id="html_en",
+        ddp_filetype=DDPFiletype.HTML,
+        language=Language.EN,
+        known_files=[
+            "subscriptions.csv",
+            "watch-history.html",
+            "search-history.html",
+            "comments.csv",
+        ],
+    ),
+    DDPCategory(
+        id="html_nl",
+        ddp_filetype=DDPFiletype.HTML,
+        language=Language.NL,
+        known_files=[
+            "abonnementen.csv",
+            "kijkgeschiedenis.html",
+            "zoekgeschiedenis.html",
+            "reacties.csv",
+        ],
+    ),
 ]
 
 
-def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+# ---------------------------------------------------------------------------
+# Helper functions
+# ---------------------------------------------------------------------------
+
+
+def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
+    """Reads structured YouTube data in html format and parses it into a list of dictionaries,
+    extracting the title, url, channel url and name, and date of each watched item."""
+
+    result = []
+
+    lines = data.readlines()
+    lines = [line.decode("utf-8") for line in lines]
+
+    # Pattern to filter for watch history items by looking for specific url and capturing the 
+    # following text until the end of the container
+    div_pattern = re.compile(
+        r'(<a href="https://www\.youtube\.com/watch\?v=.+?)</div>',
+    )
+
+    # Pattern to extract the relevant fields from watch history item
+    content_pattern = re.compile(
+        r'<a href="(.+?)">(.+?)</a>.+?<a href="(.+?)">(.+?)</a><br>(.+?)<br>',
+    )
+
+    for line in lines:
+        for match in div_pattern.finditer(line):
+            div_content = match.group(1)
+            content = content_pattern.search(div_content)
+            if content:
+                result.append({
+                    "titleUrl": content.group(1), 
+                    "title": content.group(2), 
+                    "channelUrl": content.group(3), 
+                    "channelName": content.group(4), 
+                    "time": _convert_to_iso8601(content.group(5)),
+                })
+    return result
+
+
+def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
+    """Reads structured YouTube data in html format and parses it into a list of dictionaries,
+    extracting the title, url, and date of each seach item."""
+
+    result = []
+
+    lines = data.readlines()
+    lines = [line.decode("utf-8") for line in lines]
+
+    # Pattern to filter for search history items by looking for specific url and capturing the 
+    # following text until the end of the container
+    div_pattern = re.compile(
+        r'(<a href="https://www\.youtube\.com/results\?search_query=.+?)</div>',
+    )
+    
+    # Pattern to extract the relevant fields from container contents
+    content_pattern = re.compile(
+        r'<a href="(.+?)">(.+?)</a><br>(.+?)<br>',
+    )
+
+    # For each line in the html file extract all div containers with a specific set of classes. 
+    # Then iterate over these containers and extract the relevant fields from their contents.
+    for line in lines:
+        for match in div_pattern.finditer(line):
+            div_content = match.group(1)
+            content = content_pattern.search(div_content)
+            if content:
+                result.append({
+                    "titleUrl": content.group(1), 
+                    "title": content.group(2), 
+                    "time": _convert_to_iso8601(content.group(3))
+                })
+    return result
+
+
+def _convert_to_iso8601(timestamp):
+    """Converts a time string extracted from the HTML DDP (e.g. 15 jun 2026, 20:30:41 CEST) to
+    ISO8601 format, ignoring timezone abbreviations and translating Dutch month abbreviations."""
+    try:
+        parts = timestamp.split(' ')
+
+        # Ignore timezone abbreviation at the end as this is not included in json either
+        # and cannot be automatically parsed
+        if ':' not in parts[-1]:
+            parts.pop()
+
+        # Translate month abreviations to English
+        nl_month_translations = {
+            'mrt': 'mar',
+            'mei': 'may',
+            'okt': 'oct',
+            }
+        for i in range(len(parts)):
+            if parts[i].lower() in nl_month_translations:
+                parts[i] = nl_month_translations[parts[i].lower()]
+
+        dt = parser.parse(' '.join(parts))
+        return dt.isoformat()
+    except (ValueError, TypeError) as e:
+        return timestamp
+
+
+# ---------------------------------------------------------------------------
+# Extractor functions
+# ---------------------------------------------------------------------------
+
+
+def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.DataFrame:
     """Extract watch history from the YouTube DDP.
 
-    Tries the English filename ``watch-history.json`` first, then the Dutch
-    ``kijkgeschiedenis.json``.
+    In case of a JSON DDP it tries the English filename ``watch-history.json``
+    first, then the Dutch ``kijkgeschiedenis.json``. In case of a HTML DPP it 
+    extracts information from ``watch-history.html`` or ``kijkgeschiedenis.html`` 
+    depending on the detected language of the DDP.
 
     Parameters
     ----------
@@ -90,6 +224,9 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
     errors:
         Mutable counter that accumulates error type counts encountered during
         extraction.  Updated in-place.
+    validation:
+        Validation results for the extracted data used to determine ddp type 
+        and language.
 
     Returns
     -------
@@ -101,7 +238,7 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
 
         {
           "summary": "Each row represents one video the participant watched on YouTube, including the video title, URL, and timestamp.",
-          "source_file": "watch-history.json or kijkgeschiedenis.json",
+          "source_file": "watch-history.json, kijkgeschiedenis.json", "watch-history.html or kijkgeschiedenis.html",
           "columns": {
             "Title": "Title of the watched video.",
             "URL": "URL of the watched video.",
@@ -154,20 +291,35 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
           ]
         }
     """
-    result = None
-    for filename in ("watch-history.json", "kijkgeschiedenis.json"):
-        r = reader.json(filename)
-        if r.found:
-            result = r
-            break
-
-    if result is None or not result.found:
-        return pd.DataFrame()
-    d = result.data
-
     out = pd.DataFrame()
-    datapoints = []
+    if validation.current_ddp_category.ddp_filetype == DDPFiletype.JSON:
+        result = None
+        for filename in ("watch-history.json", "kijkgeschiedenis.json"):
+            r = reader.json(filename)
+            if r.found:
+                result = r
+                break
+        if result is None or not result.found:
+            return out
+        d = result.data
+    elif validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
+        if validation.current_ddp_category.language == Language.NL:
+            data = reader.raw("kijkgeschiedenis.html")
+        elif validation.current_ddp_category.language == Language.EN:
+            data = reader.raw("watch-history.html")
+        else:
+            return out
+        if not data.found:
+            return out    
+        try:
+            d = _parse_watch_history_html(data.data)
+            if not isinstance(d, list):
+                return out
+        except Exception as e:
+            logger.error("Exception caught: %s", e)
+            errors[type(e).__name__] += 1
 
+    datapoints = []
     try:
         for item in d:
             datapoints.append((
@@ -175,9 +327,7 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
                 item.get("titleUrl", ""),
                 item.get("time", ""),
             ))
-
         out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp"])  # pyright: ignore
-
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -185,11 +335,13 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
     return out
 
 
-def search_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+def search_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.DataFrame:
     """Extract search history from the YouTube DDP.
 
     Tries the English filename ``search-history.json`` first, then the Dutch
-    ``zoekgeschiedenis.json``.
+    ``zoekgeschiedenis.json``. In case of a HTML DPP it extract information from 
+    ``search-history.html`` or ``zoekgeschiedenis.html`` depending on the detected 
+    language of the DDP.
 
     Parameters
     ----------
@@ -198,23 +350,25 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
     errors:
         Mutable counter that accumulates error type counts encountered during
         extraction.  Updated in-place.
+    validation:
+        Validation results for the extracted data used to determine ddp type 
+        and language.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Title``, ``URL``, ``Timestamp``, ``Ad``.
+        Columns: ``Query``, ``URL``, ``Timestamp``.
         Empty DataFrame when no matching file is found or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents one search query or video watch registered in the YouTube search and watch history, including whether an ad was seen.",
-          "source_file": "search-history.json or zoekgeschiedenis.json",
+          "summary": "Each row represents one search query in YouTube search history.",
+          "source_file": "search-history.json, zoekgeschiedenis.json, search-history.html or zoekgeschiedenis.html",
           "columns": {
-            "Title": "Title of the search result or watched video.",
-            "URL": "URL of the search result or watched video.",
+            "Query": "The searched query.",
+            "URL": "URL of the search query.",
             "Timestamp": "ISO 8601 timestamp of when the search was performed.",
-            "Ad": "Boolean indicating whether an ad detail was associated with this entry."
           }
         }
 
@@ -223,57 +377,70 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
         {
           "id": "youtube_search_history",
           "title": {
-            "en": "Your search and watch history",
-            "nl": "Je zoek- en kijkgeschiedenis"
+            "en": "Your search history",
+            "nl": "Je zoekgeschiedenis"
           },
           "description": {
-            "en": "Your search queries, videos watched, and ads seen on YouTube, with timestamps.",
-            "nl": "Je zoekopdrachten, bekeken video's en geziene advertenties op YouTube, met tijdstippen."
+            "en": "Your search queries on YouTube with timestamps.",
+            "nl": "Je zoekopdrachten op YouTube met tijdstippen."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
+            "Query": {"en": "Search query", "nl": "Zoekopdracht"},
             "URL": {"en": "URL", "nl": "URL"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"},
-            "Ad": {"en": "Ad", "nl": "Advertentie"}
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
           },
           "visualizations": [
             {
               "title": {
-                "en": "Words in your search and watch history",
-                "nl": "Woorden in je zoek- en kijkgeschiedenis"
+                "en": "Words in your search history",
+                "nl": "Woorden in je zoekgeschiedenis"
               },
               "type": "wordcloud",
-              "textColumn": "Title",
+              "textColumn": "Query",
               "tokenize": true
             }
           ]
         }
     """
-    result = None
-    for filename in ("search-history.json", "zoekgeschiedenis.json"):
-        r = reader.json(filename)
-        if r.found:
-            result = r
-            break
-
-    if result is None or not result.found:
-        return pd.DataFrame()
-    d = result.data
-
     out = pd.DataFrame()
-    datapoints = []
+    if validation.current_ddp_category.ddp_filetype == DDPFiletype.JSON:
+        result = None
+        for filename in ("search-history.json", "zoekgeschiedenis.json"):
+            r = reader.json(filename)
+            if r.found:
+                result = r
+                break
 
+        if result is None or not result.found:
+            return pd.DataFrame()
+        d = result.data
+    elif validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
+        if validation.current_ddp_category.language == Language.NL:
+            data = reader.raw("zoekgeschiedenis.html")
+        elif validation.current_ddp_category.language == Language.EN:
+            data = reader.raw("search-history.html")
+        else:
+            return out
+        if not data.found:
+            return out    
+        try:
+            d = _parse_search_history_html(data.data)
+            if not isinstance(d, list):
+                return out
+        except Exception as e:
+            logger.error("Exception caught: %s", e)
+            errors[type(e).__name__] += 1
+
+
+    datapoints = []
     try:
         for item in d:
             datapoints.append((
                 item.get("title", ""),
                 item.get("titleUrl", ""),
                 item.get("time", ""),
-                bool(item.get("details") or []),
             ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp", "Ad"])  # pyright: ignore
-
+        out = pd.DataFrame(datapoints, columns=["Query", "URL", "Timestamp"])  # pyright: ignore
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
@@ -474,10 +641,14 @@ def extraction(youtube_zip: str, validation) -> ExtractionResult:
     youtube_zip:
         Path to the YouTube DDP zip archive on disk.
     validation:
-        Validation result object whose ``archive_members`` attribute is passed
-        to ``ZipArchiveReader``.
+        Validation result object that is passed on to the watch history and 
+        search history extractor functions in ``EXTRACTOR_REGISTRY``, and whose 
+         ``archive_members`` attribute is passed to ``ZipArchiveReader``.
     """
     config = load_port_config(EXTRACTOR_REGISTRY, "youtube")
+    for table in config: # Pass validation results to determine ddp type and language
+        if table.extractor in [watch_history_to_df, search_history_to_df]:
+            table.extractor_kwargs = {'validation': validation}
     errors: Counter = Counter()
     reader = ZipArchiveReader(youtube_zip, validation.archive_members, errors)
     return run_extraction(reader, errors, config)
