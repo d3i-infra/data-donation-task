@@ -117,27 +117,32 @@ def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     lines = [line.decode("utf-8") for line in lines]
 
     # Pattern to filter for watch history items by looking for specific url and capturing the 
-    # following text until the end of the container
+    # entire contents of the imediately surounding div container using a negative look-up
     div_pattern = re.compile(
-        r'(<a href="https://www\.youtube\.com/watch\?v=.+?)</div>',
+        r'(<div(?:(?!<div).)*?<a href="https://www\.youtube\.com/watch\?v=.+?)</div>',
     )
 
-    # Pattern to extract the relevant fields from watch history item
-    content_pattern = re.compile(
-        r'<a href="(.+?)">(.+?)</a>.+?<a href="(.+?)">(.+?)</a><br>(.+?)<br>',
-    )
+    # Patterns to extract the relevant fields from watch history item
+    video_pattern = re.compile(r'<a href="(https://www\.youtube\.com/watch\?v=.+?)">(.+?)</a>')
+    channel_pattern = re.compile(r'<a href="(https://www\.youtube\.com/channel/.+?)">(.+?)</a>')
+    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{2}:[0-9]{2}:[0-9]{2}.*?)<br>')
 
+    # For each line in the html file extract all div containers with a watch url in them. Then 
+    # iterate over these containers and extract the relevant fields from their contents if they
+    # are present.
     for line in lines:
         for match in div_pattern.finditer(line):
             div_content = match.group(1)
-            content = content_pattern.search(div_content)
-            if content:
+            video = video_pattern.search(div_content)
+            channel = channel_pattern.search(div_content)
+            timestamp = timestamp_pattern.search(div_content)
+            if video:
                 result.append({
-                    "titleUrl": content.group(1), 
-                    "title": content.group(2), 
-                    "channelUrl": content.group(3), 
-                    "channelName": content.group(4), 
-                    "time": _convert_to_iso8601(content.group(5)),
+                    "titleUrl": video.group(1), 
+                    "title": video.group(2), 
+                    "channelUrl": channel.group(1) if channel else None, 
+                    "channelName": channel.group(2) if channel else None, 
+                    "time": _convert_to_iso8601(timestamp.group(1)) if timestamp else None,
                 })
     return result
 
@@ -152,27 +157,28 @@ def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     lines = [line.decode("utf-8") for line in lines]
 
     # Pattern to filter for search history items by looking for specific url and capturing the 
-    # following text until the end of the container
+    # entire contents of the imediately surounding div container using a negative look-up
     div_pattern = re.compile(
-        r'(<a href="https://www\.youtube\.com/results\?search_query=.+?)</div>',
+        r'(<div(?:(?!<div).)*?<a href="https://www\.youtube\.com/results\?search_query=.+?)</div>',
     )
     
-    # Pattern to extract the relevant fields from container contents
-    content_pattern = re.compile(
-        r'<a href="(.+?)">(.+?)</a><br>(.+?)<br>',
-    )
+    # Patterns to extract the relevant fields from container contents
+    query_pattern = re.compile(r'<a href="(https://www\.youtube\.com/results\?search_query=.+?)">(.+?)</a>')
+    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{2}:[0-9]{2}:[0-9]{2}.*?)<br>')
 
-    # For each line in the html file extract all div containers with a specific set of classes. 
-    # Then iterate over these containers and extract the relevant fields from their contents.
+    # For each line in the html file extract all div containers with a search query url in them. 
+    # Then iterate over these containers and extract the relevant fields from their contents if 
+    # they are present.
     for line in lines:
         for match in div_pattern.finditer(line):
             div_content = match.group(1)
-            content = content_pattern.search(div_content)
-            if content:
+            query = query_pattern.search(div_content)
+            timestamp = timestamp_pattern.search(div_content)
+            if query:
                 result.append({
-                    "titleUrl": content.group(1), 
-                    "title": content.group(2), 
-                    "time": _convert_to_iso8601(content.group(3))
+                    "titleUrl": query.group(1), 
+                    "title": query.group(2), 
+                    "time": _convert_to_iso8601(timestamp.group(1)) if timestamp else None,
                 })
     return result
 
