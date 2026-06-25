@@ -22,7 +22,7 @@ Platform info::
         "name": "YouTube",
         "filetypes": ["json", "html", "csv"],
         "languages": ["en", "nl"],
-        "description": "Handles DDPs in both English and Dutch. Both JSON and HTML formats are supported for watch and search histories. Comments and subscriptions are always extracted in CSV format. Tested for Dutch DDPs with both JSON and HTML formats. English DDPs have not yet been tested. If you find anything wrong with this script, report to datadonation@uu.nl and they will be fixed!",
+        "description": "Handles DDPs in both English and Dutch. Both JSON and HTML formats are supported for watch and search histories. Comments and subscriptions are always extracted in CSV format. Tested for Dutch DDPs with both JSON and HTML formats. English DDPs have not yet been tested. If you find anything wrong with this script, report to datadonation@uu.nl and it will be fixed!",
         "time_last_tested": "22-06-2026"
     }
 """
@@ -117,7 +117,7 @@ def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     lines = [line.decode("utf-8") for line in lines]
 
     # Pattern to filter for watch history items by looking for specific url and capturing the 
-    # entire contents of the imediately surounding div container using a negative look-up
+    # entire contents of the immediately surrounding div container using a negative lookahead
     div_pattern = re.compile(
         r'(<div(?:(?!<div).)*?<a href="https://www\.youtube\.com/watch\?v=.+?)</div>',
     )
@@ -149,7 +149,7 @@ def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
 
 def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     """Reads structured YouTube data in html format and parses it into a list of dictionaries,
-    extracting the title, url, and date of each seach item."""
+    extracting the title, url, and date of each search item."""
 
     result = []
 
@@ -157,7 +157,7 @@ def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     lines = [line.decode("utf-8") for line in lines]
 
     # Pattern to filter for search history items by looking for specific url and capturing the 
-    # entire contents of the imediately surounding div container using a negative look-up
+    # entire contents of the immediately surrounding div container using a negative lookahead
     div_pattern = re.compile(
         r'(<div(?:(?!<div).)*?<a href="https://www\.youtube\.com/results\?search_query=.+?)</div>',
     )
@@ -194,7 +194,7 @@ def _convert_to_iso8601(timestamp):
         if ':' not in parts[-1]:
             parts.pop()
 
-        # Translate month abreviations to English
+        # Translate month abbreviations to English
         nl_month_translations = {
             'mrt': 'mar',
             'mei': 'may',
@@ -458,7 +458,7 @@ def subscriptions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
     """Extract subscriptions from the YouTube DDP.
 
     Tries ``subscriptions.csv`` first, then the Dutch ``abonnementen.csv``.
-    Normalises column names to English regardless of export language.
+    Normalizes column names to English regardless of export language.
 
     Parameters
     ----------
@@ -531,7 +531,7 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     """Extract comments from the YouTube DDP.
 
     Tries ``comments.csv`` first, then the Dutch ``reacties.csv``.
-    Normalises column names to English and parses comment text segments.
+    Normalizes column names to English and parses comment text segments.
 
     Parameters
     ----------
