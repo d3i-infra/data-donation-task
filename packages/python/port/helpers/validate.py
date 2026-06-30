@@ -221,7 +221,7 @@ def validate_zip(
         path_to_zip: Anything `zipfile.ZipFile` accepts in read mode — either
             a filesystem path string or a seekable binary file-like object
             (e.g. an `AsyncFileAdapter` for browser uploads). Per
-            extraction/AD0007, the upload pipeline passes the file-like
+            ADR-0028, the upload pipeline passes the file-like
             adapter directly so the zip is never materialized into Pyodide's
             heap. The parameter name is retained for backwards compatibility
             with researcher-fork callers; PR 2 (type tightening) will rename

@@ -170,7 +170,7 @@ class TestJsonAll:
 
 class TestFileLikeAcceptance:
     """ZipArchiveReader must accept a seekable binary file-like archive
-    (e.g. AsyncFileAdapter), not just a path string. AD0007.
+    (e.g. AsyncFileAdapter), not just a path string. ADR-0028.
     """
 
     @pytest.fixture

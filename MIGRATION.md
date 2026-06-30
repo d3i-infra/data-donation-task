@@ -16,9 +16,9 @@ donation. The old `d3i_example_script.py` and `donation_flows/` system have been
 removed.
 
 For detailed rationale, see:
-- `docs/decisions/python-architecture/AD0006` — consolidation decision
-- `docs/decisions/extraction/AD0001` — FlowBuilder template pattern
-- `docs/decisions/extraction/AD0006` — ZipArchiveReader and error handling
+- `docs/decisions/0010-no-parallel-extraction-architecture.md` — consolidation decision
+- `docs/decisions/0023-flowbuilder-template-for-per-platform-extraction-flows.md` — FlowBuilder template pattern
+- `docs/decisions/0027-ziparchivereader-handles-expected-missing-ddp-members.md` — ZipArchiveReader and error handling
 
 ## If you use the default platforms as-is
 
@@ -177,7 +177,7 @@ yield from ph.emit_log("info", f"[{platform}] Extraction complete: {len(tables)}
 ```
 
 Host-visible log messages must be **PII-free** — no participant data, file
-paths, or data values. See `docs/decisions/python-architecture/AD0011`.
+paths, or data values. See `docs/decisions/0013-three-logging-boundaries-for-diagnostics-milestones-and-consent-gated-errors.md`.
 
 ## Donation key format
 
