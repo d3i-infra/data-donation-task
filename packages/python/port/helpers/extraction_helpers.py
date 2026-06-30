@@ -602,7 +602,7 @@ class ZipArchiveReader:
     with found/not-found signaling to eliminate cascading errors for
     expected-missing files.
 
-    Per extraction/AD0007, the upload pipeline passes a file-like
+    Per ADR-0028, the upload pipeline passes a file-like
     `AsyncFileAdapter` here directly so the zip is never materialized
     into Pyodide's heap. `zipfile.ZipFile` accepts both paths and
     seekable binary file-likes; the `zip_path` parameter and

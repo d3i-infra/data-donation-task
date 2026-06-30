@@ -1,6 +1,6 @@
 """Tests for upload safety checks and streaming invariant.
 
-See extraction/AD0007 for the streaming invariant:
+See ADR-0028 for the streaming invariant:
 PayloadFile uploads must reach consumers (zipfile.ZipFile, validators,
 extractors) without materialization, and size policy decisions must
 use JS-reported metadata rather than reading the upload.
@@ -54,7 +54,7 @@ class TestCheckPayloadSize:
             check_payload_size(_payload_file(CHUNKED_EXPORT_SENTINEL_BYTES))
 
     def test_payload_string_raises_type_error(self):
-        """PayloadString is no longer accepted (SRC compat dropped per AD0007)."""
+        """PayloadString is no longer accepted (SRC compat dropped per ADR-0028)."""
         payload = MagicMock()
         payload.__type__ = "PayloadString"
         payload.value = "/some/path"
@@ -71,7 +71,7 @@ class TestCheckPayloadSize:
     def test_does_not_read_adapter(self):
         """Size is taken from .size metadata; .read() is never called.
 
-        This is the core invariant of AD0007 — verifying upload size
+        This is the core invariant of ADR-0028 — verifying upload size
         must not trigger the failure mode it is meant to prevent.
         """
         adapter = MagicMock()
@@ -107,7 +107,7 @@ class _TrackingAdapter(io.BytesIO):
 class TestStreamingInvariant:
     """zipfile.ZipFile must never issue read(-1) against an upload-path
     file-like. A full-file read is what triggers
-    FileReaderSync.readAsArrayBuffer above 2 GiB. See AD0007.
+    FileReaderSync.readAsArrayBuffer above 2 GiB. See ADR-0028.
     """
 
     def _build_zip_bytes(self) -> bytes:

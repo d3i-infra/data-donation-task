@@ -4,7 +4,7 @@ FlowBuilder yields CommandSystemLog milestones between UI commands.
 Tests use advance_past_logs() / start_and_skip_logs() to skip past
 log commands to the next UI/donate command.
 
-Per extraction/AD0007, PayloadFile is the only accepted upload type;
+Per ADR-0028, PayloadFile is the only accepted upload type;
 PayloadString/WORKERFS support was retired. The upload pipeline does
 not materialize the file to a path — the AsyncFileAdapter is passed
 directly to validate_file/extract_data, and size policy is enforced
@@ -62,7 +62,7 @@ def make_payload(type_name, **attrs):
 def make_payload_file(size: int = 1024) -> MagicMock:
     """Build a PayloadFile-shaped payload whose adapter reports `size` bytes.
 
-    AD0007: the upload-path safety check reads adapter.size from JS
+    ADR-0028: the upload-path safety check reads adapter.size from JS
     metadata, never the bytes themselves. Tests construct adapters that
     only need a `.size` attribute set.
     """
@@ -165,7 +165,7 @@ class TestSkipPath:
             advance_past_logs(gen, make_payload("PayloadFalse"))
 
     def test_payload_string_now_treated_as_skip(self):
-        """SRC compat dropped per AD0007: PayloadString is not a valid upload."""
+        """SRC compat dropped per ADR-0028: PayloadString is not a valid upload."""
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -269,7 +269,7 @@ class TestDonateKeyFormat:
 
 class TestUploadAdapterPassthrough:
     """Verify the adapter (file_result.value) is passed to validate/extract,
-    not a path string. AD0007 streaming invariant.
+    not a path string. ADR-0028 streaming invariant.
     """
 
     def test_validate_file_receives_adapter(self):

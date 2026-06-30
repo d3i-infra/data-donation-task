@@ -47,7 +47,7 @@ class AsyncFileAdapter:
             API's ~2 GiB ArrayBuffer cap regardless of available RAM.
             Pass this adapter directly to zipfile.ZipFile (which chunks
             reads at its own discretion) or call read(size=N) with a
-            bounded N. See extraction/AD0007.
+            bounded N. See ADR-0028.
         """
         if self._closed:
             raise ValueError("I/O operation on closed file")

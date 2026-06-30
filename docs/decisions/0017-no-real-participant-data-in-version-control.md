@@ -1,49 +1,32 @@
 ---
-adr_id: "0001"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-13 13:41:56"
-links:
-    precedes: []
-    succeeds: []
 status: accepted
-date: 2026-03-13
+date: "2026-03-13"
 tags:
     - test-data
     - privacy
     - synthetic-fixtures
-title: No real participant data in version control
+category: Testing
+applies_to:
+    - .gitignore
+priority: invariant
+forbids:
+    - structure_donations/**/Raw/**
+    - structure_donations/**/Input_test/**
+    - pytests/private_testfiles/**
+    - pytests/scenarios/**/*PRIVATE.json
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# No real participant data in version control
 
-Testing extraction logic ideally uses real donated data packages (DDPs), which are the most realistic inputs. But real DDPs contain personal data. How should test data be managed?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Commit anonymised or scrubbed DDPs to the repository
-2. <a name="option-2"></a> Synthetic fixtures in the repository, real DDPs stored externally
-3. <a name="option-3"></a> No file-level test data — unit test extraction logic only
+Real participant data — real DDPs and social-media exports — never enters version control; tests use synthetic fixtures only, and real DDPs live outside the repo (e.g. `~/data/d3i/test_packages/`).
 
-## <a name="criteria"></a> Decision Drivers
+## Guidance
 
-* Real DDPs are ZIP archives of social media exports and contain personal data — committing them would be a privacy violation regardless of consent
-* Anonymisation is imperfect and hard to audit; the risk of residual personal data in a "scrubbed" DDP is not worth the marginal realism improvement
-* Extraction tests primarily verify structural handling (column names, row counts, data types) — synthetic fixtures cover this without real content
+- Never commit real DDPs or real participant data, including real-export `.zip` files (synthetic/invalid zip fixtures under `tests/` are fine). `.gitignore` blocks — and `forbids` now flags new files under — the real-data paths (`structure_donations/**/Raw`, `structure_donations/**/Input_test`, `pytests/private_testfiles/`, `pytests/scenarios/*PRIVATE.json`); don't remove those entries.
+- Tests run against synthetic fixtures; real-world divergence is caught separately by running `validate_received.py` against out-of-repo data.
 
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 2](#option-2) because: Real DDPs contain personal data that must not enter version control; synthetic fixtures cover the structural cases that matter for extraction correctness, while real DDPs stored outside the repo at ~/data/d3i/test_packages/ are available for manual integration testing.
+## Why
 
-### Consequences
-
-* Good: The repository can be shared or made public without privacy risk
-* Good: Synthetic fixtures are controlled — tests are stable and reproducible across machines
-* Bad: Tests cannot catch format changes in real platform exports until a developer runs manual validation with real data
-* Bad: `validate_received.py` must be run separately with real data to catch real-world divergence
-
-### Confirmation
-
-`.gitignore` blocks `tests/data/`, `tests/fixtures/received_files/`, and `received_files/` from being committed. `CLAUDE.md` lists committed DDP files under "Forbidden". Code review must reject any commit adding `.zip` files or real export data.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-03-13 13:41:56) Danielle McCool: marked decision as decided
+A real DDP is a personal-data archive, so committing one is a privacy breach regardless of consent, and anonymization is too imperfect to audit. Keeping the repo synthetic-only lets it be shared or made public with no privacy risk — a single leaked archive can't be undone.

@@ -65,7 +65,7 @@ class TestArchiveMembers:
 class TestFileLikeAcceptance:
     """validate_zip must accept a seekable binary file-like (e.g. AsyncFileAdapter).
 
-    Per extraction/AD0007, the upload pipeline passes the AsyncFileAdapter
+    Per ADR-0028, the upload pipeline passes the AsyncFileAdapter
     directly so the zip is never materialized to a path.
     """
 

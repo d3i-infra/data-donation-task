@@ -3,7 +3,7 @@
 Validates upload size against policy limits using metadata only —
 the upload itself is never read into Pyodide's heap.
 
-See extraction/AD0007 for the streaming invariant: PayloadFile uploads
+See ADR-0028 for the streaming invariant: PayloadFile uploads
 must be passed directly to consumers (zipfile.ZipFile, validators,
 extractors) without materialization. Reading the entire payload to
 verify its size defeats this; the JS-reported `adapter.size` attribute
@@ -38,7 +38,7 @@ def check_payload_size(file_result) -> None:
 
     Raises:
         TypeError: If file_result is not a PayloadFile. PayloadString /
-            WORKERFS support was retired with extraction/AD0007.
+            WORKERFS support was retired with ADR-0028.
         ChunkedExportError: If size == CHUNKED_EXPORT_SENTINEL_BYTES
             (split export sentinel — incomplete multi-part download).
         FileTooLargeError: If size > MAX_FILE_SIZE_BYTES.
@@ -47,7 +47,7 @@ def check_payload_size(file_result) -> None:
         raise TypeError(
             f"Unsupported payload type: {file_result.__type__}. "
             "Only PayloadFile is accepted; PayloadString/WORKERFS support "
-            "was retired in extraction/AD0007."
+            "was retired in ADR-0028."
         )
 
     size = file_result.value.size  # JS metadata, no read
