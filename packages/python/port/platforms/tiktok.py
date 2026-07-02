@@ -87,7 +87,7 @@ DDP_CATEGORIES = [
             "Favoriete reacties.txt","Volger.txt","Informatie van derden.txt",
             "Volgend.txt","Blokkeringslijst.txt","AI-moji.txt","Instellingen.txt",
             "Profielweergaven.txt","Automatisch invullen.txt","Profielinformatie.txt",
-            "parser_test.py","Inloggeschiedenis.txt","Activiteit buiten TikTok.txt",
+            "Inloggeschiedenis.txt","Activiteit buiten TikTok.txt",
             "Herplaatsingen.txt","Donatie.txt","Samenvatting van activiteit.txt",
             "Fondsenwerving.txt","Geschiedenis van advertentielinks.txt","Hashtag.txt",
             "Stickers.txt","Meest recente locatiegegevens.txt","Aankopen.txt",
@@ -615,7 +615,7 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -712,7 +712,7 @@ def favorite_videos_to_df(reader: ZipArchiveReader, errors: Counter, validation)
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -805,7 +805,7 @@ def follower_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -992,7 +992,7 @@ def hashtag_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.D
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -1087,7 +1087,7 @@ def like_list_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -1189,7 +1189,7 @@ def searches_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -1288,7 +1288,7 @@ def share_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out
@@ -1401,7 +1401,7 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             if not isinstance(items, list):
                 # When only one record is present, this is not automatically recognized as a list of records.
                 # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict) and len(items) == 1:
+                if isinstance(items, dict):
                     items = [items]
                 else:
                     return out

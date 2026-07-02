@@ -2,7 +2,7 @@
 
 Requires a real TikTok DDP zip at::
 
-    tests/ddp/TikTok_<anything>.zip
+    tests/ddp/tiktok_<anything>.zip
 
 Tests skip when no fixture is found — CI runs clean without real data.
 """
@@ -29,7 +29,7 @@ SPECS = [
 
 @pytest.fixture(scope="module")
 def tiktok_reader():
-    fixture = find_fixture("TikTok")
+    fixture = find_fixture("tiktok")
     if fixture is None:
         pytest.skip("No tiktok_*.zip fixture found in tests/ddp/")
     validation = validate(fixture, DDP_CATEGORIES)
