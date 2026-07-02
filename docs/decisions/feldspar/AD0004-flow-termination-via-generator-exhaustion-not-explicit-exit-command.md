@@ -1,56 +1,55 @@
 ---
-adr_id: "0004"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-17 13:24:17"
-    - author: Danielle McCool
-      comment: "2"
-      date: "2026-03-17 13:24:17"
-links:
-    precedes:
-        - "0005"
-    succeeds: []
-status: decided
+status: accepted
+date: "2026-04-14"
 tags:
-    - generator-protocol
     - termination
+    - completion
     - host-integration
-title: Flow termination via generator exhaustion not explicit exit command
+category: Feldspar
+applies_to:
+    - packages/python/port/main.py
+    - packages/python/port/script.py
+    - packages/python/port/helpers/flow_builder.py
+    - packages/feldspar/src/framework/command_router.ts
+priority: invariant
+companions:
+    - packages/python/tests/test_flow_builder.py
+checks:
+    - desc: no EndPage factory remains
+      grep: 'EndPageFactory'
+      in: ["packages/feldspar/src/**", "packages/data-collector/src/**"]
+      expect: absent
+    - desc: no end-page prop remains
+      grep: 'PropsUIPageEnd'
+      in: ["packages/python/port/**", "packages/feldspar/src/**"]
+      expect: absent
+    - desc: no render_end_page helper remains
+      grep: 'render_end_page'
+      in: ["packages/python/port/**"]
+      expect: absent
+    - desc: no explicit CommandSystemExit in the flow (only ScriptWrapper emits it)
+      grep: 'CommandSystemExit'
+      in: ["packages/python/port/script.py", "packages/python/port/helpers/flow_builder.py"]
+      expect: absent
+    - desc: no explicit ph.exit() yielded by the flow
+      grep: 'ph\.exit\('
+      in: ["packages/python/port/script.py", "packages/python/port/helpers/flow_builder.py"]
+      expect: absent
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Flow completion is generator exhaustion, not an explicit exit
 
-When a data donation flow completes the Python generator must signal termination to the TypeScript host. Two mechanisms exist: yielding CommandSystemExit explicitly or letting the generator exhaust (StopIteration) which ScriptWrapper catches and converts to CommandSystemExit. Eyra's architecture uses generator exhaustion: script.py yields a final page and returns; main.py handles the protocol. Which approach should FlowBuilder and script.py use?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Generator exhaustion with ScriptWrapper conversion
-2. <a name="option-2"></a> Explicit CommandSystemExit at end of script.py
-3. <a name="option-3"></a> FlowBuilder yields exit after each platform
+Study completion is signaled by generator exhaustion, not an explicit exit: `script.py`'s last yield is a log milestone, the generator returns, and `ScriptWrapper.send()` converts the `StopIteration` into `CommandSystemExit(0, "End of script")`, which the bridge forwards so the host renders its own completion UI (mono's `finished_view`). There is no in-iframe end page.
 
-## <a name="criteria"></a> Decision Drivers
-Eyra's feldspar uses generator exhaustion — script.py returns after the last yield and ScriptWrapper converts StopIteration to CommandSystemExit
-dd-vu-2026's script.py previously ended with yield CommandUIRender(PropsUIPageEnd()) and returned — no explicit CommandSystemExit; AD0005 removed that end-page yield, so today script.py's last yield is the "Study complete" log and the generator then returns
-FlowBuilder should not terminate the study — it handles one platform; script.py handles the study lifecycle
-Mixing explicit exit commands with generator exhaustion creates ambiguity about who owns termination
-### Pros and Cons
+## Guidance
 
-**Generator exhaustion with ScriptWrapper conversion**
-* Good, because aligned with Eyra's architecture — ScriptWrapper already handles this
-* Good, because FlowBuilder can simply return without knowing about exit protocol
-* Good, because script.py yields its last per-platform command and returns — clean separation
-* Good, because single termination path — no ambiguity about who calls exit
-* Neutral, because requires understanding the generator protocol to debug termination issues
+- Don't yield an explicit exit from `script.py` or `FlowBuilder.start_flow()` — they `return`; only `ScriptWrapper` emits `CommandSystemExit`, so termination has one path.
+- Don't add an in-iframe end / "thank you" page: it duplicates the host's completion UI, and a display-only page that holds an unresolved render promise silently blocks the final yield from returning (the EndPage hang).
+- `FlowBuilder.start_flow()` returns after one platform — it never ends the study; `script.py` owns the lifecycle and its final act is `emit_log("Study complete")`.
+- If a display-only page is ever needed, it must resolve its render promise — never rely on an unresolved promise to hold the UI.
 
-**Explicit CommandSystemExit at end of script.py**
-* Good, because termination is visible in script.py code
-* Bad, because FlowBuilder.start_flow() previously yielded ph.exit() — mixing patterns
-* Bad, because if script.py forgets to yield exit ScriptWrapper does it anyway — redundant
+## Why
 
-
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 1](#option-1) because: This is how Eyra designed it: ScriptWrapper (main.py) catches StopIteration and returns CommandSystemExit(0, 'End of script'). script.py's last yield is a log milestone ("Study complete") and the generator then returns. FlowBuilder.start_flow() returns after completing a platform — it never yields exit commands. The host (mono) receives the exit command from ScriptWrapper and renders its own completion UI (finished_view / checkmark); see AD0005 for the decision to drop the in-iframe EndPage. This is a retrospective ADR documenting the intended pattern that was inconsistently followed.
-
-## <a name="comments"></a> Comments
-<a name="comment-2"></a>2. (2026-03-17 13:24:17) Danielle McCool: More Information:
-See python-architecture/AD0005 for the generator protocol ADR. See main.py ScriptWrapper.send() line 88-89 for the StopIteration → CommandSystemExit conversion. See python-architecture/AD0006 for the consolidation design that enforces this pattern.
+The host marks the task complete and shows its checkmark only on `CommandSystemExit`; anything that blocks the final yield from returning strands the participant — and looks fine in local testing. It happened for real: a "Thank you" EndPage whose render promise nothing resolved hung Python at the last yield, so `StopIteration` never fired and the host never got its exit. Auto-resolving the promise was rejected as a subtle discipline every future display-only page would have to remember; deleting the page removes the failure mode and UI that only duplicated the host's, and matches upstream (which never had an end page). One termination path — ScriptWrapper's conversion — means no ambiguity about who owns the exit.

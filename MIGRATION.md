@@ -16,8 +16,7 @@ donation. The old `d3i_example_script.py` and `donation_flows/` system have been
 removed.
 
 For detailed rationale, see:
-- `docs/decisions/python-architecture/AD0006` — consolidation decision
-- `docs/decisions/extraction/AD0001` — FlowBuilder template pattern
+- `docs/decisions/extraction/AD0001` — FlowBuilder template pattern (the single extraction architecture; the old `donation_flows/` system was consolidated into it)
 - `docs/decisions/extraction/AD0006` — ZipArchiveReader and error handling
 
 ## If you use the default platforms as-is
@@ -91,24 +90,15 @@ def process(session_id):
 ```
 
 ```python
-# script.py — thin orchestrator
+# script.py — thin orchestrator (one platform per build, selected by VITE_PLATFORM)
 from importlib import import_module
-import port.helpers.port_helpers as ph
+from port.helpers.port_config_validator import validate_or_raise
 
-PLATFORM_REGISTRY = [
-    ("MyPlatform", "port.platforms.my_platform", "MyPlatformFlow"),
-]
 
-def process(session_id: str, platform: str | None = None):
-    entries = PLATFORM_REGISTRY
-    if platform:
-        entries = [(n, m, c) for n, m, c in entries if n.lower() == platform.lower()]
-
-    for name, module_path, class_name in entries:
-        mod = import_module(module_path)
-        FlowClass = getattr(mod, class_name)
-        flow = FlowClass(session_id)
-        yield from flow.start_flow()
+def process(session_id: str, platform: str):
+    validate_or_raise(platform)
+    module = import_module(f"port.platforms.{platform.lower()}")
+    yield from module.process(session_id)
 ```
 
 FlowBuilder handles: file prompting, retry on invalid files, upload safety

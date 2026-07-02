@@ -11,53 +11,54 @@ donating the result.
 
 ## How it fits in
 
-`script.py` is the study-level orchestrator. It iterates through a registry
-of platforms and for each one creates a `FlowBuilder` subclass instance and
-calls `yield from flow.start_flow()`. The per-platform flow runs completely
-before the next platform begins.
+`script.py` is the study-level orchestrator. Each build targets one platform
+(selected by `VITE_PLATFORM`): `script.py` validates that platform's config,
+imports `port.platforms.<platform>`, and calls `module.process(session_id)`,
+which returns `<Platform>Flow(session_id).start_flow()`. There is no platform
+registry and no iteration — a build runs a single platform.
 
 ```mermaid
 flowchart LR
     subgraph script.py
         P["process(session_id, platform)"]
     end
-    subgraph platforms
-        LI["LinkedInFlow"]
-        IG["InstagramFlow"]
-        FB["FacebookFlow"]
-        OT["... (10 platforms)"]
+    subgraph selected["port.platforms (one, by VITE_PLATFORM)"]
+        M["module.process(session_id)"]
+        PF["PlatformFlow(session_id)"]
     end
     subgraph FlowBuilder
         SF["start_flow()"]
     end
 
-    P -- "yield from" --> LI & IG & FB & OT
-    LI & IG & FB & OT -- "inherits" --> SF
+    P -- "validate + import_module" --> M
+    M -- "returns" --> PF
+    PF -- "inherits" --> SF
 ```
 
 ---
 
-## The 11-step flow
+## The flow
 
 `start_flow()` is a generator that implements a fixed lifecycle. It loops
 so the participant can retry file selection, and breaks out of the loop once
-extraction succeeds.
+extraction succeeds. The upload arrives as a `PayloadFile` whose value is an
+`AsyncFileAdapter` — a seekable file-like passed directly to validation and
+extraction, never materialized to a path.
 
 ```mermaid
 flowchart TD
     A["1. Render file prompt\nCommandUIRender + PropsUIPromptFileInput"]
-    B{"PayloadFile\nor PayloadString?"}
-    C["2. Materialize file\nuploads.materialize_file()"]
-    D["3. Safety check\nuploads.check_file_safety()"]
+    B{"PayloadFile?"}
+    D["2. Safety check\nuploads.check_payload_size()\nsize metadata only"]
     E{"Safe?"}
     F["Render safety error page\nreturn"]
-    G["4. Validate\nself.validate_file(path)"]
+    G["3. Validate\nself.validate_file(archive)"]
     H{"Valid?\nstatus == 0"}
-    I["5. Retry prompt\nCommandUIRender + PropsUIPromptConfirm"]
+    I["4. Retry prompt\nCommandUIRender + PropsUIPromptConfirm"]
     J{"Try again?"}
-    K["6. Extract\nself.extract_data(path, validation)"]
-    L["7. Log extraction summary\nph.emit_log() — counts only"]
-    M{"Any tables?"}
+    K["5. Extract\nself.extract_data(archive, validation)"]
+    L["6. Log extraction summary\nph.emit_log() — counts only"]
+    M{"7. Any tables?"}
     N["Render no-data page\nreturn"]
     O["8. Render consent form\nCommandUIRender + PropsUIPromptConsentFormViz"]
     P{"PayloadJSON\nor PayloadFalse?"}
@@ -67,8 +68,8 @@ flowchart TD
     T["Flow complete\nreturn"]
 
     A --> B
-    B -- "no payload" --> T
-    B -- "yes" --> C --> D --> E
+    B -- "no (skip)" --> T
+    B -- "yes" --> D --> E
     E -- "no" --> F
     E -- "yes" --> G --> H
     H -- "no" --> I --> J
@@ -92,7 +93,9 @@ platform name, status code, and counts, never participant data.
 
 | Step | Log message |
 |---|---|
-| File received | `[Platform] File received: N bytes, PayloadFile` |
+| Upload prompt sent | `[Platform] Upload prompt sent` |
+| Upload received | `[Platform] Upload received: size=N` |
+| Upload skipped | `[Platform] Upload skipped: type=PayloadFalse` |
 | Safety check failed | `[Platform] Safety check failed: FileTooLargeError` |
 | Validation passed | `[Platform] Validation: valid (category_id)` |
 | Validation failed | `[Platform] Validation: invalid` |
@@ -114,15 +117,16 @@ class LinkedInFlow(FlowBuilder):
     def __init__(self, session_id: str):
         super().__init__(session_id, "LinkedIn")  # sets self.platform_name
 
-    def validate_file(self, file: str) -> validate.ValidateInput:
+    def validate_file(self, file) -> validate.ValidateInput:
         return validate.validate_zip(DDP_CATEGORIES, file)
 
-    def extract_data(self, file: str, validation: validate.ValidateInput) -> ExtractionResult:
+    def extract_data(self, file, validation: validate.ValidateInput) -> ExtractionResult:
         return extraction(file, validation)
 ```
 
-- `validate_file(path)` — returns a `ValidateInput`. Status 0 = valid; non-zero = invalid.
-- `extract_data(path, validation)` — returns an `ExtractionResult`. Can also be a generator
+- `validate_file(archive)` — returns a `ValidateInput`. Status 0 = valid; non-zero = invalid.
+  `archive` is the upload adapter (seekable file-like), not a path.
+- `extract_data(archive, validation)` — returns an `ExtractionResult`. Can also be a generator
   (`yield from`) if you need to yield intermediate commands during extraction.
 
 Everything else — the file prompt, the retry loop, the consent form, the

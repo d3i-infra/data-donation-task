@@ -1,52 +1,32 @@
 ---
-adr_id: "0003"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-17 13:23:34"
-links:
-    precedes:
-        - "0007"
-    succeeds:
-        - "0002"
-status: decided
+status: accepted
+date: "2026-03-17"
 tags:
     - safety
     - uploads
-    - flowbuilder
-title: Reject unsafe uploads before DDP validation and extraction
+    - memory-safety
+category: Extraction
+applies_to:
+    - packages/python/port/helpers/flow_builder.py
+    - packages/python/port/helpers/uploads.py
+priority: invariant
+companions:
+    - packages/python/tests/test_uploads.py
+    - packages/python/tests/test_flow_builder.py
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Reject unsafe uploads before validation and extraction
 
-FlowBuilder receives uploaded files from the browser. Some files are too large to process in the Pyodide WebWorker (>2GB) or are incomplete chunked exports (exactly 2GB). These runtime safety constraints are distinct from platform-specific DDP validation (extraction/AD0002). Where and when should upload safety be enforced?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Check safety in FlowBuilder before DDP validation
-2. <a name="option-2"></a> Check safety in script.py before delegating to FlowBuilder
-3. <a name="option-3"></a> Check safety in main.py / ScriptWrapper
+After receiving a `PayloadFile`, `FlowBuilder.start_flow()` runs `uploads.check_payload_size(file_result)` before DDP validation or extraction. The guard reads only `file_result.value.size` and renders `ph.render_safety_error_page()` for `FileTooLargeError` or `ChunkedExportError`.
 
-## <a name="criteria"></a> Decision Drivers
-Large files cause OOM in the browser WebWorker — must be rejected before extraction attempts
-Chunked exports (exactly 2GB) from Google Takeout and other platforms are incomplete — processing them gives wrong results
-Safety checks are platform-independent — they apply to all uploads regardless of DDP category
-DDP validation (extraction/AD0002) assumes a structurally safe file — safety must come first
-### Pros and Cons
+## Guidance
 
-**Check safety in FlowBuilder before DDP validation**
-* Good, because every platform gets safety checks without per-platform code
-* Good, because safety runs before extraction — no wasted work on unsafe files
-* Good, because clear separation: safety (uploads.py) then validity (validate.py)
-* Neutral, because adds a step to the flow — participant sees safety error before retry
+- Keep the order upload receipt → `check_payload_size()` → validation → extraction.
+- The size check is metadata-only; never read upload bytes to measure the file.
+- Safety is platform-independent, so do not duplicate this guard in platform modules or in a study's `script.py`.
 
-**Check safety in script.py before delegating to FlowBuilder**
-* Good, because script.py already has safety checks in dd-vu-2026
-* Bad, because safety logic is study-level not platform-level — wrong layer
-* Bad, because every script.py must remember to add safety checks
+## Why
 
-
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 1](#option-1) because: Safety checks are per-upload concerns that apply to every platform. FlowBuilder owns the per-platform flow and is the natural place: materialize → safety check → DDP validate → extract. helpers/uploads.py provides check_file_safety(path) which raises FileTooLargeError or ChunkedExportError. FlowBuilder catches these and renders a safety error page via port_helpers.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-03-17 13:23:34) Danielle McCool: marked decision as decided
+A file of exactly 2 GiB is the chunked-export sentinel: an incomplete multi-part download that would extract silently wrong data. Files above 2 GiB are rejected as policy — streaming removed the read ceiling, but extraction still decompresses and parses members inside the Pyodide worker heap, and the JS-reported size is a free upstream proxy for that risk. The guard runs once in FlowBuilder, before validation, because it is platform-independent and the validators assume a structurally safe file. It reads only metadata (`file_result.value.size`): reading bytes to measure would defeat the streaming it protects.

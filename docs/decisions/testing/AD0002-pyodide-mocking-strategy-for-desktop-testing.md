@@ -1,53 +1,34 @@
 ---
-adr_id: "0002"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-13 13:41:56"
-links:
-    precedes: []
-    succeeds: []
 status: accepted
-date: 2026-03-13
+date: "2026-03-13"
 tags:
     - pyodide
     - mocking
     - conftest
-title: Pyodide mocking strategy for desktop testing
+category: Testing
+applies_to:
+    - packages/python/tests/**/*.py
+priority: default
+checks:
+    - desc: no per-file js shims outside conftest
+      grep: 'sys\.modules\["js"\]'
+      in: ["packages/python/tests/test_*.py"]
+      expect: absent
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Mock the Pyodide js module in conftest before importing port
 
-The Python package runs inside Pyodide (browser), where the `js` module is available. Desktop pytest has no `js` module, so any `from port...` import fails immediately with ImportError. How should tests handle the Pyodide environment dependency?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Skip all tests that import port modules
-2. <a name="option-2"></a> Mock sys.modules before all port imports using sys.modules['js'] = MagicMock()
-3. <a name="option-3"></a> Conditional imports with try/except around js-dependent code
+Desktop pytest has no Pyodide `js` module, so `tests/conftest.py` sets `sys.modules["js"] = MagicMock()` once, before any `from port...` import; pytest loads conftest ahead of every test module, so the whole suite runs on desktop without touching production code.
 
-## <a name="criteria"></a> Decision Drivers
+## Guidance
 
-* Skipping tests eliminates coverage of extraction logic entirely — not acceptable
-* Conditional imports (`try: import js`) scatter environment-awareness through production code, creating a second code path that only runs in Pyodide
-* `sys.modules` patching is the established Python pattern for replacing a missing dependency at test time without touching production code
+- The shim lives once in `conftest.py` — don't add per-file shims, and don't place a `port` import above the `sys.modules["js"]` line inside conftest itself (a late shim fails immediately with `ImportError`, which is self-diagnosing).
+- Keep environment awareness out of production code: no `try/except import js` conditionals — that creates a Pyodide-only path desktop tests never exercise.
+- The mock is a bare `MagicMock` simulating no real JS API shape — don't write assertions that depend on mock-returned values; behavior across the real JS boundary is exercised by the Playwright e2e suite, not pytest.
+- Standing exception: `test_dataframe_truncation.py` loads `props.py` directly via `importlib` to bypass `port/__init__` — a narrower isolation for a `js`-free module; don't "fix" it toward the conftest pattern, and don't copy it where the shim suffices.
 
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 2](#option-2) because: The mock-before-import pattern is the simplest reliable approach: one line in conftest.py patches the missing module before any port code is imported, enabling the full test suite to run on desktop without changing production code paths.
+## Why
 
-### Consequences
-
-* Good: Production code has no test-environment conditionals — it runs identically in Pyodide and under pytest
-* Good: A single `sys.modules['js'] = MagicMock()` in `conftest.py` covers the entire test suite
-* Bad: The mock must precede ALL `from port...` imports — import ordering is a hard constraint, not obvious to new contributors
-* Bad: If production code calls `js` APIs in ways the MagicMock doesn't simulate, tests pass but runtime behaviour in Pyodide differs
-
-### Confirmation
-
-`CLAUDE.md` states: "`sys.modules['js'] = MagicMock()` must precede all `from port...` imports in tests." Any new test file that imports port modules without the mock will fail with `ImportError` at import time — the failure is immediate and self-diagnosing.
-
-## More Information
-
-See [python-architecture/AD0005](../python-architecture/AD0005-python-generator-protocol-for-workflow-orchestration.md) — the generator protocol determines what Pyodide interactions need to be accounted for in tests.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-03-13 13:41:56) Danielle McCool: marked decision as decided
+Without the shim, every `from port...` import fails at collection time and the extraction logic has no desktop test coverage at all — skipping those tests was not acceptable, and conditional imports would scatter a second, test-only code path through production modules. `sys.modules` patching is the established Python pattern for standing in for a missing environment module, and centralizing it in `conftest.py` makes the ordering constraint structural rather than a per-file discipline. The accepted risk is fidelity: a bare `MagicMock` accepts anything, so code that misuses a real `js` API can pass pytest and still fail in Pyodide — which is why boundary behavior needs its own end-to-end coverage.
