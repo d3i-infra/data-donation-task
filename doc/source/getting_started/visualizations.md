@@ -1,195 +1,157 @@
 # Adding data visualizations
 
-You can add data visualizations to the consent form page, that will be shown below a data table. These visualizations will dynamically aggregate and visualize the data, responding to search queries and deleted items.
+Visualizations appear on the consent form below their corresponding table. They aggregate and display the data dynamically, updating in response to participant actions such as search queries or row deletions.
 
-Good visualizations can help participants to see and explore what data they are about to donate, and thereby support informed consent. Furthermore, it can make the data donation process more educational and enjoyable.
+Good visualizations help participants understand what they are about to donate, supporting informed consent. They can also make the donation process more engaging and informative.
 
-## Adding visualizations to tables
+## How to add a visualization
 
-Visualizations are always directly connected to a **consent form table**. When a script.py you create a consent form table, you can implement visualizations as follows:
+Visualizations are defined in the `Table config::` JSON block inside each extractor function's docstring — the same block that sets the table title, description, and column headers. Add a `"visualizations"` list to that block:
 
 ```python
-table_title = props.Translatable({
-    "en": "Table title",
-    "nl": "Tabel titel"
-})
+def my_data_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract my data.
 
-table = d3i_props.PropsUIPromptConsentFormTableViz(
-    id = "tableId",
-    title = table_title,
-    data_frame = df,
-    visualizations = [])
+    Table config::
+
+        {
+          "id": "myplatform_my_data",
+          "title": {"en": "My data", "nl": "Mijn data"},
+          "description": {"en": "...", "nl": "..."},
+          "headers": {
+            "channel":   {"en": "Channel",   "nl": "Kanaal"},
+            "category":  {"en": "Category",  "nl": "Categorie"},
+            "timestamp": {"en": "Timestamp", "nl": "Tijdstip"}
+          },
+          "visualizations": [
+            {
+              "title": {"en": "Views per category", "nl": "Weergaven per categorie"},
+              "type": "bar",
+              "group": {"column": "category", "label": "Category"},
+              "values": [{"aggregate": "count", "label": {"en": "Number of views", "nl": "Aantal weergaven"}}]
+            }
+          ]
+        }
+    """
+    ...
 ```
 
-You can now add one or multiple **visualization specifications** to the `visualizations` list.
+When `pnpm generate-config` is run, these blocks are read and written into the platform config file. At runtime, the framework reads the config and renders the visualizations automatically — no additional Python code is needed.
 
-## Visualization Specification
+Multiple visualizations can be included in the list. They are displayed in order below the table.
 
-A visualization specification provides instructions for creating a visualization based on the data in the table. This visualization will then be created dynamically, so that when the table is updated (e.g., when participants search the data or remove rows) the visualization is updated as well.
-
-A specification covers three main components:
-
-- **Aggregation**: How should the table data be aggregated. e.g., count the number of rows per day
-- **Display**: How should the aggregated data be displayed? e.g., line chart, bar chart, wordcloud
-- **Labels**: Any labels to help along interpretation, optionally with translations (as seen above in the table_title)
-
-A detailed explanation of the visualizatoin specification is shown below in the **Specification Guide**. But we recommend first having a look at the following examples.
+---
 
 ## Examples
 
-Say we have data about every time a participant viewed a certain channel, and we also also know the channel category (e.g., sports, entertainment) and the exact timestampe. We have put this in a `data_frame` with the columns: **channel**, **category** and **timestamp**. We can then make a number of different visualizations.
+The following examples use a DataFrame with columns `channel`, `category`, and `timestamp`, where each row represents a single video view.
 
-### Categorical variables | Bar chart of views per category
+### Bar chart — categorical variable
 
-```python
-vis1 = dict(
-    title = dict(en= "views per category", ...),
-    type = "bar",
-    group = dict(column = "category", label = "Category")
-    values = [dict(aggregate = "count", label = dict(en = "number of views", ...))]
-)
+```json
+{
+  "title": {"en": "Views per category", "nl": "Weergaven per categorie"},
+  "type": "bar",
+  "group": {"column": "category", "label": "Category"},
+  "values": [{"aggregate": "count", "label": {"en": "Number of views", "nl": "Aantal weergaven"}}]
+}
 ```
 
-The **type** determines the chart type, and can in this case be "bar","line" or "area". The **group** determines how the data should be grouped and aggregated, which in this case is per category. The **values** determines the values to calculate per group, which here is just the count of the rows.
+`type` can be `"bar"`, `"line"`, or `"area"` for chart visualizations. `group` sets the column used for the x-axis. `values` is a list — each entry defines one y-value. Here there is one: a row count per group.
 
-**!!!** Notice that `values` is a list, and not a single dictionary. Adding multiple value dictionaries will create multiple y-values, for grouped barcharts or multiple lines or areas.
+Note that `values` is always a list. Adding multiple entries creates grouped bar charts or multi-line charts.
 
-The **label**'s can be either a single _string_ (as in the `group`) or a dictionary with different languages, where keys are country codes, and values are labels (as in the `values`).
+### Area chart — date variable
 
-### Date variables | Area chart of views per month
-
-```python
-vis2 = dict(
-    title = dict(en= "views over time", ...),
-    type = "area",
-    group = dict(column = "timestamp", dateFormat = "month", label = "Month")
-    values = [dict(aggregate = "count", label = dict(en = "number of views", ...))]
-)
+```json
+{
+  "title": {"en": "Views over time", "nl": "Weergaven over tijd"},
+  "type": "area",
+  "group": {"column": "timestamp", "dateFormat": "month", "label": "Month"},
+  "values": [{"aggregate": "count", "label": {"en": "Number of views", "nl": "Aantal weergaven"}}]
+}
 ```
 
-In this area chart (i.e. a line chart where the area below the line is coloured) we group the data by month, and use the same aggregation values as in the previous example to count the number of views per group.
+When the grouped column contains dates, set `dateFormat` to control the grouping interval. The column should be an ISO date string (`YYYY-MM-DD` or `YYYY-MM-DD HH:MM:SS`).
 
-The **dateFormat** grouping variable can be set if the column is a date string in ISO format: `YYYY-MM-DD` for date or `YYYY-MM-DD HH:MM:SS` for datetime (You can also use `YYYY-MM-DDTHH:SS:MM)`, but that doesn't look niced in the table).
+Supported formats:
 
-The following formats are supported:
+- **Fixed interval**: `"year"`, `"quarter"`, `"month"`, `"day"`, `"hour"`
+- **Automatic**: `"auto"` — picks an interval based on the min/max date range. Useful when date ranges vary significantly between participants, and avoids accidentally generating very large charts.
+- **Cyclic**: `"month_cycle"` (January–December), `"weekday_cycle"` (Monday–Sunday), `"hour_cycle"` (0–23)
 
-- **Fixed interval**: "year", "quarter", "month", "day", "hour"
-- **Automatic interval**: "auto" will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with "hour" interval)
-- **cycles / season**: "month_cycle" (January - December), "weekday_cycle" (Monday - Sunday) and "hour_cycle" (1 - 24).
+### Line chart — second-level aggregation
 
-### Second-level aggregation | Line chart of views over time per category
-
-Above we mentioned that you can add multiple values to create multiple y-values. But this only works if your data is _wide_. Alternatively, you can also perform a second-level aggregation on _long_ data.
-
-```python
-vis3 = dict(
-    title = dict(en= "views per category over time", ...),
-    type = "line",
-    group = dict(column = "timestamp", dateFormat = "auto", label = "Month")
-    values = [dict(
-        aggregate = "count",
-        label = dict(en = "number of views", ...),
-        group_by = "category"
-    )]
-)
+```json
+{
+  "title": {"en": "Views per category over time", "nl": "Weergaven per categorie over tijd"},
+  "type": "line",
+  "group": {"column": "timestamp", "dateFormat": "auto", "label": "Month"},
+  "values": [
+    {
+      "aggregate": "count",
+      "label": {"en": "Number of views", "nl": "Aantal weergaven"},
+      "group_by": "category"
+    }
+  ]
+}
 ```
 
-Here we changed three things. First, we changed the type to "line", because that's a bit easier on the eye with multiple y-values. Second, we added `group_by` to the aggregation value, setting it to "category". This will break the values data into groups for categories, and calculate the aggregation statistic per category. This will be visualized as a line chart where the frequency of each category (e.g., sport, entertainment) will be displayed on separate lines.
+Adding `group_by` to a value entry performs a second-level aggregation. The data is split by the values in that column, and a separate line is drawn for each group. This works on long-format data where the categories are in a column rather than spread across multiple columns.
 
-A third change is that we set the dateFormat to "auto" instead of fixing it to "month". This will automatically pick a suitable time interval based on the range of column (last date - first date). This could mean that different participants see different intervals, depending on what works best for their own data.
+### Word cloud — text variable
 
-### Text variables | A wordcloud
-
-As a final example, we'll look at a different sub-specification for visualizing textual data. We'll make a wordcloud of channels, based on their frequency in the data.
-
-```python
-vis4 = dict(
-    title = dict(en= "Most viewed channels", ...),
-    type = "wordcloud",
-    textColumn = 'channel',
-    tokenize = False,
-)
+```json
+{
+  "title": {"en": "Most viewed channels", "nl": "Meest bekeken kanalen"},
+  "type": "wordcloud",
+  "textColumn": "channel"
+}
 ```
 
-This creates a wordcloud of the full channel names. Note that we could also have tokenized the texts, but for channels (e.g., YouTube channels) the full names are probably most informative.
+Word clouds take a text column as input and size each term by its frequency. `tokenize` can be set to `true` to split text into individual words; omitting it (or setting it to `false`) treats the full cell value as a single term. See `example.py` for a working instance of this visualization type.
 
-## Example wrap-up
+---
 
-Now that we have created visualizations, we can add them to the consent form table. Note that above we assigned our specifications to **vis1** to **vis4**. We can now simply add them to the visualiations list.
+## Specification reference
 
-```python
-table = d3i_props.PropsUIPromptConsentFormTableViz(
-    id = "tableId",
-    title = table_title,
-    data_frame = df,
-    visualizations = [vis1, vis2, vis3, vis4])
-```
+### General arguments
 
-## Specification guide
+Every visualization requires:
 
-This is an overview of the visualiation specification. First, there are some **general visualization arguments** that every visualization has. Second, there are specific arguments depending on the visualization **type**
+- **`title`**: Translation dictionary — `{"en": "...", "nl": "..."}`.
+- **`type`**: `"bar"`, `"line"`, `"area"`, or `"wordcloud"`.
+- **`height`** *(optional)*: Chart height in pixels.
 
-### General visualization arguments
+### Chart visualization (`"bar"`, `"line"`, `"area"`)
 
-Every visualization has the following arguments
+- **`group`**: Object specifying the x-axis column.
+  - **`column`**: Column name.
+  - **`label`**: Axis label — string or translation dictionary.
+  - **`dateFormat`** *(optional)*: Date grouping format (see above).
+  - **`levels`** *(optional)*: List of specific values to include on the axis, ensuring absent values still appear (e.g. as zero).
+- **`values`**: List of value objects — each defines one y-axis series.
+  - **`label`**: Axis label — string or translation dictionary.
+  - **`column`** *(optional)*: Column to aggregate. Can be omitted for row counts.
+  - **`aggregate`**: Aggregation function (see below).
+  - **`addZeroes`** *(optional)*: Boolean. Fill empty groups with zero.
+  - **`group_by`** *(optional)*: Column for second-level aggregation, producing one series per unique value.
 
-- **title**: A title for the visualization. This has to be a translation dictionary (see **translation** spec below)
-- **type**: The type of the visualization. The type determines what specification you need to follow
-  - **Chart visualiation**: "line", "bar" or "area"
-  - **Text visualization**: "wordcloud"
-- **height (optional)**: The height of the chart in pixels
+### Word cloud visualization (`"wordcloud"`)
 
-### Chart visualization arguments
+- **`textColumn`**: Column containing the text to visualize.
+- **`tokenize`** *(optional)*: Boolean. Split values into individual tokens.
+- **`valueColumn`** *(optional)*: Numeric column whose values determine word size, instead of row frequency.
+- **`extract`** *(optional)*: Preprocessing shortcut. Currently supports `"url_domain"` to extract the domain from a URL column.
 
-Chart visualizations work by aggregating the data into X, Y and optionally Z axes. It's the basis for most common charts.
+### Aggregation functions
 
-- **type**: "line", "bar" or "area"
-- **group**: specifies the column to group and aggregate the data by. The group is visualized on the x-axis.
-  - **label**: x-axis label. Either a string or translation dictionary (see **translation** spec below)
-  - **column**: the name of the column
-  - **dateFormat (optional)**: if column is a date, select how it should be grouped. (see **dateFormat** spec below)
-  - **levels (optional)**. A list of strings with the specific column values to use. This also makes sure these values are displayed if they are missing in a participants data (also see **values** -> **addZeroes**)
-- **values**: A list (**!!**) of objects. Each object specifies an (aggregate) value to calculate per group. A value is visualized on the y-axis. Multiple values can be given for multiple y-values
-  - **label**: y-axis label. Either a string or translation dictionary (see **translation** spec below)
-  - **column (optional)**: the column based on which the value is calculated. Can be empty if just counting rows.
-  - **aggregate**: The aggregation function. (see **aggregate** spec below)
-  - **addZeroes**: Boolean. If true, add zeroes for empty groups. If **levels** are specified, participants will explicitly see that they occured zero times in their data. If **dateFormat** is used, this fills possible gaps (note that this mostly makes sense for row "count" aggregations where absense implies zero)
-  - **group_by (optional)**: the name of a column to do a second-level aggregation. This will create multiple y-values where the value in the column becomes the label.
+Used in the `aggregate` field of a chart value:
 
-### Text visualization arguments
+- `"count"` — number of rows in the group.
+- `"mean"` — mean of the value column (numeric).
+- `"sum"` — sum of the value column (numeric).
+- `"count_pct"` — row count as a percentage of total rows.*
+- `"pct"` — column sum as a percentage of the total sum.*
 
-Text visualizations take a text column as input.
-
-- **type**: "wordcloud"
-- **textColumn**: A text (string) column in the data
-- **tokenize (optional)**: Boolean. If true, the text will be tokenized
-- **valueColumn (optional)**: By default, every text or token will be given a value based on the number of rows in which it occurs. Alternatively, you can specify a numeric column, in which case (the sum of) the values in this column will be used.
-- **extract (optional)**: Normally, all preprocessing of the data should be handled in the import scripts, but for convenience we will provide some common methods for extracting parts of a string. Currently supports:
-  - "url_domain": If the column contains URLs, extract only the domain.
-
-### Spec details
-
-Here are some details for the more complicated spec components.
-
-#### - translation
-
-A translation dictionary has country codes as keys and the translations as values: `dict(en = "english label", nl = "dutch label")`. (This is identical to the dictionary used in the `props.Translatable`)
-
-#### - dateFormat
-
-If column is a date (`YYYY-MM-DD`, `YYYY-MM-DD HH:MM` or `YYYY-MM-DD HH:MM:SS`), select how the date is grouped. options are:
-
-- **Fixed interval**: "year", "quarter", "month", "day", "hour"
-- **Automatic interval**: "auto" will pick an interval based on the min/max date. Pick this if the min/max date can vary heavily between participants. This also avoids slowing down the application by accidentally generating a huge graph (e.g., a one year period with "hour" interval)
-- **cycles / season**: "month_cycle" (January - December), "weekday_cycle" (Monday - Sunday) and "hour_cycle" (1 - 24).
-
-#### - aggregate
-
-The function by which to aggregate the column in `values`. The following functions are currently supported
-
-- "count" just counts the rows
-- "mean" and "sum" require the value column to be numeric.
-- "count_pct" gives the count as a percentage of the total number of rows.\*
-- "pct" sums the values of a numeric column and divides by the total sum.\*
-
-**\*** _If a secondary aggregation is used, percentages are calculated within the primary aggregation group_
+*When `group_by` is used, percentages are calculated within the primary group, not across the full dataset.
