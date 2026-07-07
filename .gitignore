@@ -55,6 +55,7 @@ node_modules/
 release-for-website.sh
 
 _build
+doc/build
 
 # Poetry
 poetry.lock
@@ -88,3 +89,5 @@ structure_donations/Processed_structure_donations/Twitter/Input_test
 pytests/scenarios/*PRIVATE.json
 
 .~lock.*#
+
+
