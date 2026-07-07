@@ -1,43 +1,92 @@
 # Creating your own data donation task
 
-After you have forked or cloned and installed the repository, you can start building your own donation task.
+Each platform is implemented as a single Python module in `packages/python/port/platforms/`. The module has three responsibilities: validating the uploaded file, extracting tables from it, and subclassing `FlowBuilder` to plug both into the shared donation flow.
 
-The Python code lives in `packages/python/port`. The main pieces are:
+`example.py` is the minimal working implementation. It accepts any zip file and returns a table of file statistics from the zip's central directory — intentionally simple, so the structure is easy to follow. This guide is based on that file.
 
-* `script.py` — loads the right platform and starts the donation flow
-* `platforms/` — one file per platform (e.g. `instagram.py`, `linkedin.py`)
-* `configs/` — one JSON config file per platform (e.g. `instagram_config.json`)
-* `helpers/flow_builder.py` — runs the full donation flow (upload → validate → extract → consent → donate)
-* `helpers/validate.py` — checks that the uploaded zip is the right kind of file
-* `helpers/extraction_helpers.py` — tools for reading files out of a zip
+## How it works
 
-## How to add a new platform
+When a participant wants to donate their data, the data donation task runs the following sequence automatically:
 
-### Step 1 — Copy the example platform
+1. Prompt the participant for a file.
+2. Run a safety check on the upload (size limits).
+3. Call your `validate_file()` — if it fails, show a retry prompt and loop back.
+4. Call your `extract_data()` — if it returns no tables, show a no-data page.
+5. Render the consent form with the extracted tables.
+6. Send the donation.
+
+You implement steps 3 and 4. Everything else is handled by the framework.
+
+The files involved are:
+
+| File | Role |
+|---|---|
+| `platforms/example.py` | Minimal working platform — start here |
+| `configs/example_config.json` | Generated config that drives extraction and table display |
+| `helpers/flow_builder.py` | Shared flow logic |
+| `helpers/validate.py` | DDP validation utilities |
+| `helpers/extraction_helpers.py` | `ZipArchiveReader` for reading files out of a zip |
+| `helpers/table_extractor.py` | Loads the config and runs extractor functions |
+
+---
+
+## Adding a new platform
+
+### Step 1 — Copy the example
 
 ```sh
 cp packages/python/port/platforms/example.py packages/python/port/platforms/myplatform.py
 ```
 
-`example.py` is a fully working platform. It accepts any zip file and shows a table of the files inside it. Read through it — it explains every part you need.
+Read through the copy before modifying it. Each section is commented and the structure maps directly to the steps below.
 
-### Step 2 — Write your extractor functions
+### Step 2 — Write extractor functions
 
-An extractor function reads files from the zip and returns a `pd.DataFrame`. Here is the minimal shape:
+An extractor reads one or more files from the zip and returns a `pd.DataFrame`:
 
 ```python
+from collections import Counter
+import pandas as pd
+from port.helpers.extraction_helpers import ZipArchiveReader
+
 def my_data_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    result = reader.json("data.json")
+    result = reader.json("path/to/data.json")
     if not result.found:
         return pd.DataFrame()
     return pd.DataFrame(result.data)
 ```
 
-Each extractor function needs a `Table config::` JSON block in its docstring. This block describes how the table looks in the consent form (title, column headers, visualizations). See `example.py` for a complete example.
+`ZipArchiveReader` provides `reader.json()`, `reader.csv()`, and `reader.raw()`. Each returns a result object with a `found` attribute — if the file is absent, `found` is `False` and no exception is raised. This is important because DDP exports are not always consistent across participants.
+
+Each extractor function must also include a `Table config::` JSON block in its docstring. The config generator reads these blocks to produce the consent-form table definition:
+
+```python
+def my_data_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
+    """Extract my data.
+
+    Table config::
+
+        {
+          "id": "myplatform_my_data",
+          "title": {"en": "My data", "nl": "Mijn data"},
+          "description": {
+            "en": "Description shown to the participant.",
+            "nl": "Beschrijving voor de deelnemer."
+          },
+          "headers": {
+            "column_a": {"en": "Column A", "nl": "Kolom A"}
+          },
+          "visualizations": []
+        }
+    """
+    ...
+```
+
+See `example.py` for a complete block, including a word cloud visualization.
 
 ### Step 3 — Register your extractors
 
-Add each extractor function to `EXTRACTOR_REGISTRY` at the bottom of your platform file:
+At the module level, map each function name to its implementation:
 
 ```python
 EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
@@ -45,45 +94,44 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 }
 ```
 
-### Step 4 — Generate the config file
+One entry per extractor. The keys are referenced by the config file.
+
+### Step 4 — Generate the config
 
 ```sh
 pnpm generate-config myplatform
 ```
 
-This reads the `Table config::` blocks from your extractor docstrings and creates `packages/python/port/configs/myplatform_config.json`. Once the file exists, the generator will not overwrite it — your edits are safe.
+This scans the `Table config::` blocks in your docstrings and writes `packages/python/port/configs/myplatform_config.json`. The generator will not overwrite an existing file, so manual edits are safe.
 
-After generating, open the config and edit the titles and descriptions to match your study.
+After generating, open the config and adjust the titles and descriptions to match your study's language and framing.
 
-### Step 5 — Start the dev server
+### Step 5 — Run the dev server
 
 ```sh
 VITE_PLATFORM=myplatform pnpm start
 ```
 
-Visit `http://localhost:3000` to see your platform in action.
+Open `http://localhost:3000` and upload a zip to test your platform.
 
 ---
 
-## How FlowBuilder works
+## Implementation details
 
-Every platform has a **FlowBuilder subclass**. You only need to implement two methods:
+### FlowBuilder
 
-* `validate_file(archive)` — check that the uploaded zip is the right kind of file
-* `extract_data(archive, validation)` — extract tables from the zip and return an `ExtractionResult`
-
-FlowBuilder handles everything else: asking the participant for a file, showing a retry prompt on bad uploads, rendering the consent form, and sending the donation.
+Subclass `FlowBuilder` and implement `validate_file` and `extract_data`:
 
 ```python
 class MyPlatformFlow(FlowBuilder):
     def __init__(self, session_id: str):
         super().__init__(session_id, "myplatform")
 
-    def validate_file(self, archive) -> ValidateInput:
-        return validate.validate_zip(DDP_CATEGORIES, archive)
+    def validate_file(self, file) -> ValidateInput:
+        return validate_my_file(file)
 
-    def extract_data(self, archive, validation: ValidateInput) -> ExtractionResult:
-        return extraction(archive, validation)
+    def extract_data(self, file, validation: ValidateInput) -> ExtractionResult:
+        return extraction(file, validation)
 
 
 def process(session_id: str):
@@ -91,56 +139,81 @@ def process(session_id: str):
     return flow.start_flow()
 ```
 
----
+`FlowBuilder` calls these methods at the appropriate points in the flow. You do not call them directly.
 
-## How extraction works
-
-The `extraction()` function loads the config and runs all extractors:
+### The `extraction()` function
 
 ```python
-def extraction(zip_path: str, validation: ValidateInput) -> ExtractionResult:
+def extraction(zip_path, validation: ValidateInput) -> ExtractionResult:
     config = load_port_config(EXTRACTOR_REGISTRY, "myplatform")
     errors: Counter = Counter()
-    reader = ZipArchiveReader(archive, validation.archive_members, errors)
+    reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
     return run_extraction(reader, errors, config)
 ```
 
-`load_port_config` reads `configs/myplatform_config.json` and matches each table entry to an extractor in `EXTRACTOR_REGISTRY`. `run_extraction` calls each extractor and returns the non-empty tables.
+`load_port_config` reads the config JSON and matches each table entry to an extractor in `EXTRACTOR_REGISTRY`. `run_extraction` calls each extractor and returns the non-empty results as an `ExtractionResult`. Passing `validation.archive_members` avoids re-opening the zip.
 
----
+### Validation
 
-## DDP_CATEGORIES
+Validation determines whether the uploaded file is the expected kind of zip.
 
-Each platform defines which zip formats it supports. `validate.validate_zip()` checks the uploaded file against these categories by comparing the zip's file list against the `known_files` for each category.
+In `example.py` this is intentionally minimal — it only checks that the file opens as a valid zip:
 
 ```python
+def validate_zip_file(path_to_zip) -> ValidateInput:
+    status_codes = [
+        StatusCode(id=0, description="Valid zip file"),
+        StatusCode(id=1, description="Not a valid zip file"),
+    ]
+    v = ValidateInput(status_codes, [])
+    try:
+        with zipfile.ZipFile(path_to_zip, "r") as zf:
+            v.archive_members = zf.namelist()
+        v.set_current_status_code_by_id(0)
+    except zipfile.BadZipFile:
+        v.set_current_status_code_by_id(1)
+    return v
+```
+
+Status code `0` means valid; any other value triggers the retry prompt in `FlowBuilder`.
+
+For a real study, use `validate.validate_zip(DDP_CATEGORIES, file)` instead. This opens the zip, reads filenames from the central directory, and calls `infer_ddp_category()`, which computes what fraction of the `known_files` for each category are present. If at least 5% of the known files for any category are found, that category is matched and status code `0` is returned. Otherwise the zip is rejected.
+
+`DDP_CATEGORIES` lists the file names that are characteristic of the platform's export format:
+
+```python
+from port.helpers.validate import DDPCategory, DDPFiletype, Language
+
 DDP_CATEGORIES = [
     DDPCategory(
         id="json_en",
         ddp_filetype=DDPFiletype.JSON,
         language=Language.EN,
-        known_files=["conversations.json", "user.json"]
-    ),
-    DDPCategory(
-        id="csv_en",
-        ddp_filetype=DDPFiletype.CSV,
-        language=Language.EN,
-        known_files=["data.csv", "profile.csv"]
+        known_files=["personal_information.json", "liked_posts.json", "followers.json"],
     ),
 ]
 ```
 
-If your participants use a format not covered here, add a new `DDPCategory` entry.
-
-The example platform skips `DDP_CATEGORIES` entirely and accepts any zip. That is fine for getting started, but for a real study you should validate the zip.
+The matched category is stored on the returned `ValidateInput` as `validation.current_ddp_category` and is available inside `extract_data` if your extractor needs to branch on format.
 
 ---
 
-## Install Python packages
+## Comparison with a real platform
 
-The donation task runs in the participant's browser using [Pyodide](https://pyodide.org/en/stable/) — a Python runtime compiled to WebAssembly. Packages installed on your computer are not available inside Pyodide.
+Once you're comfortable with the example, `packages/python/port/platforms/instagram.py` is a useful reference. It follows the same structure, but differs from the example in a few key ways:
 
-Check the [list of packages available in Pyodide](https://pyodide.org/en/stable/usage/packages-in-pyodide.html). If you need a package, add it to `loadPackages` in `packages/data-collector/public/py_worker.js`:
+- `DDP_CATEGORIES` lists dozens of known Instagram export filenames, so the validator only accepts genuine Instagram exports.
+- `validate.validate_zip(DDP_CATEGORIES, file)` replaces the bare zip-open check.
+- Multiple extractor functions each parse a specific file from the export (liked posts, followers, login activity, and others).
+- Extractors read actual file contents with `reader.json()` rather than only inspecting the zip central directory.
+
+The example skips DDP matching on purpose — it lets you test the full flow with any zip file. For a study collecting real participant data, define `DDP_CATEGORIES` and write extractors for the specific files your platform exports.
+
+---
+
+## Python packages
+
+The task runs in the participant's browser via [Pyodide](https://pyodide.org/en/stable/), a Python runtime compiled to WebAssembly, so locally installed packages are not available. Check the [Pyodide package list](https://pyodide.org/en/stable/usage/packages-in-pyodide.html) and add what you need to `packages/data-collector/public/py_worker.js`:
 
 ```javascript
 function loadPackages() {
@@ -150,19 +223,12 @@ function loadPackages() {
 
 ---
 
-## Tips
+## Practical notes
 
-**Use ZipArchiveReader for reading files.**
-`reader.json()`, `reader.csv()`, and `reader.raw()` return a result with a `found` field. If the file is missing, `found` is `False` and no error is raised. This is important because DDPs vary — a file that exists for one participant may be missing for another.
+**Use the browser console for debugging.** `print()` and `logging` output appears in DevTools and stays local — nothing is sent to the server.
 
-**Use the browser console for debugging.**
-`print()` and `logging.getLogger()` output appears in the browser's DevTools console. These messages stay local and are never sent to the host.
+**Test with several different exports.** Filenames, folder layout, and JSON structure can differ by platform language and export version.
 
-**Keep the diverse nature of DDPs in mind.**
-Test with several different DDPs. File names, JSON keys, and folder structure can vary depending on the platform language and download settings.
+**Extractors should not raise.** An uncaught exception in an extractor will stop the donation task. Use `try/except` and record errors with `errors[type(e).__name__] += 1`, then return an empty DataFrame.
 
-**Do not let your code crash.**
-If your extraction function raises an uncaught exception, the donation task stops. Use `try/except` in your extractor functions and record errors with `errors[type(e).__name__] += 1`.
-
-**Data donation checklist.**
-See the [data donation checklist](data-donation-checklist.md) for a full list of things to check before going live.
+**Before going live**, work through the [data donation checklist](data-donation-checklist.md).
