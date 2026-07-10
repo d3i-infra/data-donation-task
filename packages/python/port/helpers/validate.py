@@ -221,7 +221,7 @@ def validate_zip(
             to compare against.
         archive: A seekable binary file-like object — typically an
             `AsyncFileAdapter` from a browser upload, or an `io.BytesIO`
-            in tests. Per extraction/AD0007, the upload pipeline never
+            in tests. Per ADR-0026, the upload pipeline never
             materializes uploads to a path; consumers accept the file-like
             adapter directly to avoid `FileReaderSync`'s ~2 GiB cap.
 

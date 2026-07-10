@@ -604,7 +604,7 @@ class ZipArchiveReader:
     json()/csv()/raw() methods with found/not-found signaling to
     eliminate cascading errors for expected-missing files.
 
-    Per extraction/AD0007, the upload pipeline passes the
+    Per ADR-0026, the upload pipeline passes the
     `AsyncFileAdapter` from a browser upload here directly so the zip
     is never materialized into Pyodide's heap. Path-string inputs are
     not accepted; tests construct fixtures via `io.BytesIO`.

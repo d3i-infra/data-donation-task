@@ -66,7 +66,7 @@ class FlowBuilder:
             file_result = yield ph.render_page(self.UI_TEXT["submit_file_header"], file_prompt)
 
             # Skip: anything other than a PayloadFile. PayloadString/
-            # WORKERFS support was retired with extraction/AD0007.
+            # WORKERFS support was retired with ADR-0026.
             # Distinguish the participant-skip case from an unexpected
             # payload type so a legacy/mismatched worker is observable.
             if file_result.__type__ != "PayloadFile":
@@ -78,7 +78,7 @@ class FlowBuilder:
                 return
 
             # AsyncFileAdapter — file-like, passed directly to validators
-            # and extractors. Never materialized to a path. See AD0007.
+            # and extractors. Never materialized to a path. See ADR-0026.
             archive = file_result.value
             yield from ph.emit_log(
                 "info",
