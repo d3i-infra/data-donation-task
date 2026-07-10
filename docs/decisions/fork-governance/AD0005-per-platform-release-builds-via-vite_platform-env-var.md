@@ -1,70 +1,41 @@
 ---
-adr_id: "0005"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-13 13:26:44"
-links:
-    precedes: []
-    succeeds: []
 status: accepted
-date: 2026-03-13
+date: "2026-03-13"
 tags:
     - release
     - vite-platform
     - build
-title: Per-platform release builds via VITE_PLATFORM env var
+category: Fork governance
+applies_to:
+    - release.sh
+    - check-deps.sh
+    - packages/feldspar/src/framework/processing/worker_engine.ts
+    - packages/data-collector/public/py_worker.js
+    - packages/python/port/main.py
+    - packages/python/port/script.py
+priority: default
+forbids:
+    - .github/workflows/_build_release.yml
+checks:
+    - desc: release.sh builds per-platform via VITE_PLATFORM
+      grep: 'export VITE_PLATFORM'
+      in: ["release.sh"]
+      expect: present
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Per-platform release builds via VITE_PLATFORM
 
-The VU 2026 study deploys separate workflow instances per platform on Eyra Next — each platform has its own assignment and consent flow. The Python script must know which platform is active at build time. How should per-platform builds be produced and how should the platform identity be passed through the stack?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Single build with runtime platform selection (URL param or config)
-2. <a name="option-2"></a> release.sh loop setting VITE_PLATFORM for each build
-3. <a name="option-3"></a> CI build matrix producing platform artifacts in parallel
+Per-platform deployment builds are produced by `release.sh`, which loops setting `VITE_PLATFORM` over the platforms discovered by globbing `packages/python/port/configs/*_config.json`, threading one build-time env var from the build through the worker to the Python layer. Researcher forks run `release.sh` to produce their own deployment zips.
 
-## <a name="criteria"></a> Decision Drivers
+## Guidance
 
-* Eyra Next requires a separate uploaded zip per platform — a single multi-platform build cannot be deployed
-* The Python layer needs platform identity at runtime to select the right extraction logic
-* CI infrastructure is not available; the release process must run locally
+- Produce deployable per-platform zips with `release.sh` (one per platform); don't add runtime platform detection in Python — `VITE_PLATFORM` is fixed at build time.
+- The platform list is derived from `configs/`: adding a platform to a release means generating its config (`pnpm generate-config <platform>`), never editing a hardcoded list in `release.sh`.
+- Preserve the `VITE_PLATFORM` thread — `release.sh → worker_engine.ts → py_worker.js → main.py → script.py` — when touching any of those files. `VITE_PLATFORM` is required — `check-deps.sh` guards dev mode, and a bundle built without a platform is *invalid*: it must fail explicitly (build-time refusal, or a clear participant-facing message), never an unhandled traceback.
+- Don't reintroduce the removed Earthly build pipeline (`_build_release.yml`, `forbids`); `gh-pages.yml` validates the template build. (The separate `release.yml` — a GitHub release on a `v*` tag from CHANGELOG — is unrelated to per-platform deployment.)
 
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 2](#option-2) because: A shell script loop is the simplest mechanism that produces separate deployable zips per platform without CI infrastructure; VITE_PLATFORM threads through worker_engine.ts to py_worker.js to main.py to script.py, giving the Python layer platform identity at runtime.
+## Why
 
-### Consequences
-
-* Good: Produces 7 separate deployable zips from one `bash release.sh` invocation
-* Good: `VITE_PLATFORM` is available throughout the stack at build time — no runtime platform detection needed in Python
-* Bad: Release takes 7× the build time of a single build
-* Bad: Branch names with `/` must be sanitised to `-` before use in zip filenames (known issue, handled in release.sh)
-
-## More Information
-
-The wiring: `release.sh` sets `VITE_PLATFORM` → Vite embeds it → `worker_engine.ts` reads `import.meta.env.VITE_PLATFORM` → passes to `py_worker.js` → `main.py` receives it → `script.py` filters `all_platforms` by name.
-See [feldspar/AD0001](../feldspar/AD0001-factory-pattern-for-ui-extensibility.md) for the worker engine's role in this chain.
-
-## <a name="amendment-2026-05-20"></a> Amendment — 2026-05-20: per-platform config files and VITE_PLATFORM required in dev
-
-### What changed
-
-**Before:** `release.sh` held a hardcoded list of platforms (`platforms=("LinkedIn" "Instagram" ...)`).  Dev mode (no `VITE_PLATFORM`) silently ran all platforms.
-
-**Now:**
-
-- Each platform has its own config file: `port/configs/<platform>_config.json`, written by `pnpm generate-config <platform>`.
-- `release.sh` discovers which platforms to build by globbing `packages/python/port/configs/*_config.json`.  No hardcoded platform list is maintained in `release.sh` — adding a platform to a release requires only generating its config file.
-- `VITE_PLATFORM` is required in dev mode.  Start a single platform with `VITE_PLATFORM=<platform> pnpm start`.  If `VITE_PLATFORM` is not set, or is set to a platform whose config file does not exist, an error is emitted in the study UI with a hint to run `pnpm generate-config <platform>`.
-- `script.py` no longer reads a fallback `port_config.json`; the platform name must arrive via `VITE_PLATFORM`.
-
-### Updated consequences
-
-* Good: Produces one deployable zip per platform from one `bash release.sh` invocation; platform list is derived automatically from the `configs/` folder
-* Good: Adding a platform to the release requires only generating its config — no `release.sh` edits needed
-* Good: `VITE_PLATFORM=<platform> pnpm release` builds and zips only that one platform at 1x build time, for cases where only one platform needs updating.
-* Bad: Researchers maintaining multi-platform studies hand-maintain N config files; there is no longer a single overridable file to inspect or grep.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-03-13 13:26:44) Danielle McCool: marked decision as decided
+Eyra Next deploys one workflow instance per platform — its own assignment, its own uploaded zip — so a single multi-platform bundle cannot be deployed, and Python needs the platform identity to pick extraction logic. One build-time env var is the simplest mechanism that works without CI (releases run locally; the Earthly pipeline this replaced was long dead). A runtime selector was rejected: nothing at runtime should decide what a deployed study extracts. Deriving the platform list from `configs/` fixed the drifted hardcoded list — generating a config is now the single registration step. Costs: N builds per release, N hand-maintained config files, and the scheme rests on the invalid-build contract — an unset-platform bundle (`platform: void 0` from the script builder) must fail loudly, not show a participant a traceback.

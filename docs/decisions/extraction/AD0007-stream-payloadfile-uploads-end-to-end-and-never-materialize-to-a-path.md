@@ -1,52 +1,45 @@
 ---
-adr_id: "0007"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-04-30 19:11:46"
-links:
-    precedes: []
-    succeeds:
-        - "0003"
-status: decided
+status: accepted
+date: "2026-04-30"
 tags:
     - uploads
     - streaming
     - memory-safety
     - file-api
-title: Stream PayloadFile uploads end-to-end and never materialize to a path
+category: Extraction
+applies_to:
+    - packages/python/port/main.py
+    - packages/python/port/api/file_utils.py
+    - packages/python/port/helpers/flow_builder.py
+    - packages/python/port/helpers/uploads.py
+    - packages/python/port/helpers/validate.py
+    - packages/python/port/helpers/extraction_helpers.py
+    - packages/python/tests/test_uploads.py
+    - packages/python/tests/test_flow_builder.py
+priority: invariant
+companions:
+    - packages/python/tests/test_validate.py
+    - packages/python/tests/test_zip_archive_reader.py
+checks:
+    - desc: no materialize_file resurrection anywhere in the Python package
+      grep: 'materialize_file'
+      in: ["packages/python/**"]
+      expect: absent
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Stream PayloadFile uploads without materializing
 
-The previous `materialize_file()` helper called `AsyncFileAdapter.read()` with no size argument before handing a path to `zipfile.ZipFile`. That single `readAsArrayBuffer` call rejects with `NotReadableError` above the DOM File API's ~2 GiB ArrayBuffer cap — independent of available RAM. The bug was reproduced in production (#61). How should the upload pipeline avoid this?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Pass `AsyncFileAdapter` directly to consumers; delete `materialize_file`
-2. <a name="option-2"></a> Stream `materialize_file` in chunks to `/tmp`
+The upload pipeline passes browser `PayloadFile` / `AsyncFileAdapter` objects directly to validators and extractors. `ScriptWrapper` wraps the incoming JS reader in `AsyncFileAdapter` once at the boundary; consumers pass the adapter to `zipfile.ZipFile` instead of materializing a filesystem path or bytes object. `PayloadString` / WORKERFS upload support stays retired.
 
-## <a name="criteria"></a> Decision Drivers
-- DOM File API caps `readAsArrayBuffer` at ~2 GiB regardless of RAM.
-- Upstream eyra/feldspar PR #482 already designed `AsyncFileAdapter` to avoid full-file reads.
-- Multi-GiB takeouts (YouTube, Facebook) are routine; the read path must not impose a ceiling.
+## Guidance
 
-### Pros and Cons
+- Do not add `materialize_file()` or any whole-upload read on the upload path; never call `read()` with no argument or `-1` on an upload adapter.
+- Pass the adapter directly to `zipfile.ZipFile`, `validate_zip()`, and `ZipArchiveReader`; read size from `adapter.size` (JS metadata, no bytes).
+- Type upload consumers against the `SeekableBinaryReader` Protocol in `file_utils.py`, never `str` paths — a path parameter in the upload pipeline implies materialization and is review-rejected.
+- Keep the tests proving `zipfile` uses bounded reads (`TestStreamingInvariant`) and that `FlowBuilder` accepts `PayloadFile` only.
 
-**Pass `AsyncFileAdapter` directly; delete `materialize_file`**
-* Good, because `zipfile.ZipFile` already accepts any seekable file-like (`read`, `seek`, `tell`); `AsyncFileAdapter` qualifies.
-* Good, because `zipfile` chunks reads at its own discretion, well below the API cap.
-* Good, because deleting `materialize_file` removes the failure surface — no path-producing function for a future refactor to call.
+## Why
 
-**Stream `materialize_file` in chunks to `/tmp`**
-* Good, because it avoids the per-call cap.
-* Bad, because `/tmp` is Pyodide's in-memory filesystem — the file is still copied into the worker heap.
-* Bad, because it preserves `materialize_file` as a target for future regressions.
-
-## <a name="outcome"></a> Decision Outcome
-
-Option 1. `AsyncFileAdapter` is passed directly to consumers; the size guard moves upstream to use `adapter.size` (JS metadata, no read). Closes the `PayloadString`/WORKERFS deprecation opened by feldspar/AD0003 — researcher forks still on the WORKERFS path must migrate to `PayloadFile` before consuming this version.
-
-**Enforcement.** The behavioral regression test in `tests/test_uploads.py::TestStreamingInvariant` asserts that `zipfile.ZipFile` against a tracking adapter never issues `read(-1)`, and runs in CI. The structural fact that `materialize_file()` no longer exists means a future regression has to deliberately add a new path-producing function — visible in code review. Pyright catches type violations locally and during review (`pnpm typecheck:py`), but is not currently a CI gate.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-04-30 19:11:46) Danielle McCool: marked decision as decided
+Production bug #61: `materialize_file()` read whole uploads, and `FileReaderSync.readAsArrayBuffer()` rejects above the DOM's ~2 GiB cap regardless of RAM — routine multi-GiB takeouts crashed. `zipfile.ZipFile` only needs a seekable file-like and chunks its own reads, so passing the adapter straight through removes the failure class; the rejected `/tmp` copy would still land the file in the worker heap (Pyodide's `/tmp` is in-memory) and keep `materialize_file` alive as a regression target. Deleting the function is the structural enforcement; `TestStreamingInvariant` (no `read(-1)`) is the behavioral one. The 2 GiB upload cap is not a contradiction: streaming removed the *mechanism* ceiling, while the cap is a deliberate *policy* guard that this decision moved upstream to metadata rather than deleting. The change also closed the PayloadString/WORKERFS retirement — forks still on WORKERFS migrate before consuming this version.

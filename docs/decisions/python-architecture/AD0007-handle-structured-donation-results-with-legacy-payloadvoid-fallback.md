@@ -1,55 +1,42 @@
 ---
-adr_id: "0007"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-17 13:23:49"
-    - author: Danielle McCool
-      comment: "2"
-      date: "2026-03-17 13:23:49"
-    - author: Danielle McCool
-      comment: "3"
-      date: "2026-03-17 14:00:34"
-links:
-    precedes: []
-    succeeds: []
-status: decided
+status: accepted
+date: "2026-03-17"
 tags:
     - donation
     - host-compatibility
     - protocol
-title: Handle structured donation results with legacy PayloadVoid fallback
+category: Python architecture
+applies_to:
+    - packages/python/port/helpers/port_helpers.py
+    - packages/python/port/helpers/flow_builder.py
+    - packages/python/port/main.py
+priority: default
+companions:
+    - packages/feldspar/src/framework/command_router.ts
+    - packages/feldspar/src/live_bridge.ts
+    - packages/feldspar/src/fake_bridge.ts
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# Handle structured donation results with legacy PayloadVoid fallback
 
-When FlowBuilder yields a donate command the host may return different response types depending on the deployment: Eyra Next returns PayloadResponse with success/failure while D3I mono returns PayloadVoid (fire-and-forget). The current FlowBuilder ignores the donate result entirely. How should donation results be handled across host platforms?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Interpret result with PayloadVoid as legacy success
-2. <a name="option-2"></a> Ignore donate results entirely
-3. <a name="option-3"></a> Require all hosts to return PayloadResponse
+Donation command results are normalized through `port_helpers.handle_donate_result()`: `PayloadResponse.value.success` is authoritative, `PayloadVoid` / `None` is legacy success, and unexpected payloads fail closed with a local warning.
 
-## <a name="criteria"></a> Decision Drivers
-Eyra Next (async donations) returns PayloadResponse with success boolean — failures must be surfaced to the participant
-D3I mono (fire-and-forget) returns PayloadVoid or None — treating this as failure would break all D3I deployments
-The handling must be uniform across all platforms — implemented once in shared infrastructure not per-platform
-### Pros and Cons
+## Guidance
 
-**Interpret result with PayloadVoid as legacy success**
-* Good, because works with both Eyra Next and D3I mono without configuration
-* Good, because failures are surfaced to participants on hosts that support it
-* Good, because implemented once in port_helpers.handle_donate_result()
-* Neutral, because D3I mono participants never see donation failures even if they occur
+- Route every production `CommandSystemDonate` / `ph.donate()` result through `handle_donate_result()`, except `main.py:error_flow()`.
+- Read structured responses as `result.value.success`, not `result.success`.
+- Treat `PayloadVoid` / `None` as success for D3I mono compatibility.
+- Failed participant-data donations show the donation failure page; failed decline-status donations are logged and suppressed.
+- `error_flow()` donates the consent-gated error report fire-and-forget after consent; do not use that exception for ordinary donations.
 
-**Ignore donate results entirely**
-* Good, because simplest implementation
-* Bad, because Eyra Next failures are silently swallowed
-* Bad, because participants think their data was donated when it was not
+## Why
 
+The donate response differs by host: Eyra Next (async donations) returns `PayloadResponse` whose `value.success` says whether the donation landed — a failure the participant must see — while D3I mono is fire-and-forget (`PayloadVoid`/`None`). Treating `PayloadVoid` as failure breaks every mono deployment; ignoring results silently swallows real Eyra Next failures. Normalizing once lets both hosts work unconfigured, and unknown payloads fail closed. Two traps make the single location load-bearing: the result nests under `value` (`result.value.success`), and a failed *decline* recording is deliberately silent — invisible infrastructure, not the participant's problem.
 
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 1](#option-1) because: The protocol must work across both Eyra Next (structured responses) and D3I mono (fire-and-forget). PayloadResponse(success=True) means continue; PayloadResponse(success=False) means render failure page; PayloadVoid/None means legacy success; anything else is treated as failure with a warning log. This is implemented in port_helpers.handle_donate_result() and called by FlowBuilder after every donation.
+## Checks
 
-## <a name="comments"></a> Comments
-<a name="comment-3"></a>3. (2026-03-17 14:00:34) Danielle McCool: Protocol detail: PayloadResponse wraps the result in a value field. Python receives result.__type__ == 'PayloadResponse' with result.value containing {success: bool, key: str, status: int, error?: str}. So the correct access pattern is result.value.success — not result.success. This matches eyra/feldspar develop (commit 94ed016 — Feb 2026) where CommandRouter awaits Bridge.send() for donate commands and wraps ResponseSystemDonate in PayloadResponse. FakeBridge returns void (no pending donation tracking) so dev mode still gets PayloadVoid.
+- Confirm FlowBuilder routes every data/decline donation result through `handle_donate_result()`.
+- grep for direct `__type__ == "PayloadResponse"` / `PayloadVoid` handling outside `port_helpers.py` and tests.
+- grep `result.success` where `result.value.success` is meant.

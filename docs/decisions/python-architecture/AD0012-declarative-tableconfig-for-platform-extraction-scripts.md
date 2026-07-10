@@ -1,53 +1,36 @@
 ---
-adr_id: "0012"
 status: accepted
-date: 2026-05-20
-comments:
-    - author: Danielle McCool
-      date: "2026-04-23 00:00:00"
-      comment: "Rewritten to reflect docstring-driven config generation replacing DEFAULT_TABLE_CONFIG_JSON"
+date: "2026-05-20"
 tags:
-  - extraction
-  - configuration
-  - docstrings
- title: Docstring-driven UI metadata for extractor functions
-links:
-  succeeds: []
+    - extraction
+    - configuration
+    - docstrings
+category: Python architecture
+applies_to:
+    - packages/python/port/platforms/**/*.py
+    - scripts/generate_port_config.py
+priority: default
 ---
 
-## Context and Problem Statement
+# Docstring-driven UI metadata for extractor functions
 
-Each platform module exposes 5-25 extractor functions, each producing a table shown to participants in the consent UI. Each table needs translatable UI metadata: id, title, description, per-column headers, optional visualizations. That metadata has to live somewhere. Where?
+## Decision
 
-Before this PR, the metadata was inlined in each platform's `extraction()` functions, as a long list of `PropsUIPromptConsentFormTableViz()` constructor calls, duplicating UI strings across platforms and forcing edits to Python code for any text change. As the platform count grew, this became unmaintainable, and it blocked external tooling (selector, builder) from reading metadata without importing Pyodide-dependent code.
+Each extractor function carries its consent-UI table metadata in its docstring as two labelled JSON blocks — `Table documentation::` and `Table config::` — and `scripts/generate_port_config.py` builds the per-platform config by parsing them with `ast`, without importing the (Pyodide-dependent) platform module.
 
-## Considered Options
- 
-1. Separate JSON files per extractor, mantained by hand alongside the Python source.
-2. Python constants (DEFAULT_TABLE_CONFIG = {}) at the bottom of each platform module -- the previous in-progress pattern
-3. Docstring-embedded JSON blocks parsed via AST by a build-time generator.
+## Guidance
 
-## Decision Drivers
+- Put each extractor's UI metadata in its docstring: `Table config::` (runtime metadata — id, title, description, headers, optional visualizations) and `Table documentation::` (developer summary + column descriptions). Omit the `extractor` field — the generator infers it from the function's key in `EXTRACTOR_REGISTRY`.
+- Do not hand-inline table metadata (id/title/description/headers as literals) in `extraction()`, and do not reintroduce a `DEFAULT_TABLE_CONFIG`-style constant — the docstring is the single source of truth. Build `PropsUIPromptConsentFormTableViz` from the loaded config (`table_cfg.title`, …), not from literals.
+- Keep the build-time generator `generate_port_config.py` AST-only: it must not `import port.platforms.*` (Pyodide-dependent), so desktop tooling (`dd-script-selector`, `dd-script-builder`) can read metadata outside the browser. This constrains the build-time metadata generator only — runtime code such as `port_config_validator.py` is out of this ADR's scope.
+- `Table config::` blocks must be valid JSON; the generator is the validator (a JSON typo surfaces at generation, not through Python's type system).
 
-- UI metadata must be co-located with the extractor function that produces the table.
-- External tooling (dd-script-selector, dd-script-builder) must be able to parse metadata without importing the Python module (port.platforms.* imports Pyodide-only code, which fails outside the browser).
-- A single source of truth: editing the docstring should be the only place a developer touches
-- The metadata must be human-readable in code review.
+## Why
 
-## Decision Outcome
+A platform exposes up to ~30 extractor functions, each producing a consent-UI table that needs translatable metadata (id, title, description, headers, visualizations). That metadata must be co-located with its extractor — one docstring edit per wording change, visible in the same diff — instead of the previous inline-literal pattern that duplicated strings across platforms. And desktop tooling (`dd-script-selector`, `dd-script-builder`, the generator) must read it *without importing* the platform module, since `port.platforms.*` pulls in Pyodide-only code; an AST parse never imports. Costs: docstrings balloon (some modules pass 80 KB), JSON typos surface only when the generator runs, and nothing cross-checks header keys against the columns actually emitted.
 
-Chosen: Option 3 -- Docstring JSON blocks parsed via AST
+## Checks
 
-Each extractor function carries two labelled JSON sections in its docstring: `Table documentation::` (developer-facing summary + column descriptions) and `Table config::` (runtime UI metadata: id, title, description, headers, optional visualizations). The extractor field is omitted from the block -- the generator infers it from the function's key in EXTRACTOR_REGISTRY.
-
-scripts/generate_port_config.py parses these blocks via the ast module, so no Python import is required
-
-## Consequences
-
-- Good: One source of truth per extractor; metadata travels with the code.
-- Good: AST-only parsing means desktop tooling (selector, builder, generator) doesn't load Pyodide-dependent modules
-- Good: Code review sees both code and metadata in one diff
-- Bad: Docstrings become long -- translations x header-columns x N extractors. Some platform modules cross 80KB.
-- Bad: JSON syntax errors in docstrings don't surface using Python's type system
-- Bad: Refactoring an extractor's column names does not propgagate to the docstring's header keys; nothing cross-checks them.
-
+- Confirm every extractor in `port/platforms/*` carries both a `Table config::` and a `Table documentation::` block; run `generate_port_config.py` (validate/dry-run) to catch missing or malformed blocks.
+- Confirm `generate_port_config.py` imports no `port.platforms.*` (stays AST-only).
+- Flag `PropsUIPromptConsentFormTableViz(` built from literal `title=` / `headers=` values rather than config-sourced ones.

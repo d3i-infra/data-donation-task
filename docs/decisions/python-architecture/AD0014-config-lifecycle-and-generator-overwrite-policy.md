@@ -1,55 +1,35 @@
 ---
-adr_id: "0014"
 status: accepted
-date: 2026-05-22
+date: "2026-05-22"
 tags:
     - configuration
     - lifecycle
     - generator
-title: Config lifecycle and generator overwrite policy
-links:
-    supersedes: []
+category: Python architecture
+applies_to:
+    - scripts/generate_port_config.py
+    - scripts/gen_port_config.sh
+    - packages/python/port/configs/**
+priority: default
 ---
 
-## Context and Problem Statement
+# Config lifecycle and generator overwrite policy
 
-`configs/<platform>_config.json` is initially generated from extractor docstrings via `pnpm generate-config <platform>`. After generation, researchers routinely customize the file: editing titles and descriptions, removing tables they don't want, restricting variables to a subset of available columns, reordering for participant-facing display.
+## Decision
 
-This creates a fundamental question: is the docstring the source of truth (in which case the JSON should be regenerated freely), or is the JSON the source of truth (in which case generation should be a one-time bootstrap)?
+Extractor docstrings are the bootstrap/template source for a config, but after that initial generation the curated JSON is the study-specific source of truth: `scripts/generate_port_config.py` refuses to overwrite an existing `configs/<platform>_config.json` (prints an error and exits non-zero). Re-bootstrapping requires an explicit `rm` of the file first. (The handoff is one-way at bootstrap — this does not contradict metadata being authored in docstrings; it governs the config's lifecycle *after* it is generated.)
 
-## Considered Options
+## Guidance
 
-1. Docstring is source of truth (Model A). Generator always overwrites the JSON. Researchers re-edit after every regeneration, or maintain edits out-of-tree.
-2. JSON is source of truth after initial generation (Model B). Generator refuses to overwrite existing files. Researchers must explicitly `rm` to re-bootstrap.
-3. Merge-on-regenerate (Model B with merge). Generator detects existing file, adds new tables (from new extractors) but preserves edited entries.
+- When writing a config, the generator must never overwrite or merge into an existing `configs/<platform>_config.json`; it exits non-zero and leaves the file untouched. `pnpm generate-config <platform>` (via `scripts/gen_port_config.sh`) is therefore safe but intentionally *non-idempotent* — it either creates the file or fails once it exists. The `--stdout` mode writes no file and is outside this policy.
+- To re-bootstrap a platform, delete the config first (`rm configs/<platform>_config.json`), then regenerate — a deliberate two-step action.
+- The hand-editable surface of a config is: title, description, headers, `variables` (a subset and ordering of columns), table inclusion/exclusion, and visualizations — the runtime honors these because it iterates only the config's tables. Hand-edited and externally tool-generated (e.g. the external Selector) configs are treated identically at runtime.
+- Adding a new extractor does not propagate into an existing config; the researcher must notice and rm-and-regenerate (there is no merge tooling).
 
-## Decision Drivers
+## Why
 
-- Researcher curation represents the study design — protocols, IRB-approved content, hand-translated text. It must not be silently destroyed.
-- The bootstrap workflow must remain frictionless for first-time platform setup.
-- The selector and hand-editing paths produce JSON that should be treated identically by the runtime.
-- Merge logic (Option 3) is complex and introduces subtle failure modes (how do we know which entries are "the researcher's" vs "the generator's"?).
+After bootstrap, researchers curate the JSON heavily — titles, removed tables, `variables` restricted to IRB-approved columns. That curation *is* the study design and must never be silently destroyed, so after generation the JSON, not the docstring, is the source of truth: the generator bootstraps once and then refuses to overwrite. Merge-on-regenerate was rejected — deciding which entries are "the researcher's" is ambiguous and fails subtly. Costs: a new extractor doesn't reach an existing config without rm-and-regenerate (which loses that file's curation), and "start over" is a deliberate two-step so the default action can never destroy curated content.
 
-## Decision Outcome
+## Checks
 
-Chosen: Option 2 — JSON is the source of truth after generation; generator refuses to overwrite.
-
-`scripts/generate_port_config.py`:
-
-```python
-if output_path.exists():
-    print(f"ERROR: Config already exists: {output_path}", file=sys.stderr)
-    sys.exit(1)
-```
-
-To re-bootstrap a platform, the researcher must explicitly `rm configs/<platform>_config.json` first. This is deliberately a two-step action.
-
-The hand-editable surface is documented in the schema reference (see `docs/python-platforms/config-format.md`): title, description, headers, variables (subset and order), table inclusion/exclusion, visualizations.
-
-## Consequences
-
-- Good: Researcher edits are protected by default. The Selector workflow and hand-editing workflow produce equally durable artifacts.
-- Good: `pnpm generate-config` is safe to run repeatedly — it either creates the file or no-ops with an explicit error.
-- Bad: Adding a new extractor to a platform module does not propagate to existing configs without explicit rm-and-regenerate. Researchers must notice the addition manually.
-- Bad: Re-bootstrapping a platform requires two steps (`rm`, then regenerate), making "I want to start over" mildly inconvenient.
-- Bad: There is no merge tooling. A platform that gains a new extractor cannot be reflected in an existing config without losing all curation in that file.
+- Behavioral test: `generate_port_config.py` exits non-zero and leaves an existing `configs/<platform>_config.json` byte-for-byte unchanged when the file already exists.

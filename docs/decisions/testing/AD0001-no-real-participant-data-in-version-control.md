@@ -1,49 +1,29 @@
 ---
-adr_id: "0001"
-comments:
-    - author: Danielle McCool
-      comment: "1"
-      date: "2026-03-13 13:41:56"
-links:
-    precedes: []
-    succeeds: []
 status: accepted
-date: 2026-03-13
+date: "2026-03-13"
 tags:
     - test-data
     - privacy
     - synthetic-fixtures
-title: No real participant data in version control
+category: Testing
+applies_to:
+    - .gitignore
+    - packages/python/tests/extractor_integration_helpers.py
+priority: invariant
 ---
 
-## <a name="question"></a> Context and Problem Statement
+# No real participant data in version control
 
-Testing extraction logic ideally uses real donated data packages (DDPs), which are the most realistic inputs. But real DDPs contain personal data. How should test data be managed?
+## Decision
 
-## <a name="options"></a> Considered Options
-1. <a name="option-1"></a> Commit anonymised or scrubbed DDPs to the repository
-2. <a name="option-2"></a> Synthetic fixtures in the repository, real DDPs stored externally
-3. <a name="option-3"></a> No file-level test data — unit test extraction logic only
+Real participant data — real DDPs and social-media exports — never enters version control; tests use synthetic fixtures only. Real DDPs for local integration testing go in the git-ignored `packages/python/tests/ddp/` and never leave the developer's machine.
 
-## <a name="criteria"></a> Decision Drivers
+## Guidance
 
-* Real DDPs are ZIP archives of social media exports and contain personal data — committing them would be a privacy violation regardless of consent
-* Anonymisation is imperfect and hard to audit; the risk of residual personal data in a "scrubbed" DDP is not worth the marginal realism improvement
-* Extraction tests primarily verify structural handling (column names, row counts, data types) — synthetic fixtures cover this without real content
+- Never commit real DDPs or participant exports. The `.gitignore` entries for `packages/python/tests/ddp/*` (everything except `.gitkeep`) are the enforcement — don't remove or weaken them.
+- Synthetic archives are the only committable fixtures: built in-test (`io.BytesIO` + `zipfile`) or generated with the repo-root `tests/generate_test_zip.py` (e2e fixtures — a different directory from the Python tests); binary fixtures go through Git LFS.
+- Integration tests `pytest.skip()` when `packages/python/tests/ddp/` holds no fixture — absence of real data is never a test failure.
 
-## <a name="outcome"></a> Decision Outcome
-We decided for [Option 2](#option-2) because: Real DDPs contain personal data that must not enter version control; synthetic fixtures cover the structural cases that matter for extraction correctness, while real DDPs stored outside the repo at ~/data/d3i/test_packages/ are available for manual integration testing.
+## Why
 
-### Consequences
-
-* Good: The repository can be shared or made public without privacy risk
-* Good: Synthetic fixtures are controlled — tests are stable and reproducible across machines
-* Bad: Tests cannot catch format changes in real platform exports until a developer runs manual validation with real data
-* Bad: `validate_received.py` must be run separately with real data to catch real-world divergence
-
-### Confirmation
-
-`.gitignore` blocks `tests/data/`, `tests/fixtures/received_files/`, and `received_files/` from being committed. `CLAUDE.md` lists committed DDP files under "Forbidden". Code review must reject any commit adding `.zip` files or real export data.
-
-## <a name="comments"></a> Comments
-<a name="comment-1"></a>1. (2026-03-13 13:41:56) Danielle McCool: marked decision as decided
+A real DDP is a personal-data archive, so committing one is a privacy breach regardless of participant consent — and a single leaked archive in git history cannot be undone. Anonymization was rejected because it is imperfect and hard to audit: the residual-data risk outweighs the marginal realism. Synthetic fixtures cover what extraction tests actually verify — structural handling, member resolution, parser behavior — and keep the repo shareable or publishable with zero privacy exposure, with stable, reproducible tests as a side effect. The accepted cost is that real-world export-format drift is invisible to CI: it surfaces only when a developer drops a real DDP into the git-ignored `packages/python/tests/ddp/` locally and runs the integration suite. (Deliberately no `forbids` glob on that directory: real fixtures are *supposed* to exist there locally, and a lint that fires during sanctioned use is noise — git-tracking, not file existence, is the enforcement point, and `.gitignore` owns it.)

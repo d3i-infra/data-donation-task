@@ -27,7 +27,7 @@ Returns: a Payload* matching the UI component shown
 | Response type | When returned |
 |---|---|
 | `PayloadFile` | Participant selected a file |
-| `PayloadString` | File delivered via WORKERFS path (legacy) |
+| `PayloadString` | Participant selected a radio option (the legacy WORKERFS upload path is retired) |
 | `PayloadTrue` | Participant clicked the "ok" / confirm button |
 | `PayloadFalse` | Participant clicked the "cancel" / decline button |
 | `PayloadJSON` | Participant submitted a consent form or questionnaire |
@@ -107,7 +107,7 @@ in `commands.ts` to narrow the type before routing.
 | Type | Fields | Produced by |
 |---|---|---|
 | `PayloadFile` | `value: File` | File input prompt |
-| `PayloadString` | `value: string` | WORKERFS file path (legacy) |
+| `PayloadString` | `value: string` | Radio input prompt (upload delivery via `PayloadString` is retired) |
 | `PayloadTrue` | — | Confirm / ok button |
 | `PayloadFalse` | — | Cancel / decline button |
 | `PayloadJSON` | `value: string` | Consent form, questionnaire |

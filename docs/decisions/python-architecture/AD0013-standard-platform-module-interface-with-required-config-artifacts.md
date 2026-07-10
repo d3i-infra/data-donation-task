@@ -1,51 +1,36 @@
 ---
-adr_id: "0013"
-comments:
-    - author: Danielle McCool
-links:
-    precedes:
-        - "0012"
-    succeeds: []
 status: accepted
-date: 2026-05-20
+date: "2026-05-20"
 tags:
     - platform-dispatch
     - platform-interface
     - script
     - config
-title: Standard platform module interface and config file contract
+category: Python architecture
+applies_to:
+    - packages/python/port/platforms/**/*.py
+    - packages/python/port/script.py
+priority: default
 ---
 
-## Context and Problem Statement
+# Standard platform module interface
 
-`script.py` dispatches to one of N platform modules based on VITE_PLATFORM. To keep script.py platform-agnostic, every module in port/platforms must expose a uniform interface. What should that interface be, and how strictly should it be enforced?
+## Decision
 
-## Considered Options
+`script.py` stays platform-agnostic: it validates the platform's config, imports `port.platforms.<platform>`, and dispatches through `module.process(session_id)` alone — never naming a platform. Around that seam, each platform module follows a common authoring convention — `EXTRACTOR_REGISTRY`, `extraction(...)`, a `<Platform>Flow(FlowBuilder)` subclass, and `process(session_id)` — with documented signature exceptions.
 
-1. Loose contract -- let each module export whatever it needs; dispatch via convention
-2. Strict contract with signature enforcement at startup (runtime introspection of each module).
-3. Conventional contract with documented exceptions for modules that genuinely need different shapes
+## Guidance
 
-## Decision drivers
+- `script.py`'s only dispatch dependency is `module.process(session_id)`: it calls `validate_or_raise(platform)`, imports `port.platforms.<platform>`, and calls `process()`. No platform names, no `PLATFORM_REGISTRY`.
+- Platform-authoring convention (used inside the module, not by the dispatcher): each exposes `EXTRACTOR_REGISTRY` (ordered `dict[str, Callable[..., pd.DataFrame]]`), `extraction(...)`, a `<Platform>Flow(FlowBuilder)` subclass, and `process(session_id)` returning `<Platform>Flow(session_id).start_flow()`. `example.py` is the canonical template.
+- A runnable/released platform needs a generated `configs/<platform>_config.json`, but those are generated on demand (config lifecycle is AD0014) and validated at runtime by `script.py`; only `example_config.json` is committed. Adding a platform still requires no change to `script.py`.
+- Documented signature exceptions, both still exposing all four convention symbols: **Netflix** keeps `run_extraction` but with a different `extraction(reader, selected_user)` shape; **WhatsApp** has an `extraction(df)` shape and still calls `load_port_config`, but *bypasses* `run_extraction`, building its tables in its own loop.
 
-- New platforms should be addable without modifying `script.py`
-- `script.py` can't reference all platforms by name (PLATFORM_REGISTRY on master was a maintenance burden)
-- Existing platforms with diverging signatures (WhatsApp, Netflix) must keep working
+## Why
 
-## Decision Outcome
+`script.py`'s only dependency on a platform is `module.process(session_id)`, so adding a platform never touches it and no `PLATFORM_REGISTRY` list has to be maintained (that list was a real burden on master). The authoring convention around the seam (`EXTRACTOR_REGISTRY`, `extraction`, `<Platform>Flow`) is deliberately conventional rather than enforced: Netflix (`extraction(reader, selected_user)`) and WhatsApp (pre-parsed DataFrame, own table loop) genuinely need different shapes. Costs: the `"<platform>"` string is duplicated across filename, module path, and `load_port_config` with nothing cross-checking them, and conformance rests on review and the `example.py` template, not a gate.
 
-Chosen: Option 3 -- Conventional contract with documented exceptions
+## Checks
 
-Every module in `port/platform` exposes:
-
-- `EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]]` -- string named extractor functions, in declaration order (preserved by Python dict)
-- `extraction(...)` -- the module's entry point that orchestrates ``load_port_config(EXTRACTOR_REGISTRY, "<platform>"` and `run_extraction(reader, errors, config)`. Signature varies
-- `<Platform>Flow(FlowBuilder)` -- flow subclass wiring `validate_file` and `extract_data`
-- `process(session_id)` -- entry point invoked by `script.py`; returns `<Platform>Flow(session_id).start_flow()`.
-
-## Consequences
-
-- Good: `script.py` is fully platform-agnostic; adding a platform requires only a new moduke + config file
-- Good: `example.py` serves as the canonical template for new platforms
-- Bad: The string "<platform>" is duplicated in three places per module (folename, module path, load_port_config argument) and nothing cross-checks them.
-- Bad: The exceptions create a contract that's strict-in-principle but loose-in-practice
+- Confirm each *platform* module under `port/platforms/` (excluding `__init__.py` and any non-platform support files) exposes `EXTRACTOR_REGISTRY`, `extraction`, a `<Platform>Flow(FlowBuilder)` subclass, and `process`; allowlist Netflix/WhatsApp for signature divergence only.
+- Confirm `script.py` dispatches only via `validate_or_raise` + `import_module("port.platforms.<platform>")` + `process()`, with no per-platform names or `PLATFORM_REGISTRY`.

@@ -37,21 +37,24 @@ member list.
 ## ZipArchiveReader
 
 `ZipArchiveReader` is the main tool for reading files out of a validated zip.
-It is constructed with the zip path, the member list from validation, and a
-shared `errors` Counter:
+It is constructed with the uploaded archive (a seekable file-like object — the
+upload adapter in production, `io.BytesIO` in tests), the member list from
+validation, and a shared `errors` Counter:
 
 ```python
 reader = ZipArchiveReader(linkedin_zip, validation.archive_members, errors)
 ```
 
-It provides two main methods:
+It provides four methods:
 
 | Method | Returns | Use for |
 |---|---|---|
-| `reader.csv("filename.csv")` | `ReadResult` with a `pd.DataFrame` | CSV files |
-| `reader.raw("filename.csv")` | `ReadResult` with `io.BytesIO` | Files needing pre-processing before parsing |
+| `reader.json("filename.json")` | `JsonExtractionResult` with a parsed `dict`/`list` | JSON files |
+| `reader.json_all(r"pattern.*\.json")` | `list[JsonExtractionResult]`, sorted by member path | Paginated JSON exports (`_1.json`, `_2.json`, …) |
+| `reader.csv("filename.csv")` | `CsvExtractionResult` with a `pd.DataFrame` | CSV files |
+| `reader.raw("filename.csv")` | `RawExtractionResult` with `io.BytesIO` | Files needing pre-processing before parsing |
 
-Both return a `ReadResult` with a `found: bool` field. If the file is not in
+Each result carries a `found: bool` field. If the file is not in
 the zip, `found` is `False` and no error is recorded. This is the standard
 pattern for optional files:
 
@@ -95,33 +98,30 @@ it into a PII-free log message: `"errors: KeyError×3, FileNotFoundInZipError×1
 
 ## The extraction pattern
 
-A typical platform's `extract_data()` function follows this pattern:
+Table metadata (id, title, description, headers, visualizations) does **not**
+live in `extraction()`. It lives in each extractor function's docstring as a
+`Table config::` / `Table documentation::` block, from which
+`scripts/generate_port_config.py` generates `configs/<platform>_config.json`
+(AST-parsed, no Pyodide import). At runtime, `extraction()` loads that config and
+builds the tables from it — never from inline literals:
 
 ```python
-def extraction(zip_path: str, validation: ValidateInput) -> ExtractionResult:
-    errors = Counter()
-    reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
-
-    tables = [
-        PropsUIPromptConsentFormTableViz(
-            id="linkedin_connections",
-            data_frame=connections_to_df(reader, errors),
-            title=Translatable({"en": "Your connections", "nl": "Uw connecties"}),
-            ...
-        ),
-        ...
-    ]
-
-    return ExtractionResult(
-        tables=[t for t in tables if not t.data_frame.empty],
-        errors=errors,
-    )
+def extraction(reader: ZipArchiveReader) -> ExtractionResult:
+    config = load_port_config(EXTRACTOR_REGISTRY, "linkedin")
+    return run_extraction(reader, reader.errors, config)
 ```
 
-Each per-file function (`connections_to_df`, etc.) receives the shared `errors`
-Counter so it can record failures without interrupting extraction of other files.
-The `if not t.data_frame.empty` filter ensures empty tables are not shown to
-the participant.
+`load_port_config` reads the generated JSON; `run_extraction` runs each
+configured extractor and builds a `PropsUIPromptConsentFormTableViz` from the
+config values (`table_cfg.title`, `table_cfg.headers`, …). Each extractor
+receives the shared `errors` Counter so it can record failures without
+interrupting the others, and empty tables are filtered out before the consent
+form is shown.
+
+Metadata edits happen in the extractor's docstring (then regenerate) or in the
+curated config JSON, which is the source of truth after generation — the
+generator refuses to overwrite an existing config. (See `EXTRACTOR_REGISTRY` and
+the standard platform interface in `04-flowbuilder`.)
 
 ---
 
