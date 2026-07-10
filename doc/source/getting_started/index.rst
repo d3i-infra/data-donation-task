@@ -9,5 +9,4 @@ Getting Started
    visualizations.md
    next-and-port.rst
    deployment.md
-   next-in-docker.md
    data-donation-checklist.md

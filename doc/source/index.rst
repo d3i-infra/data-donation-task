@@ -12,9 +12,9 @@ Completely new to data donation?
 What is the Data Donation Task?
 ===============================
 
-The data donation task is part of a research tool that enables researchers to collected digital trace data for academic research from participants in a secure, transparent, and privacy-preserving way.
+The data donation task is part of a research tool that enables researchers to collect digital trace data for academic research from participants in a secure, transparent, and privacy-preserving way.
 
-Data donation allows researchers to invite participants to share their data download packages (DDPs). A major challenge is however that DDPs potentially contain very sensitive data, and often not all data is needed to answer the specific research question under investigation. To circumvent these challenges, the following framework framework was developed:
+Data donation allows researchers to invite participants to share their data download packages (DDPs). A major challenge is however that DDPs potentially contain very sensitive data, and often not all data is needed to answer the specific research question under investigation. To circumvent these challenges, the following framework was developed:
 
 1. The participant requests their personal DDP at the platform of interest.
 2. They download it onto their own personal device.

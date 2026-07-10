@@ -144,7 +144,8 @@ d3i extraction consolidation, platform updates, and bridge alignment.
 
 ### Migration
 
-See [MIGRATION.md](MIGRATION.md) for a guide to updating downstream forks.
+MIGRATION.md carried the fork upgrade guide for this release (file removed in
+v3.0.0; migration notes now ship in each release's changelog section).
 
 ## \#5 2025-09-10
 

@@ -55,6 +55,7 @@ node_modules/
 release-for-website.sh
 
 _build
+doc/build
 
 # Poetry
 poetry.lock
