@@ -17,7 +17,7 @@ priority: default
 
 ## Decision
 
-Extractor docstrings are the bootstrap/template source for a config, but after that initial generation the curated JSON is the study-specific source of truth: `scripts/generate_port_config.py` refuses to overwrite an existing `configs/<platform>_config.json` (prints an error and exits non-zero). Re-bootstrapping requires an explicit `rm` of the file first. (The handoff is one-way at bootstrap — this does not contradict metadata being authored in docstrings; it governs the config's lifecycle *after* it is generated.)
+Extractor docstrings are the bootstrap source for a config; after that initial generation the curated JSON is the study-specific source of truth. `scripts/generate_port_config.py` refuses to overwrite an existing `configs/<platform>_config.json` (exits non-zero); re-bootstrapping requires an explicit `rm` of the file first.
 
 ## Guidance
 

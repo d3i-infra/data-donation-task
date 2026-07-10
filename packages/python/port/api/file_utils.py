@@ -14,7 +14,7 @@ import js
 class SeekableBinaryReader(Protocol):
     """File-like contract for upload-pipeline consumers.
 
-    Per extraction/AD0007, archive-consuming functions
+    Per ADR-0026, archive-consuming functions
     (zipfile.ZipFile, validate.validate_zip,
     extraction_helpers.ZipArchiveReader, per-platform
     extraction()/validate_file()/extract_data()) accept this
@@ -73,7 +73,7 @@ class AsyncFileAdapter:
             API's ~2 GiB ArrayBuffer cap regardless of available RAM.
             Pass this adapter directly to zipfile.ZipFile (which chunks
             reads at its own discretion) or call read(size=N) with a
-            bounded N. See extraction/AD0007.
+            bounded N. See ADR-0026.
         """
         if self._closed:
             raise ValueError("I/O operation on closed file")

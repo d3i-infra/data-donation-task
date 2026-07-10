@@ -23,7 +23,7 @@ priority: default
 
 - `script.py`'s only dispatch dependency is `module.process(session_id)`: it calls `validate_or_raise(platform)`, imports `port.platforms.<platform>`, and calls `process()`. No platform names, no `PLATFORM_REGISTRY`.
 - Platform-authoring convention (used inside the module, not by the dispatcher): each exposes `EXTRACTOR_REGISTRY` (ordered `dict[str, Callable[..., pd.DataFrame]]`), `extraction(...)`, a `<Platform>Flow(FlowBuilder)` subclass, and `process(session_id)` returning `<Platform>Flow(session_id).start_flow()`. `example.py` is the canonical template.
-- A runnable/released platform needs a generated `configs/<platform>_config.json`, but those are generated on demand (config lifecycle is AD0014) and validated at runtime by `script.py`; only `example_config.json` is committed. Adding a platform still requires no change to `script.py`.
+- A runnable/released platform needs a generated `configs/<platform>_config.json`, but those are generated on demand (the config lifecycle and overwrite policy are their own record) and validated at runtime by `script.py`; only `example_config.json` is committed. Adding a platform still requires no change to `script.py`.
 - Documented signature exceptions, both still exposing all four convention symbols: **Netflix** keeps `run_extraction` but with a different `extraction(reader, selected_user)` shape; **WhatsApp** has an `extraction(df)` shape and still calls `load_port_config`, but *bypasses* `run_extraction`, building its tables in its own loop.
 
 ## Why

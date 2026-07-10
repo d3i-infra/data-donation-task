@@ -1,6 +1,6 @@
 """Tests for ZipArchiveReader — member resolution, extraction, result types.
 
-Per extraction/AD0007, ZipArchiveReader accepts a seekable binary file-like
+Per ADR-0026, ZipArchiveReader accepts a seekable binary file-like
 (SeekableBinaryReader Protocol) — never a path string. Test fixtures use
 io.BytesIO; production callers pass an AsyncFileAdapter directly.
 """
