@@ -14,7 +14,7 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   (`read | seek | tell`) — path strings are no longer accepted. The
   upload pipeline passes an `AsyncFileAdapter` directly; tests
   construct fixtures via `io.BytesIO`. Type narrowing makes the
-  streaming invariant from `extraction/AD0007` checkable: passing a
+  streaming invariant from `ADR-0026` checkable: passing a
   `str` path to a consumer fails Pyright. CI does not currently run
   type-checking, so this is a local / IDE / code-review aid rather
   than a CI gate. Combined with the absence of `materialize_file()`
@@ -25,6 +25,15 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   and `ZipArchiveReader(zip_path=…)` keyword arguments are now
   `archive=…`. The `ZipArchiveReader.zip_path` attribute is renamed to
   `ZipArchiveReader.archive`. Positional callers are unaffected.
+
+### Fixed
+
+* Facebook HTML-format DDPs were misdetected as the `json_en` category.
+  `no-data.txt` — Facebook's empty-section placeholder, emitted in both
+  JSON and HTML exports — was a `json_en` known file, so an HTML package
+  with several empty sections scored well above the 5% match threshold
+  despite containing zero `.json` data files. Removed `no-data.txt` from
+  the `json_en` known-file list (#74).
 
 ## v2.0.1 — 2026-05-04
 
