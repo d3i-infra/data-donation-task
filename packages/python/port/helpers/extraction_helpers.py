@@ -604,7 +604,7 @@ class ZipArchiveReader:
     json()/csv()/raw() methods with found/not-found signaling to
     eliminate cascading errors for expected-missing files.
 
-    Per extraction/AD0007, the upload pipeline passes the
+    Per ADR-0026, the upload pipeline passes the
     `AsyncFileAdapter` from a browser upload here directly so the zip
     is never materialized into Pyodide's heap. Path-string inputs are
     not accepted; tests construct fixtures via `io.BytesIO`.
@@ -725,7 +725,7 @@ class ZipArchiveReader:
 
         Returns RawExtractionResult(found=False, data=io.BytesIO())
         if member not in archive. Used for HTML (Chrome bookmarks),
-        text files (WhatsApp), and .js files (X — caller applies
+        text files (WhatsApp, TikTok), and .js files (X — caller applies
         bytesio_to_listdict for JS prefix stripping).
         """
         member = self.resolve_member(filename)

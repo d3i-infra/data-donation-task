@@ -51,7 +51,7 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
     Returns a PropsUIPromptConfirm with "Try again" (ok → PayloadTrue) and
     "Continue" (cancel → PayloadFalse) buttons. Using standard feldspar
     PropsUIPromptConfirm instead of d3i PropsUIPromptRetry which only
-    renders a single button. See data-collector/AD0002 for the broader
+    renders a single button. See ADR-0016 for the broader
     decision on custom vs standard prompt components.
 
     Args:

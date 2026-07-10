@@ -17,12 +17,12 @@ Examples::
 
 ``find_fixture("chatgpt")`` returns the first match for ``chatgpt_*.zip``.
 The ``ddp/`` directory is git-ignored — real DDPs must never enter version
-control (see AD0001).
+control (see ADR-0014).
 
 See Also
 --------
-docs/decisions/testing/AD0001 : policy against committing real DDP data
-docs/decisions/testing/AD0002 : Pyodide mocking strategy for desktop testing
+docs/decisions/0014-no-real-participant-data-in-version-control.md : policy against committing real DDP data
+docs/decisions/0015-mock-the-pyodide-js-module-in-conftest-before-importing-port.md : Pyodide mocking strategy for desktop testing
 """
 from collections import Counter
 from dataclasses import dataclass, field

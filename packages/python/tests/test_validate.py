@@ -1,6 +1,6 @@
 """Tests for ValidateInput archive_members caching.
 
-Per extraction/AD0007, validate_zip accepts a seekable binary file-like
+Per ADR-0026, validate_zip accepts a seekable binary file-like
 (SeekableBinaryReader Protocol) — never a path string. Test fixtures use
 io.BytesIO; production callers pass an AsyncFileAdapter directly.
 """

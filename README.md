@@ -9,7 +9,7 @@ For detailed tutorials and API reference, see the [documentation site](https://d
 
 Platform extraction is now config-driven: each platform has a `configs/<platform>_config.json` that declares table titles, column headers, and visualizations. Generate one with `pnpm generate-config <platform>`. The generator refuses to overwrite existing files, protecting researcher edits. `release.sh` auto-discovers platforms from `configs/` — no hardcoded list needed. `VITE_PLATFORM` is now required in dev mode.
 
-See [CHANGELOG.md](CHANGELOG.md) for the full list of changes and [MIGRATION.md](MIGRATION.md) for upgrading downstream forks.
+See [CHANGELOG.md](CHANGELOG.md) for the full list of changes and the migration notes for downstream forks.
 
 ## Installation and local testing
 

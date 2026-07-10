@@ -102,10 +102,10 @@ commands, and `sendLogs(entries)` for JS-side log entries.
 
 | Package | Purpose |
 |---|---|
-| `port.script` | Entry point — `process()` iterates through platforms |
+| `port.script` | Entry point — validates the config and dispatches to the single `VITE_PLATFORM`-selected platform via `module.process(session_id)` |
 | `port.helpers.flow_builder` | `FlowBuilder` base class — per-platform flow orchestration |
 | `port.helpers.validate` | `ValidateInput`, `DDPCategory` — zip structure validation |
-| `port.helpers.uploads` | File materialization and safety checks |
+| `port.helpers.uploads` | Upload safety checks — size policy from JS metadata, never reads the payload |
 | `port.helpers.extraction_helpers` | `ZipArchiveReader` and CSV/JSON parsing utilities |
 | `port.helpers.port_helpers` | `emit_log`, `render_page`, `donate` and other helpers |
 | `port.api.commands` | `CommandSystem*` and `CommandUIRender` classes |
