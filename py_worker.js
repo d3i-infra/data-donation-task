@@ -33,8 +33,21 @@ onmessage = (event) => {
 
 function runCycle(payload) {
   console.log("[ProcessingWorker] runCycle " + JSON.stringify(payload));
+  let scriptEvent;
   try {
     scriptEvent = pyScript.send(payload);
+  } catch (error) {
+    // Local diagnostics only — escaped Python errors reach the participant
+    // as a rendered error page (ADR-0022); never posted as error/log events
+    // that would forward unconsented traceback text (ADR-0023).
+    console.error("[ProcessingWorker] Error in pyScript.send:", error);
+    self.postMessage({
+      eventType: "runCycleDone",
+      scriptEvent: generateErrorMessage(String(error)),
+    });
+    return;
+  }
+  try {
     self.postMessage({
       eventType: "runCycleDone",
       scriptEvent: scriptEvent.toJs({
@@ -43,6 +56,7 @@ function runCycle(payload) {
       }),
     });
   } catch (error) {
+    console.error("[ProcessingWorker] Error in toJs/postMessage:", error);
     self.postMessage({
       eventType: "runCycleDone",
       scriptEvent: generateErrorMessage(String(error)),
