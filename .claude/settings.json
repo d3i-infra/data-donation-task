@@ -1,0 +1,19 @@
+{
+  "extraKnownMarketplaces": {
+    "d3i-claude-skills": {
+      "source": {
+        "source": "github",
+        "repo": "d3i-infra/d3i-claude-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "write-adr@d3i-claude-skills": true
+  },
+  "permissions": {
+    "allow": [
+      "Bash(adg:*)",
+      "Bash(command -v adg)"
+    ]
+  }
+}
