@@ -1,0 +1,713 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Creating your own data donation task &#8212; The data donation task</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  <!--
+    this give us a css class that will be invisible only if js is disabled
+  -->
+  <noscript>
+    <style>
+      .pst-js-only { display: none !important; }
+
+    </style>
+  </noscript>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=8878045cc6db502f8baf" rel="stylesheet" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=3c74b3bc" />
+  
+  <!-- So that users can add custom icons -->
+  <script src="../_static/scripts/fontawesome.js?digest=8878045cc6db502f8baf"></script>
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf" />
+
+    <script src="../_static/documentation_options.js?v=f9c1cefe"></script>
+    <script src="../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=fab101a9"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/creating-your-own-data-donation-task';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Adding data visualizations" href="visualizations.html" />
+    <link rel="prev" title="Installation" href="installation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  <meta name="docsearch:version" content="" />
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <dialog id="pst-search-dialog">
+    
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form>
+  </dialog>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <dialog id="pst-primary-sidebar-modal"></dialog>
+      <div id="pst-primary-sidebar" class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+  
+    <p class="title logo__title">The data donation task</p>
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+<button class="btn search-button-field search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+ <i class="fa-solid fa-magnifying-glass"></i>
+ <span class="search-button__default-text">Search</span>
+ <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+</button></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        
+        <ul class="nav bd-sidenav bd-sidenav__home-link">
+            <li class="toctree-l1">
+                <a class="reference internal" href="../index.html">
+                    The Data Donation Task
+                </a>
+            </li>
+        </ul>
+        <ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting Started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installation</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Creating your own data donation task</a></li>
+<li class="toctree-l2"><a class="reference internal" href="visualizations.html">Adding data visualizations</a></li>
+<li class="toctree-l2"><a class="reference internal" href="next-and-port.html">Next and Port</a></li>
+<li class="toctree-l2"><a class="reference internal" href="deployment.html">Deployment</a></li>
+<li class="toctree-l2"><a class="reference internal" href="data-donation-checklist.html">Data donation checklist</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../architecture/index.html">Architecture</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/01-overview.html">System Overview</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/02-run-cycle.html">The Run Cycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/03-command-protocol.html">Command Protocol</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/04-flowbuilder.html">FlowBuilder</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/05-extraction.html">Extraction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/06-logging.html">Logging</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/07-error-handling.html">Error Handling</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../architecture/08-rendering.html">Rendering and the Factory System</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../api/index.html">API Reference</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/api.html">API Reference</a></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../standard_scripts/index.html">Platform Documentation</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+      <div class="sidebar-primary-item">
+<div id="ethical-ad-placement"
+      class="flat"
+      data-ea-publisher="readthedocs"
+      data-ea-type="readthedocs-sidebar"
+      data-ea-manual="true">
+</div></div>
+  </div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/d3i-infra/data-donation-task" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/creating-your-own-data-donation-task.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button pst-navbar-icon"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button pst-js-only" aria-label="Color mode" data-bs-title="Color mode"  data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <i class="theme-switch fa-solid fa-sun                fa-lg" data-mode="light" title="Light"></i>
+  <i class="theme-switch fa-solid fa-moon               fa-lg" data-mode="dark"  title="Dark"></i>
+  <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"  title="System Settings"></i>
+</button>
+
+
+<button class="btn btn-sm pst-navbar-icon search-button search-button__button pst-js-only" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+</button>
+<button class="sidebar-toggle secondary-toggle btn btn-sm pst-navbar-icon" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Creating your own data donation task</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How it works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-new-platform">Adding a new platform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-copy-the-example">Step 1 — Copy the example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-write-extractor-functions">Step 2 — Write extractor functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-register-your-extractors">Step 3 — Register your extractors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-generate-the-config">Step 4 — Generate the config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-run-the-dev-server">Step 5 — Run the dev server</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-details">Implementation details</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flowbuilder">FlowBuilder</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extraction-function">The <code class="docutils literal notranslate"><span class="pre">extraction()</span></code> function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-a-real-platform">Comparison with a real platform</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-packages">Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-notes">Practical notes</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="creating-your-own-data-donation-task">
+<h1>Creating your own data donation task<a class="headerlink" href="#creating-your-own-data-donation-task" title="Link to this heading">#</a></h1>
+<p>Each platform is implemented as a single Python module in <code class="docutils literal notranslate"><span class="pre">packages/python/port/platforms/</span></code>. The module has three responsibilities: validating the uploaded file, extracting tables from it, and subclassing <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> to plug both into the shared donation flow.</p>
+<p><code class="docutils literal notranslate"><span class="pre">example.py</span></code> is the minimal working implementation. It accepts any zip file and returns a table of file statistics from the zip’s central directory — intentionally simple, so the structure is easy to follow. This guide is based on that file.</p>
+<section id="how-it-works">
+<h2>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h2>
+<p>When a participant wants to donate their data, the data donation task runs the following sequence automatically:</p>
+<ol class="arabic simple">
+<li><p>Prompt the participant for a file.</p></li>
+<li><p>Run a safety check on the upload (size limits).</p></li>
+<li><p>Call your <code class="docutils literal notranslate"><span class="pre">validate_file()</span></code> — if it fails, show a retry prompt and loop back.</p></li>
+<li><p>Call your <code class="docutils literal notranslate"><span class="pre">extract_data()</span></code> — if it returns no tables, show a no-data page.</p></li>
+<li><p>Render the consent form with the extracted tables.</p></li>
+<li><p>Send the donation.</p></li>
+</ol>
+<p>You implement steps 3 and 4. Everything else is handled by the framework.</p>
+<p>The files involved are:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>File</p></th>
+<th class="head"><p>Role</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">platforms/example.py</span></code></p></td>
+<td><p>Minimal working platform — start here</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">configs/example_config.json</span></code></p></td>
+<td><p>Generated config that drives extraction and table display</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">helpers/flow_builder.py</span></code></p></td>
+<td><p>Shared flow logic</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">helpers/validate.py</span></code></p></td>
+<td><p>DDP validation utilities</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">helpers/extraction_helpers.py</span></code></p></td>
+<td><p><code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> for reading files out of a zip</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">helpers/table_extractor.py</span></code></p></td>
+<td><p>Loads the config and runs extractor functions</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<hr class="docutils" />
+<section id="adding-a-new-platform">
+<h2>Adding a new platform<a class="headerlink" href="#adding-a-new-platform" title="Link to this heading">#</a></h2>
+<section id="step-1-copy-the-example">
+<h3>Step 1 — Copy the example<a class="headerlink" href="#step-1-copy-the-example" title="Link to this heading">#</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>cp<span class="w"> </span>packages/python/port/platforms/example.py<span class="w"> </span>packages/python/port/platforms/myplatform.py
+</pre></div>
+</div>
+<p>Read through the copy before modifying it. Each section is commented and the structure maps directly to the steps below.</p>
+</section>
+<section id="step-2-write-extractor-functions">
+<h3>Step 2 — Write extractor functions<a class="headerlink" href="#step-2-write-extractor-functions" title="Link to this heading">#</a></h3>
+<p>An extractor reads one or more files from the zip and returns a <code class="docutils literal notranslate"><span class="pre">pd.DataFrame</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">port.helpers.extraction_helpers</span><span class="w"> </span><span class="kn">import</span> <span class="n">ZipArchiveReader</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">my_data_to_df</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">ZipArchiveReader</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">Counter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">reader</span><span class="o">.</span><span class="n">json</span><span class="p">(</span><span class="s2">&quot;path/to/data.json&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">found</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">ZipArchiveReader</span></code> provides <code class="docutils literal notranslate"><span class="pre">reader.json()</span></code>, <code class="docutils literal notranslate"><span class="pre">reader.csv()</span></code>, and <code class="docutils literal notranslate"><span class="pre">reader.raw()</span></code>. Each returns a result object with a <code class="docutils literal notranslate"><span class="pre">found</span></code> attribute — if the file is absent, <code class="docutils literal notranslate"><span class="pre">found</span></code> is <code class="docutils literal notranslate"><span class="pre">False</span></code> and no exception is raised. This is important because DDP exports are not always consistent across participants.</p>
+<p>Each extractor function must also include a <code class="docutils literal notranslate"><span class="pre">Table</span> <span class="pre">config::</span></code> JSON block in its docstring. The config generator reads these blocks to produce the consent-form table definition:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">my_data_to_df</span><span class="p">(</span><span class="n">reader</span><span class="p">:</span> <span class="n">ZipArchiveReader</span><span class="p">,</span> <span class="n">errors</span><span class="p">:</span> <span class="n">Counter</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract my data.</span>
+
+<span class="sd">    Table config::</span>
+
+<span class="sd">        {</span>
+<span class="sd">          &quot;id&quot;: &quot;myplatform_my_data&quot;,</span>
+<span class="sd">          &quot;title&quot;: {&quot;en&quot;: &quot;My data&quot;, &quot;nl&quot;: &quot;Mijn data&quot;},</span>
+<span class="sd">          &quot;description&quot;: {</span>
+<span class="sd">            &quot;en&quot;: &quot;Description shown to the participant.&quot;,</span>
+<span class="sd">            &quot;nl&quot;: &quot;Beschrijving voor de deelnemer.&quot;</span>
+<span class="sd">          },</span>
+<span class="sd">          &quot;headers&quot;: {</span>
+<span class="sd">            &quot;column_a&quot;: {&quot;en&quot;: &quot;Column A&quot;, &quot;nl&quot;: &quot;Kolom A&quot;}</span>
+<span class="sd">          },</span>
+<span class="sd">          &quot;visualizations&quot;: []</span>
+<span class="sd">        }</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</pre></div>
+</div>
+<p>See <code class="docutils literal notranslate"><span class="pre">example.py</span></code> for a complete block, including a word cloud visualization.</p>
+</section>
+<section id="step-3-register-your-extractors">
+<h3>Step 3 — Register your extractors<a class="headerlink" href="#step-3-register-your-extractors" title="Link to this heading">#</a></h3>
+<p>At the module level, map each function name to its implementation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">EXTRACTOR_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;my_data_to_df&quot;</span><span class="p">:</span> <span class="n">my_data_to_df</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>One entry per extractor. The keys are referenced by the config file.</p>
+</section>
+<section id="step-4-generate-the-config">
+<h3>Step 4 — Generate the config<a class="headerlink" href="#step-4-generate-the-config" title="Link to this heading">#</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span>pnpm<span class="w"> </span>generate-config<span class="w"> </span>myplatform
+</pre></div>
+</div>
+<p>This scans the <code class="docutils literal notranslate"><span class="pre">Table</span> <span class="pre">config::</span></code> blocks in your docstrings and writes <code class="docutils literal notranslate"><span class="pre">packages/python/port/configs/myplatform_config.json</span></code>. The generator will not overwrite an existing file, so manual edits are safe.</p>
+<p>After generating, open the config and adjust the titles and descriptions to match your study’s language and framing.</p>
+</section>
+<section id="step-5-run-the-dev-server">
+<h3>Step 5 — Run the dev server<a class="headerlink" href="#step-5-run-the-dev-server" title="Link to this heading">#</a></h3>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="nv">VITE_PLATFORM</span><span class="o">=</span>myplatform<span class="w"> </span>pnpm<span class="w"> </span>start
+</pre></div>
+</div>
+<p>Open <code class="docutils literal notranslate"><span class="pre">http://localhost:3000</span></code> and upload a zip to test your platform.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="implementation-details">
+<h2>Implementation details<a class="headerlink" href="#implementation-details" title="Link to this heading">#</a></h2>
+<section id="flowbuilder">
+<h3>FlowBuilder<a class="headerlink" href="#flowbuilder" title="Link to this heading">#</a></h3>
+<p>Subclass <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> and implement <code class="docutils literal notranslate"><span class="pre">validate_file</span></code> and <code class="docutils literal notranslate"><span class="pre">extract_data</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">MyPlatformFlow</span><span class="p">(</span><span class="n">FlowBuilder</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">session_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="s2">&quot;myplatform&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_file</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidateInput</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">validate_my_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">extract_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">file</span><span class="p">,</span> <span class="n">validation</span><span class="p">:</span> <span class="n">ValidateInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtractionResult</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">extraction</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">validation</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">process</span><span class="p">(</span><span class="n">session_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+    <span class="n">flow</span> <span class="o">=</span> <span class="n">MyPlatformFlow</span><span class="p">(</span><span class="n">session_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">flow</span><span class="o">.</span><span class="n">start_flow</span><span class="p">()</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code> calls these methods at the appropriate points in the flow. You do not call them directly.</p>
+</section>
+<section id="the-extraction-function">
+<h3>The <code class="docutils literal notranslate"><span class="pre">extraction()</span></code> function<a class="headerlink" href="#the-extraction-function" title="Link to this heading">#</a></h3>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">extraction</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">validation</span><span class="p">:</span> <span class="n">ValidateInput</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ExtractionResult</span><span class="p">:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">load_port_config</span><span class="p">(</span><span class="n">EXTRACTOR_REGISTRY</span><span class="p">,</span> <span class="s2">&quot;myplatform&quot;</span><span class="p">)</span>
+    <span class="n">errors</span><span class="p">:</span> <span class="n">Counter</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">()</span>
+    <span class="n">reader</span> <span class="o">=</span> <span class="n">ZipArchiveReader</span><span class="p">(</span><span class="n">zip_path</span><span class="p">,</span> <span class="n">validation</span><span class="o">.</span><span class="n">archive_members</span><span class="p">,</span> <span class="n">errors</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">run_extraction</span><span class="p">(</span><span class="n">reader</span><span class="p">,</span> <span class="n">errors</span><span class="p">,</span> <span class="n">config</span><span class="p">)</span>
+</pre></div>
+</div>
+<p><code class="docutils literal notranslate"><span class="pre">load_port_config</span></code> reads the config JSON and matches each table entry to an extractor in <code class="docutils literal notranslate"><span class="pre">EXTRACTOR_REGISTRY</span></code>. <code class="docutils literal notranslate"><span class="pre">run_extraction</span></code> calls each extractor and returns the non-empty results as an <code class="docutils literal notranslate"><span class="pre">ExtractionResult</span></code>. Passing <code class="docutils literal notranslate"><span class="pre">validation.archive_members</span></code> avoids re-opening the zip.</p>
+</section>
+<section id="validation">
+<h3>Validation<a class="headerlink" href="#validation" title="Link to this heading">#</a></h3>
+<p>Validation determines whether the uploaded file is the expected kind of zip.</p>
+<p>In <code class="docutils literal notranslate"><span class="pre">example.py</span></code> this is intentionally minimal — it only checks that the file opens as a valid zip:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">validate_zip_file</span><span class="p">(</span><span class="n">path_to_zip</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ValidateInput</span><span class="p">:</span>
+    <span class="n">status_codes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">StatusCode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Valid zip file&quot;</span><span class="p">),</span>
+        <span class="n">StatusCode</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Not a valid zip file&quot;</span><span class="p">),</span>
+    <span class="p">]</span>
+    <span class="n">v</span> <span class="o">=</span> <span class="n">ValidateInput</span><span class="p">(</span><span class="n">status_codes</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">ZipFile</span><span class="p">(</span><span class="n">path_to_zip</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">zf</span><span class="p">:</span>
+            <span class="n">v</span><span class="o">.</span><span class="n">archive_members</span> <span class="o">=</span> <span class="n">zf</span><span class="o">.</span><span class="n">namelist</span><span class="p">()</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">set_current_status_code_by_id</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">zipfile</span><span class="o">.</span><span class="n">BadZipFile</span><span class="p">:</span>
+        <span class="n">v</span><span class="o">.</span><span class="n">set_current_status_code_by_id</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">v</span>
+</pre></div>
+</div>
+<p>Status code <code class="docutils literal notranslate"><span class="pre">0</span></code> means valid; any other value triggers the retry prompt in <code class="docutils literal notranslate"><span class="pre">FlowBuilder</span></code>.</p>
+<p>For a real study, use <code class="docutils literal notranslate"><span class="pre">validate.validate_zip(DDP_CATEGORIES,</span> <span class="pre">file)</span></code> instead. This opens the zip, reads filenames from the central directory, and calls <code class="docutils literal notranslate"><span class="pre">infer_ddp_category()</span></code>, which computes what fraction of the <code class="docutils literal notranslate"><span class="pre">known_files</span></code> for each category are present. If at least 5% of the known files for any category are found, that category is matched and status code <code class="docutils literal notranslate"><span class="pre">0</span></code> is returned. Otherwise the zip is rejected.</p>
+<p><code class="docutils literal notranslate"><span class="pre">DDP_CATEGORIES</span></code> lists the file names that are characteristic of the platform’s export format:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">port.helpers.validate</span><span class="w"> </span><span class="kn">import</span> <span class="n">DDPCategory</span><span class="p">,</span> <span class="n">DDPFiletype</span><span class="p">,</span> <span class="n">Language</span>
+
+<span class="n">DDP_CATEGORIES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">DDPCategory</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;json_en&quot;</span><span class="p">,</span>
+        <span class="n">ddp_filetype</span><span class="o">=</span><span class="n">DDPFiletype</span><span class="o">.</span><span class="n">JSON</span><span class="p">,</span>
+        <span class="n">language</span><span class="o">=</span><span class="n">Language</span><span class="o">.</span><span class="n">EN</span><span class="p">,</span>
+        <span class="n">known_files</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;personal_information.json&quot;</span><span class="p">,</span> <span class="s2">&quot;liked_posts.json&quot;</span><span class="p">,</span> <span class="s2">&quot;followers.json&quot;</span><span class="p">],</span>
+    <span class="p">),</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+<p>The matched category is stored on the returned <code class="docutils literal notranslate"><span class="pre">ValidateInput</span></code> as <code class="docutils literal notranslate"><span class="pre">validation.current_ddp_category</span></code> and is available inside <code class="docutils literal notranslate"><span class="pre">extract_data</span></code> if your extractor needs to branch on format.</p>
+</section>
+</section>
+<hr class="docutils" />
+<section id="comparison-with-a-real-platform">
+<h2>Comparison with a real platform<a class="headerlink" href="#comparison-with-a-real-platform" title="Link to this heading">#</a></h2>
+<p>Once you’re comfortable with the example, <code class="docutils literal notranslate"><span class="pre">packages/python/port/platforms/instagram.py</span></code> is a useful reference. It follows the same structure, but differs from the example in a few key ways:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">DDP_CATEGORIES</span></code> lists dozens of known Instagram export filenames, so the validator only accepts genuine Instagram exports.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">validate.validate_zip(DDP_CATEGORIES,</span> <span class="pre">file)</span></code> replaces the bare zip-open check.</p></li>
+<li><p>Multiple extractor functions each parse a specific file from the export (liked posts, followers, login activity, and others).</p></li>
+<li><p>Extractors read actual file contents with <code class="docutils literal notranslate"><span class="pre">reader.json()</span></code> rather than only inspecting the zip central directory.</p></li>
+</ul>
+<p>The example skips DDP matching on purpose — it lets you test the full flow with any zip file. For a study collecting real participant data, define <code class="docutils literal notranslate"><span class="pre">DDP_CATEGORIES</span></code> and write extractors for the specific files your platform exports.</p>
+</section>
+<hr class="docutils" />
+<section id="python-packages">
+<h2>Python packages<a class="headerlink" href="#python-packages" title="Link to this heading">#</a></h2>
+<p>The task runs in the participant’s browser via <a class="reference external" href="https://pyodide.org/en/stable/">Pyodide</a>, a Python runtime compiled to WebAssembly, so locally installed packages are not available. Check the <a class="reference external" href="https://pyodide.org/en/stable/usage/packages-in-pyodide.html">Pyodide package list</a> and add what you need to <code class="docutils literal notranslate"><span class="pre">packages/data-collector/public/py_worker.js</span></code>:</p>
+<div class="highlight-javascript notranslate"><div class="highlight"><pre><span></span><span class="kd">function</span><span class="w"> </span><span class="nx">loadPackages</span><span class="p">()</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="nx">self</span><span class="p">.</span><span class="nx">pyodide</span><span class="p">.</span><span class="nx">loadPackage</span><span class="p">([</span><span class="s1">&#39;micropip&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;numpy&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;pandas&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;lxml&#39;</span><span class="p">])</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</section>
+<hr class="docutils" />
+<section id="practical-notes">
+<h2>Practical notes<a class="headerlink" href="#practical-notes" title="Link to this heading">#</a></h2>
+<p><strong>Use the browser console for debugging.</strong> <code class="docutils literal notranslate"><span class="pre">print()</span></code> and <code class="docutils literal notranslate"><span class="pre">logging</span></code> output appears in DevTools and stays local — nothing is sent to the server.</p>
+<p><strong>Test with several different exports.</strong> Filenames, folder layout, and JSON structure can differ by platform language and export version.</p>
+<p><strong>Extractors should not raise.</strong> An uncaught exception in an extractor will stop the donation task. Use <code class="docutils literal notranslate"><span class="pre">try/except</span></code> and record errors with <code class="docutils literal notranslate"><span class="pre">errors[type(e).__name__]</span> <span class="pre">+=</span> <span class="pre">1</span></code>, then return an empty DataFrame.</p>
+<p><strong>Before going live</strong>, work through the <a class="reference internal" href="data-donation-checklist.html"><span class="std std-doc">data donation checklist</span></a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="installation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Installation</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="visualizations.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Adding data visualizations</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <dialog id="pst-secondary-sidebar-modal"></dialog>
+                <div id="pst-secondary-sidebar" class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item"><div
+    id="pst-page-navigation-heading-2"
+    class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav id="pst-page-toc-nav" class="page-toc" aria-labelledby="pst-page-navigation-heading-2">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How it works</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#adding-a-new-platform">Adding a new platform</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-1-copy-the-example">Step 1 — Copy the example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-2-write-extractor-functions">Step 2 — Write extractor functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-3-register-your-extractors">Step 3 — Register your extractors</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-4-generate-the-config">Step 4 — Generate the config</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#step-5-run-the-dev-server">Step 5 — Run the dev server</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#implementation-details">Implementation details</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#flowbuilder">FlowBuilder</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-extraction-function">The <code class="docutils literal notranslate"><span class="pre">extraction()</span></code> function</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#validation">Validation</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#comparison-with-a-real-platform">Comparison with a real platform</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#python-packages">Python packages</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#practical-notes">Practical notes</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Boeschoten et al.
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2024, Boeschoten et al..
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script defer src="../_static/scripts/bootstrap.js?digest=8878045cc6db502f8baf"></script>
+<script defer src="../_static/scripts/pydata-sphinx-theme.js?digest=8878045cc6db502f8baf"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
