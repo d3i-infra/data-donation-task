@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+# Lean ADR commit-time gate. Enforcement runs here (once per commit), not on every
+# edit: validate the model and run the executable checks against the staged files.
+# Graceful — if adg is not on PATH it warns and lets the commit through, so
+# contributors without adg are never blocked (CI is the comprehensive backstop).
+# Source of truth for this logic: the write-adr plugin's
+# skills/write-lean-adr/assets/githooks/pre-commit. Override the dir with ADR_MODEL.
+set -euo pipefail
+MODEL="${ADR_MODEL:-docs/decisions}"
+
+[ -d "$MODEL" ] || exit 0
+if ! command -v adg >/dev/null 2>&1; then
+    echo "pre-commit: adg not installed, skipping ADR checks (see CLAUDE.md to install)" >&2
+    exit 0
+fi
+
+# gate runs a step quietly: on success its output (e.g. the generated index) is
+# discarded; on failure the captured output is surfaced and the commit aborts.
+gate() {
+    local out
+    if ! out=$("$@" 2>&1); then
+        printf '%s\n' "$out" >&2
+        exit 1
+    fi
+}
+
+gate adg lean index --model "$MODEL" --root .
+
+staged=$(git diff --cached --name-only --diff-filter=ACM)
+if [ -n "$staged" ]; then
+    # shellcheck disable=SC2086
+    gate adg lean check --model "$MODEL" $staged
+fi
