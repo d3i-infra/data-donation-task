@@ -8,10 +8,10 @@ Each platform module in ``packages/python/port/platforms/`` contains a ``FlowBui
 that handles the full donation flow (file prompt, validation, extraction, consent, donation)
 and a ``process()`` function that ``script.py`` calls via ``yield from``.
 
-To run a single platform, you can either:
-
-1. Set the ``VITE_PLATFORM`` environment variable to the platform name (used by per-platform release builds), or
-2. Edit the ``PLATFORM_REGISTRY`` list in ``script.py`` to include only the platform(s) you want
+Each build targets exactly one platform: set the ``VITE_PLATFORM`` environment
+variable to the platform name, both for local development (``pnpm start``) and
+for release builds (``release.sh`` builds one bundle per config in
+``configs/*_config.json``).
 
 Available platforms
 -------------------

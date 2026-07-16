@@ -98,10 +98,10 @@ The worker handles this in `unwrap()`:
 2. `py_worker.js` wraps the `File` in a `FileReaderSync`-backed reader object
 3. This reader is sent to Python as a `PayloadFile.value`
 4. Python's `AsyncFileAdapter` wraps it, allowing synchronous `.read()` inside the worker
-5. `uploads.materialize_file()` writes the bytes to `/tmp` in Emscripten's in-memory filesystem
-
-The `/tmp` filesystem is in-memory and scoped to the worker — no data is
-written to the participant's disk, and it is freed when the worker terminates.
+5. The adapter is passed directly to consumers (`zipfile.ZipFile`, validators,
+   extractors) — the upload is streamed, never materialized to a path
+   (ADR-0026). `uploads.check_payload_size()` enforces the size policy from
+   JS-reported metadata before any bytes are read.
 
 ---
 
@@ -115,7 +115,7 @@ written to the participant's disk, and it is freed when the worker terminates.
 | `packages/feldspar/src/framework/assembly.ts` | Wires all JS components |
 | `packages/python/port/main.py` | `ScriptWrapper`, `start()` |
 | `packages/python/port/api/file_utils.py` | `AsyncFileAdapter` |
-| `packages/python/port/helpers/uploads.py` | `materialize_file()` |
+| `packages/python/port/helpers/uploads.py` | `check_payload_size()` |
 
 ---
 

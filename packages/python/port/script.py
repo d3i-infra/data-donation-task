@@ -1,51 +1,43 @@
-"""Study orchestration — platform list, filtering, sequencing.
+"""Study orchestration — platform loading and sequencing.
 
-This module defines which platforms are included in the study and
-delegates per-platform flows to FlowBuilder subclasses via `yield from`.
+Each platform needs a ``configs/<platform>_config.json`` file.
+Generate one with:  pnpm generate-config <platform>
 
-Platform modules are imported lazily to minimize startup time in
-per-platform builds where only one platform is needed.
+In dev mode set VITE_PLATFORM to select the platform::
+
+    VITE_PLATFORM=example pnpm start
 """
 from importlib import import_module
 
 import port.helpers.port_helpers as ph
+from port.helpers.port_config_validator import validate_or_raise
 
 
-# Registry: platform display name → (module path, class name)
-PLATFORM_REGISTRY = [
-    ("LinkedIn", "port.platforms.linkedin", "LinkedInFlow"),
-    ("Instagram", "port.platforms.instagram", "InstagramFlow"),
-    ("Facebook", "port.platforms.facebook", "FacebookFlow"),
-    ("YouTube", "port.platforms.youtube", "YouTubeFlow"),
-    ("TikTok", "port.platforms.tiktok", "TikTokFlow"),
-    ("Netflix", "port.platforms.netflix", "NetflixFlow"),
-    ("ChatGPT", "port.platforms.chatgpt", "ChatGPTFlow"),
-    ("WhatsApp", "port.platforms.whatsapp", "WhatsAppFlow"),
-    ("X", "port.platforms.x", "XFlow"),
-    ("Chrome", "port.platforms.chrome", "ChromeFlow"),
-]
+def _check_platform_config(platform: str) -> None:
+    """Raise if ``configs/<platform>_config.json`` is missing or invalid.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the config file is absent.
+    ValidationError
+        If the config file is malformed (invalid JSON or schema/registry errors).
+    """
+    validate_or_raise(platform)
 
 
-def process(session_id: str, platform: str | None = None):
+def process(session_id: str, platform: str):
     """Run the data donation study.
 
     Args:
         session_id: Unique session identifier (from host).
-        platform: If set (via VITE_PLATFORM), run only this platform.
+        platform: Platform name passed from VITE_PLATFORM via the JS layer.
     """
-    entries = PLATFORM_REGISTRY
-    if platform:
-        entries = [
-            (name, mod, cls) for name, mod, cls in entries
-            if name.lower() == platform.lower()
-        ]
+    _check_platform_config(platform.lower())
 
-    for platform_name, module_path, class_name in entries:
-        module = import_module(module_path)
-        flow_class = getattr(module, class_name)
-        flow = flow_class(session_id)
+    module = import_module(f"port.platforms.{platform.lower()}")
 
-        yield from ph.emit_log("info", f"Starting platform: {platform_name}")
-        yield from flow.start_flow()
+    yield from ph.emit_log("info", f"Starting platform: {platform}")
+    yield from module.process(session_id)
 
     yield from ph.emit_log("info", "Study complete")

@@ -3,7 +3,7 @@
 Validates upload size against policy limits using metadata only —
 the upload itself is never read into Pyodide's heap.
 
-See ADR-0028 for the streaming invariant: PayloadFile uploads
+See ADR-0026 for the streaming invariant: PayloadFile uploads
 must be passed directly to consumers (zipfile.ZipFile, validators,
 extractors) without materialization. Reading the entire payload to
 verify its size defeats this; the JS-reported `adapter.size` attribute
@@ -38,7 +38,7 @@ def check_payload_size(file_result) -> None:
 
     Raises:
         TypeError: If file_result is not a PayloadFile. PayloadString /
-            WORKERFS support was retired with ADR-0028.
+            WORKERFS support was retired with ADR-0026.
         ChunkedExportError: If size == CHUNKED_EXPORT_SENTINEL_BYTES
             (split export sentinel — incomplete multi-part download).
         FileTooLargeError: If size > MAX_FILE_SIZE_BYTES.
@@ -47,16 +47,16 @@ def check_payload_size(file_result) -> None:
         raise TypeError(
             f"Unsupported payload type: {file_result.__type__}. "
             "Only PayloadFile is accepted; PayloadString/WORKERFS support "
-            "was retired in ADR-0028."
+            "was retired in ADR-0026."
         )
 
     size = file_result.value.size  # JS metadata, no read
     if size == CHUNKED_EXPORT_SENTINEL_BYTES:
         raise ChunkedExportError(
-            f"File is exactly {CHUNKED_EXPORT_SENTINEL_BYTES} bytes — "
+            f"File is exactly {CHUNKED_EXPORT_SENTINEL_BYTES / (1024 ** 2):.2f} MiB — "
             "likely a chunked export sentinel"
         )
     if size > MAX_FILE_SIZE_BYTES:
         raise FileTooLargeError(
-            f"File is {size} bytes, exceeding limit of {MAX_FILE_SIZE_BYTES} bytes"
+            f"File is {size / (1024 ** 2):.2f} MiB, exceeding limit of {MAX_FILE_SIZE_BYTES / (1024 ** 2):.2f} MiB"
         )

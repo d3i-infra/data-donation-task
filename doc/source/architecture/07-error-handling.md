@@ -230,7 +230,7 @@ host without consent.
 | Unhandled promise rejection in worker | No — silently lost; `WindowLogSource` listens on `window`, not worker scope |
 | `logger.error(...)` (Python logging) | No — browser console only |
 
-This boundary is documented in ADR-0012. The critical design decisions are:
+This boundary is documented in ADR ADR-0022. The critical design decisions are:
 
 1. **`ScriptWrapper`** catches exceptions in Python before they can propagate
    to the JS engine. This is the primary defense and the only one with a

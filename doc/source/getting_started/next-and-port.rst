@@ -35,7 +35,7 @@ The Data Donation Task
 
 The data donation task is the software that extracts the data a researcher wants from a DDP it should be on Next.
 
-The data donation task is a fork of Feldspar_, Feldspar_ is a framework developed by Eyra which can be used to build applications specifically for Next.
+The data donation task is a fork of Feldspar_. Feldspar_ is a framework developed by Eyra which can be used to build applications specifically for Next.
 An example of such an application is the data donation task which you can find in this repository. 
 
 The data donation task aims to be up to date with the master branch of Feldspar_. 
@@ -43,7 +43,7 @@ The data donation task aims to be up to date with the master branch of Feldspar_
 The differences between the data donation task are:
 
 - The data donation task has standard scripts for various platforms that can be used as a basis for your own study
-- The data donation task has a means to visualize data for a participant before donation
+- The data donation task has the means to visualize data for a participant before donation
 
 
 The Data Donation Task with Next

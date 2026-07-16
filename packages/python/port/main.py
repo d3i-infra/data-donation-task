@@ -16,7 +16,7 @@ def error_flow(platform: str | None, tb: str):
     Yields an error consent page, then optionally donates the error log
     if the participant consents.
 
-    This is a PII safety boundary (ADR-0012): uncaught exceptions are caught
+    This is a PII safety boundary (ADR-0022): uncaught exceptions are caught
     here in Python and routed through consent-gated UI, preventing them
     from reaching the JS-side LogForwarder which would forward unsanitized
     to mono.
@@ -89,6 +89,6 @@ class ScriptWrapper(Generator):
         raise StopIteration
 
 
-def start(sessionId, platform=None):
+def start(sessionId, platform):
     script = process(sessionId, platform)
     return ScriptWrapper(script, platform=platform)

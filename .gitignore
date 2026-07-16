@@ -17,6 +17,10 @@
 # testing
 /coverage
 
+# Real DDP fixtures — must not enter version control (see ADR-0014)
+packages/python/tests/ddp/*
+!packages/python/tests/ddp/.gitkeep
+
 # production
 /build
 /releases
@@ -51,6 +55,11 @@ node_modules/
 release-for-website.sh
 
 _build
+doc/build
+
+# Poetry
+poetry.lock
+
 # Ignore all __pycache__ directories
 __pycache__/
 */__pycache__/
@@ -80,3 +89,7 @@ structure_donations/Processed_structure_donations/Twitter/Input_test
 pytests/scenarios/*PRIVATE.json
 
 .~lock.*#
+
+# Config files (keep example configs)
+*_config.json
+!*example_config.json
