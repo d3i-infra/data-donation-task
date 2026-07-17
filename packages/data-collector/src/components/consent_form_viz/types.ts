@@ -1,3 +1,11 @@
+// Matching feldspar's Text/Translatable (duplicated like visualization_plugin/types.ts
+// to keep the plugin self-contained). Previously `Text` silently resolved to the DOM
+// global Text node type.
+export interface Translatable {
+  translations: { [locale: string]: string }
+}
+export type Text = Translatable | string
+
 export interface PropsUIPromptConsentFormTableViz {
   __type__: "PropsUIPromptConsentFormTableViz"
   id: string
