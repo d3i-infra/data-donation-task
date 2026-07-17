@@ -55,3 +55,16 @@ must be adapted alongside the two heading selectors for non-TikTok flows.
   `git write-tree` / tree hashes and dist digests, use one Playwright
   installation (one Chromium build) for all runs, and interleave runs
   in randomized order.
+
+### Visualization-bearing config (required for consent/chart phases)
+
+The peak harness only exercises the chart pipeline if the built config
+attaches `visualizations` to the big table — a config where the largest
+table has no `visualizations` skips chart compute entirely, and the
+`donate`/consent phase peaks read as flat and misleadingly low. Before
+building the benchmark artifact, copy
+`scripts/benchmarks/fixtures/tiktok_config.with-watchviz.json` over
+`packages/python/port/configs/tiktok_config.json`, then build as usual.
+2026-07-17 finding: under the viz-less default config, a ~4 GB
+chart-compute burst on `tiktok_watch_history` was completely invisible
+to the harness — the fixture surfaces it.

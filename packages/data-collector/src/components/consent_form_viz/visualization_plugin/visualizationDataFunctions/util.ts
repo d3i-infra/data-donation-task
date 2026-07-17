@@ -23,26 +23,29 @@ export function formatDate(
   }
 
   if (format === "month") {
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
     formatter = (date) => {
       const year = date.getFullYear().toString();
-      const month = date.toLocaleString("default", { month: "short" });
+      const month = monthFormatter.format(date);
       return `${year}-${month}`;
     };
   }
 
   if (format === "day") {
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
     formatter = (date) => {
       const year = date.getFullYear().toString();
-      const month = date.toLocaleString("default", { month: "short" });
+      const month = monthFormatter.format(date);
       const day = date.getDate().toString();
       return `${year}-${month}-${day}`;
     };
   }
 
   if (format === "hour") {
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
     formatter = (date) => {
       const year = date.getFullYear().toString();
-      const month = date.toLocaleString("default", { month: "short" });
+      const month = monthFormatter.format(date);
       const day = date.getDate().toString();
       const hour = date.getHours();
       return `${year}-${month}-${day} ${hour}:00`;
@@ -50,26 +53,20 @@ export function formatDate(
   }
 
   if (format === "month_cycle") {
-    formatter = (date) => {
-      const intlFormatter = new Intl.DateTimeFormat("default", { month: "long" });
-      return intlFormatter.format(date);
-    };
+    const intlFormatter = new Intl.DateTimeFormat("default", { month: "long" });
+    formatter = (date) => intlFormatter.format(date);
     // can be any year, starting at january
     domain = [new Date("2000-01-01").getTime(), new Date("2001-01-01").getTime()];
   }
   if (format === "weekday_cycle") {
-    formatter = (date) => {
-      const intlFormatter = new Intl.DateTimeFormat("default", { weekday: "long" });
-      return intlFormatter.format(date);
-    };
+    const intlFormatter = new Intl.DateTimeFormat("default", { weekday: "long" });
+    formatter = (date) => intlFormatter.format(date);
     // can be any full week, starting at monday
     domain = [new Date("2023-11-06").getTime(), new Date("2023-11-13").getTime()];
   }
   if (format === "hour_cycle") {
-    formatter = (date) => {
-      const intlFormatter = new Intl.DateTimeFormat("default", { hour: "numeric", hour12: false });
-      return intlFormatter.format(date);
-    };
+    const intlFormatter = new Intl.DateTimeFormat("default", { hour: "numeric", hour12: false });
+    formatter = (date) => intlFormatter.format(date);
     // can be any day, starting at midnight
     domain = [new Date("2000-01-01").getTime(), new Date("2000-01-02").getTime()];
   }

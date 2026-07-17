@@ -1,0 +1,425 @@
+{
+  "platform_info": {
+    "name": "TikTok",
+    "filetypes": [
+      "json",
+      "txt"
+    ],
+    "languages": [
+      "en",
+      "nl"
+    ],
+    "description": "Handles DDPs in English and Dutch. For the JSON format, both user_data.json and user_data_tiktok.json are tried automatically. English DDPs in TXT format have not yet been tested. If you find anything wrong with the data donation flows, please report to datadonation@uu.nl and they will be fixed!",
+    "time_last_tested": "15-06-2026"
+  },
+  "tables": [
+    {
+      "id": "tiktok_activity_summary",
+      "title": {
+        "en": "Your TikTok activity summary",
+        "nl": "Samenvatting van je TikTok-activiteit"
+      },
+      "description": {
+        "en": "Summary counts of videos watched, commented on, and shared since account registration.",
+        "nl": "Overzicht van het aantal bekeken, becommentarieerde en gedeelde video's sinds registratie."
+      },
+      "headers": {
+        "Metric": {
+          "en": "Activity metric",
+          "nl": "Activiteitsmaat"
+        },
+        "Count": {
+          "en": "Count",
+          "nl": "Aantal"
+        }
+      },
+      "extractor": "activity_summary_to_df",
+      "documentation": {
+        "summary": "Summary counts of TikTok activity measures since account registration, such as the number of videos watched, commented on, and shared.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Metric": "Name of the activity metric",
+          "Count": "Total count for that metric since account registration."
+        }
+      }
+    },
+    {
+      "id": "tiktok_settings",
+      "title": {
+        "en": "Content preference keyword filters",
+        "nl": "Zoekwoordfilters voor contentvoorkeuren"
+      },
+      "description": {
+        "en": "Keyword filters applied to your Following and For You feeds.",
+        "nl": "Zoekwoordfilters die worden toegepast op je Volgend- en Voor Jou-feeds."
+      },
+      "headers": {
+        "Setting": {
+          "en": "Setting",
+          "nl": "Instelling"
+        },
+        "Keywords": {
+          "en": "Keywords",
+          "nl": "Trefwoorden"
+        }
+      },
+      "extractor": "settings_to_df",
+      "documentation": {
+        "summary": "Keyword filters applied to the participant's TikTok feeds.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Setting": "Name of the content preference setting.",
+          "Keywords": "Comma-separated list of keywords configured for this setting."
+        }
+      }
+    },
+    {
+      "id": "tiktok_watch_history",
+      "title": {
+        "en": "Watch history",
+        "nl": "Kijkgeschiedenis"
+      },
+      "description": {
+        "en": "TikTok videos you have watched.",
+        "nl": "TikTok-video's die je hebt bekeken."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "Link": {
+          "en": "Link",
+          "nl": "URL"
+        }
+      },
+      "extractor": "watch_history_to_df",
+      "documentation": {
+        "summary": "Each row represents one TikTok video the participant watched, including the date and video link.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the video was watched.",
+          "Link": "URL of the watched TikTok video."
+        }
+      },
+      "visualizations": [
+        {
+          "title": {
+            "en": "Videos watched over time",
+            "nl": "Bekeken video's in de loop van de tijd"
+          },
+          "type": "area",
+          "group": {
+            "column": "Date",
+            "dateFormat": "auto"
+          },
+          "values": [
+            {
+              "aggregate": "count",
+              "label": "Count"
+            }
+          ]
+        },
+        {
+          "title": {
+            "en": "Videos watched by hour of the day",
+            "nl": "Bekeken video's per uur van de dag"
+          },
+          "type": "bar",
+          "group": {
+            "column": "Date",
+            "dateFormat": "hour_cycle",
+            "label": "Hour of the day"
+          },
+          "values": [
+            {
+              "label": "Count"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "tiktok_favorite_videos",
+      "title": {
+        "en": "Favorite videos",
+        "nl": "Favoriete video's"
+      },
+      "description": {
+        "en": "Videos you have marked as favorites on TikTok.",
+        "nl": "Video's die je als favoriet hebt gemarkeerd op TikTok."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "Link": {
+          "en": "Link",
+          "nl": "URL"
+        }
+      },
+      "extractor": "favorite_videos_to_df",
+      "documentation": {
+        "summary": "Each row represents one TikTok video the participant marked as a favorite.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the video was marked as favorite.",
+          "Link": "URL of the favorited TikTok video."
+        }
+      }
+    },
+    {
+      "id": "tiktok_follower",
+      "title": {
+        "en": "Your followers",
+        "nl": "Je volgers"
+      },
+      "description": {
+        "en": "Accounts that follow you on TikTok.",
+        "nl": "Accounts die jou volgen op TikTok."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "UserName": {
+          "en": "Username",
+          "nl": "Gebruikersnaam"
+        }
+      },
+      "extractor": "follower_to_df",
+      "documentation": {
+        "summary": "Each row represents one account that follows the participant on TikTok.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the account started following.",
+          "UserName": "Username of the follower account."
+        }
+      }
+    },
+    {
+      "id": "tiktok_following",
+      "title": {
+        "en": "Accounts you follow",
+        "nl": "Accounts die je volgt"
+      },
+      "description": {
+        "en": "Accounts you follow on TikTok.",
+        "nl": "Accounts die je volgt op TikTok."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "UserName": {
+          "en": "Username",
+          "nl": "Gebruikersnaam"
+        }
+      },
+      "extractor": "following_to_df",
+      "documentation": {
+        "summary": "Each row represents one account that the participant follows on TikTok.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the participant started following this account.",
+          "UserName": "Username of the followed account."
+        }
+      }
+    },
+    {
+      "id": "tiktok_hashtag",
+      "title": {
+        "en": "Hashtags",
+        "nl": "Hashtags"
+      },
+      "description": {
+        "en": "Hashtags associated with your TikTok activity.",
+        "nl": "Hashtags gekoppeld aan je TikTok-activiteit."
+      },
+      "headers": {
+        "HashtagName": {
+          "en": "Hashtag",
+          "nl": "Hashtag"
+        },
+        "HashtagLink": {
+          "en": "Link",
+          "nl": "Link"
+        }
+      },
+      "extractor": "hashtag_to_df",
+      "documentation": {
+        "summary": "Each row represents one hashtag associated with the participant's TikTok activity.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "HashtagName": "Name of the hashtag.",
+          "HashtagLink": "URL link to the hashtag on TikTok."
+        }
+      }
+    },
+    {
+      "id": "tiktok_like_list",
+      "title": {
+        "en": "Videos you liked",
+        "nl": "Video's die je leuk vond"
+      },
+      "description": {
+        "en": "Videos you have liked on TikTok.",
+        "nl": "Video's die je leuk hebt gevonden op TikTok."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "Link": {
+          "en": "Link",
+          "nl": "Link"
+        }
+      },
+      "extractor": "like_list_to_df",
+      "documentation": {
+        "summary": "Each row represents one TikTok video the participant liked.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the video was liked.",
+          "Link": "URL of the liked TikTok video."
+        }
+      }
+    },
+    {
+      "id": "tiktok_searches",
+      "title": {
+        "en": "Search history",
+        "nl": "Zoekgeschiedenis"
+      },
+      "description": {
+        "en": "Search terms you have used on TikTok.",
+        "nl": "Zoektermen die je hebt gebruikt op TikTok."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "SearchTerm": {
+          "en": "Search term",
+          "nl": "Zoekterm"
+        }
+      },
+      "visualizations": [
+        {
+          "title": {
+            "en": "Most searched terms",
+            "nl": "Meest gezochte termen"
+          },
+          "type": "wordcloud",
+          "textColumn": "SearchTerm",
+          "tokenize": false
+        }
+      ],
+      "extractor": "searches_to_df",
+      "documentation": {
+        "summary": "Each row represents one search the participant performed on TikTok.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the search was performed.",
+          "SearchTerm": "The search term entered by the participant."
+        }
+      }
+    },
+    {
+      "id": "tiktok_share_history",
+      "title": {
+        "en": "Share history",
+        "nl": "Deelgeschiedenis"
+      },
+      "description": {
+        "en": "Content you have shared on TikTok, including when, what, and how.",
+        "nl": "Inhoud die je hebt gedeeld op TikTok, inclusief wanneer, wat en hoe."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "SharedContent": {
+          "en": "Shared content",
+          "nl": "Gedeelde inhoud"
+        },
+        "Link": {
+          "en": "Link",
+          "nl": "Link"
+        },
+        "Method": {
+          "en": "Method",
+          "nl": "Methode"
+        }
+      },
+      "extractor": "share_history_to_df",
+      "documentation": {
+        "summary": "Each row represents one piece of content the participant shared on TikTok.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the content was shared.",
+          "SharedContent": "Description of the shared content.",
+          "Link": "URL of the shared content.",
+          "Method": "Method used to share the content."
+        }
+      }
+    },
+    {
+      "id": "tiktok_comments",
+      "title": {
+        "en": "Your comments",
+        "nl": "Je reacties"
+      },
+      "description": {
+        "en": "Comments you have left on TikTok videos.",
+        "nl": "Reacties die je hebt achtergelaten op TikTok-video's."
+      },
+      "headers": {
+        "Date": {
+          "en": "Date",
+          "nl": "Datum en tijd"
+        },
+        "Comment": {
+          "en": "Comment",
+          "nl": "Reactie"
+        },
+        "Photo": {
+          "en": "Photo",
+          "nl": "Foto"
+        },
+        "Url": {
+          "en": "Url",
+          "nl": "Url"
+        }
+      },
+      "visualizations": [
+        {
+          "title": {
+            "en": "Most common words in your comments",
+            "nl": "Meest voorkomende woorden in je reacties"
+          },
+          "type": "wordcloud",
+          "textColumn": "Comment",
+          "tokenize": true
+        }
+      ],
+      "extractor": "comments_to_df",
+      "documentation": {
+        "summary": "Each row represents one comment the participant left on a TikTok video.",
+        "source_file": "user_data_tiktok.json or user_data.json",
+        "columns": {
+          "Date": "Timestamp of when the comment was posted.",
+          "Comment": "Text of the comment.",
+          "Photo": "Photo associated with the comment, if any.",
+          "Url": "URL of the video the comment was posted on."
+        }
+      }
+    }
+  ]
+}

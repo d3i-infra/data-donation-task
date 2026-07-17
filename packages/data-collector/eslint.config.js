@@ -36,4 +36,26 @@ export default [
       ],
     },
   },
+  {
+    // ADR-0035: per-row loops in the viz data pipeline must not construct
+    // ICU machinery per call — hoist Intl formatters (see util.ts formatDate).
+    files: ['src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/**/*.{ts,tsx}'],
+    ignores: [
+      'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/util.ts',
+      'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/**/*.test.ts',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        {
+          selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]",
+          message: 'Constructs ICU machinery per call; hoist an Intl.DateTimeFormat instead (ADR-0035, see util.ts formatDate).',
+        },
+        {
+          selector: "NewExpression[callee.object.name='Intl']",
+          message: 'Construct Intl formatters once in util.ts and reuse (ADR-0035).',
+        },
+      ],
+    },
+  },
 ]
