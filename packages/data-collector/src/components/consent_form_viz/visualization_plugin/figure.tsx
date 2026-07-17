@@ -1,4 +1,4 @@
-import { VisualizationData, ChartVisualizationData, TextVisualizationData, zTable, zVisualizationType } from './types'
+import { VisualizationData, ChartVisualizationData, TextVisualizationData, Table, zVisualizationType } from './types'
 import { memo, useEffect, useMemo, useState } from 'react'
 
 import useVisualizationData from './visualizationDataFunctions/useVisualizationData'
@@ -14,7 +14,7 @@ const doubleTypes = ['wordcloud']
 type ShowStatus = 'hidden' | 'visible' | 'double'
 
 export interface FigureProps {
-  tableInput: any
+  tableInput: Table
   visualizationInput: any
   locale: string
   handleDelete: (rowIds: string[]) => void
@@ -28,18 +28,16 @@ export const Figure = ({
   handleDelete,
   handleUndo
 }: FigureProps): JSX.Element => {
-  const tableValidator = useMemo(() => zTable.safeParse(tableInput), [tableInput])
   const visualizationValidator = useMemo(() => zVisualizationType.safeParse(visualizationInput), [visualizationInput])
 
-  if (!tableValidator.success || !visualizationValidator.success) {
-    if (!tableValidator.success) console.error(tableValidator.error)
-    if (!visualizationValidator.success) console.error(visualizationValidator.error)
+  if (!visualizationValidator.success) {
+    console.error(visualizationValidator.error)
     return <div />
   }
 
   return (
     <FigureComponent
-      table={tableValidator.data}
+      table={tableInput}
       visualization={visualizationValidator.data}
       locale={locale}
       handleDelete={handleDelete}
@@ -49,7 +47,7 @@ export const Figure = ({
 }
 
 export interface ValidatedFigureProps {
-  table: z.infer<typeof zTable>
+  table: Table
   visualization: z.infer<typeof zVisualizationType>
   locale: string
   handleDelete: (rowIds: string[]) => void

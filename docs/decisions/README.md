@@ -58,3 +58,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0031 — Consent-page memory work must never shrink the donated dataset](./0031-consent-page-memory-work-must-never-shrink-the-donated-dataset.md)
 - [0032 — Visualization workers are ephemeral and column-scoped](./0032-visualization-workers-are-ephemeral-and-column-scoped.md)
 - [0033 — Consent-viz donation must not route through DataSubmissionPage's factory data path](./0033-consent-viz-donation-must-not-route-through-datasubmissionpage-s-factory-data-path.md)
+
+### Performance
+
+- [0034 — Hold participant-flow peak memory to the ~824 MB reference budget](./0034-hold-participant-flow-peak-memory-to-the-824-mb-reference-budget.md)

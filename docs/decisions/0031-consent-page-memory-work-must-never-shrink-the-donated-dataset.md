@@ -1,5 +1,5 @@
 ---
-status: accepted
+status: proposed
 date: "2026-07-16"
 category: Data collector
 applies_to:
@@ -19,6 +19,7 @@ Memory and display optimizations on the consent-viz page must never reduce the d
 - When cutting consent-page memory, trim only transient copies (worker messages via `selectVisualizationColumns`, display windows) — `serializeConsentData()` must keep serializing every non-deleted row of every table.
 - Review rejects any row cap (e.g. a `MAX_ROWS`-style bound) applied to the `tables` state, `originalBody`, or the serialized payload; display pagination over the full data is the fix path.
 - Participant-initiated deletion (delete/undo in `table_container.tsx`) is the only legitimate dataset reduction.
+- This record is `proposed` — team agreement on the invariant (and on whether any display-side bound may ever interact with the donated payload) is still pending.
 
 ## Why
 

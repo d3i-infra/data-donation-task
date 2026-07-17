@@ -21,4 +21,4 @@ The consent-viz prompt consumes shared feldspar components such as `DonateButton
 
 ## Why
 
-The factory path holds a serialized copy of all table data for the page lifetime and stacks `Object.fromEntries`/`JSON.stringify` copies (plus a log-only stringify) at donate-click — measured +314 MB donate spike on the 65k-row reference DDP (2026-07-16), squarely in the iOS kill zone.
+The factory path holds a serialized copy of all table data for the page lifetime and stacks `Object.fromEntries`/`JSON.stringify` copies (plus a log-only stringify) at donate-click — code-verified in `data_submission_page.tsx`; the path itself was never benchmarked. The donate click is empirically the flow's peak-memory moment (the 2026-07-16 baseline measured a +314 MB spike there on the then-current direct path, development build), and the factory path would stack its additional payload-sized copies at exactly that moment — squarely in the iOS kill zone.
