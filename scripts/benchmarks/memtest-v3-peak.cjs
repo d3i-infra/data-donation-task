@@ -1,5 +1,5 @@
 // Peak-pressure harness: samples every 250 ms across the WHOLE flow
-// (navigation -> consent page + settle), tracking the maximum instantaneous
+// (navigation -> consent page -> donate + settle), tracking the maximum instantaneous
 // footprint of (a) the full browser process tree and (b) the renderer
 // process alone (closest proxy for iOS WebContent). Reports absolute peaks.
 const { chromium } = require('@playwright/test');
@@ -72,6 +72,14 @@ function rssKb(pid) {
 
   phase = 'render+settle';
   await page.waitForTimeout(12000);
+
+  phase = 'donate';
+  // Label comes from generate_review_data_prompt; adapt alongside the two
+  // heading selectors when targeting a different platform/flow.
+  await page.getByText('Yes, share for research').click();
+  // The serialization spike is synchronous with the click; a fixed settle
+  // captures it without coupling to whatever page the flow shows next.
+  await page.waitForTimeout(8000);
   clearInterval(sampler);
 
   const mb = (kb) => Math.round(kb / 1024);

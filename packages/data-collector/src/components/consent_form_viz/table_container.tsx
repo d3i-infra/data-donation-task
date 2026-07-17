@@ -12,6 +12,7 @@ import { TableItems } from "./table_items"
 import { Figure } from "./visualization_plugin/figure"
 import { Table } from "./table"
 import { SearchBar } from "./search_bar"
+import { zTable, Table as ValidatedTable } from "./visualization_plugin/types"
 
 interface TableContainerProps {
   id: string
@@ -45,6 +46,16 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
     const filteredRows = table.body.rows.filter((row) => searchFilterIds.has(row.id))
     return { ...table, body: { ...table.body, rows: filteredRows } }
   }, [table, searchFilterIds])
+
+  // Validate once per table update and share across figures — previously every
+  // Figure deep-cloned the full table via zod (issue #122). Skipped entirely
+  // for tables without visualizations.
+  const validatedTable: ValidatedTable | null = useMemo(() => {
+    if (tableVisualizations.length === 0) return null
+    const result = zTable.safeParse(searchedTable)
+    if (!result.success) console.error(result.error)
+    return result.success ? result.data : null
+  }, [searchedTable, tableVisualizations.length])
 
   const handleDelete = useCallback(
     (rowIds?: string[]) => {
@@ -125,21 +136,22 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
         <div
           key="Visualizations"
           className={`pt-2 grid w-full gap-4 transition-all ${
-            tableVisualizations.length > 0 && unfilteredRows > 0 ? "" : "hidden"
+            tableVisualizations.length > 0 && unfilteredRows > 0 && validatedTable != null ? "" : "hidden"
           }`}
         >
-          {tableVisualizations.map((vs: any, i: number) => {
-            return (
-              <Figure
-                key={table.id + "_" + String(i)}
-                tableInput={searchedTable}
-                visualizationInput={vs}
-                locale={locale}
-                handleDelete={handleDelete}
-                handleUndo={handleUndo}
-              />
-            )
-          })}
+          {validatedTable != null &&
+            tableVisualizations.map((vs: any, i: number) => {
+              return (
+                <Figure
+                  key={table.id + "_" + String(i)}
+                  tableInput={validatedTable}
+                  visualizationInput={vs}
+                  locale={locale}
+                  handleDelete={handleDelete}
+                  handleUndo={handleUndo}
+                />
+              )
+            })}
         </div>
       </div>
     </div>

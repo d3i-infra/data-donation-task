@@ -1,6 +1,5 @@
 import {
-  LabelButton,
-  PrimaryButton,
+  DonateButtons,
   BodyLarge,
   Translator,
   ReactFactoryContext,
@@ -16,7 +15,7 @@ import {
     PropsUIPromptConsentFormTableViz,
     PropsUITableRow,
 } from "./types"
-import { useCallback, useEffect, useState } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import _ from "lodash"
 import { TableContainer } from "./table_container"
 
@@ -25,10 +24,14 @@ type Props = PropsUIPromptConsentFormViz & ReactFactoryContext
 export const ConsentFormViz = (props: Props): JSX.Element => {
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
   const { locale, resolve } = props
-  const { description, donateQuestion, donateButton, cancelButton } = prepareCopy(props)
-  const [isDonating, setIsDonating] = useState(false)
+  const { description } = prepareCopy(props)
+  // The state initializer above already parsed props.tables; only re-parse
+  // when the host actually sends new tables (issue #122 double parse).
+  const parsedTables = useRef(props.tables)
 
   useEffect(() => {
+    if (parsedTables.current === props.tables) return
+    parsedTables.current = props.tables
     setTables(parseTables(props.tables))
   }, [props.tables])
 
@@ -126,7 +129,6 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
   }
 
   function handleDonate(): void {
-    setIsDonating(true)
     const value = serializeConsentData()
     resolve?.({ __type__: "PayloadJSON", "value": value })
   }
@@ -171,19 +173,13 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
             )
           })}
         </div>
-        <div>
-          <BodyLarge margin="" text={donateQuestion} />
-
-          <div className="flex flex-row gap-4 mt-4 mb-4">
-            <PrimaryButton
-              label={donateButton}
-              onClick={handleDonate}
-              color="bg-success text-white"
-              spinning={isDonating}
-            />
-            <LabelButton label={cancelButton} onClick={handleCancel} color="text-grey1" />
-          </div>
-        </div>
+        <DonateButtons
+          onDonate={handleDonate}
+          onCancel={handleCancel}
+          locale={locale}
+          donateQuestion={props.donateQuestion ?? defaultDonateQuestionLabel}
+          donateButton={props.donateButton ?? defaultDonateButtonLabel}
+        />
       </div>
     </>
   )
@@ -191,17 +187,11 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
 
 interface Copy {
   description: string
-  donateQuestion: string
-  donateButton: string
-  cancelButton: string
 }
 
-function prepareCopy({ donateQuestion, donateButton, description, locale }: Props): Copy {
+function prepareCopy({ description, locale }: Props): Copy {
   return {
     description: Translator.translate(description ?? defaultDescription, locale),
-    donateQuestion: Translator.translate(donateQuestion ?? defaultDonateQuestionLabel, locale),
-    donateButton: Translator.translate(donateButton ?? defaultDonateButtonLabel, locale),
-    cancelButton: Translator.translate(defaultCancelButtonLabel, locale),
   }
 }
 
@@ -221,11 +211,6 @@ const defaultDonateButtonLabel = new TextBundle()
   .add('en', 'Yes, share for research')
   .add('de', 'Ja, für Forschung teilen')
   .add('nl', 'Ja, deel voor onderzoek')
-
-const defaultCancelButtonLabel = new TextBundle()
-  .add('en', 'No')
-  .add('de', 'Nein')
-  .add('nl', 'Nee')
 
 const defaultDescription = new TextBundle()
   .add('en', 'Determine whether you would like to share the data below. Carefully check the data and adjust when required. With your contribution, you help the previously described research. Thank you in advance.')

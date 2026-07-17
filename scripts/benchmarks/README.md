@@ -29,11 +29,15 @@ Run from the repo root, e.g.:
 | `memtest.cjs` | RSS at checkpoints, example-platform flow | quick smoke: does a huge upload stream without ballooning (ADR-0026)? |
 | `tiktok-memtest.cjs` | 1 s RSS timeline, TikTok flow | first-pass profiling of a real DDP |
 | `memtest-v2.cjs` | median RSS/PSS over stable windows, per-process-type PSS, forced-GC diagnostic, workload-identity checks | rigorous A/B between builds (use `RUN_LABEL=` to tag runs; emits `RESULT>` JSON lines) |
-| `memtest-v3-peak.cjs` | peak instantaneous footprint (250 ms sampling) of the whole tree and of the renderer process alone | threshold questions — e.g. iOS WebKit kills pages around 1–1.5 GB instantaneous, so peak renderer RSS is the metric that matters |
+| `memtest-v3-peak.cjs` | peak instantaneous footprint (250 ms sampling) of the whole tree and of the renderer process alone, broken down per phase (including a `donate` phase that clicks through consent) | threshold questions — e.g. iOS WebKit kills pages around 1–1.5 GB instantaneous, so peak renderer RSS is the metric that matters |
 
 `tiktok-memtest.cjs` and the v2/v3 harnesses expect the TikTok flow
 headings; adapt the two `getByRole('heading', …)` selectors to target a
-different platform.
+different platform. `memtest-v3-peak.cjs` also clicks the donate button at
+the end of the flow to capture the donation-serialization spike as its own
+`rendererPeaksByPhase.donate` entry; the button label selector
+(`'Yes, share for research'`, the default from `generate_review_data_prompt`)
+must be adapted alongside the two heading selectors for non-TikTok flows.
 
 ## Methodology notes (hard-won)
 
