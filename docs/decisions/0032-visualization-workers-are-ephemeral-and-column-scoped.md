@@ -9,6 +9,15 @@ applies_to:
 priority: default
 companions:
     - packages/data-collector/src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/selectVisualizationColumns.test.ts
+checks:
+    - desc: the hook still projects columns before postMessage
+      grep: 'selectVisualizationColumns\('
+      in: ["packages/data-collector/src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/useVisualizationData.tsx"]
+      expect: present
+    - desc: the hook still terminates its workers
+      grep: 'worker\.terminate\(\)'
+      in: ["packages/data-collector/src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/useVisualizationData.tsx"]
+      expect: present
 ---
 
 # Visualization workers are ephemeral and column-scoped

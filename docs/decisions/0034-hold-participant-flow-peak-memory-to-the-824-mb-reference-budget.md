@@ -17,6 +17,7 @@ Peak instantaneous renderer RSS across the participant flow (upload → consent 
 ## Guidance
 
 - Before merging memory-relevant changes to the consent/viz flow, run `scripts/benchmarks/memtest-v3-peak.cjs` (donate phase included) on the reference DDP and compare per-phase peaks against the budget; deltas over each run's own idle baseline are the comparable A/B metric.
+- The benchmark build must bake in a config with visualizations on the big table (fixture in `scripts/benchmarks/fixtures/`) — under a viz-less config the entire chart pipeline is invisible to the measurement (2026-07-17: a ~4 GB chart-compute burst was undetectable until the profiling config matched the study's).
 - Absolute numbers count only from a production-representative build with a non-logging data-submission sink — `NODE_ENV=development` builds run FakeBridge (which logs the full donation) and StrictMode React, inflating every phase; treat those runs as relative evidence only.
 - Track `peakTreeMb` alongside renderer RSS (Pyodide's worker heap lives in the same process tree), and treat real iOS hardware/WebKit as the final authority for the absolute gate.
 
