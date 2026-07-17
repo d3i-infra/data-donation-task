@@ -244,7 +244,9 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
 
         {
           "summary": "Each row represents one video the participant watched on YouTube, including the video title, URL, and timestamp.",
-          "source_file": "watch-history.json, kijkgeschiedenis.json", "watch-history.html or kijkgeschiedenis.html",
+            "source_file": "watch-history.json, kijkgeschiedenis.json,
+  watch-history.html or kijkgeschiedenis.html",
+  
           "columns": {
             "Title": "Title of the watched video.",
             "URL": "URL of the watched video.",
@@ -323,7 +325,11 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
                 return out
         except Exception as e:
             logger.error("Exception caught: %s", e)
-            errors[type(e).__name__] += 1
+              errors[type(e).__name__] += 1
+              return out
+      else:
+          return out
+  
 
     datapoints = []
     try:
@@ -374,7 +380,9 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) 
           "columns": {
             "Query": "The searched query.",
             "URL": "URL of the search query.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed.",
+              "Timestamp": "ISO 8601 timestamp of when the search was
+  performed."
+  
           }
         }
 
@@ -435,7 +443,11 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) 
                 return out
         except Exception as e:
             logger.error("Exception caught: %s", e)
-            errors[type(e).__name__] += 1
+              errors[type(e).__name__] += 1
+              return out
+      else:
+          return out
+  
 
 
     datapoints = []
