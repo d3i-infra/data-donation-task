@@ -13,23 +13,41 @@ export const Translator = (function () {
     throw new TypeError('Unknown text type')
   }
 
-  function resolve (translatable: Translatable, locale: string): string {
-    const text = translatable.translations[locale]
-    if (text !== null) {
-      return text
-    }
+  function resolve (
+  translatable: Translatable,
+  locale: string
+): string {
+  const text = translatable.translations[locale]
 
-    const defaultText = translatable.translations[defaultLocale]
-    if (defaultText !== null) {
-      return defaultText
-    }
-
-    if (Object.values(translatable.translations).length > 0) {
-      return Object.values(translatable.translations)[0]
-    }
-
-    return '?text?'
+  if (text !== null && text !== undefined) {
+    return text
   }
+
+  const englishText = translatable.translations.en
+
+  if (englishText !== null && englishText !== undefined) {
+    return englishText
+  }
+
+  const defaultText =
+    translatable.translations[defaultLocale]
+
+  if (
+    defaultText !== null &&
+    defaultText !== undefined
+  ) {
+    return defaultText
+  }
+
+  const availableText = Object.values(
+    translatable.translations
+  ).find(
+    (value): value is string =>
+      value !== null && value !== undefined
+  )
+
+  return availableText ?? '?text?'
+}
 
   return {
     translate
