@@ -175,11 +175,11 @@ def _extract_owner_details(label_values: list[dict[str, Any]]) -> tuple[str, str
         value = str(node.get("value", ""))
         href = str(node.get("href", ""))
 
-        if label == "URL" and not url:
+        if label in {"URL", "Webseite"} and not url:
             url = href or value
         elif label in {"Naam", "Name"} and not owner_name:
             owner_name = eh.fix_latin1_string(value)
-        elif label in {"Gebruikersnaam", "Username", "Author"} and not owner_username:
+        elif label in {"Gebruikersnaam", "Username", "Author", "Benutzername", "Konto"} and not owner_username:
             owner_username = eh.fix_latin1_string(value)
 
         for child in node.values():
@@ -237,15 +237,16 @@ def followers_to_df(
 
         {
           "id": "instagram_followers",
-          "title": {"en": "Your Instagram followers", "nl": "Je Instagram-volgers"},
+          "title": {"en": "Your Instagram followers", "nl": "Je Instagram-volgers", "de": "Deine Instagram-Follower"},
           "description": {
             "en": "List of accounts that follow you on Instagram.",
-            "nl": "Lijst van accounts die jou op Instagram volgen."
+            "nl": "Lijst van accounts die jou op Instagram volgen.",
+            "de": "Liste der Accounts, die dir auf Instagram folgen."
           },
           "headers": {
-            "Account": {"en": "Account", "nl": "Account"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Account": {"en": "Account", "nl": "Account", "de": "Account"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -323,16 +324,18 @@ def following_to_df(
           "id": "instagram_following",
           "title": {
             "en": "Accounts that you follow on Instagram",
-            "nl": "Accounts die je volgt op Instagram"
+            "nl": "Accounts die je volgt op Instagram",
+            "de": "Accounts, denen du auf Instagram folgst"
           },
           "description": {
             "en": "In this table, you find the accounts that you follow on Instagram.",
-            "nl": "In deze tabel zie je de accounts die je volgt op Instagram."
+            "nl": "In deze tabel zie je de accounts die je volgt op Instagram.",
+            "de": "In dieser Tabelle findest du die Accounts, denen du auf Instagram folgst."
           },
           "headers": {
-            "Account": {"en": "Account", "nl": "Account"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Account": {"en": "Account", "nl": "Account", "de": "Account"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -410,17 +413,19 @@ def ads_viewed_to_df(
           "id": "instagram_ads_viewed",
           "title": {
             "en": "Ads viewed on Instagram",
-            "nl": "Advertenties bekeken op Instagram"
+            "nl": "Advertenties bekeken op Instagram",
+            "de": "Auf Instagram angesehene Werbeanzeigen"
           },
           "description": {
             "en": "List of ads that you viewed on Instagram.",
-            "nl": "Lijst van advertenties die je op Instagram hebt bekeken."
+            "nl": "Lijst van advertenties die je op Instagram hebt bekeken.",
+            "de": "Liste der Werbeanzeigen, die du auf Instagram angesehen hast."
           },
           "headers": {
-            "Account name": {"en": "Account name", "nl": "Accountnaam"},
-            "Name": {"en": "Name", "nl": "Naam"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Account name": {"en": "Account name", "nl": "Accountnaam", "de": "Accountname"},
+            "Name": {"en": "Name", "nl": "Naam", "de": "Name"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -506,37 +511,19 @@ def posts_viewed_to_df(
           "id": "instagram_posts_viewed",
           "title": {
             "en": "Posts viewed on Instagram",
-            "nl": "Berichten bekeken op Instagram"
+            "nl": "Berichten bekeken op Instagram",
+            "de": "Auf Instagram angesehene Beiträge"
           },
           "description": {
-            "en": "In this table you find the accounts of posts you viewed on Instagram sorted over time. Below, you find visualizations of different parts of this table. First, you find a timeline showing you the number of posts you viewed over time. Next, you find a histogram indicating how many posts you have viewed per hour of the day.",
-            "nl": "In deze tabel zie je de accounts van berichten die je op Instagram hebt bekeken, gesorteerd op tijd. Hieronder vind je visualisaties van verschillende onderdelen van deze tabel. Eerst zie je een tijdlijn met het aantal berichten dat je in de loop van de tijd hebt bekeken. Daarna zie je een histogram dat aangeeft hoeveel berichten je per uur van de dag hebt bekeken."
+            "en": "In this table you find the accounts of posts you viewed on Instagram sorted over time.",
+            "nl": "In deze tabel zie je de accounts van berichten die je op Instagram hebt bekeken, gesorteerd op tijd.",
+            "de": "In dieser Tabelle findest du die Accounts der Beiträge, die du auf Instagram angesehen hast, zeitlich sortiert."
           },
           "headers": {
-            "Author": {"en": "Author", "nl": "Auteur"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
-          },
-          "visualizations": [
-            {
-              "title": {
-                "en": "The total number of Instagram posts you viewed over time",
-                "nl": "Het totale aantal Instagram-berichten dat je in de loop van de tijd hebt bekeken"
-              },
-              "type": "area",
-              "group": {"column": "Date", "dateFormat": "auto"},
-              "values": [{"label": "Count", "aggregate": "count"}]
-            },
-            {
-              "title": {
-                "en": "The total number of Instagram posts you have viewed per hour of the day",
-                "nl": "Het totale aantal Instagram-berichten dat je per uur van de dag hebt bekeken"
-              },
-              "type": "bar",
-              "group": {"column": "Date", "dateFormat": "hour_cycle", "label": "Hour of the day"},
-              "values": [{"label": "Count"}]
-            }
-          ]
+            "Author": {"en": "Author", "nl": "Auteur", "de": "Autor"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
+          }
         }
     """
     result = reader.json(filename)
@@ -552,8 +539,8 @@ def posts_viewed_to_df(
             items = data["impressions_history_posts_seen"]  # pyright: ignore
             for item in items:
                 string_map_data = item.get("string_map_data", {})
-                author = _first_present(string_map_data, ["Author", "Auteur"])
-                time = _first_present(string_map_data, ["Time", "Tijd"])
+                author = _first_present(string_map_data, ["Author", "Auteur", "Autor"])
+                time = _first_present(string_map_data, ["Time", "Tijd", "Zeit"])
                 url = _first_present(string_map_data, ["URL"])
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
@@ -626,28 +613,19 @@ def videos_watched_to_df(
           "id": "instagram_videos_watched",
           "title": {
             "en": "Videos watched on Instagram",
-            "nl": "Video's bekeken op Instagram"
+            "nl": "Video's bekeken op Instagram",
+            "de": "Auf Instagram angesehene Videos"
           },
           "description": {
-            "en": "In this table you find the accounts of videos you watched on Instagram sorted over time. Below, you find a timeline showing you the number of videos you watched over time.",
-            "nl": "In deze tabel zie je de accounts van video's die je op Instagram hebt bekeken, gesorteerd op tijd. Hieronder zie je een tijdlijn met het aantal video's dat je in de loop van de tijd hebt bekeken."
+            "en": "In this table you find the accounts of videos you watched on Instagram sorted over time.",
+            "nl": "In deze tabel zie je de accounts van video's die je op Instagram hebt bekeken, gesorteerd op tijd.",
+            "de": "In dieser Tabelle findest du die Accounts der Videos, die du auf Instagram angesehen hast, zeitlich sortiert."
           },
           "headers": {
-            "Author": {"en": "Author", "nl": "Auteur"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
-          },
-          "visualizations": [
-            {
-              "title": {
-                "en": "The total number of videos watched on Instagram over time",
-                "nl": "Het totale aantal video's dat je op Instagram hebt bekeken in de loop van de tijd"
-              },
-              "type": "area",
-              "group": {"column": "Date", "dateFormat": "auto"},
-              "values": [{"aggregate": "count", "label": "Count"}]
-            }
-          ]
+            "Author": {"en": "Author", "nl": "Auteur", "de": "Autor"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
+          }
         }
     """
     result = reader.json(filename)
@@ -663,8 +641,8 @@ def videos_watched_to_df(
             items = data["impressions_history_videos_watched"]  # pyright: ignore
             for item in items:
                 string_map_data = item.get("string_map_data", {})
-                author = _first_present(string_map_data, ["Author", "Auteur"])
-                time = _first_present(string_map_data, ["Time", "Tijd"])
+                author = _first_present(string_map_data, ["Author", "Auteur", "Autor"])
+                time = _first_present(string_map_data, ["Time", "Tijd", "Zeit"])
                 url = _first_present(string_map_data, ["URL"])
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
@@ -697,6 +675,12 @@ def post_comments_to_df(
     filename_pattern: str = r"(^|/)post_comments(?:_\d+)?\.json$",
 ) -> pd.DataFrame:
     """Extract all post comments across multiple matching files into a DataFrame.
+
+    Handles three shapes seen across exports: a bare top-level list, a dict
+    keyed by ``"comments_media_comments"``, and a single comment object
+    placed directly at the top level (observed in some real-world exports
+    of ``post_comments_1.json``, identified by the presence of a
+    ``"string_map_data"`` key).
 
     Parameters
     ----------
@@ -734,16 +718,18 @@ def post_comments_to_df(
           "id": "instagram_post_comments",
           "title": {
             "en": "Comments posted on Instagram",
-            "nl": "Reacties geplaatst op Instagram"
+            "nl": "Reacties geplaatst op Instagram",
+            "de": "Auf Instagram geschriebene Kommentare"
           },
           "description": {
             "en": "List of comments you posted on Instagram.",
-            "nl": "Lijst van reacties die je op Instagram hebt geplaatst."
+            "nl": "Lijst van reacties die je op Instagram hebt geplaatst.",
+            "de": "Liste der Kommentare, die du auf Instagram geschrieben hast."
           },
           "headers": {
-            "Comment": {"en": "Comment", "nl": "Reactie"},
-            "Media owner": {"en": "Media owner", "nl": "Media-eigenaar"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Comment": {"en": "Comment", "nl": "Reactie", "de": "Kommentar"},
+            "Media owner": {"en": "Media owner", "nl": "Media-eigenaar", "de": "Medieninhaber"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -757,12 +743,19 @@ def post_comments_to_df(
 
         for result in results:
             data = result.data
-            items = data if isinstance(data, list) else data.get("comments_media_comments", [])
+            if isinstance(data, list):
+                items = data
+            elif isinstance(data, dict) and "string_map_data" in data:
+                # Some exports place a single comment object at the top level
+                # instead of wrapping it in a list or "comments_media_comments".
+                items = [data]
+            else:
+                items = data.get("comments_media_comments", [])  # pyright: ignore
             for item in items:  # pyright: ignore[assignment]
                 string_map_data = item.get("string_map_data", {})
-                comment = _first_present(string_map_data, ["Comment", "Opmerking"])
-                owner = _first_present(string_map_data, ["Media Owner", "Media-eigenaar"])
-                time = _first_present(string_map_data, ["Time", "Tijd"])
+                comment = _first_present(string_map_data, ["Comment", "Opmerking", "Kommentar"])
+                owner = _first_present(string_map_data, ["Media Owner", "Media-eigenaar", "Medieninhaber"])
+                time = _first_present(string_map_data, ["Time", "Tijd", "Zeit"])
                 datapoints.append((
                     eh.fix_latin1_string(str(comment.get("value", ""))),
                     eh.fix_latin1_string(str(owner.get("value", ""))),
@@ -826,16 +819,18 @@ def liked_comments_to_df(
           "id": "instagram_liked_comments",
           "title": {
             "en": "Instagram liked comments",
-            "nl": "Instagram-reacties die je leuk vond"
+            "nl": "Instagram-reacties die je leuk vond",
+            "de": "Instagram-Kommentare, die dir gefallen haben"
           },
           "description": {
             "en": "List of comments that you liked on Instagram.",
-            "nl": "Lijst van reacties die je leuk vond op Instagram."
+            "nl": "Lijst van reacties die je leuk vond op Instagram.",
+            "de": "Liste der Kommentare, die dir auf Instagram gefallen haben."
           },
           "headers": {
-            "Account name": {"en": "Account name", "nl": "Accountnaam"},
-            "Value": {"en": "Value", "nl": "Waarde"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Account name": {"en": "Account name", "nl": "Accountnaam", "de": "Accountname"},
+            "Value": {"en": "Value", "nl": "Waarde", "de": "Wert"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -923,22 +918,15 @@ def liked_posts_to_df(
           "id": "instagram_liked_posts",
           "title": {
             "en": "Instagram liked posts",
-            "nl": "Instagram-berichten die je leuk vond"
+            "nl": "Instagram-berichten die je leuk vond",
+            "de": "Instagram-Beiträge, die dir gefallen haben"
           },
-          "description": {"en": "", "nl": ""},
+          "description": {"en": "", "nl": "", "de": ""},
           "headers": {
-            "Account name": {"en": "Account name", "nl": "Accountnaam"},
-            "Value": {"en": "Value", "nl": "Waarde"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
-          },
-          "visualizations": [
-            {
-              "title": {"en": "Most liked accounts", "nl": "Meest gelikete accounts"},
-              "type": "wordcloud",
-              "textColumn": "Account name",
-              "tokenize": false
-            }
-          ]
+            "Account name": {"en": "Account name", "nl": "Accountnaam", "de": "Accountname"},
+            "Value": {"en": "Value", "nl": "Waarde", "de": "Wert"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
+          }
         }
     """
     result = reader.json(filename)
@@ -1020,15 +1008,17 @@ def profile_searches_to_df(
           "id": "instagram_profile_searches",
           "title": {
             "en": "Your Instagram profile searches",
-            "nl": "Je Instagram-profielzoekopdrachten"
+            "nl": "Je Instagram-profielzoekopdrachten",
+            "de": "Deine Instagram-Profilsuchen"
           },
           "description": {
             "en": "List of profiles you have searched for on Instagram.",
-            "nl": "Lijst van profielen die je op Instagram hebt gezocht."
+            "nl": "Lijst van profielen die je op Instagram hebt gezocht.",
+            "de": "Liste der Profile, nach denen du auf Instagram gesucht hast."
           },
           "headers": {
-            "Name": {"en": "Name", "nl": "Naam"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Name": {"en": "Name", "nl": "Naam", "de": "Name"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -1102,14 +1092,15 @@ def story_likes_to_df(
 
         {
           "id": "instagram_story_likes",
-          "title": {"en": "Story likes on Instagram", "nl": "Story-likes op Instagram"},
+          "title": {"en": "Story likes on Instagram", "nl": "Story-likes op Instagram", "de": "Story-Likes auf Instagram"},
           "description": {
             "en": "List of Instagram stories you liked.",
-            "nl": "Lijst van Instagram-stories die je leuk vond."
+            "nl": "Lijst van Instagram-stories die je leuk vond.",
+            "de": "Liste der Instagram-Storys, die dir gefallen haben."
           },
           "headers": {
-            "Account name": {"en": "Account name", "nl": "Accountnaam"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Account name": {"en": "Account name", "nl": "Accountnaam", "de": "Accountname"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -1193,15 +1184,16 @@ def threads_viewed_to_df(
 
         {
           "id": "instagram_threads_viewed",
-          "title": {"en": "Threads viewed", "nl": "Threads bekeken"},
+          "title": {"en": "Threads viewed", "nl": "Threads bekeken", "de": "Angesehene Threads-Beiträge"},
           "description": {
             "en": "List of Threads posts you viewed.",
-            "nl": "Lijst van Threads-berichten die je hebt bekeken."
+            "nl": "Lijst van Threads-berichten die je hebt bekeken.",
+            "de": "Liste der Threads-Beiträge, die du angesehen hast."
           },
           "headers": {
-            "Author": {"en": "Author", "nl": "Auteur"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Date": {"en": "Date", "nl": "Datum en tijd"}
+            "Author": {"en": "Author", "nl": "Auteur", "de": "Autor"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"},
+            "Date": {"en": "Date", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"}
           }
         }
     """
@@ -1218,8 +1210,8 @@ def threads_viewed_to_df(
             items = data["text_post_app_text_post_app_posts_seen"]  # pyright: ignore
             for item in items:
                 string_map_data = item.get("string_map_data", {})
-                author = _first_present(string_map_data, ["Author", "Auteur"])
-                time = _first_present(string_map_data, ["Time", "Tijd"])
+                author = _first_present(string_map_data, ["Author", "Auteur", "Autor"])
+                time = _first_present(string_map_data, ["Time", "Tijd", "Zeit"])
                 url = _first_present(string_map_data, ["URL"])
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
@@ -1288,16 +1280,18 @@ def saved_posts_to_df(
           "id": "instagram_saved_posts",
           "title": {
             "en": "Your saved posts on Instagram",
-            "nl": "Je opgeslagen berichten op Instagram"
+            "nl": "Je opgeslagen berichten op Instagram",
+            "de": "Deine gespeicherten Beiträge auf Instagram"
           },
           "description": {
             "en": "List of posts you have saved on Instagram.",
-            "nl": "Lijst van berichten die je hebt opgeslagen op Instagram."
+            "nl": "Lijst van berichten die je hebt opgeslagen op Instagram.",
+            "de": "Liste der Beiträge, die du auf Instagram gespeichert hast."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"},
-            "URL": {"en": "URL", "nl": "URL"}
+            "Title": {"en": "Title", "nl": "Titel", "de": "Titel"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd", "de": "Datum und Uhrzeit"},
+            "URL": {"en": "URL", "nl": "URL", "de": "URL"}
           }
         }
     """
@@ -1317,7 +1311,7 @@ def saved_posts_to_df(
                 string_list = item.get("string_list_data", [{}])
                 entry = string_list[0] if string_list else {}
             else:
-                entry = _first_present(item.get("string_map_data", {}), ["Saved on", "Opgeslagen op"])
+                entry = _first_present(item.get("string_map_data", {}), ["Saved on", "Opgeslagen op", "Gespeichert am"])
             datapoints.append((
                 title,
                 entry.get("href", ""),

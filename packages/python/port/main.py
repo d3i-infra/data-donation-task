@@ -26,17 +26,18 @@ def error_flow(platform: str | None, tb: str):
         tb: Full traceback string from traceback.format_exc().
     """
     header = props.PropsUIHeader(
-        props.Translatable({"nl": "Er is iets misgegaan", "en": "Something went wrong"})
+        props.Translatable({"nl": "Er is iets misgegaan", "en": "Something went wrong", "de": "Etwas ist schiefgelaufen"})
     )
     body = [
-        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb})),
+        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb, "de": tb})),
         props.PropsUIPromptConfirm(
             text=props.Translatable({
                 "nl": "Wilt u de fout rapporteren zodat we het probleem kunnen oplossen?",
                 "en": "Would you like to report this error so we can fix the problem?",
+                "de": "Möchten Sie den Fehler melden, damit wir das Problem beheben können?",
             }),
-            ok=props.Translatable({"nl": "Fout rapporteren", "en": "Report error"}),
-            cancel=props.Translatable({"nl": "Overslaan", "en": "Skip"}),
+            ok=props.Translatable({"nl": "Fout rapporteren", "en": "Report error", "de": "Fehler melden"}),
+            cancel=props.Translatable({"nl": "Overslaan", "en": "Skip", "de": "Überspringen"}),
         ),
     ]
     page = props.PropsUIPageDataSubmission(platform or "error", header, body)

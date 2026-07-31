@@ -63,10 +63,11 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
             "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
             "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
             "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Intente de nuevo para seleccionar un archivo diferente",
+            "de": f"Leider können wir deine {platform_name}-Datei nicht verarbeiten. Fahre fort, wenn du sicher bist, dass du die richtige Datei ausgewählt hast. Versuche es erneut, um eine andere Datei auszuwählen.",
         }
     )
-    ok = props.Translatable({"en": "Try again", "nl": "Probeer opnieuw", "es": "Intentar de nuevo"})
-    cancel = props.Translatable({"en": "Continue", "nl": "Doorgaan", "es": "Continuar"})
+    ok = props.Translatable({"en": "Try again", "nl": "Probeer opnieuw", "es": "Intentar de nuevo", "de": "Erneut versuchen"})
+    cancel = props.Translatable({"en": "Continue", "nl": "Doorgaan", "es": "Continuar", "de": "Fortfahren"})
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
 
@@ -99,6 +100,7 @@ def generate_file_prompt(
         {
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
+            "de": "Bitte folge den Download-Anweisungen und wähle die Datei aus, die du auf deinem Gerät gespeichert hast.",
         }
     )
     if multiple:
@@ -124,10 +126,18 @@ def generate_review_data_prompt(
         and default values for donate question and button.
     """
     donate_question = props.Translatable(
-        {"en": "Do you want to share this data for research?", "nl": "Wilt u deze gegevens delen voor onderzoek?"}
+        {
+            "en": "Do you want to share this data for research?",
+            "nl": "Wilt u deze gegevens delen voor onderzoek?",
+            "de": "Möchtest du diese Daten für die Forschung teilen?",
+        }
     )
 
-    donate_button = props.Translatable({"en": "Yes, share for research", "nl": "Ja, deel voor onderzoek"})
+    donate_button = props.Translatable({
+        "en": "Yes, share for research",
+        "nl": "Ja, deel voor onderzoek",
+        "de": "Ja, für die Forschung teilen",
+    })
 
     return d3i_props.PropsUIPromptConsentFormViz(
         tables=table_list, description=description, donate_question=donate_question, donate_button=donate_button
@@ -277,15 +287,17 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
         props.Translatable({
             "en": f"No data found",
             "nl": f"Geen gegevens gevonden",
+            "de": f"Keine Daten gefunden",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Unfortunately, no relevant data was found in your {platform_name} file.",
             "nl": f"Helaas zijn er geen relevante gegevens gevonden in uw {platform_name} bestand.",
+            "de": f"Leider wurden in deiner {platform_name}-Datei keine relevanten Daten gefunden.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -300,15 +312,17 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
         props.Translatable({
             "en": "File cannot be processed",
             "nl": "Bestand kan niet worden verwerkt",
+            "de": "Datei kann nicht verarbeitet werden",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Your {platform_name} file could not be processed: {error}",
             "nl": f"Uw {platform_name} bestand kon niet worden verwerkt: {error}",
+            "de": f"Deine {platform_name}-Datei konnte nicht verarbeitet werden: {error}",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -323,15 +337,17 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
         props.Translatable({
             "en": "Data submission failed",
             "nl": "Gegevensinzending mislukt",
+            "de": "Datenübermittlung fehlgeschlagen",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Unfortunately, your {platform_name} data could not be submitted. Please try again later.",
             "nl": f"Helaas konden uw {platform_name} gegevens niet worden ingediend. Probeer het later opnieuw.",
+            "de": f"Leider konnten deine {platform_name}-Daten nicht übermittelt werden. Bitte versuche es später erneut.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)

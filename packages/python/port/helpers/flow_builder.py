@@ -30,18 +30,22 @@ class FlowBuilder:
             "submit_file_header": props.Translatable({
                 "en": f"Select your {self.platform_name} file",
                 "nl": f"Selecteer uw {self.platform_name} bestand",
+                "de": f"Wähle deine {self.platform_name}-Datei aus",
             }),
             "review_data_header": props.Translatable({
                 "en": f"Your {self.platform_name} data",
                 "nl": f"Uw {self.platform_name} gegevens",
+                "de": f"Deine {self.platform_name}-Daten",
             }),
             "retry_header": props.Translatable({
                 "en": "Try again",
                 "nl": "Probeer opnieuw",
+                "de": "Erneut versuchen",
             }),
             "review_data_description": props.Translatable({
                 "en": f"Below you will find a curated selection of {self.platform_name} data.",
                 "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van {self.platform_name} gegevens.",
+                "de": f"Nachfolgend findest du eine ausgewählte Zusammenstellung deiner {self.platform_name}-Daten.",
             }),
         }
 
