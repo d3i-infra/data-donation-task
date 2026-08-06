@@ -26,13 +26,20 @@ def _check_platform_config(platform: str) -> None:
     validate_or_raise(platform)
 
 
-def process(session_id: str, platform: str):
+def process(session_id: str, platform: str | None):
     """Run the data donation study.
 
     Args:
         session_id: Unique session identifier (from host).
         platform: Platform name passed from VITE_PLATFORM via the JS layer.
+            A host that sends no platform yields None here; because this is a
+            generator, the resulting error is raised on the first send() and
+            ScriptWrapper turns it into the consent-gated error report — the
+            same path the previous `None.lower()` AttributeError took.
     """
+    if not platform:
+        raise ValueError("No platform supplied by the host; cannot start the study")
+
     _check_platform_config(platform.lower())
 
     module = import_module(f"port.platforms.{platform.lower()}")

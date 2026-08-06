@@ -129,20 +129,20 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
         errors.append(f"Cannot import port.platforms.{platform}")
         return errors, warnings
 
-    registry: dict[str, Callable[..., pd.DataFrame]] = getattr(platform_module, "EXTRACTOR_REGISTRY", None)
+    registry: dict[str, Callable[..., pd.DataFrame]] | None = getattr(platform_module, "EXTRACTOR_REGISTRY", None)
     if registry is None:
         errors.append(f"port.platforms.{platform} has no EXTRACTOR_REGISTRY")
         return errors, warnings
 
     extractor_names = [
-        entry.get("extractor")
+        name
         for entry in tables
-        if isinstance(entry.get("extractor"), str)
+        if isinstance(name := entry.get("extractor"), str)
     ]
     table_ids = [
-        entry.get("id")
+        tid
         for entry in tables
-        if isinstance(entry.get("id"), str)
+        if isinstance(tid := entry.get("id"), str)
     ]
 
     # 5. Registry cross-check.

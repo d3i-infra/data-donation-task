@@ -7,7 +7,11 @@ files into Pyodide's virtual filesystem.
 """
 from typing import Protocol, runtime_checkable
 
-import js
+# `js` is Pyodide's JavaScript bridge: it exists only inside the WebAssembly
+# runtime, so `typings/js/__init__.pyi` is the only source pyright can ever
+# have for it. The "no source for this stub" warning is therefore permanent
+# and expected — suppressed here rather than by disabling the rule repo-wide.
+import js  # pyright: ignore[reportMissingModuleSource]
 
 
 @runtime_checkable
