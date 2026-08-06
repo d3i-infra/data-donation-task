@@ -32,7 +32,7 @@ pnpm monorepo (the Feldspar data-donation workflow). TypeScript/React packages u
 runtime in `packages/python` (Poetry).
 
 - Build: `pnpm build`
-- Python tests: `pnpm test`
+- All tests (JS + Python): `pnpm test` (Python only: `pnpm test:py`)
 - JS unit tests: `pnpm --filter @eyra/feldspar test`
 - Typecheck: `pnpm typecheck:py`
 - E2E (Playwright): `pnpm test:e2e`

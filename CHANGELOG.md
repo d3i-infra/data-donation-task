@@ -6,6 +6,52 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ## [Unreleased]
 
+### Fixed
+
+* Donations are no longer silently fire-and-forget on any deployment.
+  `LiveBridge.send()` now always awaits the host's
+  `DonateSuccess`/`DonateError` reply, so a failed upload reliably
+  reaches Python as a `PayloadResponse` and the donation-failure page
+  is shown instead of the participant being told nothing.
+* CI now runs the real JS test suite (previously a no-op step),
+  triggers on development-branch PRs, and the Pyright glob is fixed
+  so type-checking actually covers the files it claims to (#100).
+
+### Changed
+
+* Pyright debt cleanup: upload consumers are typed as
+  `SeekableBinaryReader` (ADR-0026), TikTok extractor payloads are
+  narrowed before use, and the remaining optional/union type errors
+  surfaced by CI are resolved — all 84 errors flagged when type
+  checking went live are fixed.
+* Pyright is now pinned at `1.1.411` as a root devDependency and
+  invoked through `pnpm exec`, rather than fetched unpinned by `npx` on
+  every run. `scripts/py-run.sh` asks poetry for the interpreter at run
+  time instead of reading a machine-specific `venvPath` out of
+  `pyrightconfig.json`, and a missing poetry environment is now a hard
+  failure naming the command that fixes it — previously it degraded
+  into a wall of bogus unresolved-import errors. The script uses no
+  bash-4 builtins, so it runs on macOS's stock `/bin/bash` 3.2.
+
+### Removed
+
+* **`VITE_ASYNC_DONATIONS`** and its `.env.example` documentation. The
+  flag existed to keep donations fire-and-forget for a mono that never
+  replied; both monos now attempt a `DonateSuccess`/`DonateError` reply
+  on every handled path of `donate_via_api`
+  (`core/assets/js/feldspar_app.js`), so the flag only risked silently
+  disabling the reliability guarantee. Awaiting the acknowledgment is
+  now unconditional — remove the variable from any `.env.local`;
+  nothing reads it.
+
+  **This sets a minimum host version.** The workflow now requires a
+  mono carrying the donate-ack protocol — `d3i-infra/mono` commit
+  `bbfcbffbd` (2026-02-02, "[Feldspar] Add error handling to donate
+  flow"). Against an older host no acknowledgment is ever sent, the
+  awaited donation never settles, and the participant waits on a
+  spinner indefinitely. Deploying against a pre-February-2026 mono
+  image is unsupported.
+
 ## v3.0.0 — 2026-07-16
 
 This release reworks how studies are built and shipped: every bundle

@@ -63,3 +63,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 ### Performance
 
 - [0034 — Hold participant-flow peak memory to the ~824 MB reference budget](./0034-hold-participant-flow-peak-memory-to-the-824-mb-reference-budget.md)
+
+### Architecture
+
+- [0036 — Await the host's donation acknowledgment before resolving](./0036-await-the-host-s-donation-acknowledgment-before-resolving.md)
