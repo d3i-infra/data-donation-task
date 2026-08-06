@@ -1,9 +1,10 @@
-name: Dependency Updates
+name: CI
 
 on:
   pull_request:
     branches:
       - master
+      - development
 
 permissions:
   contents: read
@@ -36,14 +37,25 @@ jobs:
       - name: Install Poetry
         run: pip install poetry
 
+      # The dev group carries pandas-stubs; pandas ships no py.typed, so the
+      # "Python typecheck" step below reports import errors without it.
       - name: Install Python dependencies
-        run: cd packages/python && poetry install --with test
+        run: cd packages/python && poetry install --with test,dev
 
       - name: Run Python unit tests
         run: cd packages/python && poetry run pytest tests/ -v
 
-      - name: Run JS unit tests
-        run: pnpm test
+      - name: Build feldspar
+        run: pnpm run --filter @eyra/feldspar build
 
-      - name: Build
-        run: pnpm run build
+      - name: Run JS unit tests
+        run: pnpm run test:js
+
+      - name: Python typecheck
+        run: pnpm run typecheck:py
+
+      - name: Install adg
+        run: curl -fsSL https://raw.githubusercontent.com/daniellemccool/ad-guidance-tool/main/install.sh | sh && echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: ADR checks
+        run: adg lean index --model docs/decisions --root . && adg lean check --model docs/decisions
