@@ -21,6 +21,7 @@ export interface ScriptHostProps {
   factories?: PageFactory[];
   logLevel?: LogLevel;
   platform?: string;
+  mapLocale?: (requested: string) => string;
 }
 
 const FeldsparContent: React.FC<ScriptHostProps> = ({
@@ -32,6 +33,7 @@ const FeldsparContent: React.FC<ScriptHostProps> = ({
   factories = [],
   logLevel = "info",
   platform,
+  mapLocale,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const assemblyRef = useRef<Assembly | null>(null);
@@ -46,10 +48,11 @@ const FeldsparContent: React.FC<ScriptHostProps> = ({
 
     const run = (bridge: Bridge, selectedLocale: string = locale) => {
       if (defaultLocale != null) Translator.setDefaultLocale(defaultLocale);
-      const assembly = new Assembly(worker, bridge, selectedLocale, factories, logLevel, platform);
+      const effectiveLocale = mapLocale != null ? mapLocale(selectedLocale) : selectedLocale;
+      const assembly = new Assembly(worker, bridge, effectiveLocale, factories, logLevel, platform);
       assembly.visualizationEngine.start(
         containerRef.current!,
-        selectedLocale,
+        effectiveLocale,
         setState
       );
       assembly.processingEngine.start();
@@ -87,7 +90,7 @@ const FeldsparContent: React.FC<ScriptHostProps> = ({
         }
       }, 0);
     };
-  }, [workerUrl, locale, defaultLocale, standalone, setState, factories, logLevel, platform]);
+  }, [workerUrl, locale, defaultLocale, standalone, setState, factories, logLevel, platform, mapLocale]);
 
   return (
     <div ref={containerRef} className={className}>
