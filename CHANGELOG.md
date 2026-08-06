@@ -8,6 +8,20 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ### Fixed
 
+* Translation resolution no longer returns `undefined` or throws on a
+  malformed bundle: `translator.ts` and `text_bundle.ts` now resolve
+  exact locale → default locale → first available translation →
+  the `'?text?'` sentinel, with `typeof`/null-safe guards throughout
+  (#112).
+* The participant-facing UI locale now reaches Python. `firstRunCycle`
+  threads `platform` as an explicit prop (`App.tsx` →
+  `ScriptHostComponent` → `Assembly` → `WorkerProcessingEngine`) and
+  posts a `data: {sessionId, locale, platform}` context (upstream
+  #960 shape); `main.py`'s `start` reads the dict and stores the
+  locale via the new
+  `port.helpers.ui_locale` (`get_ui_locale`/`set_ui_locale`, default
+  `"en"`), which platform code reads instead of widening
+  `module.process(session_id)` (ADR-0029) (#124).
 * Donations are no longer silently fire-and-forget on any deployment.
   `LiveBridge.send()` now always awaits the host's
   `DonateSuccess`/`DonateError` reply, so a failed upload reliably
@@ -51,6 +65,14 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   awaited donation never settles, and the participant waits on a
   spinner indefinitely. Deploying against a pre-February-2026 mono
   image is unsupported.
+* All `import.meta` reads in `packages/feldspar`. The package now
+  contains no `import.meta` and no `VITE_*` read, matching upstream
+  `eyra/feldspar` (the one `process.env.NODE_ENV` read in
+  `script_host_component.tsx` is upstream's own and stays):
+  `VITE_PLATFORM` is read once in `App.tsx` and travels onward only as
+  a prop, and a bundle built without a platform fails loudly via
+  `script.py`'s `ValueError` on the consent-gated error page rather
+  than falling back to a build-time default.
 
 ## v3.0.0 — 2026-07-16
 

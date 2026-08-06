@@ -67,3 +67,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 ### Architecture
 
 - [0036 — Await the host's donation acknowledgment before resolving](./0036-await-the-host-s-donation-acknowledgment-before-resolving.md)
+
+### Localization
+
+- [0037 — Resolve text to exact, default, first-available, or sentinel](./0037-resolve-text-to-exact-default-first-available-or-sentinel.md)
