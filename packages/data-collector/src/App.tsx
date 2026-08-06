@@ -12,6 +12,8 @@ function App() {
         workerUrl="./py_worker.js"
         standalone={import.meta.env.DEV}
         logLevel={import.meta.env.DEV ? "debug" : "info"}
+        platform={import.meta.env.VITE_PLATFORM}
+        defaultLocale="en"
         factories={[
           new DataSubmissionPageFactory({
             promptFactories: [
