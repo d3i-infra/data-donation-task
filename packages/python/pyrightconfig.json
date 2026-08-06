@@ -3,7 +3,5 @@
   "extraPaths": ["."],
   "pythonVersion": "3.14",
   "pythonPlatform": "Linux",
-  "typeCheckingMode": "basic",
-  "venvPath": "/home/dmm/.cache/pypoetry/virtualenvs",
-  "venv": "port-891PveTA-py3.14"
+  "typeCheckingMode": "basic"
 }
