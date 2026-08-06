@@ -5,6 +5,7 @@ from collections.abc import Generator
 
 from port.api.commands import CommandSystemExit, CommandUIRender, CommandSystemDonate
 from port.api.file_utils import AsyncFileAdapter
+from port.helpers import ui_locale
 from port.script import process
 import port.api.props as props
 
@@ -89,6 +90,16 @@ class ScriptWrapper(Generator):
         raise StopIteration
 
 
-def start(sessionId, platform):
-    script = process(sessionId, platform)
+def start(data):
+    """Entry from py_worker.js.
+
+    `data` is the #960-style context dict {"sessionId", "locale", "platform"}
+    posted by WorkerProcessingEngine.firstRunCycle. sessionId arrives as a JSON
+    string (Assembly builds it with String(Date.now())), so downstream
+    donation-key logic (ADR-0020) always sees str.
+    """
+    session_id = data.get("sessionId")
+    platform = data.get("platform")
+    ui_locale.set_ui_locale(data.get("locale"))
+    script = process(session_id, platform)
     return ScriptWrapper(script, platform=platform)

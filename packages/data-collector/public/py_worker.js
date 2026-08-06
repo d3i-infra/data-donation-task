@@ -12,12 +12,15 @@ onmessage = (event) => {
       });
       break;
 
-    case "firstRunCycle":
-      const platform = event.data.platform;
-      const pyPlatform = (platform && platform !== "undefined") ? `"${platform}"` : "None";
-      pyScript = self.pyodide.runPython(`port.start(${event.data.sessionId}, ${pyPlatform})`);
+    case "firstRunCycle": {
+      const ctx = event.data.data;
+      // strip null/undefined/"undefined": the JSON text is interpolated as a Python
+      // literal and values must stay strings/numbers (JSON null is not Python)
+      for (const k of Object.keys(ctx)) if (ctx[k] == null || ctx[k] === "undefined") delete ctx[k];
+      pyScript = self.pyodide.runPython(`port.start(${JSON.stringify(ctx)})`);
       runCycle(null);
       break;
+    }
 
     case "nextRunCycle":
       const { response } = event.data;

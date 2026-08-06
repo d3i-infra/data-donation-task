@@ -75,5 +75,5 @@ def test_start_function_creates_wrapper(monkeypatch):
     monkeypatch.setattr("port.main.process", fake_process)
 
     from port.main import start
-    wrapper = start("session123", "LinkedIn")
+    wrapper = start({"sessionId": "session123", "platform": "LinkedIn"})
     assert isinstance(wrapper, ScriptWrapper)
