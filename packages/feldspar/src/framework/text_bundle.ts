@@ -1,5 +1,6 @@
 import _ from 'lodash'
 import { Translatable } from './types/elements'
+import { MISSING_TRANSLATION } from './translator'
 
 export default class TextBundle implements Translatable {
   translations: { [key: string]: string } = {}
@@ -16,19 +17,20 @@ export default class TextBundle implements Translatable {
 
   resolve (locale: string): string {
     const text = this.translations[locale]
-    if (text !== null) {
+    if (typeof text === 'string') {
       return text
     }
 
     const defaultText = this.translations[this.defaultLocale]
-    if (defaultText !== null) {
+    if (typeof defaultText === 'string') {
       return defaultText
     }
 
-    if (Object.values(this.translations).length > 0) {
-      return Object.values(this.translations)[0]
+    const first = Object.values(this.translations).find((value) => typeof value === 'string')
+    if (first !== undefined) {
+      return first
     }
 
-    return '?text?'
+    return MISSING_TRANSLATION
   }
 }
