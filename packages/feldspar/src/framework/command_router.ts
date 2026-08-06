@@ -25,11 +25,11 @@ export default class CommandRouter implements CommandHandler {
 
   // Awaiting bridge.send() for donate commands is the pattern from eyra/feldspar
   // PR #612 (draft, feature/live_error_handling) and what-if-horizon commit 0020453.
-  // When VITE_ASYNC_DONATIONS=false (default), bridge.send() resolves immediately
-  // with void and this method returns PayloadVoid, preserving the old behaviour.
-  // When VITE_ASYNC_DONATIONS=true, bridge.send() awaits DonateSuccess/DonateError
-  // from Eyra's mono (introduced in eyra/mono commit f1395c378) and returns
-  // PayloadResponse so Python can inspect the outcome.
+  // bridge.send() always awaits the host's DonateSuccess/DonateError for a donate
+  // command (protocol from eyra/mono commit f1395c378; both monos reply
+  // unconditionally), so this method returns PayloadResponse and Python can inspect
+  // the outcome. A bridge that resolves with void — e.g. a stub — still yields
+  // PayloadVoid through the fall-through below.
   async onCommandSystem (command: CommandSystem): Promise<Response> {
     if (isCommandSystemExit(command)) {
       this.bridge.send(command)
