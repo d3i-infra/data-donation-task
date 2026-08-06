@@ -10,23 +10,28 @@ import {
 } from "../framework/visualization/react/context";
 import { PageFactory } from "../framework/visualization/react/factories/base";
 import { LogLevel } from "../framework/logging";
+import { Translator } from "../framework/translator";
 
 export interface ScriptHostProps {
   workerUrl: string;
   locale?: string;
+  defaultLocale?: string;
   standalone?: boolean;
   className?: string;
   factories?: PageFactory[];
   logLevel?: LogLevel;
+  platform?: string;
 }
 
 const FeldsparContent: React.FC<ScriptHostProps> = ({
   workerUrl,
   locale = "en",
+  defaultLocale,
   standalone = false,
   className,
   factories = [],
   logLevel = "info",
+  platform,
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const assemblyRef = useRef<Assembly | null>(null);
@@ -40,7 +45,8 @@ const FeldsparContent: React.FC<ScriptHostProps> = ({
     workerRef.current = worker;
 
     const run = (bridge: Bridge, selectedLocale: string = locale) => {
-      const assembly = new Assembly(worker, bridge, factories, logLevel);
+      if (defaultLocale != null) Translator.setDefaultLocale(defaultLocale);
+      const assembly = new Assembly(worker, bridge, selectedLocale, factories, logLevel, platform);
       assembly.visualizationEngine.start(
         containerRef.current!,
         selectedLocale,
@@ -81,7 +87,7 @@ const FeldsparContent: React.FC<ScriptHostProps> = ({
         }
       }, 0);
     };
-  }, [workerUrl, locale, standalone, setState, factories, logLevel]);
+  }, [workerUrl, locale, defaultLocale, standalone, setState, factories, logLevel, platform]);
 
   return (
     <div ref={containerRef} className={className}>
