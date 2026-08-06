@@ -11,6 +11,7 @@ import logging
 
 import port.api.props as props
 import port.api.d3i_props as d3i_props
+from port.api.file_utils import SeekableBinaryReader
 import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
 import port.helpers.uploads as uploads
@@ -179,13 +180,21 @@ class FlowBuilder:
         return ph.generate_file_prompt("application/zip")
 
     @abstractmethod
-    def validate_file(self, file: str) -> validate.ValidateInput:
-        """Validate the file according to platform-specific rules."""
+    def validate_file(self, file: SeekableBinaryReader) -> validate.ValidateInput:
+        """Validate the file according to platform-specific rules.
+
+        `file` is the `AsyncFileAdapter` wrapping the browser upload — a
+        seekable binary reader, never a path. See ADR-0026.
+        """
         raise NotImplementedError("Must be implemented by subclass")
 
     @abstractmethod
-    def extract_data(self, file: str, validation: validate.ValidateInput) -> d3i_props.ExtractionResult:
-        """Extract data from file using platform-specific logic."""
+    def extract_data(self, file: SeekableBinaryReader, validation: validate.ValidateInput) -> d3i_props.ExtractionResult:
+        """Extract data from file using platform-specific logic.
+
+        `file` is the `AsyncFileAdapter` wrapping the browser upload — a
+        seekable binary reader, never a path. See ADR-0026.
+        """
         raise NotImplementedError("Must be implemented by subclass")
 
     def generate_retry_prompt(self):
