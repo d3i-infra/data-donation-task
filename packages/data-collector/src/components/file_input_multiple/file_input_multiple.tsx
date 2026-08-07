@@ -120,6 +120,8 @@ const continueButtonLabel = (): Translatable => {
     .add('en', 'Continue')
     .add('de', 'Weiter')
     .add('nl', 'Verder')
+    .add('it', 'Continua')
+    .add('es', 'Continuar')
 }
 
 const selectButtonLabel = (): Translatable => {
@@ -127,6 +129,8 @@ const selectButtonLabel = (): Translatable => {
     .add('en', 'Choose file(s)')
     .add('de', 'Datei(en) auswählen')
     .add('nl', 'Kies bestand(en)')
+    .add('it', 'Scegli file')
+    .add('es', 'Elegir archivo(s)')
 }
 
 const note = (): Translatable => {
@@ -134,5 +138,7 @@ const note = (): Translatable => {
     .add('en', 'Note: The process to extract the correct data from the file is done on your own computer. No data is stored or sent yet.')
     .add('de', 'Anmerkung: Die weitere Verarbeitung der Datei erfolgt auf Ihrem eigenen Endgerät. Es werden noch keine Daten gespeichert oder weiter gesendet.')
     .add('nl', 'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.')
+    .add('it', "Nota: l'estrazione dei dati corretti dal file avviene sul suo computer. Non viene ancora salvato né inviato alcun dato.")
+    .add('es', 'Nota: el proceso de extraer los datos correctos del archivo se realiza en su propio ordenador. Todavía no se guarda ni se envía ningún dato.')
 }
 

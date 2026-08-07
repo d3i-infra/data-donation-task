@@ -91,4 +91,8 @@ interface Copy {
 
 const continueLabel = new TextBundle()
   .add('en', 'Continue')
+  .add('nl', 'Doorgaan')
+  .add('de', 'Weiter')
+  .add('it', 'Continua')
+  .add('es', 'Continuar')
  

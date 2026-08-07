@@ -76,8 +76,28 @@ function getTranslations (locale: string): Record<string, string> {
 }
 
 const translations = {
-  columns: new TextBundle().add('en', 'columns').add('nl', 'kolommen'),
-  rows: new TextBundle().add('en', 'rows').add('nl', 'rijen'),
-  noData: new TextBundle().add('en', 'no data').add('nl', 'geen data'),
-  deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd')
+  columns: new TextBundle()
+    .add('en', 'columns')
+    .add('nl', 'kolommen')
+    .add('de', 'Spalten')
+    .add('it', 'colonne')
+    .add('es', 'columnas'),
+  rows: new TextBundle()
+    .add('en', 'rows')
+    .add('nl', 'rijen')
+    .add('de', 'Zeilen')
+    .add('it', 'righe')
+    .add('es', 'filas'),
+  noData: new TextBundle()
+    .add('en', 'no data')
+    .add('nl', 'geen data')
+    .add('de', 'keine Daten')
+    .add('it', 'nessun dato')
+    .add('es', 'sin datos'),
+  deleted: new TextBundle()
+    .add('en', 'deleted')
+    .add('nl', 'verwijderd')
+    .add('de', 'gelöscht')
+    .add('it', 'eliminate')
+    .add('es', 'eliminadas')
 }
