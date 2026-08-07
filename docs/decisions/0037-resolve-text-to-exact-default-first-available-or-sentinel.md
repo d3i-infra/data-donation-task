@@ -10,6 +10,7 @@ category: Localization
 applies_to:
     - packages/feldspar/src/framework/translator.ts
     - packages/feldspar/src/framework/text_bundle.ts
+    - packages/data-collector/src/locale/text.ts
     - packages/feldspar/src/components/script_host_component.tsx
     - packages/feldspar/src/framework/processing/worker_engine.ts
     - packages/data-collector/public/py_worker.js
@@ -19,6 +20,7 @@ priority: invariant
 companions:
     - packages/feldspar/src/framework/translator.test.ts
     - packages/feldspar/src/framework/text_bundle.test.ts
+    - packages/data-collector/src/locale/text.test.ts
     - packages/python/tests/test_ui_locale.py
 ---
 
@@ -30,8 +32,10 @@ companions:
 
 ## Guidance
 
-- New text-resolving code must keep `resolve()`'s chain total — exact → `defaultLocale` → first available → `'?text?'` sentinel, never `undefined` — guarding with `typeof text === 'string'` checks and null-safe `?.`/`?? {}` access, matching `translator.ts`. `translate()`'s `TypeError` on non-string/non-`Translatable` input is separate entry-point junk-guarding, not part of the total chain (Stage 2 owns hardening that boundary further).
+- New text-resolving code must keep `resolve()`'s chain total — exact → `defaultLocale` → first available → `'?text?'` sentinel, never `undefined` — guarding with `typeof text === 'string'` checks and null-safe `?.`/`?? {}` access, matching `translator.ts`. `translate()`'s `TypeError` on non-string/non-`Translatable` input is separate entry-point junk-guarding, not part of the total chain.
+- Fork code resolves text through `data-collector`'s `locale/text.ts` façade — `resolveText` (a nested `translations` object, which includes every `TextBundle`), `resolveFlatText` (the flat locale-to-string shape study config JSON uses for visualization labels), and `resolveAll` (a whole string table at once). All three delegate to `Translator.translate` for the chain itself and add only a shape guard *before* that entry point, so researcher-authored JSON that is the wrong shape yields `MISSING_TRANSLATION` instead of the `TypeError` that would take the participant's page down. Don't reimplement the chain here, and don't let a new façade function be partial — bad input returns `'?text?'`, never throws.
 - The host-configurable default locale governs `Translator` only, via `ScriptHostComponent`'s `defaultLocale` prop (`Translator.setDefaultLocale`); don't add a second hardcoded fallback elsewhere. `TextBundle`'s own `defaultLocale` field is a separate, hardcoded `'nl'` value that no production code ever sets — it is not a second host-configured path.
+- `ScriptHostComponent`'s `mapLocale` hook is locale *mapping*, a distinct pre-resolution step that runs before any bundle is consulted — never a stage of the fallback chain. Its contract: called once per session inside `run`, with the requested locale; synchronous, total, and never throwing (a mapper that throws takes the whole session down before the first page renders); referentially stable across renders, since it sits in the `useEffect` dependency array and a fresh function identity each render would restart the session. Its single output feeds *both* engines — the visualization engine's `start` and the `Assembly`/worker handshake — so no caller may re-map or map a second value.
 - UI locale rides the `firstRunCycle` `data` dict (`{sessionId, locale, platform}`) into Python via `main.py`'s `start`, which stores it with `ui_locale.set_ui_locale`. Platform code reads it only through `ui_locale.get_ui_locale()` (default `"en"`) — never widen `module.process(session_id)`'s signature to take a locale (cross-ref ADR-0029's platform-dispatch contract).
 - `ui_locale.py`'s UI locale is a distinct concept from `helpers/validate.py`'s DDP-export `Language` enum (parsing language of exported data) — the two must never be synced or conflated.
 

@@ -71,3 +71,4 @@ Load the ADR(s) whose filename matches the area you are touching.
 ### Localization
 
 - [0037 — Resolve text to exact, default, first-available, or sentinel](./0037-resolve-text-to-exact-default-first-available-or-sentinel.md)
+- [0038 — Normalize the UI locale once at the data-collector boundary](./0038-normalize-the-ui-locale-once-at-the-data-collector-boundary.md)

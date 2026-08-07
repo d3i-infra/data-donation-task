@@ -57,11 +57,13 @@ Visit [`http://localhost:3000`](http://localhost:3000).
 
 | Command | Description |
 |---|---|
-| `pnpm test` | Run Python tests |
-| `pnpm test:py` | Same as above |
-| `pnpm test:py -- tests/test_specific.py -q` | Run specific tests |
+| `pnpm test` | Run the full suite (JS unit tests, then Python) |
+| `pnpm test:js` | Run the JS unit tests (`@eyra/feldspar` + `@eyra/data-collector`) |
+| `pnpm test:py` | Run the Python tests |
+| `pnpm test:py -- tests/test_specific.py -q` | Run specific Python tests |
 | `pnpm typecheck:py` | Run Pyright type checker |
 | `pnpm verify:py` | Run both tests + type checks |
+| `pnpm test:e2e` | Run the Playwright end-to-end suite |
 
 ### Releases
 
@@ -84,6 +86,73 @@ pnpm generate-config instagram
 To add a new platform, copy `packages/python/port/platforms/example.py` as your starting point.
 
 See the [documentation site](https://d3i-infra.github.io/data-donation-task/) for full tutorials.
+
+## Localization status
+
+The participant-facing UI is localized in two independent layers. They are
+translated by different people, cover different locales, and fall back
+separately — a page can render German chrome around English table titles.
+
+| UI locale | **Framework chrome**<br>buttons, consent prose, error pages<br>*(ships in this repo)* | **Study content**<br>table titles, column headers, viz titles<br>*(per platform, yours to write)* |
+|---|---|---|
+| `en` | complete — **the fallback** | **required**; validation fails without it |
+| `nl` | complete | shipped for the platforms in this repo |
+| `de` | ⚠️ **provisional** — machine-translated, pending native-speaker review | — falls back to English, live |
+| `it` | ⚠️ **provisional** — machine-translated, pending native-speaker review | — falls back to English, live |
+| `es` | ⚠️ **provisional** — machine-translated, pending native-speaker review | — falls back to English, live |
+
+**Fallback is per string, at render time.** A locale that a given text bundle
+does not carry resolves to `en` for that string only; there is no
+whole-page language switch and no build step involved. So a `de` participant
+sees translated chrome and English table titles until you translate the tables
+in `configs/<platform>_config.json`.
+
+Reviewing the provisional translations — register conventions and the specific
+judgment calls that need a native speaker's ruling — is documented in
+[`docs/localization-translation-notes.md`](docs/localization-translation-notes.md).
+
+Checking your own coverage: `pnpm generate-config <platform>` and `pnpm release`
+both run the config validator with `--report`, which prints a per-locale
+coverage matrix (provisional locales marked `*`) and fails the build if a text
+bundle is missing English.
+
+### UI locale is not `platform_info.languages`
+
+These are two unrelated things and are **never synced**:
+
+- The **UI locale** (`en`/`nl`/`de`/`it`/`es`) is what language the interface
+  renders in. It comes from the host at session start.
+- **`platform_info.languages`** in a platform config — and `Language` in
+  `port/helpers/validate.py` — describe the language of the *participant's DDP
+  export*, i.e. what language the filenames and headers inside their downloaded
+  zip are in. It is a parsing concern.
+
+A participant can perfectly well read the UI in Spanish while donating a
+Dutch-language Instagram export. Changing one must never change the other.
+
+### Setting the locale in development
+
+In production the locale comes only from the host's `live-init` message; there
+is no URL override. In **dev builds only**, a `?locale=` query parameter
+overrides it — this is the dev-server convenience and the Playwright e2e
+injection point:
+
+```
+http://localhost:3000/?locale=nl
+```
+
+The value is normalized once, at the host boundary, before anything sees it:
+
+| Requested | Rendered | Why |
+|---|---|---|
+| `nl` | `nl` | supported |
+| `es-ES`, `es_ES`, `ES` | `es` | region and case are stripped |
+| `ro` | `en` | not a supported UI locale → default |
+| *(absent)* | `en` | default |
+
+The supported set lives in
+`packages/data-collector/src/locale/ui_locales.json` (mirrored into the Python
+package; a test fails if the two drift). See ADR-0038.
 
 ## Architecture
 

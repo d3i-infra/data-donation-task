@@ -6,7 +6,72 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ## [Unreleased]
 
+### Added
+
+* **Five supported UI locales: `en`, `nl`, `de`, `it`, `es`** (default and
+  fallback `en`). `de`, `it`, and `es` are **provisional** —
+  machine-translated and *not* yet reviewed by a native speaker — and are
+  labelled as such everywhere they surface: the `provisional` key in
+  `ui_locales.json`, a `*` marker in the coverage report, and the
+  localization matrix in the README. Reviewer-facing notes (register
+  conventions, the specific judgment calls awaiting a ruling, how to
+  regenerate the review diff) are in
+  `docs/localization-translation-notes.md`.
+* **One place that says which locales exist.**
+  `packages/data-collector/src/locale/ui_locales.json` is canonical;
+  `packages/python/port/helpers/ui_locales.json` is a byte-identical
+  mirror packaged with the wheel, and `test_ui_locales_sync.py` hard-fails
+  (never skips) if the two drift. `policy.ts`'s `normalizeLocale` is the
+  one policy implementation; Python's `normalize_ui_locale` is
+  defense-in-depth for a caller that bypasses the host, not a second
+  source of truth (ADR-0038).
+* **Locale normalization at the host boundary**, once per session. The new
+  policy-free `mapLocale` prop on `ScriptHostComponent` maps the requested
+  locale before anything consumes it, and its single output feeds *both*
+  the visualization engine and the worker handshake — so `es-ES` renders
+  as `es` and an unsupported `ro` renders as `en` rather than reaching
+  feldspar's own partial Romanian bundles.
+* **Researcher-facing locale coverage validation.**
+  `validate_port_config.py --report` prints a per-platform coverage matrix
+  (bundles present/empty per locale, provisional locales flagged, unknown
+  locale keys called out as never-rendered). It is chained after
+  `pnpm generate-config`, run per platform by `release.sh` *before*
+  anything is built, and run over every regenerated config
+  (`--all --report`) in CI. A participant-facing text bundle missing the
+  default locale is an error; researchers learn it there rather than from
+  a participant staring at `?text?`.
+* **A dev-only `?locale=` query parameter** (`App.tsx`, gated on
+  `import.meta.env.DEV`) for exercising a locale on the dev server —
+  `http://localhost:3000/?locale=nl`. Production locale still comes only
+  from the host's `live-init`; there is no URL override in a built bundle.
+* **Localization end-to-end suite** (`tests/localization.spec.ts`), which
+  imports the supported-locale policy from `ui_locales.json` rather than
+  restating it, and covers the seams that actually broke: a supported
+  locale whose study config has no translations (German chrome, English
+  table titles), region-tag normalization (`es-ES` → `es`), a full Dutch
+  donation flow, and an unsupported `ro` falling back to English and still
+  donating.
+
 ### Fixed
+
+* All fork text resolution now goes through one total façade,
+  `packages/data-collector/src/locale/text.ts`
+  (`resolveText`/`resolveFlatText`/`resolveAll`). It delegates the
+  fallback chain to feldspar's `Translator` and adds only a shape guard
+  *before* that entry point: researcher-authored study-config text of the
+  wrong shape now yields `'?text?'` instead of the `TypeError` that took
+  the participant's page down. This replaces the visualization plugin's
+  own private resolver (`translate.ts`), which fell back `nl` before
+  `en`; visualization labels for locales other than `nl` now fall back to
+  `en` (the host default) instead of Dutch, and the sentinel for missing
+  text changes from `'[missing translation]'` to `'?text?'`.
+* `Translatable` now validates its own construction (non-dict
+  `translations`, non-string keys, non-string values raise `TypeError` at
+  the construction site), so a malformed bundle fails in the platform
+  module being written rather than as unreadable text in front of a
+  participant. Locale *coverage* is deliberately not checked there —
+  partial bundles are legitimate, and coverage is the `--report` gate's
+  job.
 
 * Translation resolution no longer returns `undefined` or throws on a
   malformed bundle: `translator.ts` and `text_bundle.ts` now resolve
