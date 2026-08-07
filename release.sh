@@ -43,6 +43,16 @@ echo "Found ${#platforms[@]} platform(s): ${platforms[*]}"
 mkdir -p releases
 
 for PLATFORM in "${platforms[@]}"; do
+    # Configs are hand-editable after generation, so validate every one at
+    # release time — schema, extractor registry, and UI-content locale
+    # coverage. A researcher must learn here that a table header lost its
+    # English text, not from a participant staring at "?text?".
+    echo "Validating config for platform: ${PLATFORM}..."
+    if ! (cd packages/python && poetry run python ../../scripts/validate_port_config.py "$PLATFORM" --report); then
+        echo "ERROR: config validation failed for '${PLATFORM}' (see above); nothing was built." >&2
+        exit 1
+    fi
+
     echo "Building for platform: ${PLATFORM}..."
     export VITE_PLATFORM=$PLATFORM
     pnpm run build
