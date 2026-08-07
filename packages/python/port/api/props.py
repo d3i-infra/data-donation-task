@@ -13,19 +13,52 @@ class Translations(TypedDict):
     Attributes:
         en: English string to display
         nl: Dutch string to display
+        de: German string to display (optional)
+        it: Italian string to display (optional)
         es: Spanish string to display (optional)
     """
 
     en: str
     nl: str
+    de: NotRequired[str]
+    it: NotRequired[str]
     es: NotRequired[str]
 
 
 @dataclass
 class Translatable:
-    """Wrapper class for Translations"""
+    """Wrapper class for Translations.
+
+    A data carrier only: Python never resolves text, the feldspar renderer does.
+    The constructor guards the entry point so a wrong shape fails here rather
+    than surfacing to a participant as unusable text. Empty strings are allowed
+    — an empty translation is a deliberate "render nothing", not a missing one.
+
+    Which locales a bundle must carry is deliberately not checked here: platform
+    modules build partial bundles legitimately, and locale coverage is a
+    researcher-facing gate.
+    """
 
     translations: Translations
+
+    def __post_init__(self):
+        if not isinstance(self.translations, dict):
+            raise TypeError(
+                "Translatable expects a dict of locale code to text, e.g. "
+                '{"en": "Hello", "nl": "Hallo"}; got '
+                f"{type(self.translations).__name__}"
+            )
+        for locale, text in self.translations.items():
+            if not isinstance(locale, str):
+                raise TypeError(
+                    "Translatable locale keys must be strings, e.g. "
+                    f'"en"; got {type(locale).__name__} ({locale!r})'
+                )
+            if not isinstance(text, str):
+                raise TypeError(
+                    f'Translatable text for locale "{locale}" must be a string; '
+                    f"got {type(text).__name__}"
+                )
 
     def toDict(self):
         return self.__dict__.copy()
@@ -260,7 +293,7 @@ class PropsUIPromptHelloWorld:
     def toDict(self):
         dict = {}
         dict["__type__"] = "PropsUIPromptHelloWorld"
-        dict["text"] = self.text
+        dict["text"] = self.text.toDict()
         return dict
 
 

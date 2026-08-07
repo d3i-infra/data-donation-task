@@ -340,12 +340,14 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
 def handle_donate_result(result) -> bool:
     """Inspect donate result. Returns True on success, False on failure.
 
-    eyra/feldspar develop (Feb 2026+) returns PayloadResponse for
-    CommandSystemDonate with value.success indicating outcome. Older
-    feldspar and FakeBridge (dev mode) return PayloadVoid (fire-and-forget).
+    Both current bridges acknowledge a CommandSystemDonate with a structured
+    result, so production and local dev alike reach Python as PayloadResponse:
+    LiveBridge relays the host's reply, and FakeBridge returns the outcome of
+    its own /data-submission POST. PayloadVoid arrives only from a bridge that
+    resolves a donate without an acknowledgment (an older host, a stub bridge).
 
-    PayloadResponse → check value.success (production path, checked first)
-    PayloadVoid / None → True (dev mode / backward-compat)
+    PayloadResponse → check value.success (the path every current bridge takes)
+    PayloadVoid / None → True (legacy no-acknowledgment shape)
     Anything else → log warning, return False
     """
     if result is None:

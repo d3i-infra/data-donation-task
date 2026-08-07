@@ -27,10 +27,13 @@ class PropsUIPromptConsentFormTableViz:
             {"column1": 2, "column2": 5},
             {"column1": 3, "column2": 6},
         ])
-        
-        example1 = PropsUIPromptConsentFormTable(
+
+        example1 = PropsUIPromptConsentFormTableViz(
             id="example1",
-            title=Translatable("Table as DataFrame"),
+            title=props.Translatable({
+                "en": "Table as DataFrame",
+                "nl": "Tabel als DataFrame",
+            }),
             data_frame=data_frame_df,
         )
 
@@ -39,10 +42,13 @@ class PropsUIPromptConsentFormTableViz:
             "column2": {"0": 2, "1": 5},
             "column3": {"0": 3, "1": 6},
         }
-        
-        example2 = PropsUIPromptConsentFormTable(
+
+        example2 = PropsUIPromptConsentFormTableViz(
             id="example2",
-            title=Translatable("Table as Dictionary"),
+            title=props.Translatable({
+                "en": "Table as Dictionary",
+                "nl": "Tabel als woordenboek",
+            }),
             data_frame=data_frame_dict,
         )
     """
