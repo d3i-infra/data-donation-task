@@ -27,17 +27,38 @@ def error_flow(platform: str | None, tb: str):
         tb: Full traceback string from traceback.format_exc().
     """
     header = props.PropsUIHeader(
-        props.Translatable({"nl": "Er is iets misgegaan", "en": "Something went wrong"})
+        props.Translatable({
+            "nl": "Er is iets misgegaan",
+            "en": "Something went wrong",
+            "de": "Es ist etwas schiefgelaufen",
+            "it": "Si è verificato un errore",
+            "es": "Se ha producido un error",
+        })
     )
     body = [
-        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb})),
+        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb, "de": tb, "it": tb, "es": tb})),
         props.PropsUIPromptConfirm(
             text=props.Translatable({
                 "nl": "Wilt u de fout rapporteren zodat we het probleem kunnen oplossen?",
                 "en": "Would you like to report this error so we can fix the problem?",
+                "de": "Möchten Sie diesen Fehler melden, damit wir das Problem beheben können?",
+                "it": "Desidera segnalare questo errore in modo che possiamo risolvere il problema?",
+                "es": "¿Desea informar de este error para que podamos solucionar el problema?",
             }),
-            ok=props.Translatable({"nl": "Fout rapporteren", "en": "Report error"}),
-            cancel=props.Translatable({"nl": "Overslaan", "en": "Skip"}),
+            ok=props.Translatable({
+                "nl": "Fout rapporteren",
+                "en": "Report error",
+                "de": "Fehler melden",
+                "it": "Segnala errore",
+                "es": "Informar del error",
+            }),
+            cancel=props.Translatable({
+                "nl": "Overslaan",
+                "en": "Skip",
+                "de": "Überspringen",
+                "it": "Salta",
+                "es": "Omitir",
+            }),
         ),
     ]
     page = props.PropsUIPageDataSubmission(platform or "error", header, body)
