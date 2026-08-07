@@ -1,4 +1,4 @@
-import { translate } from '../translate'
+import { resolveFlatText } from '../../../../locale/text'
 import * as React from 'react'
 import { AxisSettings, TickerFormat, ChartVisualizationData } from '../types'
 
@@ -25,7 +25,7 @@ interface Props {
 const margin = { top: 5, right: 5, left: 5, bottom: 15 }
 
 export default function RechartsGraph ({ visualizationData, locale }: Props): JSX.Element | null {
-  const xLabel = translate(visualizationData.xLabel ?? visualizationData.xKey, locale)
+  const xLabel = resolveFlatText(visualizationData.xLabel ?? visualizationData.xKey, locale)
   const tickFormatter = getTickFormatter(Object.values(visualizationData.yKeys))
 
   function tooltip (): JSX.Element {
@@ -77,7 +77,7 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
   let chart: JSX.Element | null = null
 
   function getYLabel (yKey: AxisSettings): string {
-    return translate(yKey.label ?? yKey.id, locale)
+    return resolveFlatText(yKey.label ?? yKey.id, locale)
   }
 
   if (visualizationData.type === 'line') {

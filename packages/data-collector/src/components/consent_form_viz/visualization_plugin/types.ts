@@ -9,6 +9,10 @@ import { z } from "zod"
 // duplicating the types here. Currently opting for duplication to avoid complexity
 // (and if input format changes, the plugin would break regardless)
 
+// Permissive by design: any locale key is accepted here. Strictness belongs at
+// the researcher-facing gates (where a bad config should be reported), not at
+// the participant's render path — here the runtime defense is the resolver
+// sentinel from src/locale/text.ts, which returns '?text?' instead of throwing.
 export const zTranslatable = z.record(z.string(), z.string())
 export type Translatable = z.infer<typeof zTranslatable>
 

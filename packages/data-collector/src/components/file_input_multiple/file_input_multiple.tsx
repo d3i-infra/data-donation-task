@@ -1,12 +1,12 @@
 import * as React from 'react'
 import {
   Translatable,
-  Translator,
   ReactFactoryContext,
   PrimaryButton,
   BodySmall
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { PropsUIPromptFileInputMultiple } from "./types.ts"
 import CloseSvg  from "./assets/close.svg"
 
@@ -107,11 +107,11 @@ interface Copy {
 
 function prepareCopy ({ description, extensions, locale }: Props): Copy {
   return {
-    description: Translator.translate(description, locale),
-    note: Translator.translate(note(), locale),
+    description: resolveText(description, locale),
+    note: resolveText(note(), locale),
     extensions: extensions,
-    selectButton: Translator.translate(selectButtonLabel(), locale),
-    continueButton: Translator.translate(continueButtonLabel(), locale)
+    selectButton: resolveText(selectButtonLabel(), locale),
+    continueButton: resolveText(continueButtonLabel(), locale)
   }
 }
 

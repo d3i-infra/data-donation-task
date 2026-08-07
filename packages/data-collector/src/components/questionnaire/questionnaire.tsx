@@ -1,10 +1,10 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   PrimaryButton,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { 
     PropsUIPromptQuestionnaire,
     isPropsUIQuestionMultipleChoice,
@@ -77,8 +77,8 @@ export const Questionnaire = (props: Props): JSX.Element => {
         
   function prepareCopy (locale: string): Copy {
     return {
-      description: Translator.translate(description, locale),
-      continueLabel: Translator.translate(continueLabel, locale)
+      description: resolveText(description, locale),
+      continueLabel: resolveText(continueLabel, locale)
     }
   }
 };

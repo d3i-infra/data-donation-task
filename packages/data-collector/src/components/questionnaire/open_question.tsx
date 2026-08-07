@@ -1,9 +1,9 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   Title3,
 } from "@eyra/feldspar"
+import { resolveText } from '../../locale/text'
 import { PropsUIQuestionOpen } from '../../../../types/elements'
 
 interface parentSetter {
@@ -47,7 +47,7 @@ export const OpenQuestion = (props: Props): JSX.Element => {
 
   function prepareCopy (locale: string): Copy {
     return {
-      question: Translator.translate(question, locale)
+      question: resolveText(question, locale)
     }
   }
 }

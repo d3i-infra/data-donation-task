@@ -1,10 +1,10 @@
 import {
   Title1,
   BodyLarge,
-  Translator,
   ReactFactoryContext,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { PropsUIPageError } from "./types"
 
 type Props = PropsUIPageError & ReactFactoryContext
@@ -30,8 +30,8 @@ interface Copy {
 
 function prepareCopy ({ locale }: Props): Copy {
   return {
-    title: Translator.translate(title, locale),
-    text: Translator.translate(text, locale)
+    title: resolveText(title, locale),
+    text: resolveText(text, locale)
   }
 }
 

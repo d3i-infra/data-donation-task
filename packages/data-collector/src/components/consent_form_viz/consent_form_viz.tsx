@@ -1,10 +1,10 @@
 import {
   DonateButtons,
   BodyLarge,
-  Translator,
   ReactFactoryContext,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { 
     TableWithContext,
     TableContext,
@@ -85,9 +85,9 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
 
   function parseTable(tableData: PropsUIPromptConsentFormTableViz): PropsUITable & TableContext {
     const id = tableData.id
-    const title = Translator.translate(tableData.title, props.locale)
+    const title = resolveText(tableData.title, props.locale)
     const description =
-      tableData.description !== undefined ? Translator.translate(tableData.description, props.locale) : ""
+      tableData.description !== undefined ? resolveText(tableData.description, props.locale) : ""
     const deletedRowCount = 0
     const dataFrame = loadDataFrame(tableData.data_frame)
     const headCells = columnNames(dataFrame).map((column: string) => column)
@@ -106,7 +106,7 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
     if (tableData.headers != null) {
       translatedHeaders = {}
       for (const [column, text] of Object.entries(tableData.headers)) {
-        translatedHeaders[column] = Translator.translate(text, props.locale)
+        translatedHeaders[column] = resolveText(text, props.locale)
       }
     }
 
@@ -191,7 +191,7 @@ interface Copy {
 
 function prepareCopy({ description, locale }: Props): Copy {
   return {
-    description: Translator.translate(description ?? defaultDescription, locale),
+    description: resolveText(description ?? defaultDescription, locale),
   }
 }
 

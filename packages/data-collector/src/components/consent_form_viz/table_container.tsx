@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from "react"
-import { 
-    Translator,
+import {
     Title4,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveAll } from "../../locale/text"
 import { 
     TableWithContext,
     PropsUITableRow,
@@ -244,11 +244,7 @@ const zoomOutIcon = (
 )
 
 function getTranslations(locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {

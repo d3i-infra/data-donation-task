@@ -8,7 +8,7 @@ import VisxWordcloud from './figures/d3_wordcloud'
 import { zoomInIcon, zoomOutIcon } from './zoom_icons'
 import { z } from 'zod'
 import { Loader } from './ui/loader'
-import { getTranslations, translate } from './translate'
+import { resolveFlatText } from '../../../locale/text'
 
 const doubleTypes = ['wordcloud']
 type ShowStatus = 'hidden' | 'visible' | 'double'
@@ -107,7 +107,7 @@ export const FigureComponent = ({
   return (
     <div className=' max-w overflow-hidden  bg-grey6 rounded-md border-[0.2rem] border-grey4'>
       <div className='flex justify-between'>
-        <div className='font-bold p-3'>{translate(visualization.title, locale)}</div>
+        <div className='font-bold p-3'>{resolveFlatText(visualization.title, locale)}</div>
         <button onClick={toggleDouble} className={showStatus !== 'hidden' && canDouble ? 'text-primary' : 'hidden'}>
           {showStatus === 'double' ? zoomOutIcon : zoomInIcon}
         </button>
@@ -178,5 +178,8 @@ function prepareTexts (locale: string): Record<string, string> {
     }
   }
 
-  return getTranslations(texts, locale)
+  return {
+    errorMsg: resolveFlatText(texts.errorMsg, locale),
+    noDataMsg: resolveFlatText(texts.noDataMsg, locale)
+  }
 }

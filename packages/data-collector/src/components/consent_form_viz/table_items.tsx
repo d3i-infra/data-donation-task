@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import TextBundle from '@eyra/feldspar'
-import { Translator } from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { TableWithContext } from './types'
 import UndoSvg from './assets/images/undo.svg'
 
@@ -72,11 +72,7 @@ const tableIcon = (
 )
 
 function getTranslations (locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {
