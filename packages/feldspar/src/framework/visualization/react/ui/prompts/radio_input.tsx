@@ -91,5 +91,16 @@ export const RadioInput = (props: Props): JSX.Element => {
 };
 
 const continueButtonLabel = (): Translatable => {
-  return new TextBundle().add("en", "Continue").add("nl", "Doorgaan");
+  return new TextBundle()
+    .add("en", "Continue")
+    .add("nl", "Doorgaan")
+    .add("de", "Fortfahren")
+    .add("pl", "Kontynuuj")
+    .add("tr", "Devam et")
+    .add("ar", "متابعة")
+    .add("ru", "Продолжить")
+    .add("it", "Continua")
+    .add("ro", "Continuă")
+    .add("es", "Continuar")
+    .add("sq", "Vazhdo");
 };

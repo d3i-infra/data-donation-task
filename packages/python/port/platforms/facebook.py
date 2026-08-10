@@ -21,7 +21,7 @@ Platform info::
     {
         "name": "Facebook",
         "filetypes": ["json"],
-        "languages": ["en", "nl"],
+        "languages": ["en", "nl", "de", "pl", "tr", "ar", "ru", "it", "ro", "es", "sq"],
         "description": "Handles DDPs in English. These data donation flows have not been tested yet, if you find anything wrong with them report to datadonation@uu.nl and they will be fixed!",
         "time_last_tested": "not yet implemented"
     }
@@ -97,15 +97,57 @@ def who_youve_followed_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Da
           "id": "facebook_who_youve_followed",
           "title": {
             "en": "Who you follow",
-            "nl": "Wie je volgt"
+            "nl": "Wie je volgt",
+            "de": "Wem Sie folgen",
+            "pl": "Kogo obserwujesz",
+            "tr": "Takip ettiklerin",
+            "ar": "من تتابعهم",
+            "ru": "На кого вы подписаны",
+            "it": "Chi segui",
+            "ro": "Pe cine urmărești",
+            "es": "A quién sigues",
+            "sq": "Kë ndjek"
           },
           "description": {
             "en": "This table shows the Facebook profiles and pages you currently follow.",
-            "nl": "Deze tabel toont de Facebook-profielen en -pagina's die je momenteel volgt."
+            "nl": "Deze tabel toont de Facebook-profielen en -pagina's die je momenteel volgt.",
+            "de": "Diese Tabelle zeigt die Facebook-Profile und -Seiten, denen Sie aktuell folgen.",
+            "pl": "Ta tabela pokazuje profile i strony na Facebooku, które aktualnie obserwujesz.",
+            "tr": "Bu tablo şu anda Facebook'ta takip ettiğin profilleri ve sayfaları gösterir.",
+            "ar": "يعرض هذا الجدول ملفات الأشخاص وصفحات فيسبوك التي تتابعها حاليًا.",
+            "ru": "В этой таблице показаны профили и страницы Facebook, на которые вы сейчас подписаны.",
+            "it": "Questa tabella mostra i profili e le pagine di Facebook che segui attualmente.",
+            "ro": "Acest tabel arată profilurile și paginile de Facebook pe care le urmărești în prezent.",
+            "es": "Esta tabla muestra los perfiles y páginas de Facebook que sigues actualmente.",
+            "sq": "Kjo tabelë tregon profilet dhe faqet e Facebook-ut që ndjek aktualisht."
           },
           "headers": {
-            "Name": {"en": "Name", "nl": "Naam"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Name": {
+              "en": "Name",
+              "nl": "Naam",
+              "de": "Name",
+              "pl": "Nazwa",
+              "tr": "Ad",
+              "ar": "الاسم",
+              "ru": "Название",
+              "it": "Nome",
+              "ro": "Nume",
+              "es": "Nombre",
+              "sq": "Emri"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -126,222 +168,6 @@ def who_youve_followed_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Da
             ))
 
         out = pd.DataFrame(datapoints, columns=["Name", "Timestamp"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def news_your_locations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract the locations Facebook News is configured to show.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Location``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a geographical location for which the participant's Facebook News feed is configured.",
-          "source_file": "facebook_news/your_locations.json",
-          "columns": {
-            "Location": "Name of the configured location."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_news_your_locations",
-          "title": {
-            "en": "The locations Facebook news is set to",
-            "nl": "De locaties waar Facebook Nieuws op is ingesteld"
-          },
-          "description": {
-            "en": "This table displays the geographical locations for which your Facebook News feed is configured.",
-            "nl": "Deze tabel toont de geografische locaties waarvoor je Facebook Nieuwsfeed is geconfigureerd."
-          },
-          "headers": {
-            "Location": {"en": "Location", "nl": "Locatie"}
-          }
-        }
-    """
-    result = reader.json("facebook_news/your_locations.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["news_your_locations_v2"]  # pyright: ignore
-        for item in items:
-            datapoints.append(
-                item
-            )
-        out = pd.DataFrame(datapoints, columns=["Location"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def notifications_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract Facebook notifications history.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Text``, ``Link``, ``Read``, ``Date``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a notification the participant received from Facebook, including the text, link, read status, and timestamp.",
-          "source_file": "notifications/notifications.json",
-          "columns": {
-            "Text": "Text content of the notification.",
-            "Link": "URL the notification links to.",
-            "Read": "Whether the notification was read.",
-            "Date": "ISO 8601 timestamp of the notification."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_notifications",
-          "title": {
-            "en": "Notifications Facebook sent you",
-            "nl": "Notificaties die Facebook je stuurde"
-          },
-          "description": {
-            "en": "This table contains a history of the notifications you've received from Facebook.",
-            "nl": "Deze tabel bevat een overzicht van de notificaties die je van Facebook hebt ontvangen."
-          },
-          "headers": {
-            "Text": {"en": "Text", "nl": "Tekst"},
-            "Link": {"en": "Link", "nl": "Link"},
-            "Read": {"en": "Read", "nl": "Gelezen"},
-            "Date": {"en": "Date", "nl": "Datum"}
-          }
-        }
-    """
-    result = reader.json("notifications/notifications.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["notifications_v2"]  # pyright: ignore
-        for item in items:
-            denested_dict = eh.dict_denester(item)
-            datapoints.append((
-                eh.find_item(denested_dict, "text"),
-                eh.find_item(denested_dict, "href"),
-                eh.find_item(denested_dict, "unread"),
-                eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Text", "Link", "Read", "Date"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def content_sharing_you_have_created_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract content sharing links you have created on Facebook.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Link``, ``Date``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents an external link the participant shared on Facebook, including the URL and date.",
-          "source_file": "content_sharing_links_you_have_created.json",
-          "columns": {
-            "Link": "URL of the shared link.",
-            "Date": "ISO 8601 timestamp of when the link was shared."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_content_sharing_links_you_created",
-          "title": {
-            "en": "Links you shared",
-            "nl": "Links die je hebt gedeeld"
-          },
-          "description": {
-            "en": "This table displays the external links you have shared on Facebook.",
-            "nl": "Deze tabel toont de externe links die je op Facebook hebt gedeeld."
-          },
-          "headers": {
-            "Link": {"en": "Link", "nl": "Link"},
-            "Date": {"en": "Date", "nl": "Datum en Tijd"}
-          }
-        }
-    """
-    result = reader.json("content_sharing_links_you_have_created.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        for item in d:
-            denested_dict = eh.dict_denester(item)
-            datapoints.append((
-                eh.find_item(denested_dict, "href"),
-                eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Link", "Date"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -384,15 +210,57 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
           "id": "facebook_reels_usage",
           "title": {
             "en": "Interactions with Facebook Reels",
-            "nl": "Interacties met Facebook Reels"
+            "nl": "Interacties met Facebook Reels",
+            "de": "Interaktionen mit Facebook Reels",
+            "pl": "Interakcje z Reels na Facebooku",
+            "tr": "Facebook Reels ile etkileşimlerin",
+            "ar": "تفاعلاتك مع Reels على فيسبوك",
+            "ru": "Взаимодействия с Reels на Facebook",
+            "it": "Interazioni con i Reels di Facebook",
+            "ro": "Interacțiunile tale cu Reels pe Facebook",
+            "es": "Interacciones con Reels de Facebook",
+            "sq": "Ndërveprimet e tua me Reels në Facebook"
           },
           "description": {
             "en": "This table shows your interactions with Facebook Reels, such as videos you've watched or engaged with.",
-            "nl": "Deze tabel toont je interacties met Facebook Reels, zoals video's die je hebt bekeken of waarmee je hebt gecommuniceerd."
+            "nl": "Deze tabel toont je interacties met Facebook Reels, zoals video's die je hebt bekeken of waarmee je hebt gecommuniceerd.",
+            "de": "Diese Tabelle zeigt Ihre Interaktionen mit Facebook Reels, zum Beispiel Videos, die Sie sich angesehen oder mit denen Sie interagiert haben.",
+            "pl": "Ta tabela pokazuje Twoje interakcje z Facebook Reels, na przykład filmy, które obejrzałeś/aś lub z którymi wchodziłeś/aś w interakcję.",
+            "tr": "Bu tablo, izlediğin veya etkileşimde bulunduğun videolar gibi Facebook Reels ile olan etkileşimlerini gösterir.",
+            "ar": "يعرض هذا الجدول تفاعلاتك مع Reels على فيسبوك، مثل مقاطع الفيديو التي شاهدتها أو تفاعلت معها.",
+            "ru": "В этой таблице показаны ваши взаимодействия с Reels на Facebook, например просмотренные видео или видео, с которыми вы взаимодействовали.",
+            "it": "Questa tabella mostra le tue interazioni con i Reels di Facebook, ad esempio i video che hai guardato o con cui hai interagito.",
+            "ro": "Acest tabel arată interacțiunile tale cu Reels pe Facebook, cum ar fi videoclipurile pe care le-ai vizionat sau cu care ai interacționat.",
+            "es": "Esta tabla muestra tus interacciones con los Reels de Facebook, como los videos que has visto o con los que has interactuado.",
+            "sq": "Kjo tabelë tregon ndërveprimet e tua me Reels në Facebook, si videot që ke parë ose me të cilat ke ndërvepruar."
           },
           "headers": {
-            "Reel interaction": {"en": "Reel interaction", "nl": "Interactie met reels"},
-            "Value": {"en": "Value", "nl": "Waarde"}
+            "Reel interaction": {
+              "en": "Reel interaction",
+              "nl": "Interactie met reels",
+              "de": "Reel-Interaktion",
+              "pl": "Interakcja z Reels",
+              "tr": "Reels Etkileşimi",
+              "ar": "التفاعل مع Reels",
+              "ru": "Взаимодействие с Reels",
+              "it": "Interazione con i Reels",
+              "ro": "Interacțiune cu Reels",
+              "es": "Interacción con Reels",
+              "sq": "Ndërveprim me Reels"
+            },
+            "Value": {
+              "en": "Value",
+              "nl": "Waarde",
+              "de": "Wert",
+              "pl": "Wartość",
+              "tr": "Değer",
+              "ar": "القيمة",
+              "ru": "Значение",
+              "it": "Valore",
+              "ro": "Valoare",
+              "es": "Valor",
+              "sq": "Vlera"
+            }
           }
         }
     """
@@ -456,14 +324,44 @@ def last_28_days_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFram
           "id": "facebook_last_28",
           "title": {
             "en": "How many videos you watched in the last 28 days",
-            "nl": "Hoeveel video's je de afgelopen 28 dagen hebt bekeken"
+            "nl": "Hoeveel video's je de afgelopen 28 dagen hebt bekeken",
+            "de": "Wie viele Videos Sie in den letzten 28 Tagen angesehen haben",
+            "pl": "Ile filmów obejrzałeś/aś w ciągu ostatnich 28 dni",
+            "tr": "Son 28 günde izlediğin video sayısı",
+            "ar": "عدد الفيديوهات التي شاهدتها خلال آخر 28 يومًا",
+            "ru": "Сколько видео вы посмотрели за последние 28 дней",
+            "it": "Quanti video hai guardato negli ultimi 28 giorni",
+            "ro": "Câte videoclipuri ai vizionat în ultimele 28 de zile",
+            "es": "Cuántos videos viste en los últimos 28 días",
+            "sq": "Sa video ke parë në 28 ditët e fundit"
           },
           "description": {
             "en": "This table indicates the number of videos you have watched on Facebook in the past 28 days.",
-            "nl": "Deze tabel geeft het aantal video's aan dat je de afgelopen 28 dagen op Facebook hebt bekeken."
+            "nl": "Deze tabel geeft het aantal video's aan dat je de afgelopen 28 dagen op Facebook hebt bekeken.",
+            "de": "Diese Tabelle zeigt, wie viele Videos Sie in den letzten 28 Tagen auf Facebook angesehen haben.",
+            "pl": "Ta tabela pokazuje liczbę filmów, które obejrzałeś/aś na Facebooku w ciągu ostatnich 28 dni.",
+            "tr": "Bu tablo, son 28 günde Facebook'ta izlediğin video sayısını gösterir.",
+            "ar": "يوضح هذا الجدول عدد مقاطع الفيديو التي شاهدتها على فيسبوك خلال آخر 28 يومًا.",
+            "ru": "В этой таблице указано количество видео, которые вы посмотрели на Facebook за последние 28 дней.",
+            "it": "Questa tabella indica il numero di video che hai guardato su Facebook negli ultimi 28 giorni.",
+            "ro": "Acest tabel indică numărul de videoclipuri pe care le-ai vizionat pe Facebook în ultimele 28 de zile.",
+            "es": "Esta tabla indica el número de videos que has visto en Facebook en los últimos 28 días.",
+            "sq": "Kjo tabelë tregon numrin e videove që ke parë në Facebook gjatë 28 ditëve të fundit."
           },
           "headers": {
-            "Count": {"en": "Count", "nl": "Aantal"}
+            "Count": {
+              "en": "Count",
+              "nl": "Aantal",
+              "de": "Anzahl",
+              "pl": "Liczba",
+              "tr": "Sayı",
+              "ar": "العدد",
+              "ru": "Количество",
+              "it": "Numero",
+              "ro": "Număr",
+              "es": "Número",
+              "sq": "Numri"
+            }
           }
         }
     """
@@ -524,19 +422,73 @@ def your_search_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.D
           "id": "facebook_search_history",
           "title": {
             "en": "Your search history",
-            "nl": "Je zoekgeschiedenis"
+            "nl": "Je zoekgeschiedenis",
+            "de": "Ihr Suchverlauf",
+            "pl": "Historia wyszukiwania",
+            "tr": "Arama geçmişin",
+            "ar": "سجل بحثك",
+            "ru": "История ваших поисковых запросов",
+            "it": "La tua cronologia di ricerca",
+            "ro": "Istoricul căutărilor tale",
+            "es": "Tu historial de búsqueda",
+            "sq": "Historiku i kërkimeve të tua"
           },
           "description": {
             "en": "This table contains a record of your search queries on Facebook.",
-            "nl": "Deze tabel bevat een overzicht van je zoekopdrachten op Facebook."
+            "nl": "Deze tabel bevat een overzicht van je zoekopdrachten op Facebook.",
+            "de": "Diese Tabelle enthält eine Übersicht Ihrer Suchanfragen auf Facebook.",
+            "pl": "Ta tabela zawiera zapis Twoich zapytań wyszukiwania na Facebooku.",
+            "tr": "Bu tablo, Facebook'ta yaptığın arama sorgularının bir kaydını içerir.",
+            "ar": "يحتوي هذا الجدول على سجل لعمليات البحث التي أجريتها على فيسبوك.",
+            "ru": "В этой таблице содержится история ваших поисковых запросов на Facebook.",
+            "it": "Questa tabella contiene un registro delle tue ricerche su Facebook.",
+            "ro": "Acest tabel conține o evidență a căutărilor pe care le-ai făcut pe Facebook.",
+            "es": "Esta tabla contiene un registro de tus búsquedas en Facebook.",
+            "sq": "Kjo tabelë përmban një regjistër të kërkimeve që ke bërë në Facebook."
           },
           "headers": {
-            "Search term": {"en": "Search term", "nl": "Zoekterm"},
-            "Date": {"en": "Date", "nl": "Datum"}
+            "Search term": {
+              "en": "Search term",
+              "nl": "Zoekterm",
+              "de": "Suchbegriff",
+              "pl": "Wyszukiwane hasło",
+              "tr": "Arama Terimi",
+              "ar": "مصطلح البحث",
+              "ru": "Поисковый запрос",
+              "it": "Termine di ricerca",
+              "ro": "Termen de căutare",
+              "es": "Término de búsqueda",
+              "sq": "Termi i kërkimit"
+            },
+            "Date": {
+              "en": "Date",
+              "nl": "Datum",
+              "de": "Datum",
+              "pl": "Data",
+              "tr": "Tarih",
+              "ar": "التاريخ",
+              "ru": "Дата",
+              "it": "Data",
+              "ro": "Data",
+              "es": "Fecha",
+              "sq": "Data"
+            }
           },
           "visualizations": [
             {
-              "title": {"en": "Terms you searched for", "nl": "Zoektermen waar je naar zocht"},
+              "title": {
+                "en": "Terms you searched for",
+                "nl": "Zoektermen waar je naar zocht",
+                "de": "Begriffe, nach denen Sie gesucht haben",
+                "pl": "Hasła, których szukałeś/aś",
+                "tr": "Aradığın terimler",
+                "ar": "الكلمات التي بحثت عنها",
+                "ru": "Термины, которые вы искали",
+                "it": "Termini che hai cercato",
+                "ro": "Termeni pe care i-ai căutat",
+                "es": "Términos que buscaste",
+                "sq": "Termat që ke kërkuar"
+              },
               "type": "wordcloud",
               "textColumn": "Search term",
               "tokenize": false
@@ -604,14 +556,44 @@ def your_friends_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFram
           "id": "facebook_your_friends",
           "title": {
             "en": "Your friends on Facebook",
-            "nl": "Je vrienden op Facebook"
+            "nl": "Je vrienden op Facebook",
+            "de": "Ihre Freunde auf Facebook",
+            "pl": "Twoi znajomi na Facebooku",
+            "tr": "Facebook'taki arkadaşların",
+            "ar": "أصدقاؤك على فيسبوك",
+            "ru": "Ваши друзья на Facebook",
+            "it": "I tuoi amici su Facebook",
+            "ro": "Prietenii tăi de pe Facebook",
+            "es": "Tus amigos en Facebook",
+            "sq": "Miqtë e tu në Facebook"
           },
           "description": {
             "en": "This table lists your current friends on Facebook.",
-            "nl": "Deze tabel toont je huidige vrienden op Facebook."
+            "nl": "Deze tabel toont je huidige vrienden op Facebook.",
+            "de": "Diese Tabelle zeigt Ihre aktuellen Freunde auf Facebook.",
+            "pl": "Ta tabela zawiera listę Twoich obecnych znajomych na Facebooku.",
+            "tr": "Bu tablo, Facebook'taki mevcut arkadaşlarını listeler.",
+            "ar": "يعرض هذا الجدول أصدقاءك الحاليين على فيسبوك.",
+            "ru": "В этой таблице перечислены ваши текущие друзья на Facebook.",
+            "it": "Questa tabella elenca i tuoi amici attuali su Facebook.",
+            "ro": "Acest tabel listează prietenii tăi actuali de pe Facebook.",
+            "es": "Esta tabla enumera tus amigos actuales en Facebook.",
+            "sq": "Kjo tabelë liston miqtë e tu aktualë në Facebook."
           },
           "headers": {
-            "Number of friends": {"en": "Number of friends", "nl": "Aantal vrienden op facebook"}
+            "Number of friends": {
+              "en": "Number of friends",
+              "nl": "Aantal vrienden op facebook",
+              "de": "Anzahl der Freunde",
+              "pl": "Liczba znajomych",
+              "tr": "Arkadaş Sayısı",
+              "ar": "عدد الأصدقاء",
+              "ru": "Количество друзей",
+              "it": "Numero di amici",
+              "ro": "Numărul de prieteni",
+              "es": "Número de amigos",
+              "sq": "Numri i miqve"
+            }
           }
         }
     """
@@ -669,14 +651,44 @@ def ads_interests_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
           "id": "facebook_ads_interests",
           "title": {
             "en": "Your ad interests",
-            "nl": "Je advertentie-interesses"
+            "nl": "Je advertentie-interesses",
+            "de": "Ihre Werbeinteressen",
+            "pl": "Twoje zainteresowania reklamowe",
+            "tr": "Reklam ilgi alanların",
+            "ar": "اهتماماتك الإعلانية",
+            "ru": "Ваши рекламные интересы",
+            "it": "I tuoi interessi pubblicitari",
+            "ro": "Interesele tale de publicitate",
+            "es": "Tus intereses publicitarios",
+            "sq": "Interesat e tua reklamuese"
           },
           "description": {
             "en": "This table shows the interests Facebook has identified for showing you personalized ads.",
-            "nl": "Deze tabel toont de interesses die Facebook heeft geïdentificeerd om je gepersonaliseerde advertenties te tonen."
+            "nl": "Deze tabel toont de interesses die Facebook heeft geïdentificeerd om je gepersonaliseerde advertenties te tonen.",
+            "de": "Diese Tabelle zeigt die Interessen, die Facebook für dich ermittelt hat, um dir personalisierte Werbung zu zeigen.",
+            "pl": "Ta tabela pokazuje zainteresowania, które Facebook zidentyfikował, aby wyświetlać Ci spersonalizowane reklamy.",
+            "tr": "Bu tablo, sana kişiselleştirilmiş reklamlar göstermek için Facebook'un belirlediği ilgi alanlarını gösterir.",
+            "ar": "يعرض هذا الجدول الاهتمامات التي حددها فيسبوك لعرض إعلانات مخصصة لك.",
+            "ru": "В этой таблице показаны интересы, которые Facebook определил для показа вам персонализированной рекламы.",
+            "it": "Questa tabella mostra gli interessi che Facebook ha identificato per mostrarti annunci personalizzati.",
+            "ro": "Acest tabel arată interesele pe care Facebook le-a identificat pentru a-ți afișa reclame personalizate.",
+            "es": "Esta tabla muestra los intereses que Facebook ha identificado para mostrarte anuncios personalizados.",
+            "sq": "Kjo tabelë tregon interesat që Facebook ka identifikuar për të të shfaqur reklama të personalizuara."
           },
           "headers": {
-            "Ad": {"en": "Ad", "nl": "Advertentie"}
+            "Ad": {
+              "en": "Ad",
+              "nl": "Advertentie",
+              "de": "Interesse",
+              "pl": "Zainteresowanie",
+              "tr": "İlgi Alanı",
+              "ar": "الاهتمام",
+              "ru": "Интерес",
+              "it": "Interesse",
+              "ro": "Interes",
+              "es": "Interés",
+              "sq": "Interesi"
+            }
           }
         }
     """
@@ -739,17 +751,83 @@ def recently_viewed_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
           "id": "facebook_recently_viewed",
           "title": {
             "en": "Facebook items you recently viewed",
-            "nl": "Facebook items die je recentelijk hebt bekeken"
+            "nl": "Facebook items die je recentelijk hebt bekeken",
+            "de": "Facebook-Elemente, die Sie kürzlich angesehen haben",
+            "pl": "Elementy na Facebooku, które ostatnio wyświetliłeś/aś",
+            "tr": "Yakın zamanda görüntülediğin Facebook öğeleri",
+            "ar": "عناصر فيسبوك التي شاهدتها مؤخرًا",
+            "ru": "Элементы Facebook, которые вы недавно просматривали",
+            "it": "Elementi di Facebook visualizzati di recente",
+            "ro": "Elemente Facebook pe care le-ai vizualizat recent",
+            "es": "Elementos de Facebook que viste recientemente",
+            "sq": "Elementet e Facebook-ut që ke parë kohët e fundit"
           },
           "description": {
             "en": "This table shows the Facebook posts, videos, and other items you have recently viewed.",
-            "nl": "Deze tabel toont de Facebook-posts, video's en andere items die je recentelijk hebt bekeken."
+            "nl": "Deze tabel toont de Facebook-posts, video's en andere items die je recentelijk hebt bekeken.",
+            "de": "Diese Tabelle zeigt die Facebook-Beiträge, Videos und anderen Elemente, die Sie kürzlich angesehen haben.",
+            "pl": "Ta tabela pokazuje posty, filmy i inne elementy na Facebooku, które ostatnio wyświetliłeś/aś.",
+            "tr": "Bu tablo, yakın zamanda görüntülediğin Facebook gönderilerini, videolarını ve diğer öğeleri gösterir.",
+            "ar": "يعرض هذا الجدول منشورات فيسبوك ومقاطع الفيديو والعناصر الأخرى التي شاهدتها مؤخرًا.",
+            "ru": "В этой таблице показаны публикации, видео и другие элементы Facebook, которые вы недавно просматривали.",
+            "it": "Questa tabella mostra i post, i video e altri elementi di Facebook che hai visualizzato di recente.",
+            "ro": "Acest tabel arată postările, videoclipurile și alte elemente de Facebook pe care le-ai vizualizat recent.",
+            "es": "Esta tabla muestra las publicaciones, videos y otros elementos de Facebook que has visto recientemente.",
+            "sq": "Kjo tabelë tregon postimet, videot dhe elementet e tjera të Facebook-ut që ke parë kohët e fundit."
           },
           "headers": {
-            "Category": {"en": "Category", "nl": "Categorie"},
-            "Name": {"en": "Name", "nl": "Naam"},
-            "Link": {"en": "Link", "nl": "Link"},
-            "Date": {"en": "Date", "nl": "Datum"}
+            "Category": {
+              "en": "Category",
+              "nl": "Categorie",
+              "de": "Kategorie",
+              "pl": "Kategoria",
+              "tr": "Kategori",
+              "ar": "الفئة",
+              "ru": "Категория",
+              "it": "Categoria",
+              "ro": "Categorie",
+              "es": "Categoría",
+              "sq": "Kategoria"
+            },
+            "Name": {
+              "en": "Name",
+              "nl": "Naam",
+              "de": "Name",
+              "pl": "Nazwa",
+              "tr": "Ad",
+              "ar": "الاسم",
+              "ru": "Название",
+              "it": "Nome",
+              "ro": "Nume",
+              "es": "Nombre",
+              "sq": "Emri"
+            },
+            "Link": {
+              "en": "Link",
+              "nl": "Link",
+              "de": "Link",
+              "pl": "Link",
+              "tr": "Bağlantı",
+              "ar": "الرابط",
+              "ru": "Ссылка",
+              "it": "Link",
+              "ro": "Link",
+              "es": "Enlace",
+              "sq": "Lidhja"
+            },
+            "Date": {
+              "en": "Date",
+              "nl": "Datum",
+              "de": "Datum",
+              "pl": "Data",
+              "tr": "Tarih",
+              "ar": "التاريخ",
+              "ru": "Дата",
+              "it": "Data",
+              "ro": "Data",
+              "es": "Fecha",
+              "sq": "Data"
+            }
           }
         }
     """
@@ -830,17 +908,83 @@ def recently_visited_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Data
           "id": "facebook_recently_visited",
           "title": {
             "en": "Profiles you visited recently",
-            "nl": "Profielen die je recentelijk hebt bezocht"
+            "nl": "Profielen die je recentelijk hebt bezocht",
+            "de": "Profile, die Sie kürzlich besucht haben",
+            "pl": "Profile, które ostatnio odwiedziłeś/aś",
+            "tr": "Yakın zamanda ziyaret ettiğin profiller",
+            "ar": "الملفات الشخصية التي زرتها مؤخرًا",
+            "ru": "Профили, которые вы недавно посещали",
+            "it": "Profili visitati di recente",
+            "ro": "Profiluri pe care le-ai vizitat recent",
+            "es": "Perfiles que visitaste recientemente",
+            "sq": "Profilet që ke vizituar kohët e fundit"
           },
           "description": {
             "en": "This table lists the Facebook profiles you have visited most recently.",
-            "nl": "Deze tabel toont de Facebook-profielen die je recentelijk hebt bezocht."
+            "nl": "Deze tabel toont de Facebook-profielen die je recentelijk hebt bezocht.",
+            "de": "Diese Tabelle zeigt die Facebook-Profile, die Sie zuletzt besucht haben.",
+            "pl": "Ta tabela zawiera listę profili na Facebooku, które ostatnio odwiedziłeś/aś.",
+            "tr": "Bu tablo, en son ziyaret ettiğin Facebook profillerini listeler.",
+            "ar": "يسرد هذا الجدول ملفات فيسبوك الشخصية التي زرتها مؤخرًا.",
+            "ru": "В этой таблице перечислены профили Facebook, которые вы посещали в последнее время.",
+            "it": "Questa tabella elenca i profili di Facebook che hai visitato più di recente.",
+            "ro": "Acest tabel listează profilurile de Facebook pe care le-ai vizitat cel mai recent.",
+            "es": "Esta tabla enumera los perfiles de Facebook que has visitado más recientemente.",
+            "sq": "Kjo tabelë liston profilet e Facebook-ut që ke vizituar më së fundmi."
           },
           "headers": {
-            "Category": {"en": "Category", "nl": "Categorie"},
-            "Name": {"en": "Name", "nl": "Naam"},
-            "Link": {"en": "Link", "nl": "Link"},
-            "Date": {"en": "Date", "nl": "Datum"}
+            "Category": {
+              "en": "Category",
+              "nl": "Categorie",
+              "de": "Kategorie",
+              "pl": "Kategoria",
+              "tr": "Kategori",
+              "ar": "الفئة",
+              "ru": "Категория",
+              "it": "Categoria",
+              "ro": "Categorie",
+              "es": "Categoría",
+              "sq": "Kategoria"
+            },
+            "Name": {
+              "en": "Name",
+              "nl": "Naam",
+              "de": "Name",
+              "pl": "Nazwa",
+              "tr": "Ad",
+              "ar": "الاسم",
+              "ru": "Название",
+              "it": "Nome",
+              "ro": "Nume",
+              "es": "Nombre",
+              "sq": "Emri"
+            },
+            "Link": {
+              "en": "Link",
+              "nl": "Link",
+              "de": "Link",
+              "pl": "Link",
+              "tr": "Bağlantı",
+              "ar": "الرابط",
+              "ru": "Ссылка",
+              "it": "Link",
+              "ro": "Link",
+              "es": "Enlace",
+              "sq": "Lidhja"
+            },
+            "Date": {
+              "en": "Date",
+              "nl": "Datum",
+              "de": "Datum",
+              "pl": "Data",
+              "tr": "Tarih",
+              "ar": "التاريخ",
+              "ru": "Дата",
+              "it": "Data",
+              "ro": "Data",
+              "es": "Fecha",
+              "sq": "Data"
+            }
           }
         }
     """
@@ -858,456 +1002,13 @@ def recently_visited_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Data
             if "entries" in item:
                 for entry in item["entries"]:
                     datapoints.append((
-                        item.get("name", ""),
+                        eh.fix_latin1_string(item.get("name", "")),
                         eh.fix_latin1_string(entry.get("data", {}).get("name", "")),
                         entry.get("data", {}).get("uri", ""),
                         eh.epoch_to_iso(entry.get("timestamp", ""), errors=errors)
                     ))
 
         out = pd.DataFrame(datapoints, columns=["Category", "Name", "Link", "Date"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def profile_update_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract Facebook profile update history.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Title``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a change the participant made to their Facebook profile, including the title of the change and the timestamp.",
-          "source_file": "profile_update_history.json",
-          "columns": {
-            "Title": "Description of the profile change.",
-            "Timestamp": "ISO 8601 timestamp of when the change was made."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_profile_update_history",
-          "title": {
-            "en": "History of your profile updates",
-            "nl": "Geschiedenis van je profielupdates"
-          },
-          "description": {
-            "en": "This table contains a log of changes you've made to your Facebook profile information.",
-            "nl": "Deze tabel bevat een logboek van de wijzigingen die je in je Facebook-profielinformatie hebt aangebracht."
-          },
-          "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
-    """
-    result = reader.json("profile_update_history.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["profile_updates_v2"]  # pyright: ignore
-        for item in items:
-            datapoints.append((
-                eh.fix_latin1_string(item.get("title", "")),
-                eh.epoch_to_iso(item.get("timestamp", ""), errors=errors)
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "Timestamp"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-    return out
-
-
-def your_event_responses_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract Facebook event responses.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Name``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a Facebook event the participant responded to (going, interested, or declined), including the event name and start time.",
-          "source_file": "your_event_responses.json",
-          "columns": {
-            "Name": "Name of the Facebook event.",
-            "Timestamp": "ISO 8601 timestamp of the event start time."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_event_responses",
-          "title": {
-            "en": "Your event responses",
-            "nl": "Je reacties op evenementen"
-          },
-          "description": {
-            "en": "This table contains your responses (going, interested, declined) to Facebook events.",
-            "nl": "Deze tabel bevat je reacties (gaat, geïnteresseerd, afgewezen) op Facebook-evenementen."
-          },
-          "headers": {
-            "Name": {"en": "Name", "nl": "Naam"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
-    """
-    result = reader.json("your_event_responses.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["event_responses_v2"]["events_joined"]  # pyright: ignore
-        for item in items:
-            datapoints.append((
-                eh.fix_latin1_string(item.get("name", "")),
-                eh.epoch_to_iso(item.get("start_timestamp", ""), errors=errors)
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Name", "Timestamp"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def group_posts_and_comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract posts and comments you made in Facebook groups.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Title``, ``Post``, ``Date``, ``URL``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a post or comment the participant made in a Facebook group, including the title, post content, date, and URL.",
-          "source_file": "group_posts_and_comments.json",
-          "columns": {
-            "Title": "Title of the group post.",
-            "Post": "Text content of the post.",
-            "Date": "ISO 8601 timestamp of when the post was made.",
-            "URL": "URL of the group post."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_group_posts_and_comments",
-          "title": {
-            "en": "Your posts and comments in groups",
-            "nl": "Je berichten en commentaren in groepen"
-          },
-          "description": {
-            "en": "This table shows your posts and comments within Facebook groups.",
-            "nl": "Deze tabel toont je berichten en commentaren in Facebook-groepen."
-          },
-          "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Post": {"en": "Post", "nl": "Bericht"},
-            "Date": {"en": "Date", "nl": "Datum"},
-            "URL": {"en": "URL", "nl": "URL"}
-          }
-        }
-    """
-    result = reader.json("group_posts_and_comments.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        l = d["group_posts_v2"]  # pyright: ignore
-        for item in l:
-            denested_dict = eh.dict_denester(item)
-
-            datapoints.append((
-                eh.fix_latin1_string(eh.find_item(denested_dict, "title")),
-                eh.fix_latin1_string(eh.find_item(denested_dict, "post")),
-                eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
-                eh.find_item(denested_dict, "url"),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "Post", "Date", "URL"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def your_answers_to_membership_questions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract your answers to Facebook group membership questions.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Group name``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a Facebook group the participant answered membership questions for when requesting to join.",
-          "source_file": "your_answers_to_membership_questions.json",
-          "columns": {
-            "Group name": "Name of the Facebook group."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_answers_to_membership_questions",
-          "title": {
-            "en": "Your answers to group membership questions",
-            "nl": "Je antwoorden op vragen voor groepslidmaatschap"
-          },
-          "description": {
-            "en": "This table contains the answers you provided when requesting to join Facebook groups.",
-            "nl": "Deze tabel bevat de antwoorden die je hebt gegeven bij het aanvragen van lidmaatschap van Facebook-groepen."
-          },
-          "headers": {
-            "Group name": {"en": "Group name", "nl": "Groepsnaam"}
-          }
-        }
-    """
-    result = reader.json("your_answers_to_membership_questions.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-
-        items = d["group_membership_questions_answers_v2"]["group_answers"]  # pyright: ignore
-        for item in items:
-            datapoints.append((
-                eh.fix_latin1_string(item.get("group_name", "")),
-            ))
-        out = pd.DataFrame(datapoints, columns=["Group name"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def your_comments_in_groups_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract your comments in Facebook groups.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Title``, ``Comment``, ``Group``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a comment the participant made in a Facebook group, including the title, comment text, group name, and timestamp.",
-          "source_file": "your_comments_in_groups.json",
-          "columns": {
-            "Title": "Title of the post the comment was made on.",
-            "Comment": "Text content of the comment.",
-            "Group": "Name of the Facebook group.",
-            "Timestamp": "ISO 8601 timestamp of when the comment was made."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_comments_in_groups",
-          "title": {
-            "en": "Your comments in groups",
-            "nl": "Je commentaren in groepen"
-          },
-          "description": {
-            "en": "This table specifically lists the comments you have made in Facebook groups.",
-            "nl": "Deze tabel toont specifiek de commentaren die je in Facebook-groepen hebt geplaatst."
-          },
-          "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Comment": {"en": "Comment", "nl": "Reactie"},
-            "Group": {"en": "Group", "nl": "Groep"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
-    """
-    result = reader.json("your_comments_in_groups.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        l = d["group_comments_v2"]  # pyright: ignore
-        for item in l:
-            denested_dict = eh.dict_denester(item)
-
-            datapoints.append((
-                eh.fix_latin1_string(eh.find_item(denested_dict, "title")),
-                eh.fix_latin1_string(eh.find_item(denested_dict, "comment-comment")),
-                eh.fix_latin1_string(eh.find_item(denested_dict, "group")),
-                eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "Comment", "Group", "Timestamp"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def your_group_membership_activity_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract Facebook group membership activity.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Title``, ``Group name``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a Facebook group the participant joined, including the title, group name, and the time of joining.",
-          "source_file": "your_group_membership_activity.json",
-          "columns": {
-            "Title": "Title or description of the membership activity.",
-            "Group name": "Name of the Facebook group.",
-            "Timestamp": "ISO 8601 timestamp of when the participant joined."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_group_membership_activity",
-          "title": {
-            "en": "Facebook groups you are a member of",
-            "nl": "Facebookgroepen waar je lid van bent"
-          },
-          "description": {
-            "en": "This table lists the Facebook groups you are currently a member of.",
-            "nl": "Deze tabel toont de Facebookgroepen waar je momenteel lid van bent."
-          },
-          "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Group name": {"en": "Group name", "nl": "Groepsnaam"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
-    """
-    result = reader.json("your_group_membership_activity.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["groups_joined_v2"]  # pyright: ignore
-        for item in items:
-            denested_dict = eh.dict_denester(item)
-
-            datapoints.append((
-                eh.fix_latin1_string(eh.find_item(denested_dict, "title")),
-                eh.fix_latin1_string(eh.find_item(denested_dict, "name")),
-                eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "Group name", "Timestamp"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -1350,15 +1051,57 @@ def pages_and_profiles_you_follow_to_df(reader: ZipArchiveReader, errors: Counte
           "id": "facebook_pages_and_profiles_you_follow",
           "title": {
             "en": "Pages and profiles that you follow",
-            "nl": "Pagina's en profielen die je volgt"
+            "nl": "Pagina's en profielen die je volgt",
+            "de": "Seiten und Profile, denen Sie folgen",
+            "pl": "Strony i profile, które obserwujesz",
+            "tr": "Takip ettiğin sayfalar ve profiller",
+            "ar": "الصفحات والملفات الشخصية التي تتابعها",
+            "ru": "Страницы и профили, на которые вы подписаны",
+            "it": "Pagine e profili che segui",
+            "ro": "Pagini și profiluri pe care le urmărești",
+            "es": "Páginas y perfiles que sigues",
+            "sq": "Faqet dhe profilet që ndjek"
           },
           "description": {
             "en": "This table displays the Facebook Pages and profiles that you actively follow.",
-            "nl": "Deze tabel toont de Facebookpagina's en -profielen die je actief volgt."
+            "nl": "Deze tabel toont de Facebookpagina's en -profielen die je actief volgt.",
+            "de": "Diese Tabelle zeigt die Facebook-Seiten und -Profile, denen Sie aktiv folgen.",
+            "pl": "Ta tabela pokazuje strony i profile na Facebooku, które aktywnie obserwujesz.",
+            "tr": "Bu tablo, aktif olarak takip ettiğin Facebook Sayfalarını ve profillerini gösterir.",
+            "ar": "يعرض هذا الجدول صفحات وملفات فيسبوك الشخصية التي تتابعها بنشاط.",
+            "ru": "В этой таблице показаны страницы и профили Facebook, на которые вы активно подписаны.",
+            "it": "Questa tabella mostra le Pagine e i profili di Facebook che segui attivamente.",
+            "ro": "Acest tabel arată Paginile și profilurile de Facebook pe care le urmărești activ.",
+            "es": "Esta tabla muestra las Páginas y perfiles de Facebook que sigues activamente.",
+            "sq": "Kjo tabelë tregon Faqet dhe profilet e Facebook-ut që ndjek në mënyrë aktive."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Title": {
+              "en": "Title",
+              "nl": "Titel",
+              "de": "Titel",
+              "pl": "Tytuł",
+              "tr": "Başlık",
+              "ar": "العنوان",
+              "ru": "Заголовок",
+              "it": "Titolo",
+              "ro": "Titlu",
+              "es": "Título",
+              "sq": "Titulli"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -1422,16 +1165,70 @@ def pages_youve_liked_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Dat
           "id": "facebook_pages_youve_liked",
           "title": {
             "en": "Pages that you have liked",
-            "nl": "Pagina's die je leuk vindt"
+            "nl": "Pagina's die je leuk vindt",
+            "de": "Seiten, die dir gefallen",
+            "pl": "Strony, które polubiłeś/aś",
+            "tr": "Beğendiğin sayfalar",
+            "ar": "الصفحات التي أعجبت بها",
+            "ru": "Страницы, которые вам понравились",
+            "it": "Pagine a cui hai messo mi piace",
+            "ro": "Pagini pe care le-ai apreciat",
+            "es": "Páginas que te han gustado",
+            "sq": "Faqet që ke pëlqyer"
           },
           "description": {
             "en": "This table contains a history of the Facebook Pages you have liked.",
-            "nl": "Deze tabel bevat een overzicht van de Facebookpagina's die je leuk vindt."
+            "nl": "Deze tabel bevat een overzicht van de Facebookpagina's die je leuk vindt.",
+            "de": "Diese Tabelle enthält eine Übersicht der Facebook-Seiten, die dir gefallen.",
+            "pl": "Ta tabela zawiera historię stron na Facebooku, które polubiłeś/aś.",
+            "tr": "Bu tablo, beğendiğin Facebook Sayfalarının geçmişini içerir.",
+            "ar": "يحتوي هذا الجدول على سجل صفحات فيسبوك التي أعجبت بها.",
+            "ru": "В этой таблице содержится история страниц Facebook, которые вам понравились.",
+            "it": "Questa tabella contiene la cronologia delle Pagine Facebook a cui hai messo mi piace.",
+            "ro": "Acest tabel conține istoricul Paginilor de Facebook pe care le-ai apreciat.",
+            "es": "Esta tabla contiene un historial de las Páginas de Facebook que te han gustado.",
+            "sq": "Kjo tabelë përmban historikun e Faqeve të Facebook-ut që ke pëlqyer."
           },
           "headers": {
-            "Name": {"en": "Name", "nl": "Naam"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Name": {
+              "en": "Name",
+              "nl": "Naam",
+              "de": "Name",
+              "pl": "Nazwa",
+              "tr": "Ad",
+              "ar": "الاسم",
+              "ru": "Название",
+              "it": "Nome",
+              "ro": "Nume",
+              "es": "Nombre",
+              "sq": "Emri"
+            },
+            "URL": {
+              "en": "URL",
+              "nl": "URL",
+              "de": "URL",
+              "pl": "URL",
+              "tr": "URL",
+              "ar": "الرابط (URL)",
+              "ru": "URL-адрес",
+              "it": "URL",
+              "ro": "URL",
+              "es": "URL",
+              "sq": "URL"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -1495,15 +1292,57 @@ def your_saved_items_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Data
           "id": "facebook_your_saved_items",
           "title": {
             "en": "Your saved items",
-            "nl": "Je opgeslagen items"
+            "nl": "Je opgeslagen items",
+            "de": "Ihre gespeicherten Objekte",
+            "pl": "Twoje zapisane elementy",
+            "tr": "Kaydettiğin öğeler",
+            "ar": "العناصر المحفوظة لديك",
+            "ru": "Ваши сохранённые материалы",
+            "it": "I tuoi elementi salvati",
+            "ro": "Elementele tale salvate",
+            "es": "Tus elementos guardados",
+            "sq": "Elementet e tua të ruajtura"
           },
           "description": {
             "en": "This table contains the posts, videos, and other content you have saved on Facebook.",
-            "nl": "Deze tabel bevat de berichten, video's en andere content die je op Facebook hebt opgeslagen."
+            "nl": "Deze tabel bevat de berichten, video's en andere content die je op Facebook hebt opgeslagen.",
+            "de": "Diese Tabelle enthält die Beiträge, Videos und anderen Inhalte, die Sie auf Facebook gespeichert haben.",
+            "pl": "Ta tabela zawiera posty, filmy i inne treści, które zapisałeś/aś na Facebooku.",
+            "tr": "Bu tablo, Facebook'ta kaydettiğin gönderileri, videoları ve diğer içerikleri içerir.",
+            "ar": "يحتوي هذا الجدول على المنشورات ومقاطع الفيديو والمحتويات الأخرى التي حفظتها على فيسبوك.",
+            "ru": "В этой таблице содержатся публикации, видео и другой контент, который вы сохранили на Facebook.",
+            "it": "Questa tabella contiene i post, i video e altri contenuti che hai salvato su Facebook.",
+            "ro": "Acest tabel conține postările, videoclipurile și alt conținut pe care le-ai salvat pe Facebook.",
+            "es": "Esta tabla contiene las publicaciones, videos y otro contenido que has guardado en Facebook.",
+            "sq": "Kjo tabelë përmban postimet, videot dhe përmbajtjet e tjera që ke ruajtur në Facebook."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Title": {
+              "en": "Title",
+              "nl": "Titel",
+              "de": "Titel",
+              "pl": "Tytuł",
+              "tr": "Başlık",
+              "ar": "العنوان",
+              "ru": "Заголовок",
+              "it": "Titolo",
+              "ro": "Titlu",
+              "es": "Título",
+              "sq": "Titulli"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -1567,16 +1406,70 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           "id": "facebook_comments",
           "title": {
             "en": "Your comments",
-            "nl": "Je commentaren"
+            "nl": "Je commentaren",
+            "de": "Ihre Kommentare",
+            "pl": "Twoje komentarze",
+            "tr": "Yorumların",
+            "ar": "تعليقاتك",
+            "ru": "Ваши комментарии",
+            "it": "I tuoi commenti",
+            "ro": "Comentariile tale",
+            "es": "Tus comentarios",
+            "sq": "Komentet e tua"
           },
           "description": {
             "en": "This table shows all the comments you have made on Facebook posts and other content.",
-            "nl": "Deze tabel toont alle commentaren die je op Facebook-berichten en andere content hebt geplaatst."
+            "nl": "Deze tabel toont alle commentaren die je op Facebook-berichten en andere content hebt geplaatst.",
+            "de": "Diese Tabelle zeigt alle Kommentare, die Sie zu Facebook-Beiträgen und anderen Inhalten verfasst haben.",
+            "pl": "Ta tabela pokazuje wszystkie komentarze, które dodałeś/aś do postów i innych treści na Facebooku.",
+            "tr": "Bu tablo, Facebook gönderilerine ve diğer içeriklere yaptığın tüm yorumları gösterir.",
+            "ar": "يعرض هذا الجدول جميع التعليقات التي أضفتها على منشورات فيسبوك والمحتويات الأخرى.",
+            "ru": "В этой таблице показаны все комментарии, которые вы оставили к публикациям Facebook и другому контенту.",
+            "it": "Questa tabella mostra tutti i commenti che hai fatto a post di Facebook e altri contenuti.",
+            "ro": "Acest tabel arată toate comentariile pe care le-ai făcut la postările de Facebook și la alt conținut.",
+            "es": "Esta tabla muestra todos los comentarios que has hecho en publicaciones de Facebook y otro contenido.",
+            "sq": "Kjo tabelë tregon të gjitha komentet që ke bërë në postimet e Facebook-ut dhe përmbajtje të tjera."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Comment": {"en": "Comment", "nl": "Reactie"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Title": {
+              "en": "Title",
+              "nl": "Titel",
+              "de": "Titel",
+              "pl": "Tytuł",
+              "tr": "Başlık",
+              "ar": "العنوان",
+              "ru": "Заголовок",
+              "it": "Titolo",
+              "ro": "Titlu",
+              "es": "Título",
+              "sq": "Titulli"
+            },
+            "Comment": {
+              "en": "Comment",
+              "nl": "Reactie",
+              "de": "Kommentar",
+              "pl": "Komentarz",
+              "tr": "Yorum",
+              "ar": "التعليق",
+              "ru": "Комментарий",
+              "it": "Commento",
+              "ro": "Comentariu",
+              "es": "Comentario",
+              "sq": "Komenti"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -1645,16 +1538,70 @@ def likes_and_reactions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.D
           "id": "facebook_likes_and_reactions",
           "title": {
             "en": "Posts you liked (with title)",
-            "nl": "Posts die je leuk vond (met titel)"
+            "nl": "Posts die je leuk vond (met titel)",
+            "de": "Beiträge, die dir gefallen haben (mit Titel)",
+            "pl": "Posty, które polubiłeś/aś (z tytułem)",
+            "tr": "Beğendiğin gönderiler (başlıklı)",
+            "ar": "المنشورات التي أعجبت بها (مع العنوان)",
+            "ru": "Публикации, которые вам понравились (с названием)",
+            "it": "Post a cui hai messo mi piace (con titolo)",
+            "ro": "Postări care ți-au plăcut (cu titlu)",
+            "es": "Publicaciones que te gustaron (con título)",
+            "sq": "Postimet që ke pëlqyer (me titull)"
           },
           "description": {
             "en": "This table shows the titles of posts you liked on Facebook.",
-            "nl": "Deze tabel toont de titels van posts die je leuk vond op Facebook."
+            "nl": "Deze tabel toont de titels van posts die je leuk vond op Facebook.",
+            "de": "Diese Tabelle zeigt die Titel der Beiträge, die dir auf Facebook gefallen haben.",
+            "pl": "Ta tabela pokazuje tytuły postów, które polubiłeś/aś na Facebooku.",
+            "tr": "Bu tablo, Facebook'ta beğendiğin gönderilerin başlıklarını gösterir.",
+            "ar": "يعرض هذا الجدول عناوين المنشورات التي أعجبت بها على فيسبوك.",
+            "ru": "В этой таблице показаны названия публикаций, которые вам понравились на Facebook.",
+            "it": "Questa tabella mostra i titoli dei post a cui hai messo mi piace su Facebook.",
+            "ro": "Acest tabel arată titlurile postărilor care ți-au plăcut pe Facebook.",
+            "es": "Esta tabla muestra los títulos de las publicaciones que te gustaron en Facebook.",
+            "sq": "Kjo tabelë tregon titujt e postimeve që ke pëlqyer në Facebook."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Reaction": {"en": "Reaction", "nl": "Reactie"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Title": {
+              "en": "Title",
+              "nl": "Titel",
+              "de": "Titel",
+              "pl": "Tytuł",
+              "tr": "Başlık",
+              "ar": "العنوان",
+              "ru": "Заголовок",
+              "it": "Titolo",
+              "ro": "Titlu",
+              "es": "Título",
+              "sq": "Titulli"
+            },
+            "Reaction": {
+              "en": "Reaction",
+              "nl": "Reactie",
+              "de": "Reaktion",
+              "pl": "Reakcja",
+              "tr": "Tepki",
+              "ar": "التفاعل",
+              "ru": "Реакция",
+              "it": "Reazione",
+              "ro": "Reacție",
+              "es": "Reacción",
+              "sq": "Reagimi"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -1720,15 +1667,57 @@ def your_comment_active_days_to_df(reader: ZipArchiveReader, errors: Counter) ->
           "id": "facebook_your_comment_active_days",
           "title": {
             "en": "Days you actively commented",
-            "nl": "Dagen waarop je actief commentaren hebt geplaatst"
+            "nl": "Dagen waarop je actief commentaren hebt geplaatst",
+            "de": "Tage, an denen Sie aktiv kommentiert haben",
+            "pl": "Dni, w których aktywnie komentowałeś/aś",
+            "tr": "Aktif olarak yorum yaptığın günler",
+            "ar": "الأيام التي علّقت فيها بنشاط",
+            "ru": "Дни, когда вы активно комментировали",
+            "it": "Giorni in cui hai commentato attivamente",
+            "ro": "Zilele în care ai comentat activ",
+            "es": "Días en los que comentaste activamente",
+            "sq": "Ditët kur ke komentuar në mënyrë aktive"
           },
           "description": {
             "en": "This table indicates the days on which you made comments on Facebook.",
-            "nl": "Deze tabel toont de dagen waarop je commentaren op Facebook hebt geplaatst."
+            "nl": "Deze tabel toont de dagen waarop je commentaren op Facebook hebt geplaatst.",
+            "de": "Diese Tabelle zeigt die Tage, an denen Sie Kommentare auf Facebook verfasst haben.",
+            "pl": "Ta tabela pokazuje dni, w których dodawałeś/aś komentarze na Facebooku.",
+            "tr": "Bu tablo, Facebook'ta yorum yaptığın günleri gösterir.",
+            "ar": "يوضح هذا الجدول الأيام التي أضفت فيها تعليقات على فيسبوك.",
+            "ru": "В этой таблице показаны дни, в которые вы оставляли комментарии на Facebook.",
+            "it": "Questa tabella mostra i giorni in cui hai pubblicato commenti su Facebook.",
+            "ro": "Acest tabel arată zilele în care ai făcut comentarii pe Facebook.",
+            "es": "Esta tabla muestra los días en los que hiciste comentarios en Facebook.",
+            "sq": "Kjo tabelë tregon ditët kur ke bërë komente në Facebook."
           },
           "headers": {
-            "Label": {"en": "Label", "nl": "Label"},
-            "Value": {"en": "Value", "nl": "Waarde"}
+            "Label": {
+              "en": "Label",
+              "nl": "Label",
+              "de": "Bezeichnung",
+              "pl": "Etykieta",
+              "tr": "Etiket",
+              "ar": "التصنيف",
+              "ru": "Метка",
+              "it": "Etichetta",
+              "ro": "Etichetă",
+              "es": "Etiqueta",
+              "sq": "Etiketa"
+            },
+            "Value": {
+              "en": "Value",
+              "nl": "Waarde",
+              "de": "Wert",
+              "pl": "Wartość",
+              "tr": "Değer",
+              "ar": "القيمة",
+              "ru": "Значение",
+              "it": "Valore",
+              "ro": "Valoare",
+              "es": "Valor",
+              "sq": "Vlera"
+            }
           }
         }
     """
@@ -1744,85 +1733,11 @@ def your_comment_active_days_to_df(reader: ZipArchiveReader, errors: Counter) ->
         items = d["label_values"]  # pyright: ignore
         for item in items:
             datapoints.append((
-                item.get("label", ""),
+                eh.fix_latin1_string(item.get("label", "")),
                 item.get("value", ""),
             ))
 
         out = pd.DataFrame(datapoints, columns=["Label", "Value"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
-
-
-def your_pages_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract the Facebook pages you manage.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Name``, ``URL``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
-
-    Table documentation::
-
-        {
-          "summary": "Each row represents a Facebook Page the participant administers, including the page name, URL, and creation timestamp.",
-          "source_file": "your_pages.json",
-          "columns": {
-            "Name": "Name of the Facebook Page.",
-            "URL": "URL of the Facebook Page.",
-            "Timestamp": "ISO 8601 timestamp of when the page was created."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_pages",
-          "title": {
-            "en": "Pages you manage",
-            "nl": "Pagina's die je beheert"
-          },
-          "description": {
-            "en": "This table lists the Facebook Pages that you administer.",
-            "nl": "Deze tabel toont de Facebookpagina's die je beheert."
-          },
-          "headers": {
-            "Name": {"en": "Name", "nl": "Naam"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
-    """
-    result = reader.json("your_pages.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        items = d["pages_v2"]  # pyright: ignore
-        for item in items:
-            datapoints.append((
-                eh.fix_latin1_string(item.get("name", "")),
-                item.get("url", ""),
-                eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Name", "URL", "Timestamp"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -1864,14 +1779,44 @@ def story_reactions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
           "id": "facebook_story_reactions",
           "title": {
             "en": "Your story reactions",
-            "nl": "Je story-reacties"
+            "nl": "Je story-reacties",
+            "de": "Ihre Story-Reaktionen",
+            "pl": "Twoje reakcje na relacje",
+            "tr": "Hikaye tepkilerin",
+            "ar": "تفاعلاتك مع القصص",
+            "ru": "Ваши реакции на истории",
+            "it": "Le tue reazioni alle storie",
+            "ro": "Reacțiile tale la povești",
+            "es": "Tus reacciones a historias",
+            "sq": "Reagimet e tua ndaj stories"
           },
           "description": {
             "en": "This table contains your reactions to Facebook Stories.",
-            "nl": "Deze tabel bevat je reacties op Facebook Stories."
+            "nl": "Deze tabel bevat je reacties op Facebook Stories.",
+            "de": "Diese Tabelle enthält Ihre Reaktionen auf Facebook Storys.",
+            "pl": "Ta tabela zawiera Twoje reakcje na Relacje na Facebooku.",
+            "tr": "Bu tablo, Facebook Hikayelerine verdiğin tepkileri içerir.",
+            "ar": "يحتوي هذا الجدول على تفاعلاتك مع قصص فيسبوك.",
+            "ru": "В этой таблице содержатся ваши реакции на истории Facebook.",
+            "it": "Questa tabella contiene le tue reazioni alle Storie di Facebook.",
+            "ro": "Acest tabel conține reacțiile tale la Poveștile de Facebook.",
+            "es": "Esta tabla contiene tus reacciones a las Historias de Facebook.",
+            "sq": "Kjo tabelë përmban reagimet e tua ndaj Stories në Facebook."
           },
           "headers": {
-            "Title": {"en": "Title", "nl": "Titel"}
+            "Title": {
+              "en": "Title",
+              "nl": "Titel",
+              "de": "Titel",
+              "pl": "Tytuł",
+              "tr": "Başlık",
+              "ar": "العنوان",
+              "ru": "Заголовок",
+              "it": "Titolo",
+              "ro": "Titlu",
+              "es": "Título",
+              "sq": "Titulli"
+            }
           }
         }
     """
@@ -1899,74 +1844,33 @@ def story_reactions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
     return out
 
 
-def your_posts_check_ins_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract your posts and check-ins on Facebook.
+# ``label_values`` entries store their ``label`` text in whichever language
+# the participant's Facebook account UI is set to (Facebook's export format,
+# not a fixed English schema key). The candidate lists below are used to
+# match a field regardless of account language. English is the verified
+# baseline; the remaining entries are best-effort guesses sourced from
+# Facebook's own terminology (see glossary.md) and are UNVERIFIED against
+# real non-English exports -- see CHANGES_FACEBOOK.md, "Known limitations".
+_REACTION_LABEL_CANDIDATES = ["Reaction", "Reactie", "Reaktion", "Reakcja", "Tepki", "تفاعل", "Реакция", "Reazione", "Reacție", "Reacción", "Reagimi"]
+_NAME_LABEL_CANDIDATES = ["Name", "Naam", "Nazwa", "Ad", "الاسم", "Название", "Nome", "Nume", "Nombre", "Emri"]
+_URL_LABEL_CANDIDATES = ["URL", "الرابط", "URL-адрес"]
 
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
 
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Title``, ``Timestamp``.
-        Empty DataFrame when the file is absent or parsing fails.
+def _lv_get(lv: dict, candidates: list) -> str:
+    """Return the first non-empty value found in *lv* for any of *candidates*.
 
-    Table documentation::
-
-        {
-          "summary": "Each row represents a post or check-in the participant made on Facebook, including the title and timestamp.",
-          "source_file": "your_posts__check_ins__photos_and_videos_1.json",
-          "columns": {
-            "Title": "Title of the post or check-in.",
-            "Timestamp": "ISO 8601 timestamp of when the post or check-in was made."
-          }
-        }
-
-    Table config::
-
-        {
-          "id": "facebook_your_posts_and_check_ins",
-          "title": {
-            "en": "Your posts and check-ins",
-            "nl": "Je posts en check-ins"
-          },
-          "description": {
-            "en": "This table shows the posts and places you have checked into on Facebook.",
-            "nl": "Deze tabel toont de berichten en plaatsen waar je op Facebook hebt ingecheckt."
-          },
-          "headers": {
-            "Title": {"en": "Title", "nl": "Titel"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
-        }
+    ``lv`` is built from Facebook's ``label_values`` structure (a list of
+    ``{"label": ..., "value": ...}`` dicts turned into a plain dict). The
+    ``label`` text is displayed in whatever language the participant's
+    Facebook account UI uses, so a single hardcoded English key (as the
+    original implementation used) silently returns "" for any non-English
+    export. This checks each language-specific candidate in turn.
     """
-    result = reader.json("your_posts__check_ins__photos_and_videos_1.json")
-    if not result.found:
-        return pd.DataFrame()
-    d = result.data
-
-    out = pd.DataFrame()
-    datapoints = []
-
-    try:
-        for item in d:
-            datapoints.append((
-                eh.fix_latin1_string(item.get("title", "")),
-                eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
-            ))
-
-        out = pd.DataFrame(datapoints, columns=["Title", "Timestamp"]) #pyright: ignore
-
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-
-    return out
+    for key in candidates:
+        value = lv.get(key)
+        if value:
+            return value
+    return ""
 
 
 def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
@@ -2010,17 +1914,83 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
           "id": "facebook_likes_and_reactions_base",
           "title": {
             "en": "Likes and reactions on Facebook",
-            "nl": "Likes en reacties op Facebook"
+            "nl": "Likes en reacties op Facebook",
+            "de": "Likes und Reaktionen auf Facebook",
+            "pl": "Polubienia i reakcje na Facebooku",
+            "tr": "Facebook'taki beğeniler ve tepkiler",
+            "ar": "الإعجابات والتفاعلات على فيسبوك",
+            "ru": "Отметки «Нравится» и реакции на Facebook",
+            "it": "Mi piace e reazioni su Facebook",
+            "ro": "Aprecieri și reacții pe Facebook",
+            "es": "Me gusta y reacciones en Facebook",
+            "sq": "Pëlqime dhe reagime në Facebook"
           },
           "description": {
             "en": "This table shows your likes and reactions to posts and other content on Facebook.",
-            "nl": "Deze tabel toont je likes en reacties op berichten en andere content op Facebook."
+            "nl": "Deze tabel toont je likes en reacties op berichten en andere content op Facebook.",
+            "de": "Diese Tabelle zeigt Ihre Likes und Reaktionen auf Beiträge und andere Inhalte auf Facebook.",
+            "pl": "Ta tabela pokazuje Twoje polubienia i reakcje na posty i inne treści na Facebooku.",
+            "tr": "Bu tablo, Facebook'taki gönderilere ve diğer içeriklere verdiğin beğenileri ve tepkileri gösterir.",
+            "ar": "يعرض هذا الجدول إعجاباتك وتفاعلاتك مع المنشورات والمحتويات الأخرى على فيسبوك.",
+            "ru": "В этой таблице показаны ваши отметки «Нравится» и реакции на публикации и другой контент на Facebook.",
+            "it": "Questa tabella mostra i tuoi mi piace e le tue reazioni a post e altri contenuti su Facebook.",
+            "ro": "Acest tabel arată aprecierile și reacțiile tale la postări și alt conținut de pe Facebook.",
+            "es": "Esta tabla muestra tus me gusta y reacciones a publicaciones y otro contenido en Facebook.",
+            "sq": "Kjo tabelë tregon pëlqimet dhe reagimet e tua ndaj postimeve dhe përmbajtjeve të tjera në Facebook."
           },
           "headers": {
-            "Reaction": {"en": "Reaction", "nl": "Reactie"},
-            "Name": {"en": "Name", "nl": "Naam"},
-            "URL": {"en": "URL", "nl": "URL"},
-            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+            "Reaction": {
+              "en": "Reaction",
+              "nl": "Reactie",
+              "de": "Reaktion",
+              "pl": "Reakcja",
+              "tr": "Tepki",
+              "ar": "التفاعل",
+              "ru": "Реакция",
+              "it": "Reazione",
+              "ro": "Reacție",
+              "es": "Reacción",
+              "sq": "Reagimi"
+            },
+            "Name": {
+              "en": "Name",
+              "nl": "Naam",
+              "de": "Name",
+              "pl": "Nazwa",
+              "tr": "Ad",
+              "ar": "الاسم",
+              "ru": "Название",
+              "it": "Nome",
+              "ro": "Nume",
+              "es": "Nombre",
+              "sq": "Emri"
+            },
+            "URL": {
+              "en": "URL",
+              "nl": "URL",
+              "de": "URL",
+              "pl": "URL",
+              "tr": "URL",
+              "ar": "الرابط (URL)",
+              "ru": "URL-адрес",
+              "it": "URL",
+              "ro": "URL",
+              "es": "URL",
+              "sq": "URL"
+            },
+            "Timestamp": {
+              "en": "Timestamp",
+              "nl": "Datum en tijd",
+              "de": "Zeitstempel",
+              "pl": "Znacznik czasu",
+              "tr": "Zaman Damgası",
+              "ar": "الطابع الزمني",
+              "ru": "Отметка времени",
+              "it": "Timestamp",
+              "ro": "Marcaj temporal",
+              "es": "Marca de tiempo",
+              "sq": "Vula kohore"
+            }
           }
         }
     """
@@ -2030,9 +2000,9 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
         for item in d:
             lv = {x.get("label", ""): x.get("value", "") for x in item.get("label_values", [])}
             datapoints.append((
-                lv.get("Reaction", ""),
-                eh.fix_latin1_string(lv.get("Name", "")),
-                lv.get("URL", ""),
+                eh.fix_latin1_string(_lv_get(lv, _REACTION_LABEL_CANDIDATES)),
+                eh.fix_latin1_string(_lv_get(lv, _NAME_LABEL_CANDIDATES)),
+                _lv_get(lv, _URL_LABEL_CANDIDATES),
                 eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
             ))
 
@@ -2093,16 +2063,70 @@ def controls_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           "id": "facebook_feed_controls",
           "title": {
             "en": "Feed controls (show more / show less)",
-            "nl": "Feed-voorkeuren (meer zien / minder zien)"
+            "nl": "Feed-voorkeuren (meer zien / minder zien)",
+            "de": "Feed-Einstellungen (mehr anzeigen / weniger anzeigen)",
+            "pl": "Ustawienia aktualności (pokaż więcej / pokaż mniej)",
+            "tr": "Akış kontrolleri (daha fazla göster / daha az göster)",
+            "ar": "إعدادات آخر الأخبار (عرض المزيد / عرض أقل)",
+            "ru": "Настройки ленты (показывать больше / показывать меньше)",
+            "it": "Impostazioni del feed (mostra di più / mostra di meno)",
+            "ro": "Setările fluxului (arată mai mult / arată mai puțin)",
+            "es": "Controles de la sección de noticias (mostrar más / mostrar menos)",
+            "sq": "Kontrollet e feed-it (shfaq më shumë / shfaq më pak)"
           },
           "description": {
             "en": "This table shows the actions you've taken to customise what content you see more or less of on Facebook.",
-            "nl": "Deze tabel toont de acties die je hebt ondernomen om aan te passen welke content je meer of minder ziet op Facebook."
+            "nl": "Deze tabel toont de acties die je hebt ondernomen om aan te passen welke content je meer of minder ziet op Facebook.",
+            "de": "Diese Tabelle zeigt die Aktionen, mit denen Sie festgelegt haben, welche Inhalte Sie auf Facebook mehr oder weniger sehen.",
+            "pl": "Ta tabela pokazuje działania, które podjąłeś/aś, aby dostosować, jakie treści widzisz częściej lub rzadziej na Facebooku.",
+            "tr": "Bu tablo, Facebook'ta hangi içerikleri daha fazla veya daha az gördüğünü özelleştirmek için yaptığın işlemleri gösterir.",
+            "ar": "يعرض هذا الجدول الإجراءات التي اتخذتها لتخصيص المحتوى الذي تراه أكثر أو أقل على فيسبوك.",
+            "ru": "В этой таблице показаны действия, которые вы предприняли, чтобы настроить, какого контента вы видите больше или меньше на Facebook.",
+            "it": "Questa tabella mostra le azioni che hai intrapreso per personalizzare quali contenuti vedi di più o di meno su Facebook.",
+            "ro": "Acest tabel arată acțiunile pe care le-ai întreprins pentru a personaliza ce conținut vezi mai mult sau mai puțin pe Facebook.",
+            "es": "Esta tabla muestra las acciones que has tomado para personalizar qué contenido ves más o menos en Facebook.",
+            "sq": "Kjo tabelë tregon veprimet që ke ndërmarrë për të personalizuar përmbajtjen që sheh më shumë ose më pak në Facebook."
           },
           "headers": {
-            "Action": {"en": "Action", "nl": "Actie"},
-            "Content": {"en": "Content", "nl": "Inhoud"},
-            "Date": {"en": "Date", "nl": "Datum"}
+            "Action": {
+              "en": "Action",
+              "nl": "Actie",
+              "de": "Aktion",
+              "pl": "Działanie",
+              "tr": "Eylem",
+              "ar": "الإجراء",
+              "ru": "Действие",
+              "it": "Azione",
+              "ro": "Acțiune",
+              "es": "Acción",
+              "sq": "Veprimi"
+            },
+            "Content": {
+              "en": "Content",
+              "nl": "Inhoud",
+              "de": "Inhalt",
+              "pl": "Treść",
+              "tr": "İçerik",
+              "ar": "المحتوى",
+              "ru": "Содержание",
+              "it": "Contenuto",
+              "ro": "Conținut",
+              "es": "Contenido",
+              "sq": "Përmbajtja"
+            },
+            "Date": {
+              "en": "Date",
+              "nl": "Datum",
+              "de": "Datum",
+              "pl": "Data",
+              "tr": "Tarih",
+              "ar": "التاريخ",
+              "ru": "Дата",
+              "it": "Data",
+              "ro": "Data",
+              "es": "Fecha",
+              "sq": "Data"
+            }
           }
         }
     """
@@ -2117,7 +2141,7 @@ def controls_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     try:
         groups = d["controls"]  # pyright: ignore
         for group in groups:
-            action = group.get("name", "")
+            action = eh.fix_latin1_string(group.get("name", ""))
             for entry in group.get("entries", []):
                 denested = eh.dict_denester(entry)
                 datapoints.append((
@@ -2142,9 +2166,6 @@ def controls_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
 #: Mapping from the string names used in port_config.json to actual extractor functions.
 EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "who_youve_followed_to_df": who_youve_followed_to_df,
-    "news_your_locations_to_df": news_your_locations_to_df,
-    "notifications_to_df": notifications_to_df,
-    "content_sharing_you_have_created_to_df": content_sharing_you_have_created_to_df,
     "facebook_reels_usage_to_df": facebook_reels_usage_to_df,
     "last_28_days_to_df": last_28_days_to_df,
     "your_search_history_to_df": your_search_history_to_df,
@@ -2152,21 +2173,13 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "ads_interests_to_df": ads_interests_to_df,
     "recently_viewed_to_df": recently_viewed_to_df,
     "recently_visited_to_df": recently_visited_to_df,
-    "profile_update_history_to_df": profile_update_history_to_df,
-    "your_event_responses_to_df": your_event_responses_to_df,
-    "group_posts_and_comments_to_df": group_posts_and_comments_to_df,
-    "your_answers_to_membership_questions_to_df": your_answers_to_membership_questions_to_df,
-    "your_comments_in_groups_to_df": your_comments_in_groups_to_df,
-    "your_group_membership_activity_to_df": your_group_membership_activity_to_df,
     "pages_and_profiles_you_follow_to_df": pages_and_profiles_you_follow_to_df,
     "pages_youve_liked_to_df": pages_youve_liked_to_df,
     "your_saved_items_to_df": your_saved_items_to_df,
     "comments_to_df": comments_to_df,
     "likes_and_reactions_to_df": likes_and_reactions_to_df,
     "your_comment_active_days_to_df": your_comment_active_days_to_df,
-    "your_pages_to_df": your_pages_to_df,
     "story_reactions_to_df": story_reactions_to_df,
-    "your_posts_check_ins_to_df": your_posts_check_ins_to_df,
     "likes_and_reactions_base_to_df": likes_and_reactions_base_to_df,
     "controls_to_df": controls_to_df,
 }

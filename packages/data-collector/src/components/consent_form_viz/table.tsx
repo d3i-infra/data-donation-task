@@ -1,22 +1,22 @@
-import { 
+import {
     useEffect,
     useLayoutEffect,
     useMemo,
     useRef,
     useState,
-    ReactNode, 
-    Dispatch, 
-    SetStateAction 
+    ReactNode,
+    Dispatch,
+    SetStateAction
 } from 'react'
 import Highlighter from 'react-highlight-words'
-import { 
-    TableWithContext, 
+import {
+    TableWithContext,
 } from './types'
 import UndoSvg from './assets/images/undo.svg'
 import DeleteSvg from './assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '@eyra/feldspar'
-import { 
+import {
     Translator,
 } from '@eyra/feldspar'
 import { CheckBox } from "./check_box"
@@ -374,6 +374,28 @@ function getTranslations (locale: string): Record<string, string> {
 }
 
 const translations = {
-  delete: new TextBundle().add('en', 'Delete').add('nl', 'Verwijder'),
-  undo: new TextBundle().add('en', 'Undo').add('nl', 'Herstel')
+  delete: new TextBundle()
+    .add('en', 'Delete')
+    .add('nl', 'Verwijder')
+    .add('de', 'Löschen')
+    .add('pl', 'Usuń')
+    .add('tr', 'Sil')
+    .add('ar', 'حذف')
+    .add('ru', 'Удалить')
+    .add('it', 'Elimina')
+    .add('ro', 'Șterge')
+    .add('es', 'Eliminar')
+    .add('sq', 'Fshi'),
+  undo: new TextBundle()
+    .add('en', 'Undo')
+    .add('nl', 'Herstel')
+    .add('de', 'Rückgängig')
+    .add('pl', 'Cofnij')
+    .add('tr', 'Geri al')
+    .add('ar', 'تراجع')
+    .add('ru', 'Отменить')
+    .add('it', 'Annulla')
+    .add('ro', 'Anulează')
+    .add('es', 'Deshacer')
+    .add('sq', 'Zhbëj')
 }

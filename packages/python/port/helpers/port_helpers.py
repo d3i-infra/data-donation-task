@@ -46,7 +46,7 @@ def render_page(
 
 def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
     """
-    Generate a bilingual retry prompt for file processing errors.
+    Generate a multi-language retry prompt for file processing errors.
 
     Returns a PropsUIPromptConfirm with "Try again" (ok → PayloadTrue) and
     "Continue" (cancel → PayloadFalse) buttons. Using standard feldspar
@@ -62,12 +62,43 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
         {
             "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
             "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
-            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Intente de nuevo para seleccionar un archivo diferente",
             "de": f"Leider können wir deine {platform_name}-Datei nicht verarbeiten. Fahre fort, wenn du sicher bist, dass du die richtige Datei ausgewählt hast. Versuche es erneut, um eine andere Datei auszuwählen.",
+            "pl": f"Niestety nie możemy przetworzyć Twojego pliku {platform_name}. Kontynuuj, jeśli masz pewność, że wybrałeś/aś właściwy plik. Spróbuj ponownie, aby wybrać inny plik.",
+            "tr": f"Maalesef {platform_name} dosyanı işleyemiyoruz. Doğru dosyayı seçtiğinden eminsen devam et. Farklı bir dosya seçmek için tekrar dene.",
+            "ar": f"للأسف، لا يمكننا معالجة ملف {platform_name} الخاص بك. تابع إذا كنت متأكدًا من أنك اخترت الملف الصحيح. أعد المحاولة لاختيار ملف مختلف.",
+            "ru": f"К сожалению, мы не можем обработать ваш файл {platform_name}. Продолжите, если уверены, что выбрали правильный файл. Повторите попытку, чтобы выбрать другой файл.",
+            "it": f"Purtroppo non possiamo elaborare il tuo file {platform_name}. Continua se sei sicuro di aver selezionato il file giusto. Riprova per selezionare un file diverso.",
+            "ro": f"Din păcate, nu putem procesa fișierul tău {platform_name}. Continuă dacă ești sigur că ai selectat fișierul corect. Încearcă din nou pentru a selecta un alt fișier.",
+            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Continúe si está seguro de haber seleccionado el archivo correcto. Inténtelo de nuevo para seleccionar un archivo diferente.",
+            "sq": f"Për fat të keq, nuk mund ta përpunojmë skedarin tënd {platform_name}. Vazhdo nëse je i sigurt se ke zgjedhur skedarin e duhur. Provo përsëri për të zgjedhur një skedar tjetër.",
         }
     )
-    ok = props.Translatable({"en": "Try again", "nl": "Probeer opnieuw", "es": "Intentar de nuevo", "de": "Erneut versuchen"})
-    cancel = props.Translatable({"en": "Continue", "nl": "Doorgaan", "es": "Continuar", "de": "Fortfahren"})
+    ok = props.Translatable({
+        "en": "Try again",
+        "nl": "Probeer opnieuw",
+        "de": "Erneut versuchen",
+        "pl": "Spróbuj ponownie",
+        "tr": "Tekrar dene",
+        "ar": "أعد المحاولة",
+        "ru": "Повторить попытку",
+        "it": "Riprova",
+        "ro": "Încearcă din nou",
+        "es": "Intentar de nuevo",
+        "sq": "Provo përsëri",
+    })
+    cancel = props.Translatable({
+        "en": "Continue",
+        "nl": "Doorgaan",
+        "de": "Fortfahren",
+        "pl": "Kontynuuj",
+        "tr": "Devam et",
+        "ar": "متابعة",
+        "ru": "Продолжить",
+        "it": "Continua",
+        "ro": "Continuă",
+        "es": "Continuar",
+        "sq": "Vazhdo",
+    })
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
 
@@ -76,7 +107,7 @@ def generate_file_prompt(
 ) -> props.PropsUIPromptFileInput | d3i_props.PropsUIPromptFileInputMultiple:
     """
     Generates a file input prompt for selecting file(s) for a platform.
-    This function creates a bilingual (English and Dutch) file input prompt
+    This function creates a multi-language file input prompt
     that instructs the user to select file(s) they've received from a platform
     and stored on their device.
 
@@ -101,6 +132,14 @@ def generate_file_prompt(
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
             "de": "Bitte folge den Download-Anweisungen und wähle die Datei aus, die du auf deinem Gerät gespeichert hast.",
+            "pl": "Postępuj zgodnie z instrukcjami pobierania i wybierz plik zapisany na Twoim urządzeniu.",
+            "tr": "Lütfen indirme talimatlarını takip et ve cihazına kaydettiğin dosyayı seç.",
+            "ar": "يرجى اتباع تعليمات التنزيل واختيار الملف الذي قمت بتخزينه على جهازك.",
+            "ru": "Пожалуйста, следуйте инструкциям по загрузке и выберите файл, сохранённый на вашем устройстве.",
+            "it": "Segui le istruzioni di download e scegli il file che hai salvato sul tuo dispositivo.",
+            "ro": "Urmează instrucțiunile de descărcare și alege fișierul pe care l-ai salvat pe dispozitivul tău.",
+            "es": "Siga las instrucciones de descarga y elija el archivo que guardó en su dispositivo.",
+            "sq": "Ndiq udhëzimet e shkarkimit dhe zgjidh skedarin që ke ruajtur në pajisjen tënde.",
         }
     )
     if multiple:
@@ -130,6 +169,14 @@ def generate_review_data_prompt(
             "en": "Do you want to share this data for research?",
             "nl": "Wilt u deze gegevens delen voor onderzoek?",
             "de": "Möchtest du diese Daten für die Forschung teilen?",
+            "pl": "Czy chcesz udostępnić te dane na potrzeby badań?",
+            "tr": "Bu verileri araştırma için paylaşmak ister misin?",
+            "ar": "هل تريد مشاركة هذه البيانات لأغراض البحث؟",
+            "ru": "Хотите поделиться этими данными для исследования?",
+            "it": "Vuoi condividere questi dati per la ricerca?",
+            "ro": "Dorești să distribui aceste date pentru cercetare?",
+            "es": "¿Desea compartir estos datos para la investigación?",
+            "sq": "Dëshiron t'i ndash këto të dhëna për kërkim shkencor?",
         }
     )
 
@@ -137,6 +184,14 @@ def generate_review_data_prompt(
         "en": "Yes, share for research",
         "nl": "Ja, deel voor onderzoek",
         "de": "Ja, für die Forschung teilen",
+        "pl": "Tak, udostępnij na potrzeby badań",
+        "tr": "Evet, araştırma için paylaş",
+        "ar": "نعم، شارك من أجل البحث",
+        "ru": "Да, поделиться для исследования",
+        "it": "Sì, condividi per la ricerca",
+        "ro": "Da, distribuie pentru cercetare",
+        "es": "Sí, compartir para la investigación",
+        "sq": "Po, ndaje për kërkim shkencor",
     })
 
     return d3i_props.PropsUIPromptConsentFormViz(
@@ -285,9 +340,17 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
     """
     header = props.PropsUIHeader(
         props.Translatable({
-            "en": f"No data found",
-            "nl": f"Geen gegevens gevonden",
-            "de": f"Keine Daten gefunden",
+            "en": "No data found",
+            "nl": "Geen gegevens gevonden",
+            "de": "Keine Daten gefunden",
+            "pl": "Nie znaleziono danych",
+            "tr": "Veri bulunamadı",
+            "ar": "لم يتم العثور على بيانات",
+            "ru": "Данные не найдены",
+            "it": "Nessun dato trovato",
+            "ro": "Nu s-au găsit date",
+            "es": "No se encontraron datos",
+            "sq": "Nuk u gjetën të dhëna",
         })
     )
     body = props.PropsUIPromptConfirm(
@@ -295,9 +358,23 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
             "en": f"Unfortunately, no relevant data was found in your {platform_name} file.",
             "nl": f"Helaas zijn er geen relevante gegevens gevonden in uw {platform_name} bestand.",
             "de": f"Leider wurden in deiner {platform_name}-Datei keine relevanten Daten gefunden.",
+            "pl": f"Niestety w Twoim pliku {platform_name} nie znaleziono żadnych istotnych danych.",
+            "tr": f"Maalesef {platform_name} dosyanda ilgili herhangi bir veri bulunamadı.",
+            "ar": f"للأسف، لم يتم العثور على بيانات ذات صلة في ملف {platform_name} الخاص بك.",
+            "ru": f"К сожалению, в вашем файле {platform_name} не найдено соответствующих данных.",
+            "it": f"Purtroppo non è stato trovato alcun dato rilevante nel tuo file {platform_name}.",
+            "ro": f"Din păcate, nu s-au găsit date relevante în fișierul tău {platform_name}.",
+            "es": f"Lamentablemente, no se encontró ningún dato relevante en su archivo de {platform_name}.",
+            "sq": f"Për fat të keq, nuk u gjetën të dhëna përkatëse në skedarin tënd {platform_name}.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        ok=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
+        cancel=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -313,6 +390,14 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
             "en": "File cannot be processed",
             "nl": "Bestand kan niet worden verwerkt",
             "de": "Datei kann nicht verarbeitet werden",
+            "pl": "Nie można przetworzyć pliku",
+            "tr": "Dosya işlenemiyor",
+            "ar": "تعذّرت معالجة الملف",
+            "ru": "Файл не может быть обработан",
+            "it": "Il file non può essere elaborato",
+            "ro": "Fișierul nu poate fi procesat",
+            "es": "El archivo no se puede procesar",
+            "sq": "Skedari nuk mund të përpunohet",
         })
     )
     body = props.PropsUIPromptConfirm(
@@ -320,9 +405,23 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
             "en": f"Your {platform_name} file could not be processed: {error}",
             "nl": f"Uw {platform_name} bestand kon niet worden verwerkt: {error}",
             "de": f"Deine {platform_name}-Datei konnte nicht verarbeitet werden: {error}",
+            "pl": f"Nie udało się przetworzyć Twojego pliku {platform_name}: {error}",
+            "tr": f"{platform_name} dosyan işlenemedi: {error}",
+            "ar": f"تعذّرت معالجة ملف {platform_name} الخاص بك: {error}",
+            "ru": f"Не удалось обработать ваш файл {platform_name}: {error}",
+            "it": f"Non è stato possibile elaborare il tuo file {platform_name}: {error}",
+            "ro": f"Fișierul tău {platform_name} nu a putut fi procesat: {error}",
+            "es": f"No se pudo procesar su archivo de {platform_name}: {error}",
+            "sq": f"Skedari yt {platform_name} nuk mund të përpunohej: {error}",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        ok=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
+        cancel=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -338,6 +437,14 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
             "en": "Data submission failed",
             "nl": "Gegevensinzending mislukt",
             "de": "Datenübermittlung fehlgeschlagen",
+            "pl": "Przesyłanie danych nie powiodło się",
+            "tr": "Veri gönderimi başarısız oldu",
+            "ar": "فشل إرسال البيانات",
+            "ru": "Не удалось отправить данные",
+            "it": "Invio dei dati non riuscito",
+            "ro": "Trimiterea datelor a eșuat",
+            "es": "Error al enviar los datos",
+            "sq": "Dërgimi i të dhënave dështoi",
         })
     )
     body = props.PropsUIPromptConfirm(
@@ -345,9 +452,23 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
             "en": f"Unfortunately, your {platform_name} data could not be submitted. Please try again later.",
             "nl": f"Helaas konden uw {platform_name} gegevens niet worden ingediend. Probeer het later opnieuw.",
             "de": f"Leider konnten deine {platform_name}-Daten nicht übermittelt werden. Bitte versuche es später erneut.",
+            "pl": f"Niestety Twoich danych {platform_name} nie udało się przesłać. Spróbuj ponownie później.",
+            "tr": f"Maalesef {platform_name} verilerin gönderilemedi. Lütfen daha sonra tekrar dene.",
+            "ar": f"للأسف، تعذّر إرسال بيانات {platform_name} الخاصة بك. يرجى المحاولة مرة أخرى لاحقًا.",
+            "ru": f"К сожалению, не удалось отправить ваши данные {platform_name}. Пожалуйста, повторите попытку позже.",
+            "it": f"Purtroppo non è stato possibile inviare i tuoi dati {platform_name}. Riprova più tardi.",
+            "ro": f"Din păcate, datele tale {platform_name} nu au putut fi trimise. Te rugăm să încerci din nou mai târziu.",
+            "es": f"Lamentablemente, no se pudieron enviar sus datos de {platform_name}. Vuelva a intentarlo más tarde.",
+            "sq": f"Për fat të keq, të dhënat e tua {platform_name} nuk mund të dërgoheshin. Provo përsëri më vonë.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Fortfahren"}),
+        ok=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
+        cancel=props.Translatable({
+            "en": "Continue", "nl": "Doorgaan", "de": "Fortfahren", "pl": "Kontynuuj", "tr": "Devam et",
+            "ar": "متابعة", "ru": "Продолжить", "it": "Continua", "ro": "Continuă", "es": "Continuar", "sq": "Vazhdo",
+        }),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)

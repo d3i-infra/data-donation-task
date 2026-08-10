@@ -26,18 +26,50 @@ def error_flow(platform: str | None, tb: str):
         tb: Full traceback string from traceback.format_exc().
     """
     header = props.PropsUIHeader(
-        props.Translatable({"nl": "Er is iets misgegaan", "en": "Something went wrong", "de": "Etwas ist schiefgelaufen"})
+        props.Translatable({
+            "nl": "Er is iets misgegaan",
+            "en": "Something went wrong",
+            "de": "Etwas ist schiefgelaufen",
+            "pl": "Coś poszło nie tak",
+            "tr": "Bir şeyler yanlış gitti",
+            "ar": "حدث خطأ ما",
+            "ru": "Что-то пошло не так",
+            "it": "Qualcosa è andato storto",
+            "ro": "Ceva nu a mers bine",
+            "es": "Algo salió mal",
+            "sq": "Diçka shkoi keq",
+        })
     )
     body = [
-        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb, "de": tb})),
+        props.PropsUIPromptText(text=props.Translatable({
+            "nl": tb, "en": tb, "de": tb, "pl": tb, "tr": tb, "ar": tb, "ru": tb, "it": tb, "ro": tb, "es": tb, "sq": tb,
+        })),
         props.PropsUIPromptConfirm(
             text=props.Translatable({
                 "nl": "Wilt u de fout rapporteren zodat we het probleem kunnen oplossen?",
                 "en": "Would you like to report this error so we can fix the problem?",
                 "de": "Möchten Sie den Fehler melden, damit wir das Problem beheben können?",
+                "pl": "Czy chcesz zgłosić ten błąd, abyśmy mogli rozwiązać problem?",
+                "tr": "Sorunu çözebilmemiz için bu hatayı bildirmek ister misin?",
+                "ar": "هل تودّ الإبلاغ عن هذا الخطأ حتى نتمكن من إصلاح المشكلة؟",
+                "ru": "Хотите сообщить об этой ошибке, чтобы мы могли решить проблему?",
+                "it": "Vuoi segnalare questo errore in modo che possiamo risolvere il problema?",
+                "ro": "Dorești să raportezi această eroare, astfel încât să putem rezolva problema?",
+                "es": "¿Desea informar de este error para que podamos solucionar el problema?",
+                "sq": "Dëshiron ta raportosh këtë gabim që të mund ta zgjidhim problemin?",
             }),
-            ok=props.Translatable({"nl": "Fout rapporteren", "en": "Report error", "de": "Fehler melden"}),
-            cancel=props.Translatable({"nl": "Overslaan", "en": "Skip", "de": "Überspringen"}),
+            ok=props.Translatable({
+                "nl": "Fout rapporteren", "en": "Report error", "de": "Fehler melden",
+                "pl": "Zgłoś błąd", "tr": "Hatayı bildir", "ar": "الإبلاغ عن الخطأ",
+                "ru": "Сообщить об ошибке", "it": "Segnala errore", "ro": "Raportează eroarea",
+                "es": "Informar del error", "sq": "Raporto gabimin",
+            }),
+            cancel=props.Translatable({
+                "nl": "Overslaan", "en": "Skip", "de": "Überspringen",
+                "pl": "Pomiń", "tr": "Atla", "ar": "تخطي",
+                "ru": "Пропустить", "it": "Salta", "ro": "Omite",
+                "es": "Omitir", "sq": "Kalo",
+            }),
         ),
     ]
     page = props.PropsUIPageDataSubmission(platform or "error", header, body)

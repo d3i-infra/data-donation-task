@@ -80,8 +80,52 @@ function getTranslations (locale: string): Record<string, string> {
 }
 
 const translations = {
-  columns: new TextBundle().add('en', 'columns').add('nl', 'kolommen'),
-  rows: new TextBundle().add('en', 'rows').add('nl', 'rijen'),
-  noData: new TextBundle().add('en', 'no data').add('nl', 'geen data'),
-  deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd')
+  columns: new TextBundle()
+    .add('en', 'columns')
+    .add('nl', 'kolommen')
+    .add('de', 'Spalten')
+    .add('pl', 'kolumny')
+    .add('tr', 'sütun')
+    .add('ar', 'أعمدة')
+    .add('ru', 'столбцов')
+    .add('it', 'colonne')
+    .add('ro', 'coloane')
+    .add('es', 'columnas')
+    .add('sq', 'kolona'),
+  rows: new TextBundle()
+    .add('en', 'rows')
+    .add('nl', 'rijen')
+    .add('de', 'Zeilen')
+    .add('pl', 'wierszy')
+    .add('tr', 'satır')
+    .add('ar', 'صفوف')
+    .add('ru', 'строк')
+    .add('it', 'righe')
+    .add('ro', 'rânduri')
+    .add('es', 'filas')
+    .add('sq', 'rreshta'),
+  noData: new TextBundle()
+    .add('en', 'no data')
+    .add('nl', 'geen data')
+    .add('de', 'keine Daten')
+    .add('pl', 'brak danych')
+    .add('tr', 'veri yok')
+    .add('ar', 'لا توجد بيانات')
+    .add('ru', 'нет данных')
+    .add('it', 'nessun dato')
+    .add('ro', 'fără date')
+    .add('es', 'sin datos')
+    .add('sq', 'pa të dhëna'),
+  deleted: new TextBundle()
+    .add('en', 'deleted')
+    .add('nl', 'verwijderd')
+    .add('de', 'gelöscht')
+    .add('pl', 'usunięte')
+    .add('tr', 'silindi')
+    .add('ar', 'تم الحذف')
+    .add('ru', 'удалено')
+    .add('it', 'eliminati')
+    .add('ro', 'șterse')
+    .add('es', 'eliminado')
+    .add('sq', 'fshirë')
 }

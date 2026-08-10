@@ -1,10 +1,10 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from "react"
-import { 
+import {
     Translator,
     Title4,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
-import { 
+import {
     TableWithContext,
     PropsUITableRow,
 } from "./types"
@@ -240,7 +240,40 @@ function getTranslations(locale: string): Record<string, string> {
 }
 
 const translations = {
-  searchPlaceholder: new TextBundle().add("en", "Search").add("nl", "Zoeken"),
-  showTable: new TextBundle().add("en", "Show table").add("nl", "Tabel tonen"),
-  hideTable: new TextBundle().add("en", "Hide table").add("nl", "Tabel verbergen"),
+  searchPlaceholder: new TextBundle()
+    .add("en", "Search")
+    .add("nl", "Zoeken")
+    .add("de", "Suchen")
+    .add("pl", "Szukaj")
+    .add("tr", "Ara")
+    .add("ar", "بحث")
+    .add("ru", "Поиск")
+    .add("it", "Cerca")
+    .add("ro", "Caută")
+    .add("es", "Buscar")
+    .add("sq", "Kërko"),
+  showTable: new TextBundle()
+    .add("en", "Show table")
+    .add("nl", "Tabel tonen")
+    .add("de", "Tabelle anzeigen")
+    .add("pl", "Pokaż tabelę")
+    .add("tr", "Tabloyu göster")
+    .add("ar", "إظهار الجدول")
+    .add("ru", "Показать таблицу")
+    .add("it", "Mostra tabella")
+    .add("ro", "Afișează tabelul")
+    .add("es", "Mostrar tabla")
+    .add("sq", "Shfaq tabelën"),
+  hideTable: new TextBundle()
+    .add("en", "Hide table")
+    .add("nl", "Tabel verbergen")
+    .add("de", "Tabelle ausblenden")
+    .add("pl", "Ukryj tabelę")
+    .add("tr", "Tabloyu gizle")
+    .add("ar", "إخفاء الجدول")
+    .add("ru", "Скрыть таблицу")
+    .add("it", "Nascondi tabella")
+    .add("ro", "Ascunde tabelul")
+    .add("es", "Ocultar tabla")
+    .add("sq", "Fshih tabelën"),
 }
