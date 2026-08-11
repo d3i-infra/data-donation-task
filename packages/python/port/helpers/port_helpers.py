@@ -62,7 +62,7 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
         {
             "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
             "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
-            "de": f"Leider können wir deine {platform_name}-Datei nicht verarbeiten. Fahre fort, wenn du sicher bist, dass du die richtige Datei ausgewählt hast. Versuche es erneut, um eine andere Datei auszuwählen.",
+            "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtige Datei ausgewählt haben. Versuchen Sie es erneut, um eine andere Datei auszuwählen.",
             "pl": f"Niestety nie możemy przetworzyć Twojego pliku {platform_name}. Kontynuuj, jeśli masz pewność, że wybrałeś/aś właściwy plik. Spróbuj ponownie, aby wybrać inny plik.",
             "tr": f"Maalesef {platform_name} dosyanı işleyemiyoruz. Doğru dosyayı seçtiğinden eminsen devam et. Farklı bir dosya seçmek için tekrar dene.",
             "ar": f"للأسف، لا يمكننا معالجة ملف {platform_name} الخاص بك. تابع إذا كنت متأكدًا من أنك اخترت الملف الصحيح. أعد المحاولة لاختيار ملف مختلف.",
@@ -131,7 +131,7 @@ def generate_file_prompt(
         {
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
-            "de": "Bitte folge den Download-Anweisungen und wähle die Datei aus, die du auf deinem Gerät gespeichert hast.",
+            "de": "Bitte folgen Sie den Download-Anweisungen und wählen Sie die Datei aus, die Sie auf Ihrem Gerät gespeichert haben.",
             "pl": "Postępuj zgodnie z instrukcjami pobierania i wybierz plik zapisany na Twoim urządzeniu.",
             "tr": "Lütfen indirme talimatlarını takip et ve cihazına kaydettiğin dosyayı seç.",
             "ar": "يرجى اتباع تعليمات التنزيل واختيار الملف الذي قمت بتخزينه على جهازك.",
@@ -168,7 +168,7 @@ def generate_review_data_prompt(
         {
             "en": "Do you want to share this data for research?",
             "nl": "Wilt u deze gegevens delen voor onderzoek?",
-            "de": "Möchtest du diese Daten für die Forschung teilen?",
+            "de": "Möchten Sie diese Daten für die Forschung teilen?",
             "pl": "Czy chcesz udostępnić te dane na potrzeby badań?",
             "tr": "Bu verileri araştırma için paylaşmak ister misin?",
             "ar": "هل تريد مشاركة هذه البيانات لأغراض البحث؟",
@@ -357,7 +357,7 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
         text=props.Translatable({
             "en": f"Unfortunately, no relevant data was found in your {platform_name} file.",
             "nl": f"Helaas zijn er geen relevante gegevens gevonden in uw {platform_name} bestand.",
-            "de": f"Leider wurden in deiner {platform_name}-Datei keine relevanten Daten gefunden.",
+            "de": f"Leider wurden in Ihrer {platform_name}-Datei keine relevanten Daten gefunden.",
             "pl": f"Niestety w Twoim pliku {platform_name} nie znaleziono żadnych istotnych danych.",
             "tr": f"Maalesef {platform_name} dosyanda ilgili herhangi bir veri bulunamadı.",
             "ar": f"للأسف، لم يتم العثور على بيانات ذات صلة في ملف {platform_name} الخاص بك.",
@@ -404,7 +404,7 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
         text=props.Translatable({
             "en": f"Your {platform_name} file could not be processed: {error}",
             "nl": f"Uw {platform_name} bestand kon niet worden verwerkt: {error}",
-            "de": f"Deine {platform_name}-Datei konnte nicht verarbeitet werden: {error}",
+            "de": f"Ihre {platform_name}-Datei konnte nicht verarbeitet werden: {error}",
             "pl": f"Nie udało się przetworzyć Twojego pliku {platform_name}: {error}",
             "tr": f"{platform_name} dosyan işlenemedi: {error}",
             "ar": f"تعذّرت معالجة ملف {platform_name} الخاص بك: {error}",
@@ -451,7 +451,7 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
         text=props.Translatable({
             "en": f"Unfortunately, your {platform_name} data could not be submitted. Please try again later.",
             "nl": f"Helaas konden uw {platform_name} gegevens niet worden ingediend. Probeer het later opnieuw.",
-            "de": f"Leider konnten deine {platform_name}-Daten nicht übermittelt werden. Bitte versuche es später erneut.",
+            "de": f"Leider konnten Ihre {platform_name}-Daten nicht übermittelt werden. Bitte versuchen Sie es später erneut.",
             "pl": f"Niestety Twoich danych {platform_name} nie udało się przesłać. Spróbuj ponownie później.",
             "tr": f"Maalesef {platform_name} verilerin gönderilemedi. Lütfen daha sonra tekrar dene.",
             "ar": f"للأسف، تعذّر إرسال بيانات {platform_name} الخاصة بك. يرجى المحاولة مرة أخرى لاحقًا.",

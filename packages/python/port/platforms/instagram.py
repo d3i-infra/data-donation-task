@@ -255,7 +255,7 @@ def followers_to_df(
           "title": {
             "en": "Your Instagram followers",
             "nl": "Je Instagram-volgers",
-            "de": "Deine Instagram-Follower",
+            "de": "Ihre Instagram-Follower",
             "pl": "Twoi obserwujący na Instagramie",
             "tr": "Instagram takipçilerin",
             "ar": "متابعوك على إنستغرام",
@@ -268,7 +268,7 @@ def followers_to_df(
           "description": {
             "en": "List of accounts that follow you on Instagram.",
             "nl": "Lijst van accounts die jou op Instagram volgen.",
-            "de": "Liste der Konten, die dir auf Instagram folgen.",
+            "de": "Liste der Konten, die Ihnen auf Instagram folgen.",
             "pl": "Lista kont, które obserwują cię na Instagramie.",
             "tr": "Instagram'da seni takip eden hesapların listesi.",
             "ar": "قائمة الحسابات التي تتابعك على إنستغرام.",
@@ -1245,7 +1245,7 @@ def liked_comments_to_df(
           "description": {
             "en": "List of comments that you liked on Instagram.",
             "nl": "Lijst van reacties die je leuk vond op Instagram.",
-            "de": "Liste der Kommentare, die dir auf Instagram gefallen haben.",
+            "de": "Liste der Kommentare, die Ihnen auf Instagram gefallen haben.",
             "pl": "Lista komentarzy, które polubiłeś/aś na Instagramie.",
             "tr": "Instagram'da beğendiğin yorumların listesi.",
             "ar": "قائمة التعليقات التي أعجبت بها على إنستغرام.",
@@ -1396,7 +1396,7 @@ def liked_posts_to_df(
           "description": {
             "en": "List of posts that you liked on Instagram.",
             "nl": "Lijst van berichten die je leuk vond op Instagram.",
-            "de": "Liste der Beiträge, die dir auf Instagram gefallen haben.",
+            "de": "Liste der Beiträge, die Ihnen auf Instagram gefallen haben.",
             "pl": "Lista postów, które polubiłeś/aś na Instagramie.",
             "tr": "Instagram'da beğendiğin gönderilerin listesi.",
             "ar": "قائمة المنشورات التي أعجبت بها على إنستغرام.",
@@ -1549,7 +1549,7 @@ def profile_searches_to_df(
           "title": {
             "en": "Your Instagram profile searches",
             "nl": "Je Instagram-profielzoekopdrachten",
-            "de": "Deine Instagram-Profilsuchen",
+            "de": "Ihre Instagram-Profilsuchen",
             "pl": "Twoje wyszukiwania profili na Instagramie",
             "tr": "Instagram profil aramaların",
             "ar": "عمليات بحثك عن الملفات الشخصية على إنستغرام",
@@ -1688,7 +1688,7 @@ def story_likes_to_df(
           "description": {
             "en": "List of Instagram stories you liked.",
             "nl": "Lijst van Instagram-stories die je leuk vond.",
-            "de": "Liste der Instagram-Storys, die dir gefallen haben.",
+            "de": "Liste der Instagram-Storys, die Ihnen gefallen haben.",
             "pl": "Lista relacji na Instagramie, które polubiłeś/aś.",
             "tr": "Beğendiğin Instagram hikayelerinin listesi.",
             "ar": "قائمة قصص إنستغرام التي أعجبت بها.",
@@ -1961,7 +1961,7 @@ def saved_posts_to_df(
           "title": {
             "en": "Your saved posts on Instagram",
             "nl": "Je opgeslagen berichten op Instagram",
-            "de": "Deine gespeicherten Beiträge auf Instagram",
+            "de": "Ihre gespeicherten Beiträge auf Instagram",
             "pl": "Twoje zapisane posty na Instagramie",
             "tr": "Instagram'da kaydettiğin gönderiler",
             "ar": "منشوراتك المحفوظة على إنستغرام",

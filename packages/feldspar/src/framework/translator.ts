@@ -1,7 +1,7 @@
 import { isTranslatable, Text, Translatable } from './types/elements'
 
 export const Translator = (function () {
-  const defaultLocale: string = 'nl'
+  const defaultLocale: string = 'de'
 
   function translate (text: Text, locale: string): string {
     if (typeof text === 'string') {

@@ -100,9 +100,9 @@ const bulletsTwitterNl: string[] = [
   "Kies het bestand en ga verder.",
 ];
 const bulletsTwitterDe: string[] = [
-  "Prüfe die E-Mail, die du von Twitter erhalten hast",
-  "Klicke auf den Download-Link und speichere die Datei",
-  "Wähle die gespeicherte Datei aus und fahre fort",
+  "Prüfen Sie die E-Mail, die Sie von Twitter erhalten haben",
+  "Klicken Sie auf den Download-Link und speichern Sie die Datei",
+  "Wählen Sie die gespeicherte Datei aus und fahren Sie fort",
 ];
 const bulletsTwitterPl: string[] = [
   "Sprawdź e-mail, który otrzymałeś/aś od Twittera",
@@ -157,9 +157,9 @@ const bulletsFacebookNl: string[] = [
   "Kies het bestand en ga verder.",
 ];
 const bulletsFacebookDe: string[] = [
-  "Prüfe die E-Mail, die du von Facebook erhalten hast",
-  "Klicke auf den Download-Link und speichere die Datei",
-  "Wähle die gespeicherte Datei aus und fahre fort",
+  "Prüfen Sie die E-Mail, die Sie von Facebook erhalten haben",
+  "Klicken Sie auf den Download-Link und speichern Sie die Datei",
+  "Wählen Sie die gespeicherte Datei aus und fahren Sie fort",
 ];
 const bulletsFacebookPl: string[] = [
   "Sprawdź e-mail, który otrzymałeś/aś od Facebooka",
@@ -214,9 +214,9 @@ const bulletsInstagramNl: string[] = [
   "Kies het bestand en ga verder.",
 ];
 const bulletsInstagramDe: string[] = [
-  "Prüfe die E-Mail, die du von Instagram erhalten hast",
-  "Klicke auf den Download-Link und speichere die Datei",
-  "Wähle die gespeicherte Datei aus und fahre fort",
+  "Prüfen Sie die E-Mail, die Sie von Instagram erhalten haben",
+  "Klicken Sie auf den Download-Link und speichern Sie die Datei",
+  "Wählen Sie die gespeicherte Datei aus und fahren Sie fort",
 ];
 const bulletsInstagramPl: string[] = [
   "Sprawdź e-mail, który otrzymałeś/aś od Instagrama",
@@ -271,9 +271,9 @@ const bulletsYoutubeNl: string[] = [
   "Kies het bestand en ga verder.",
 ];
 const bulletsYoutubeDe: string[] = [
-  "Prüfe die E-Mail, die du von Google Takeout erhalten hast",
-  "Klicke auf den Download-Link und speichere die Datei",
-  "Wähle die gespeicherte Datei aus und fahre fort",
+  "Prüfen Sie die E-Mail, die Sie von Google Takeout erhalten haben",
+  "Klicken Sie auf den Download-Link und speichern Sie die Datei",
+  "Wählen Sie die gespeicherte Datei aus und fahren Sie fort",
 ];
 const bulletsYoutubePl: string[] = [
   "Sprawdź e-mail, który otrzymałeś/aś od Google Takeout",

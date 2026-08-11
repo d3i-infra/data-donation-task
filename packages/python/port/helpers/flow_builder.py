@@ -30,7 +30,7 @@ class FlowBuilder:
             "submit_file_header": props.Translatable({
                 "en": f"Select your {self.platform_name} file",
                 "nl": f"Selecteer uw {self.platform_name} bestand",
-                "de": f"Wähle deine {self.platform_name}-Datei aus",
+                "de": f"Wählen Sie Ihre {self.platform_name}-Datei aus",
                 "pl": f"Wybierz swój plik {self.platform_name}",
                 "tr": f"{self.platform_name} dosyanı seç",
                 "ar": f"اختر ملف {self.platform_name} الخاص بك",
@@ -43,7 +43,7 @@ class FlowBuilder:
             "review_data_header": props.Translatable({
                 "en": f"Your {self.platform_name} data",
                 "nl": f"Uw {self.platform_name} gegevens",
-                "de": f"Deine {self.platform_name}-Daten",
+                "de": f" Ihre {self.platform_name}-Daten",
                 "pl": f"Twoje dane {self.platform_name}",
                 "tr": f"{self.platform_name} verilerin",
                 "ar": f"بيانات {self.platform_name} الخاصة بك",
@@ -69,7 +69,7 @@ class FlowBuilder:
             "review_data_description": props.Translatable({
                 "en": f"Below you will find a curated selection of {self.platform_name} data.",
                 "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van {self.platform_name} gegevens.",
-                "de": f"Nachfolgend findest du eine ausgewählte Zusammenstellung deiner {self.platform_name}-Daten.",
+                "de": f"Nachfolgend finden Sie eine ausgewählte Zusammenstellung Ihrer {self.platform_name}-Daten.",
                 "pl": f"Poniżej znajdziesz wybraną selekcję danych {self.platform_name}.",
                 "tr": f"Aşağıda {self.platform_name} verilerinden özenle seçilmiş bir derleme bulacaksın.",
                 "ar": f"ستجد أدناه مجموعة مختارة من بيانات {self.platform_name}.",

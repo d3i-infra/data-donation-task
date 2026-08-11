@@ -665,7 +665,7 @@ def ads_interests_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
           "description": {
             "en": "This table shows the interests Facebook has identified for showing you personalized ads.",
             "nl": "Deze tabel toont de interesses die Facebook heeft geïdentificeerd om je gepersonaliseerde advertenties te tonen.",
-            "de": "Diese Tabelle zeigt die Interessen, die Facebook für dich ermittelt hat, um dir personalisierte Werbung zu zeigen.",
+            "de": "Diese Tabelle zeigt die Interessen, die Facebook für Sie ermittelt hat, um Ihnen personalisierte Werbung zu zeigen.",
             "pl": "Ta tabela pokazuje zainteresowania, które Facebook zidentyfikował, aby wyświetlać Ci spersonalizowane reklamy.",
             "tr": "Bu tablo, sana kişiselleştirilmiş reklamlar göstermek için Facebook'un belirlediği ilgi alanlarını gösterir.",
             "ar": "يعرض هذا الجدول الاهتمامات التي حددها فيسبوك لعرض إعلانات مخصصة لك.",
@@ -1166,7 +1166,7 @@ def pages_youve_liked_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Dat
           "title": {
             "en": "Pages that you have liked",
             "nl": "Pagina's die je leuk vindt",
-            "de": "Seiten, die dir gefallen",
+            "de": "Seiten, die Ihnen gefallen",
             "pl": "Strony, które polubiłeś/aś",
             "tr": "Beğendiğin sayfalar",
             "ar": "الصفحات التي أعجبت بها",
@@ -1179,7 +1179,7 @@ def pages_youve_liked_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Dat
           "description": {
             "en": "This table contains a history of the Facebook Pages you have liked.",
             "nl": "Deze tabel bevat een overzicht van de Facebookpagina's die je leuk vindt.",
-            "de": "Diese Tabelle enthält eine Übersicht der Facebook-Seiten, die dir gefallen.",
+            "de": "Diese Tabelle enthält eine Übersicht der Facebook-Seiten, die Ihnen gefallen.",
             "pl": "Ta tabela zawiera historię stron na Facebooku, które polubiłeś/aś.",
             "tr": "Bu tablo, beğendiğin Facebook Sayfalarının geçmişini içerir.",
             "ar": "يحتوي هذا الجدول على سجل صفحات فيسبوك التي أعجبت بها.",
@@ -1539,7 +1539,7 @@ def likes_and_reactions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.D
           "title": {
             "en": "Posts you liked (with title)",
             "nl": "Posts die je leuk vond (met titel)",
-            "de": "Beiträge, die dir gefallen haben (mit Titel)",
+            "de": "Beiträge, die Ihnen gefallen haben (mit Titel)",
             "pl": "Posty, które polubiłeś/aś (z tytułem)",
             "tr": "Beğendiğin gönderiler (başlıklı)",
             "ar": "المنشورات التي أعجبت بها (مع العنوان)",
@@ -1552,7 +1552,7 @@ def likes_and_reactions_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.D
           "description": {
             "en": "This table shows the titles of posts you liked on Facebook.",
             "nl": "Deze tabel toont de titels van posts die je leuk vond op Facebook.",
-            "de": "Diese Tabelle zeigt die Titel der Beiträge, die dir auf Facebook gefallen haben.",
+            "de": "Diese Tabelle zeigt die Titel der Beiträge, die Ihnen auf Facebook gefallen haben.",
             "pl": "Ta tabela pokazuje tytuły postów, które polubiłeś/aś na Facebooku.",
             "tr": "Bu tablo, Facebook'ta beğendiğin gönderilerin başlıklarını gösterir.",
             "ar": "يعرض هذا الجدول عناوين المنشورات التي أعجبت بها على فيسبوك.",
