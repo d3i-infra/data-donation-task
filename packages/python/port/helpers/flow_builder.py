@@ -67,17 +67,27 @@ class FlowBuilder:
                 "sq": "Provo përsëri",
             }),
             "review_data_description": props.Translatable({
-                "en": f"Below you will find a curated selection of {self.platform_name} data.",
-                "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van {self.platform_name} gegevens.",
-                "de": f"Nachfolgend finden Sie eine ausgewählte Zusammenstellung Ihrer {self.platform_name}-Daten.",
-                "pl": f"Poniżej znajdziesz wybraną selekcję danych {self.platform_name}.",
-                "tr": f"Aşağıda {self.platform_name} verilerinden özenle seçilmiş bir derleme bulacaksın.",
-                "ar": f"ستجد أدناه مجموعة مختارة من بيانات {self.platform_name}.",
-                "ru": f"Ниже вы найдёте отобранную подборку данных {self.platform_name}.",
-                "it": f"Di seguito troverai una selezione curata dei dati di {self.platform_name}.",
-                "ro": f"Mai jos vei găsi o selecție organizată a datelor {self.platform_name}.",
-                "es": f"A continuación encontrará una selección curada de datos de {self.platform_name}.",
-                "sq": f"Më poshtë do të gjesh një përzgjedhje të kuruar të të dhënave nga {self.platform_name}.",
+                "en": f"Below you will find a curated selection of your {self.platform_name} data. You decide which of the displayed data you would like to share for research. Select the data you do not want to share and click 'Delete'.",
+
+                "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van uw {self.platform_name}-gegevens. U bepaalt zelf welke van de weergegeven gegevens u voor onderzoek wilt delen. Selecteer de gegevens die u niet wilt delen en klik op 'Verwijderen'.",
+
+                "de": f"Nachfolgend finden Sie eine ausgewählte Zusammenstellung Ihrer {self.platform_name}-Daten. Sie entscheiden selbst, welche der angezeigten Daten Sie für die Forschung freigeben möchten. Setzen Sie den Haken bei den Daten, die Sie nicht freigeben möchten, und klicken Sie auf 'Löschen'.",
+
+                "pl": f"Poniżej znajduje się wybrany zestaw Twoich danych z {self.platform_name}. Samodzielnie decydujesz, które z wyświetlanych danych chcesz udostępnić do celów badawczych. Zaznacz dane, których nie chcesz udostępniać, a następnie kliknij 'Usuń'.",
+
+                "tr": f"Aşağıda {self.platform_name} verilerinizden seçilmiş bir derleme bulabilirsiniz. Görüntülenen verilerden hangilerini araştırma amacıyla paylaşmak istediğinize siz karar verirsiniz. Paylaşmak istemediğiniz verileri seçin ve 'Sil' düğmesine tıklayın.",
+
+                "ar": f"ستجد أدناه مجموعة مختارة من بياناتك على {self.platform_name}. يمكنك أن تقرر بنفسك أي من البيانات المعروضة ترغب في مشاركتها لأغراض البحث. حدّد البيانات التي لا ترغب في مشاركتها ثم انقر على 'حذف'.",
+
+                "ru": f"Ниже представлена отобранная подборка ваших данных {self.platform_name}. Вы сами решаете, какие из отображаемых данных хотите предоставить для исследования. Отметьте данные, которыми вы не хотите делиться, и нажмите «Удалить».",
+
+                "it": f"Di seguito troverai una selezione dei tuoi dati di {self.platform_name}. Puoi decidere autonomamente quali dei dati visualizzati desideri condividere per la ricerca. Seleziona i dati che non desideri condividere e fai clic su 'Elimina'.",
+
+                "ro": f"Mai jos găsiți o selecție a datelor dumneavoastră de pe {self.platform_name}. Dumneavoastră decideți ce date afișate doriți să puneți la dispoziție pentru cercetare. Selectați datele pe care nu doriți să le distribuiți și faceți clic pe 'Ștergeți'.",
+
+                "es": f"A continuación encontrará una selección de sus datos de {self.platform_name}. Usted decide qué datos de los mostrados desea compartir con fines de investigación. Seleccione los datos que no desea compartir y haga clic en 'Eliminar'.",
+
+                "sq": f"Më poshtë do të gjeni një përzgjedhje të të dhënave tuaja nga {self.platform_name}. Ju vendosni vetë se cilat nga të dhënat e shfaqura dëshironi të ndani për qëllime kërkimore. Përzgjidhni të dhënat që nuk dëshironi të ndani dhe klikoni 'Fshi'.",
             }),
         }
 

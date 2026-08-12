@@ -277,9 +277,43 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
         d = items[0]
         for item in d["dict"]:
             denested_dict = eh.dict_denester(item)
+
+            label = eh.fix_latin1_string(
+                eh.find_item(denested_dict, "label")
+            )
+            value = eh.find_item(denested_dict, "value")
+
+            reel_label_translations = {
+                "The number of Reels you have seen in the last 7 days":
+                    "Anzahl der Reels, die Sie in den letzten 7 Tagen angesehen haben",
+
+                "The number of Reels you have seen in the last 30 days":
+                    "Anzahl der Reels, die Sie in den letzten 30 Tagen angesehen haben",
+
+                "The number of Reels you have liked in the last 30 days":
+                    "Anzahl der Reels, die Ihnen in den letzten 30 Tagen gefallen haben",
+
+                "Die Anzahl der Reels, die du in den letzten 7 Tagen im horizontalen Reels-Bereich gesehen hast":
+                    "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angesehen haben",
+
+                "The number of Reels you have clicked from the horizontal Reels tray in the last 7 days":
+                    "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angeklickt haben",
+            }
+
+            label = reel_label_translations.get(label, label)
+
+            label_lower = label.lower()
+
+            if (
+                "horizontalen reels-bereich" in label_lower
+                and "gesehen" in label_lower
+                and "7" in label_lower
+            ):
+                label = "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angesehen haben"
+
             datapoints.append((
-                eh.find_item(denested_dict, "label"),
-                eh.find_item(denested_dict, "value"),
+                label,
+                value,
             ))
 
         out = pd.DataFrame(datapoints, columns=["Reel interaction", "Value"]) #pyright: ignore
