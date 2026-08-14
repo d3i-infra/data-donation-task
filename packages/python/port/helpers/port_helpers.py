@@ -131,7 +131,7 @@ def generate_file_prompt(
         {
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
-            "de": "Bitte folgen Sie den Download-Anweisungen und wählen Sie die Datei aus, die Sie auf Ihrem Gerät gespeichert haben.",
+            "de": "Bitte folgen Sie den Anleitungen zum Herunterladen Ihrer Daten und wählen Sie jetzt die Datei aus, die Sie auf Ihrem Gerät gespeichert haben. Hinweis: Diese befindet sich üblicherweise in Ihrem Downloads-Ordner.",
             "pl": "Postępuj zgodnie z instrukcjami pobierania i wybierz plik zapisany na Twoim urządzeniu.",
             "tr": "Lütfen indirme talimatlarını takip et ve cihazına kaydettiğin dosyayı seç.",
             "ar": "يرجى اتباع تعليمات التنزيل واختيار الملف الذي قمت بتخزينه على جهازك.",
@@ -357,7 +357,7 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
         text=props.Translatable({
             "en": f"Unfortunately, no relevant data was found in your {platform_name} file.",
             "nl": f"Helaas zijn er geen relevante gegevens gevonden in uw {platform_name} bestand.",
-            "de": f"Leider wurden in Ihrer {platform_name}-Datei keine relevanten Daten gefunden.",
+            "de": f"Leider wurden in Ihrer Datei keine relevanten Daten gefunden. Bitte stellen Sie sicher, dass Sie Ihre {platform_name}-Datei ausgewählt haben.",
             "pl": f"Niestety w Twoim pliku {platform_name} nie znaleziono żadnych istotnych danych.",
             "tr": f"Maalesef {platform_name} dosyanda ilgili herhangi bir veri bulunamadı.",
             "ar": f"للأسف، لم يتم العثور على بيانات ذات صلة في ملف {platform_name} الخاص بك.",
