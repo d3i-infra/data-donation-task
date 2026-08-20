@@ -185,22 +185,22 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
         Archive reader used to load JSON files from the DDP zip.
     errors:
         Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
+        extraction. Updated in-place.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Reel interaction``, ``Value``.
+        Columns: ``Reel interaction``, ``Number of Reels``.
         Empty DataFrame when the file is absent or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents a type of interaction the participant had with Facebook Reels and its associated value.",
+          "summary": "Each row represents a type of interaction the participant had with Facebook Reels and the corresponding number of Reels.",
           "source_file": "facebook_reels_usage_information.json",
           "columns": {
             "Reel interaction": "Type of interaction with Facebook Reels.",
-            "Value": "Value associated with the interaction."
+            "Number of Reels": "Number of Reels associated with the interaction."
           }
         }
 
@@ -248,18 +248,18 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
               "es": "Interacción con Reels",
               "sq": "Ndërveprim me Reels"
             },
-            "Value": {
-              "en": "Value",
-              "nl": "Waarde",
-              "de": "Wert",
-              "pl": "Wartość",
-              "tr": "Değer",
-              "ar": "القيمة",
-              "ru": "Значение",
-              "it": "Valore",
-              "ro": "Valoare",
-              "es": "Valor",
-              "sq": "Vlera"
+            "Number of Reels": {
+              "en": "Number of Reels",
+              "nl": "Aantal Reels",
+              "de": "Anzahl der Reels",
+              "pl": "Liczba Reels",
+              "tr": "Reels Sayısı",
+              "ar": "عدد Reels",
+              "ru": "Количество Reels",
+              "it": "Numero di Reels",
+              "ro": "Număr de Reels",
+              "es": "Número de Reels",
+              "sq": "Numri i Reels"
             }
           }
         }
@@ -267,14 +267,16 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
     result = reader.json("facebook_reels_usage_information.json")
     if not result.found:
         return pd.DataFrame()
+
     d = result.data
 
     out = pd.DataFrame()
     datapoints = []
 
     try:
-        items = d.get("label_values", []) #pyright: ignore
+        items = d.get("label_values", [])  # pyright: ignore
         d = items[0]
+
         for item in d["dict"]:
             denested_dict = eh.dict_denester(item)
 
@@ -283,47 +285,54 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
             )
             value = eh.find_item(denested_dict, "value")
 
+            # Shorter, participant-friendly German labels
             reel_label_translations = {
                 "The number of Reels you have seen in the last 7 days":
-                    "Anzahl der Reels, die Sie in den letzten 7 Tagen angesehen haben",
+                    "In den letzten 7 Tagen angesehen",
 
                 "The number of Reels you have seen in the last 30 days":
-                    "Anzahl der Reels, die Sie in den letzten 30 Tagen angesehen haben",
+                    "In den letzten 30 Tagen angesehen",
 
                 "The number of Reels you have liked in the last 30 days":
-                    "Anzahl der Reels, die Ihnen in den letzten 30 Tagen gefallen haben",
+                    "In den letzten 30 Tagen mit „Gefällt mir“ markiert",
 
                 "Die Anzahl der Reels, die du in den letzten 7 Tagen im horizontalen Reels-Bereich gesehen hast":
-                    "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angesehen haben",
+                    "In den letzten 7 Tagen im horizontalen Reels-Bereich angesehen",
 
                 "The number of Reels you have clicked from the horizontal Reels tray in the last 7 days":
-                    "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angeklickt haben",
+                    "In den letzten 7 Tagen im horizontalen Reels-Bereich angeklickt",
             }
 
             label = reel_label_translations.get(label, label)
 
             label_lower = label.lower()
 
+            # Fallback for slightly different German wording in Meta exports
             if (
                 "horizontalen reels-bereich" in label_lower
                 and "gesehen" in label_lower
                 and "7" in label_lower
             ):
-                label = "Anzahl der Reels, die Sie in den letzten 7 Tagen im horizontalen Reels-Bereich angesehen haben"
+                label = (
+                    "In den letzten 7 Tagen im horizontalen "
+                    "Reels-Bereich angesehen"
+                )
 
             datapoints.append((
                 label,
                 value,
             ))
 
-        out = pd.DataFrame(datapoints, columns=["Reel interaction", "Value"]) #pyright: ignore
+        out = pd.DataFrame(
+            datapoints,
+            columns=["Reel interaction", "Number of Reels"]
+        )  # pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
 
     return out
-
 
 def last_28_days_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     """Extract how many videos you watched in the last 28 days on Facebook Watch.

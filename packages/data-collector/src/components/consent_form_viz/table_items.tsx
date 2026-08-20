@@ -22,26 +22,43 @@ export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props):
   const nLabel = n.toLocaleString(locale, { useGrouping: true })
   const totalLabel = total.toLocaleString(locale, { useGrouping: true })
   const searchLabel = searched.toLocaleString(locale, { useGrouping: true })
-  const deletedLabel = deleted.toLocaleString('en', { useGrouping: true }) + ' ' + text.deleted
 
-  function rowsLabel (): string {
+  const deletedLabel =
+    deleted.toLocaleString(locale, { useGrouping: true }) +
+    ' ' +
+    text.deleted
+
+  function entriesLabel(): string {
     if (n === 0) return text.noData
-    if (searched < n) return searchLabel + ' / ' + nLabel + ' ' + text.rows
-    return nLabel + ' ' + text.rows
+
+    // When a search is active, show:
+    // "3 / 20 Einträge"
+    if (searched < n) {
+      return (
+        searchLabel +
+        ' / ' +
+        nLabel +
+        ' ' +
+        (n === 1 ? text.entry : text.entries)
+      )
+    }
+
+    // Singular / plural
+    return (
+      nLabel +
+      ' ' +
+      (n === 1 ? text.entry : text.entries)
+    )
   }
 
   return (
-    <div className='flex  min-w-[200px] gap-1'>
-      <div className='flex items-center'>{tableIcon}</div>
+    <div className='flex min-w-[200px] gap-1'>
       <div
         key={`${totalLabel}_${deleted}`}
-        className='flex flex-wrap items-center px-2  gap-x-2 animate-fadeIn text-title7 md:text-title6 font-label'
+        className='flex flex-wrap items-center gap-x-2 animate-fadeIn text-title7 md:text-title6 font-label'
       >
-        <div className={n > 0 ? '' : 'hidden'}>
-          {table.head.cells.length} {text.columns},
-        </div>
         <div key={totalLabel} className='animate-fadeIn'>
-          {rowsLabel()}
+          {entriesLabel()}
           {deleted > 0 ? ',' : ''}
         </div>
 
@@ -58,52 +75,43 @@ export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props):
   )
 }
 
-const tableIcon = (
-  <svg className='h-9' viewBox='4 4 18 18' fill='none' xmlns='http://www.w3.org/2000/svg'>
-    <rect x='9' y='9' width='4' height='2' fill='#4272EF' />
-    <rect x='9' y='13' width='4' height='2' fill='#4272EF' />
-    <rect x='9' y='17' width='4' height='2' fill='#4272EF' />
-    <rect x='15' y='9' width='4' height='2' fill='#4272EF' />
-    <rect x='15' y='13' width='4' height='2' fill='#4272EF' />
-    <rect x='15' y='17' width='4' height='2' fill='#4272EF' />
-    <rect x='4' y='4' width='15' height='3' fill='#4272EF' />
-    <rect x='4' y='9' width='3' height='10' fill='#4272EF' />
-  </svg>
-)
-
-function getTranslations (locale: string): Record<string, string> {
+function getTranslations(locale: string): Record<string, string> {
   const translated: Record<string, string> = {}
+
   for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)
   }
+
   return translated
 }
 
 const translations = {
-  columns: new TextBundle()
-    .add('en', 'columns')
-    .add('nl', 'kolommen')
-    .add('de', 'Spalten')
-    .add('pl', 'kolumny')
-    .add('tr', 'sütun')
-    .add('ar', 'أعمدة')
-    .add('ru', 'столбцов')
-    .add('it', 'colonne')
-    .add('ro', 'coloane')
-    .add('es', 'columnas')
-    .add('sq', 'kolona'),
-  rows: new TextBundle()
-    .add('en', 'rows')
-    .add('nl', 'rijen')
-    .add('de', 'Zeilen')
-    .add('pl', 'wierszy')
-    .add('tr', 'satır')
-    .add('ar', 'صفوف')
-    .add('ru', 'строк')
-    .add('it', 'righe')
-    .add('ro', 'rânduri')
-    .add('es', 'filas')
-    .add('sq', 'rreshta'),
+  entry: new TextBundle()
+    .add('en', 'entry')
+    .add('nl', 'item')
+    .add('de', 'Eintrag')
+    .add('pl', 'wpis')
+    .add('tr', 'kayıt')
+    .add('ar', 'إدخال')
+    .add('ru', 'запись')
+    .add('it', 'voce')
+    .add('ro', 'înregistrare')
+    .add('es', 'entrada')
+    .add('sq', 'hyrje'),
+
+  entries: new TextBundle()
+    .add('en', 'entries')
+    .add('nl', 'items')
+    .add('de', 'Einträge')
+    .add('pl', 'wpisy')
+    .add('tr', 'kayıt')
+    .add('ar', 'إدخالات')
+    .add('ru', 'записей')
+    .add('it', 'voci')
+    .add('ro', 'înregistrări')
+    .add('es', 'entradas')
+    .add('sq', 'hyrje'),
+
   noData: new TextBundle()
     .add('en', 'no data')
     .add('nl', 'geen data')
@@ -116,6 +124,7 @@ const translations = {
     .add('ro', 'fără date')
     .add('es', 'sin datos')
     .add('sq', 'pa të dhëna'),
+
   deleted: new TextBundle()
     .add('en', 'deleted')
     .add('nl', 'verwijderd')

@@ -1,27 +1,26 @@
 import {
-    useEffect,
-    useLayoutEffect,
-    useMemo,
-    useRef,
-    useState,
-    ReactNode,
-    Dispatch,
-    SetStateAction
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  ReactNode,
+  Dispatch,
+  SetStateAction
 } from 'react'
 import Highlighter from 'react-highlight-words'
 import {
-    TableWithContext,
+  TableWithContext,
 } from './types'
 import UndoSvg from './assets/images/undo.svg'
 import DeleteSvg from './assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '@eyra/feldspar'
 import {
-    Translator,
+  Translator,
 } from '@eyra/feldspar'
-import { CheckBox } from "./check_box"
-import { PropsUITableRow } from "./types"
-
+import { CheckBox } from './check_box'
+import { PropsUITableRow } from './types'
 
 export interface Props {
   table: TableWithContext
@@ -67,7 +66,8 @@ export const Table = ({
     y: 0
   })
 
-  const cellClass = 'min-h-[2.1rem] md:min-h-[2.5rem] px-3 flex items-center font-table-row'
+  const cellClass =
+    'min-h-[2.1rem] md:min-h-[2.5rem] px-3 flex items-center font-table-row'
 
   useEffect(() => {
     setSelected(new Set())
@@ -75,17 +75,19 @@ export const Table = ({
   }, [table, nPages])
 
   useEffect(() => {
-    // rm tooltip on scroll
     function rmTooltip (): void {
-      setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
+      setTooltip((tooltip: Tooltip) =>
+        tooltip.show ? { ...tooltip, show: false } : tooltip
+      )
     }
+
     window.addEventListener('scroll', rmTooltip)
     return () => window.removeEventListener('scroll', rmTooltip)
   })
 
   useLayoutEffect(() => {
-    // set exact height of grid row for height transition
     if (ref.current == null || innerRef.current == null) return
+
     if (!show || unfilteredRows === 0) {
       ref.current.style.gridTemplateRows = '0rem'
       return
@@ -95,44 +97,75 @@ export const Table = ({
       if (ref.current == null || innerRef.current == null) return
       ref.current.style.gridTemplateRows = `${innerRef.current.scrollHeight}px`
     }
+
     responsiveHeight()
-    // just as a precaution, update height every second in case it changes
+
     const interval = setInterval(responsiveHeight, 1000)
     return () => clearInterval(interval)
   }, [ref, innerRef, show, nPages, unfilteredRows])
 
   const items = useMemo(() => {
     const items: Array<PropsUITableRow | null> = new Array(pageSize).fill(null)
+
     for (let i = 0; i < pageSize; i++) {
       const index = page * pageSize + i
-      if (table.body.rows[index] !== undefined) items[i] = table.body.rows[index]
+      if (table.body.rows[index] !== undefined) {
+        items[i] = table.body.rows[index]
+      }
     }
+
     return items
   }, [table, page, pageSize])
 
-  function renderHeaderCell (value: string, i: number): JSX.Element {
-    // Display translated header if available, fall back to raw column name
+  function getColumnStyle(index: number): React.CSSProperties {
+    if (table.id !== 'facebook_reels_usage') {
+      return {}
+    }
+
+    if (index === 0) {
+      return { width: '75%' }
+    }
+
+    if (index === 1) {
+      return { width: '25%' }
+    }
+
+    return {}
+  }
+
+  function renderHeaderCell(value: string, i: number): JSX.Element {
     const displayName = table.headers?.[value] ?? value
+
     return (
-      <th key={`header ${i}`}>
+      <th
+        key={`header ${i}`}
+        style={getColumnStyle(i)}
+      >
         <div className={`text-left ${cellClass}`}>
-          <div>{displayName}</div>
+          <div className='whitespace-normal'>
+            {displayName}
+          </div>
         </div>
       </th>
     )
   }
 
-  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element | null {
+  function renderRow(
+    item: PropsUITableRow | null,
+    i: number
+  ): JSX.Element | null {
     if (item == null && i >= unfilteredRows) return null
+
     if (item == null) {
       return (
-        <tr key={`{empty ${i}`} className='border-b-2 border-grey4'>
+        <tr key={`empty ${i}`} className='border-b-2 border-grey4'>
           <td>
             <div className={cellClass} />
           </td>
         </tr>
       )
     }
+
     return (
       <tr key={item.id} className='border-b-2 border-grey4 border-solid'>
         {table.deleteOption &&
@@ -149,24 +182,37 @@ export const Table = ({
         }
 
         {item.cells.map((cell, j) => (
-          <td key={j}>
-            <Cell cell={cell} search={search} cellClass={cellClass} setTooltip={setTooltip} />
+          <td
+            key={j}
+            style={getColumnStyle(j)}
+          >
+            <Cell
+              cell={cell}
+              search={search}
+              cellClass={cellClass}
+              setTooltip={setTooltip}
+              allowWrap={
+                table.id === 'facebook_reels_usage' &&
+                j === 0
+              }
+            />
           </td>
         ))}
       </tr>
     )
   }
 
-  function toggleSelected (id: string): void {
+  function toggleSelected(id: string): void {
     if (selected.has(id)) {
       selected.delete(id)
     } else {
       selected.add(id)
     }
+
     setSelected(new Set(selected))
   }
 
-  function toggleSelectAll (): void {
+  function toggleSelectAll(): void {
     if (selected.size === table.body.rows.length) {
       setSelected(new Set())
     } else {
@@ -179,11 +225,14 @@ export const Table = ({
       ref={ref}
       className='grid grid-cols-1 transition-[grid,color] duration-500 relative overflow-hidden text-sm md:text-base'
     >
-      <div ref={innerRef} className={`h-min ${unfilteredRows === 0 ? 'invisible' : ''}`}>
+      <div
+        ref={innerRef}
+        className={`h-min ${unfilteredRows === 0 ? 'invisible' : ''}`}
+      >
         <div className='my-2 bg-grey6 rounded-md border-grey4 border-[0.2rem]'>
           <div className='p-3 pt-1 pb-2 max-w-full overflow-x-auto'>
-            <table className='table-fixed min-w-full '>
-              <thead className=''>
+            <table className='table-fixed min-w-full'>
+              <thead>
                 <tr className='border-b-2 border-grey4 border-solid'>
                   {table.deleteOption &&
                     (
@@ -191,42 +240,66 @@ export const Table = ({
                         <CheckBox
                           id='selectAll'
                           size='w-6 h-6'
-                          selected={table.body.rows.length > 0 && selected.size === table.body.rows.length}
+                          selected={
+                            table.body.rows.length > 0 &&
+                            selected.size === table.body.rows.length
+                          }
                           onSelect={toggleSelectAll}
                         />
                       </td>
                     )
                   }
+
                   {columnNames.map(renderHeaderCell)}
                 </tr>
               </thead>
-              <tbody>{items.map(renderRow)}</tbody>
+
+              <tbody>
+                {items.map(renderRow)}
+              </tbody>
             </table>
           </div>
+
           <div className='px-3 pb-1 flex justify-between min-h-[2.5rem]'>
             <div className='pt-2 pb-2'>
               {selected.size > 0 || table.deletedRowCount === 0
                 ? (
                   <IconButton
                     icon={DeleteSvg}
-                    label={`${text.delete} ${selected.size > 0 ? selectedLabel : ''}`}
+                    label={`${text.delete} ${
+                      selected.size > 0 ? selectedLabel : ''
+                    }`}
                     color='text-delete'
                     disabled={selected.size === 0}
                     hidden={!table.deleteOption}
-                    onClick={() => handleDelete?.(Array.from(selected))}
+                    onClick={() =>
+                      handleDelete?.(Array.from(selected))
+                    }
                   />
                   )
                 : (
-                  <IconButton icon={UndoSvg} label={text.undo} color='text-primary' onClick={() => handleUndo?.()} />
-                  )}
+                  <IconButton
+                    icon={UndoSvg}
+                    label={text.undo}
+                    color='text-primary'
+                    onClick={() => handleUndo?.()}
+                  />
+                  )
+              }
             </div>
-            <Pagination page={page} setPage={setPage} nPages={nPages} />
+
+            <Pagination
+              page={page}
+              setPage={setPage}
+              nPages={nPages}
+            />
           </div>
         </div>
+
         <div
           className={`${
             tooltip.show ? '' : 'invisible'
-          } break-all fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2  rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
+          } break-all fixed bg-[#222a] -translate-x-2 -translate-y-2 p-2 rounded text-white backdrop-blur-[2px] z-20 max-w-[20rem] pointer-events-none overflow-auto font-table-row`}
           style={{ left: tooltip.x, top: tooltip.y } as any}
         >
           {tooltip.content}
@@ -236,16 +309,18 @@ export const Table = ({
   )
 }
 
-function Cell ({
+function Cell({
   cell,
   search,
   cellClass,
-  setTooltip
+  setTooltip,
+  allowWrap = false
 }: {
   cell: string
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
+  allowWrap?: boolean
 }): JSX.Element {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
@@ -253,15 +328,24 @@ function Cell ({
 
   const searchWords = useMemo(() => {
     return [search]
-    // return search.split(' ') // alternative: highlight individual words
   }, [search])
 
   useEffect(() => {
     if (textRef.current == null) return
-    setOverflows(textRef.current.scrollWidth > textRef.current.clientWidth)
-  }, [textRef])
 
-  function onSetTooltip (): void {
+    if (allowWrap) {
+      setOverflows(false)
+      return
+    }
+
+    setOverflows(
+      textRef.current.scrollWidth >
+      textRef.current.clientWidth
+    )
+  }, [cell, allowWrap])
+
+  function onSetTooltip(): void {
+    if (allowWrap) return
     if (isUrl) return
     if (textRef.current == null) return
     if (!overflows) return
@@ -285,8 +369,12 @@ function Cell ({
     })
   }
 
-  function onRmTooltip (): void {
-    setTooltip((tooltip: Tooltip) => (tooltip.show ? { ...tooltip, show: false } : tooltip))
+  function onRmTooltip(): void {
+    setTooltip((tooltip: Tooltip) =>
+      tooltip.show
+        ? { ...tooltip, show: false }
+        : tooltip
+    )
   }
 
   return (
@@ -296,10 +384,22 @@ function Cell ({
       onMouseLeave={onRmTooltip}
       onClick={onSetTooltip}
     >
-      <div ref={textRef} className='whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'>
+      <div
+        ref={textRef}
+        className={
+          allowWrap
+            ? 'whitespace-normal break-words max-w-none z-10 py-2'
+            : 'whitespace-nowrap max-w-[15rem] overflow-hidden overflow-ellipsis z-10'
+        }
+      >
         {isUrl
           ? (
-            <a href={cell} className='text-primary' target='_blank' rel='noopener noreferrer'>
+            <a
+              href={cell}
+              className='text-primary'
+              target='_blank'
+              rel='noopener noreferrer'
+            >
               <Highlighter
                 searchWords={searchWords}
                 autoEscape
@@ -315,14 +415,16 @@ function Cell ({
               textToHighlight={cell}
               highlightClassName='bg-tertiary rounded-sm'
             />
-            )}
+            )
+        }
       </div>
+
       {overflows && !isUrl && <TooltipIcon />}
     </div>
   )
 }
 
-function TooltipIcon (): JSX.Element {
+function TooltipIcon(): JSX.Element {
   return (
     <svg
       className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
@@ -342,7 +444,7 @@ function TooltipIcon (): JSX.Element {
   )
 }
 
-function IconButton (props: {
+function IconButton(props: {
   icon: string
   label: string
   onClick: () => void
@@ -351,25 +453,34 @@ function IconButton (props: {
   hidden?: boolean
 }): JSX.Element | null {
   if (props.hidden ?? false) return null
+
   const disabled = props.disabled ?? false
+
   return (
     <div
-      className={`flex items-center gap-2 cursor-pointer  ${props.color} animate-fadeIn md:text-button ${
+      className={`flex items-center gap-2 cursor-pointer ${props.color} animate-fadeIn md:text-button ${
         disabled ? 'opacity-50' : ''
       }`}
-      onClick={() => !disabled && props.onClick()}
+      onClick={() =>
+        !disabled && props.onClick()
+      }
     >
-      <img src={props.icon} className='w-7 h-7 ml-1 md:w-9 md:h-9 md:ml-0 -translate-x-[3px]' />
+      <img
+        src={props.icon}
+        className='w-7 h-7 ml-1 md:w-9 md:h-9 md:ml-0 -translate-x-[3px]'
+      />
       {props.label}
     </div>
   )
 }
 
-function getTranslations (locale: string): Record<string, string> {
+function getTranslations(locale: string): Record<string, string> {
   const translated: Record<string, string> = {}
+
   for (const [key, value] of Object.entries(translations)) {
     translated[key] = Translator.translate(value, locale)
   }
+
   return translated
 }
 
@@ -386,6 +497,7 @@ const translations = {
     .add('ro', 'Șterge')
     .add('es', 'Eliminar')
     .add('sq', 'Fshi'),
+
   undo: new TextBundle()
     .add('en', 'Undo')
     .add('nl', 'Herstel')
