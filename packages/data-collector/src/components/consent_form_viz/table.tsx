@@ -188,6 +188,8 @@ export const Table = ({
           >
             <Cell
               cell={cell}
+              columnName={columnNames[j]}
+              locale={locale}
               search={search}
               cellClass={cellClass}
               setTooltip={setTooltip}
@@ -309,14 +311,44 @@ export const Table = ({
   )
 }
 
+function formatDateForDisplay(
+  value: string,
+  columnName: string,
+  locale: string
+): string {
+  const isGermanLocale = locale.toLowerCase().startsWith('de')
+  const isDateColumn = columnName === 'Date' || columnName === 'Timestamp'
+  const isIsoTimestamp = /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})$/.test(value)
+
+  if (!isGermanLocale || !isDateColumn || !isIsoTimestamp) return value
+
+  const date = new Date(value)
+  if (Number.isNaN(date.getTime())) return value
+
+  return new Intl.DateTimeFormat('de-DE', {
+    timeZone: 'Europe/Berlin',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+    hour12: false
+  }).format(date)
+}
+
 function Cell({
   cell,
+  columnName,
+  locale,
   search,
   cellClass,
   setTooltip,
   allowWrap = false
 }: {
   cell: string
+  columnName: string
+  locale: string
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
@@ -325,6 +357,7 @@ function Cell({
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const isUrl = /^https?:\/\//.test(cell)
+  const displayCell = formatDateForDisplay(cell, columnName, locale)
 
   const searchWords = useMemo(() => {
     return [search]
@@ -342,7 +375,7 @@ function Cell({
       textRef.current.scrollWidth >
       textRef.current.clientWidth
     )
-  }, [cell, allowWrap])
+  }, [displayCell, allowWrap])
 
   function onSetTooltip(): void {
     if (allowWrap) return
@@ -356,7 +389,7 @@ function Cell({
       <Highlighter
         searchWords={searchWords}
         autoEscape
-        textToHighlight={cell}
+        textToHighlight={displayCell}
         highlightClassName='bg-tertiary rounded-sm'
       />
     )
@@ -403,7 +436,7 @@ function Cell({
               <Highlighter
                 searchWords={searchWords}
                 autoEscape
-                textToHighlight={cell}
+                textToHighlight={displayCell}
                 highlightClassName='bg-tertiary rounded-sm'
               />
             </a>
@@ -412,7 +445,7 @@ function Cell({
             <Highlighter
               searchWords={searchWords}
               autoEscape
-              textToHighlight={cell}
+              textToHighlight={displayCell}
               highlightClassName='bg-tertiary rounded-sm'
             />
             )
