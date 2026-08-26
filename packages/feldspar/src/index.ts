@@ -11,7 +11,7 @@ export {ReactFactoryContext} from './framework/visualization/react/factory'
 
 // D3I additions to the upstream feldspar exports
 export { default } from './framework/text_bundle'
-export { Translator } from './framework/translator'
+export { Translator, MISSING_TRANSLATION } from './framework/translator'
 export { Table } from './framework/types/commands'
 export {
   Title1,

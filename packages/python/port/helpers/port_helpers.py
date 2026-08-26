@@ -62,11 +62,17 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
         {
             "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
             "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
-            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Intente de nuevo para seleccionar un archivo diferente",
+            "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtige Datei ausgewählt haben. Versuchen Sie es erneut, um eine andere Datei auszuwählen.",
+            "it": f"Purtroppo non possiamo elaborare il suo file di {platform_name}. Continui se è sicuro di aver selezionato il file giusto. Riprovi per selezionare un file diverso.",
+            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Continúe si está seguro de que ha seleccionado el archivo correcto. Intente de nuevo para seleccionar un archivo diferente.",
         }
     )
-    ok = props.Translatable({"en": "Try again", "nl": "Probeer opnieuw", "es": "Intentar de nuevo"})
-    cancel = props.Translatable({"en": "Continue", "nl": "Doorgaan", "es": "Continuar"})
+    ok = props.Translatable(
+        {"en": "Try again", "nl": "Probeer opnieuw", "de": "Erneut versuchen", "it": "Riprova", "es": "Intentar de nuevo"}
+    )
+    cancel = props.Translatable(
+        {"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}
+    )
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
 
@@ -99,6 +105,9 @@ def generate_file_prompt(
         {
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
             "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
+            "de": "Bitte folgen Sie den Download-Anweisungen und wählen Sie die Datei aus, die Sie auf Ihrem Gerät gespeichert haben.",
+            "it": "Segua le istruzioni per il download e scelga il file che ha salvato sul suo dispositivo.",
+            "es": "Siga las instrucciones de descarga y elija el archivo que ha guardado en su dispositivo.",
         }
     )
     if multiple:
@@ -124,10 +133,24 @@ def generate_review_data_prompt(
         and default values for donate question and button.
     """
     donate_question = props.Translatable(
-        {"en": "Do you want to share this data for research?", "nl": "Wilt u deze gegevens delen voor onderzoek?"}
+        {
+            "en": "Do you want to share this data for research?",
+            "nl": "Wilt u deze gegevens delen voor onderzoek?",
+            "de": "Möchten Sie diese Daten für die Forschung teilen?",
+            "it": "Vuole condividere questi dati per la ricerca?",
+            "es": "¿Desea compartir estos datos para la investigación?",
+        }
     )
 
-    donate_button = props.Translatable({"en": "Yes, share for research", "nl": "Ja, deel voor onderzoek"})
+    donate_button = props.Translatable(
+        {
+            "en": "Yes, share for research",
+            "nl": "Ja, deel voor onderzoek",
+            "de": "Ja, für Forschung teilen",
+            "it": "Sì, condividi per la ricerca",
+            "es": "Sí, compartir para la investigación",
+        }
+    )
 
     return d3i_props.PropsUIPromptConsentFormViz(
         tables=table_list, description=description, donate_question=donate_question, donate_button=donate_button
@@ -221,38 +244,82 @@ def generate_questionnaire() -> d3i_props.PropsUIPromptQuestionnaire:
         translations={
             "en": "Customer Satisfaction Survey for our Online Store",
             "nl": "Klanttevredenheidsonderzoek voor onze Online Winkel",
+            "de": "Kundenzufriedenheitsumfrage für unseren Online-Shop",
+            "it": "Sondaggio sulla soddisfazione dei clienti per il nostro negozio online",
+            "es": "Encuesta de satisfacción del cliente para nuestra tienda en línea",
         }
     )
 
     open_question = props.Translatable(
-        translations={"en": "How can we improve our services?", "nl": "Hoe kunnen we onze diensten verbeteren?"}
+        translations={
+            "en": "How can we improve our services?",
+            "nl": "Hoe kunnen we onze diensten verbeteren?",
+            "de": "Wie können wir unsere Dienstleistungen verbessern?",
+            "it": "Come possiamo migliorare i nostri servizi?",
+            "es": "¿Cómo podemos mejorar nuestros servicios?",
+        }
     )
 
     mc_question = props.Translatable(
-        translations={"en": "How would you rate your overall experience?", "nl": "Hoe zou u uw algemene ervaring beoordelen?"}
+        translations={
+            "en": "How would you rate your overall experience?",
+            "nl": "Hoe zou u uw algemene ervaring beoordelen?",
+            "de": "Wie würden Sie Ihre Gesamterfahrung bewerten?",
+            "it": "Come valuterebbe la sua esperienza complessiva?",
+            "es": "¿Cómo valoraría su experiencia general?",
+        }
     )
 
     mc_choices = [
-        props.Translatable(translations={"en": "Excellent", "nl": "Uitstekend"}),
-        props.Translatable(translations={"en": "Good", "nl": "Goed"}),
-        props.Translatable(translations={"en": "Average", "nl": "Gemiddeld"}),
-        props.Translatable(translations={"en": "Poor", "nl": "Slecht"}),
-        props.Translatable(translations={"en": "Very Poor", "nl": "Zeer slecht"}),
+        props.Translatable(
+            translations={"en": "Excellent", "nl": "Uitstekend", "de": "Ausgezeichnet", "it": "Eccellente", "es": "Excelente"}
+        ),
+        props.Translatable(translations={"en": "Good", "nl": "Goed", "de": "Gut", "it": "Buono", "es": "Bueno"}),
+        props.Translatable(
+            translations={"en": "Average", "nl": "Gemiddeld", "de": "Durchschnittlich", "it": "Nella media", "es": "Regular"}
+        ),
+        props.Translatable(translations={"en": "Poor", "nl": "Slecht", "de": "Schlecht", "it": "Scarso", "es": "Malo"}),
+        props.Translatable(
+            translations={"en": "Very Poor", "nl": "Zeer slecht", "de": "Sehr schlecht", "it": "Molto scarso", "es": "Muy malo"}
+        ),
     ]
 
     checkbox_question = props.Translatable(
         translations={
             "en": "Which of our products have you purchased? (Select all that apply)",
             "nl": "Welke van onze producten heeft u gekocht? (Selecteer alle toepasselijke)",
+            "de": "Welche unserer Produkte haben Sie gekauft? (Wählen Sie alle zutreffenden aus)",
+            "it": "Quali dei nostri prodotti ha acquistato? (Selezioni tutte le opzioni pertinenti)",
+            "es": "¿Cuáles de nuestros productos ha comprado? (Seleccione todas las opciones que correspondan)",
         }
     )
 
     checkbox_choices = [
-        props.Translatable(translations={"en": "Electronics", "nl": "Elektronica"}),
-        props.Translatable(translations={"en": "Clothing", "nl": "Kleding"}),
-        props.Translatable(translations={"en": "Home Goods", "nl": "Huishoudelijke artikelen"}),
-        props.Translatable(translations={"en": "Books", "nl": "Boeken"}),
-        props.Translatable(translations={"en": "Food Items", "nl": "Voedingsproducten"}),
+        props.Translatable(
+            translations={"en": "Electronics", "nl": "Elektronica", "de": "Elektronik", "it": "Elettronica", "es": "Electrónica"}
+        ),
+        props.Translatable(
+            translations={"en": "Clothing", "nl": "Kleding", "de": "Kleidung", "it": "Abbigliamento", "es": "Ropa"}
+        ),
+        props.Translatable(
+            translations={
+                "en": "Home Goods",
+                "nl": "Huishoudelijke artikelen",
+                "de": "Haushaltswaren",
+                "it": "Articoli per la casa",
+                "es": "Artículos para el hogar",
+            }
+        ),
+        props.Translatable(translations={"en": "Books", "nl": "Boeken", "de": "Bücher", "it": "Libri", "es": "Libros"}),
+        props.Translatable(
+            translations={
+                "en": "Food Items",
+                "nl": "Voedingsproducten",
+                "de": "Lebensmittel",
+                "it": "Alimentari",
+                "es": "Alimentos",
+            }
+        ),
     ]
 
     open_ended_question = d3i_props.PropsUIQuestionOpen(id=1, question=open_question)
@@ -277,15 +344,21 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
         props.Translatable({
             "en": f"No data found",
             "nl": f"Geen gegevens gevonden",
+            "de": "Keine Daten gefunden",
+            "it": "Nessun dato trovato",
+            "es": "No se han encontrado datos",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Unfortunately, no relevant data was found in your {platform_name} file.",
             "nl": f"Helaas zijn er geen relevante gegevens gevonden in uw {platform_name} bestand.",
+            "de": f"Leider wurden in Ihrer {platform_name}-Datei keine relevanten Daten gefunden.",
+            "it": f"Purtroppo non sono stati trovati dati rilevanti nel suo file di {platform_name}.",
+            "es": f"Lamentablemente, no se han encontrado datos relevantes en su archivo de {platform_name}.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -300,15 +373,21 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
         props.Translatable({
             "en": "File cannot be processed",
             "nl": "Bestand kan niet worden verwerkt",
+            "de": "Datei kann nicht verarbeitet werden",
+            "it": "Impossibile elaborare il file",
+            "es": "No se puede procesar el archivo",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Your {platform_name} file could not be processed: {error}",
             "nl": f"Uw {platform_name} bestand kon niet worden verwerkt: {error}",
+            "de": f"Ihre {platform_name}-Datei konnte nicht verarbeitet werden: {error}",
+            "it": f"Non è stato possibile elaborare il suo file di {platform_name}: {error}",
+            "es": f"No se ha podido procesar su archivo de {platform_name}: {error}",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -323,15 +402,21 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
         props.Translatable({
             "en": "Data submission failed",
             "nl": "Gegevensinzending mislukt",
+            "de": "Datenübermittlung fehlgeschlagen",
+            "it": "Invio dei dati non riuscito",
+            "es": "Error al enviar los datos",
         })
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"Unfortunately, your {platform_name} data could not be submitted. Please try again later.",
             "nl": f"Helaas konden uw {platform_name} gegevens niet worden ingediend. Probeer het later opnieuw.",
+            "de": f"Leider konnten Ihre {platform_name}-Daten nicht übermittelt werden. Bitte versuchen Sie es später erneut.",
+            "it": f"Purtroppo non è stato possibile inviare i suoi dati di {platform_name}. Riprovi più tardi.",
+            "es": f"Lamentablemente, no se han podido enviar sus datos de {platform_name}. Inténtelo de nuevo más tarde.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -340,12 +425,14 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
 def handle_donate_result(result) -> bool:
     """Inspect donate result. Returns True on success, False on failure.
 
-    eyra/feldspar develop (Feb 2026+) returns PayloadResponse for
-    CommandSystemDonate with value.success indicating outcome. Older
-    feldspar and FakeBridge (dev mode) return PayloadVoid (fire-and-forget).
+    Both current bridges acknowledge a CommandSystemDonate with a structured
+    result, so production and local dev alike reach Python as PayloadResponse:
+    LiveBridge relays the host's reply, and FakeBridge returns the outcome of
+    its own /data-submission POST. PayloadVoid arrives only from a bridge that
+    resolves a donate without an acknowledgment (an older host, a stub bridge).
 
-    PayloadResponse → check value.success (production path, checked first)
-    PayloadVoid / None → True (dev mode / backward-compat)
+    PayloadResponse → check value.success (the path every current bridge takes)
+    PayloadVoid / None → True (legacy no-acknowledgment shape)
     Anything else → log warning, return False
     """
     if result is None:

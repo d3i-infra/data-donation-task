@@ -5,7 +5,8 @@
     "prepare": "husky install",
     "build": "pnpm run build:py && pnpm run --filter @eyra/feldspar build && pnpm run --filter @eyra/data-collector build",
     "dev": "pnpm run --recursive dev",
-    "test": "pnpm run test:py",
+    "test": "pnpm run test:js && pnpm run test:py",
+    "test:js": "pnpm run --filter @eyra/feldspar test && pnpm run --filter @eyra/data-collector test",
     "test:py": "bash scripts/py-run.sh test",
     "typecheck:py": "bash scripts/py-run.sh typecheck",
     "verify:py": "bash scripts/py-run.sh verify",
@@ -35,6 +36,7 @@
     "cross-env": "^10.1.0",
     "husky": "9.1.7",
     "nodemon": "3.1.14",
+    "pyright": "1.1.411",
     "rimraf": "^6.1.2",
     "shelljs": "^0.10.0"
   },

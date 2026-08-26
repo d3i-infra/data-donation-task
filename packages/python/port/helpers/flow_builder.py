@@ -11,6 +11,7 @@ import logging
 
 import port.api.props as props
 import port.api.d3i_props as d3i_props
+from port.api.file_utils import SeekableBinaryReader
 import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
 import port.helpers.uploads as uploads
@@ -30,18 +31,30 @@ class FlowBuilder:
             "submit_file_header": props.Translatable({
                 "en": f"Select your {self.platform_name} file",
                 "nl": f"Selecteer uw {self.platform_name} bestand",
+                "de": f"Wählen Sie Ihre {self.platform_name}-Datei aus",
+                "it": f"Selezioni il suo file di {self.platform_name}",
+                "es": f"Seleccione su archivo de {self.platform_name}",
             }),
             "review_data_header": props.Translatable({
                 "en": f"Your {self.platform_name} data",
                 "nl": f"Uw {self.platform_name} gegevens",
+                "de": f"Ihre {self.platform_name}-Daten",
+                "it": f"I suoi dati di {self.platform_name}",
+                "es": f"Sus datos de {self.platform_name}",
             }),
             "retry_header": props.Translatable({
                 "en": "Try again",
                 "nl": "Probeer opnieuw",
+                "de": "Erneut versuchen",
+                "it": "Riprova",
+                "es": "Intentar de nuevo",
             }),
             "review_data_description": props.Translatable({
                 "en": f"Below you will find a curated selection of {self.platform_name} data.",
                 "nl": f"Hieronder vindt u een zorgvuldig samengestelde selectie van {self.platform_name} gegevens.",
+                "de": f"Nachfolgend finden Sie eine sorgfältig zusammengestellte Auswahl von {self.platform_name}-Daten.",
+                "it": f"Di seguito trova una selezione curata dei dati di {self.platform_name}.",
+                "es": f"A continuación encontrará una selección cuidada de los datos de {self.platform_name}.",
             }),
         }
 
@@ -179,13 +192,21 @@ class FlowBuilder:
         return ph.generate_file_prompt("application/zip")
 
     @abstractmethod
-    def validate_file(self, file: str) -> validate.ValidateInput:
-        """Validate the file according to platform-specific rules."""
+    def validate_file(self, file: SeekableBinaryReader) -> validate.ValidateInput:
+        """Validate the file according to platform-specific rules.
+
+        `file` is the `AsyncFileAdapter` wrapping the browser upload — a
+        seekable binary reader, never a path. See ADR-0026.
+        """
         raise NotImplementedError("Must be implemented by subclass")
 
     @abstractmethod
-    def extract_data(self, file: str, validation: validate.ValidateInput) -> d3i_props.ExtractionResult:
-        """Extract data from file using platform-specific logic."""
+    def extract_data(self, file: SeekableBinaryReader, validation: validate.ValidateInput) -> d3i_props.ExtractionResult:
+        """Extract data from file using platform-specific logic.
+
+        `file` is the `AsyncFileAdapter` wrapping the browser upload — a
+        seekable binary reader, never a path. See ADR-0026.
+        """
         raise NotImplementedError("Must be implemented by subclass")
 
     def generate_retry_prompt(self):

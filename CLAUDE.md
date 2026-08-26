@@ -32,8 +32,11 @@ pnpm monorepo (the Feldspar data-donation workflow). TypeScript/React packages u
 runtime in `packages/python` (Poetry).
 
 - Build: `pnpm build`
-- Python tests: `pnpm test`
-- JS unit tests: `pnpm --filter @eyra/feldspar test`
-- Typecheck: `pnpm typecheck:py`
-- E2E (Playwright): `pnpm test:e2e`
+- All tests (JS + Python): `pnpm test`
+- JS unit tests: `pnpm test:js` (both packages — `@eyra/feldspar` *and* `@eyra/data-collector`;
+  a single package is `pnpm --filter @eyra/feldspar test`)
+- Python tests: `pnpm test:py` — extra args pass through, e.g.
+  `pnpm test:py -- tests/test_ui_locale.py -q`
+- Typecheck: `pnpm typecheck:py` (Pyright); tests + typecheck together: `pnpm verify:py`
+- E2E (Playwright): `pnpm test:e2e` — boots the dev server on port 3000 itself
 - Memory benchmarks: `scripts/benchmarks/` (see its README)

@@ -5,6 +5,7 @@ from collections.abc import Generator
 
 from port.api.commands import CommandSystemExit, CommandUIRender, CommandSystemDonate
 from port.api.file_utils import AsyncFileAdapter
+from port.helpers import ui_locale
 from port.script import process
 import port.api.props as props
 
@@ -26,17 +27,38 @@ def error_flow(platform: str | None, tb: str):
         tb: Full traceback string from traceback.format_exc().
     """
     header = props.PropsUIHeader(
-        props.Translatable({"nl": "Er is iets misgegaan", "en": "Something went wrong"})
+        props.Translatable({
+            "nl": "Er is iets misgegaan",
+            "en": "Something went wrong",
+            "de": "Es ist etwas schiefgelaufen",
+            "it": "Si è verificato un errore",
+            "es": "Se ha producido un error",
+        })
     )
     body = [
-        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb})),
+        props.PropsUIPromptText(text=props.Translatable({"nl": tb, "en": tb, "de": tb, "it": tb, "es": tb})),
         props.PropsUIPromptConfirm(
             text=props.Translatable({
                 "nl": "Wilt u de fout rapporteren zodat we het probleem kunnen oplossen?",
                 "en": "Would you like to report this error so we can fix the problem?",
+                "de": "Möchten Sie diesen Fehler melden, damit wir das Problem beheben können?",
+                "it": "Desidera segnalare questo errore in modo che possiamo risolvere il problema?",
+                "es": "¿Desea informar de este error para que podamos solucionar el problema?",
             }),
-            ok=props.Translatable({"nl": "Fout rapporteren", "en": "Report error"}),
-            cancel=props.Translatable({"nl": "Overslaan", "en": "Skip"}),
+            ok=props.Translatable({
+                "nl": "Fout rapporteren",
+                "en": "Report error",
+                "de": "Fehler melden",
+                "it": "Segnala errore",
+                "es": "Informar del error",
+            }),
+            cancel=props.Translatable({
+                "nl": "Overslaan",
+                "en": "Skip",
+                "de": "Überspringen",
+                "it": "Salta",
+                "es": "Omitir",
+            }),
         ),
     ]
     page = props.PropsUIPageDataSubmission(platform or "error", header, body)
@@ -89,6 +111,16 @@ class ScriptWrapper(Generator):
         raise StopIteration
 
 
-def start(sessionId, platform):
-    script = process(sessionId, platform)
+def start(data):
+    """Entry from py_worker.js.
+
+    `data` is the #960-style context dict {"sessionId", "locale", "platform"}
+    posted by WorkerProcessingEngine.firstRunCycle. sessionId arrives as a JSON
+    string (Assembly builds it with String(Date.now())), so downstream
+    donation-key logic (ADR-0020) always sees str.
+    """
+    session_id = data.get("sessionId")
+    platform = data.get("platform")
+    ui_locale.set_ui_locale(data.get("locale"))
+    script = process(session_id, platform)
     return ScriptWrapper(script, platform=platform)

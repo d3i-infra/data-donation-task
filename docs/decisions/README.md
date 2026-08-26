@@ -63,3 +63,12 @@ Load the ADR(s) whose filename matches the area you are touching.
 ### Performance
 
 - [0034 — Hold participant-flow peak memory to the ~824 MB reference budget](./0034-hold-participant-flow-peak-memory-to-the-824-mb-reference-budget.md)
+
+### Architecture
+
+- [0036 — Await the host's donation acknowledgment before resolving](./0036-await-the-host-s-donation-acknowledgment-before-resolving.md)
+
+### Localization
+
+- [0037 — Resolve text to exact, default, first-available, or sentinel](./0037-resolve-text-to-exact-default-first-available-or-sentinel.md)
+- [0038 — Normalize the UI locale once at the data-collector boundary](./0038-normalize-the-ui-locale-once-at-the-data-collector-boundary.md)

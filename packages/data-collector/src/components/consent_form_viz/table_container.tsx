@@ -1,9 +1,9 @@
 import { useCallback, useMemo, useState, useEffect, useRef } from "react"
-import { 
-    Translator,
+import {
     Title4,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveAll } from "../../locale/text"
 import { 
     TableWithContext,
     PropsUITableRow,
@@ -244,15 +244,26 @@ const zoomOutIcon = (
 )
 
 function getTranslations(locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {
-  searchPlaceholder: new TextBundle().add("en", "Search").add("nl", "Zoeken"),
-  showTable: new TextBundle().add("en", "Show table").add("nl", "Tabel tonen"),
-  hideTable: new TextBundle().add("en", "Hide table").add("nl", "Tabel verbergen"),
+  searchPlaceholder: new TextBundle()
+    .add("en", "Search")
+    .add("nl", "Zoeken")
+    .add("de", "Suchen")
+    .add("it", "Cerca")
+    .add("es", "Buscar"),
+  showTable: new TextBundle()
+    .add("en", "Show table")
+    .add("nl", "Tabel tonen")
+    .add("de", "Tabelle anzeigen")
+    .add("it", "Mostra tabella")
+    .add("es", "Mostrar tabla"),
+  hideTable: new TextBundle()
+    .add("en", "Hide table")
+    .add("nl", "Tabel verbergen")
+    .add("de", "Tabelle ausblenden")
+    .add("it", "Nascondi tabella")
+    .add("es", "Ocultar tabla"),
 }

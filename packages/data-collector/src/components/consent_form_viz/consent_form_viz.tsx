@@ -1,10 +1,10 @@
 import {
   DonateButtons,
   BodyLarge,
-  Translator,
   ReactFactoryContext,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { 
     TableWithContext,
     TableContext,
@@ -85,9 +85,9 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
 
   function parseTable(tableData: PropsUIPromptConsentFormTableViz): PropsUITable & TableContext {
     const id = tableData.id
-    const title = Translator.translate(tableData.title, props.locale)
+    const title = resolveText(tableData.title, props.locale)
     const description =
-      tableData.description !== undefined ? Translator.translate(tableData.description, props.locale) : ""
+      tableData.description !== undefined ? resolveText(tableData.description, props.locale) : ""
     const deletedRowCount = 0
     const dataFrame = loadDataFrame(tableData.data_frame)
     const headCells = columnNames(dataFrame).map((column: string) => column)
@@ -106,7 +106,7 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
     if (tableData.headers != null) {
       translatedHeaders = {}
       for (const [column, text] of Object.entries(tableData.headers)) {
-        translatedHeaders[column] = Translator.translate(text, props.locale)
+        translatedHeaders[column] = resolveText(text, props.locale)
       }
     }
 
@@ -191,7 +191,7 @@ interface Copy {
 
 function prepareCopy({ description, locale }: Props): Copy {
   return {
-    description: Translator.translate(description ?? defaultDescription, locale),
+    description: resolveText(description ?? defaultDescription, locale),
   }
 }
 
@@ -206,14 +206,20 @@ const defaultDonateQuestionLabel = new TextBundle()
   .add('en', 'Do you want to share the above data?')
   .add('de', 'Möchten Sie die oben genannten Daten teilen?')
   .add('nl', 'Wilt u de bovenstaande gegevens delen?')
+  .add('it', 'Vuole condividere i dati sopra riportati?')
+  .add('es', '¿Desea compartir los datos anteriores?')
 
 const defaultDonateButtonLabel = new TextBundle()
   .add('en', 'Yes, share for research')
   .add('de', 'Ja, für Forschung teilen')
   .add('nl', 'Ja, deel voor onderzoek')
+  .add('it', 'Sì, condividi per la ricerca')
+  .add('es', 'Sí, compartir para la investigación')
 
 const defaultDescription = new TextBundle()
   .add('en', 'Determine whether you would like to share the data below. Carefully check the data and adjust when required. With your contribution, you help the previously described research. Thank you in advance.')
   .add('de', 'Legen Sie fest, ob Sie die untenstehenden Daten teilen möchten. Überprüfen Sie die Daten sorgfältig und passen Sie sie bei Bedarf an. Mit Ihrem Beitrag helfen Sie der zuvor beschriebenen Forschung. Vielen Dank im Voraus.')
   .add('nl', 'Bepaal of u de onderstaande gegevens wilt delen. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw bijdrage helpt u het eerder beschreven onderzoek. Alvast hartelijk dank.')
+  .add('it', 'Decida se desidera condividere i dati riportati di seguito. Controlli attentamente i dati e li modifichi se necessario. Con il suo contributo aiuta la ricerca descritta in precedenza. Grazie in anticipo.')
+  .add('es', 'Decida si desea compartir los datos que aparecen a continuación. Revise los datos con atención y modifíquelos si es necesario. Con su contribución ayuda a la investigación descrita anteriormente. Muchas gracias de antemano.')
 

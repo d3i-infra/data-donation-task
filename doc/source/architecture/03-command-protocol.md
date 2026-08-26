@@ -44,8 +44,8 @@ Sends a key/value pair to the host for storage.
 
 ```
 Python:  yield CommandSystemDonate(key, json_string)
-Returns: PayloadVoid (fire-and-forget, older hosts)
-         PayloadResponse (newer hosts with VITE_ASYNC_DONATIONS=true)
+Returns: PayloadResponse (the host acknowledges every donation)
+         PayloadVoid (only if a bridge resolves without an acknowledgment)
 ```
 
 `PayloadResponse.value` has the shape `{ success: bool, key: str, status: int, error?: str }`.
@@ -111,8 +111,8 @@ in `commands.ts` to narrow the type before routing.
 | `PayloadTrue` | — | Confirm / ok button |
 | `PayloadFalse` | — | Cancel / decline button |
 | `PayloadJSON` | `value: string` | Consent form, questionnaire |
-| `PayloadVoid` | — | Host acknowledgement (fire-and-forget) |
-| `PayloadResponse` | `value: { success, key, status, error? }` | Host donation result (async mode) |
+| `PayloadVoid` | — | Non-donate system commands; also a bridge that resolves a donate without an acknowledgement |
+| `PayloadResponse` | `value: { success, key, status, error? }` | Host donation result — the normal case; the host acknowledges every donation |
 
 ---
 

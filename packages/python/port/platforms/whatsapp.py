@@ -35,6 +35,7 @@ import re
 import pandas as pd
 
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 import port.helpers.validate as validate
 from port.helpers.flow_builder import FlowBuilder
 from port.helpers.emoji_pattern import EMOJI_PATTERN
@@ -245,11 +246,15 @@ def construct_message(current_line: str, next_line: str, regex: str) -> Tuple[bo
         return False, current_line
 
 
-def read_chat_file(path_to_chat_file: str) -> list[str]:
+def read_chat_file(chat_file: SeekableBinaryReader) -> list[str]:
+    """Read chat lines out of an uploaded WhatsApp export.
 
+    `chat_file` is the upload adapter itself — a seekable binary reader,
+    never a path (ADR-0026).
+    """
     out = []
-    if zipfile.is_zipfile(path_to_chat_file):
-      with zipfile.ZipFile(path_to_chat_file) as z:
+    if zipfile.is_zipfile(chat_file):
+      with zipfile.ZipFile(chat_file) as z:
         file_list = z.namelist()
         print(f"{file_list}")
         with z.open(file_list[0]) as f:
@@ -257,15 +262,19 @@ def read_chat_file(path_to_chat_file: str) -> list[str]:
             lines = [line.decode("utf-8") for line in lines]
 
     else:
-        with open(path_to_chat_file, encoding="utf-8") as f:
-            lines = f.readlines()
+        # Bare .txt chat exports are not supported through the upload
+        # pipeline: the file prompt accepts application/zip, and per ADR-0026
+        # the payload arrives as a reader, so there is no path to open().
+        # parse_chat() catches this and returns an empty DataFrame, which is
+        # the participant-visible outcome this branch already produced.
+        raise ValueError("WhatsApp chat upload is not a zip archive")
 
     out = [remove_unwanted_characters(line) for line in lines]
 
     return out
 
 
-def parse_chat(path_to_chat: str) -> pd.DataFrame:
+def parse_chat(chat_file: SeekableBinaryReader) -> pd.DataFrame:
     """
     Read chat from file, parse, return df
 
@@ -274,7 +283,7 @@ def parse_chat(path_to_chat: str) -> pd.DataFrame:
     out = []
 
     try:
-        lines = read_chat_file(path_to_chat)
+        lines = read_chat_file(chat_file)
         regex = determine_regex_from_chat(lines)
 
         current_line = lines.pop(0)

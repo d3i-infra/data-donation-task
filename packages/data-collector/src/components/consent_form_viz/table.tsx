@@ -16,9 +16,7 @@ import UndoSvg from './assets/images/undo.svg'
 import DeleteSvg from './assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '@eyra/feldspar'
-import { 
-    Translator,
-} from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { CheckBox } from "./check_box"
 import { PropsUITableRow } from "./types"
 
@@ -366,14 +364,20 @@ function IconButton (props: {
 }
 
 function getTranslations (locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {
-  delete: new TextBundle().add('en', 'Delete').add('nl', 'Verwijder'),
-  undo: new TextBundle().add('en', 'Undo').add('nl', 'Herstel')
+  delete: new TextBundle()
+    .add('en', 'Delete')
+    .add('nl', 'Verwijder')
+    .add('de', 'Löschen')
+    .add('it', 'Elimina')
+    .add('es', 'Eliminar'),
+  undo: new TextBundle()
+    .add('en', 'Undo')
+    .add('nl', 'Herstel')
+    .add('de', 'Rückgängig')
+    .add('it', 'Annulla')
+    .add('es', 'Deshacer')
 }

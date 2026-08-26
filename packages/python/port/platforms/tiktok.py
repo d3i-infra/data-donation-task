@@ -47,6 +47,7 @@ from port.helpers.validate import (
     Language,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -398,7 +399,9 @@ def activity_summary_to_df(reader: ZipArchiveReader, errors: Counter, validation
             return out
         try:
             summary = _parse_tiktok_txt(data.data)
-            if len(summary) == 0:
+            # _parse_tiktok_txt() returns None for an empty file; len(None)
+            # would raise instead of taking the intended "nothing here" exit.
+            if not summary:
                 return out
         except Exception as e:
             logger.error("Exception caught: %s", e)
@@ -406,6 +409,11 @@ def activity_summary_to_df(reader: ZipArchiveReader, errors: Counter, validation
     else:
         return out
     try:
+        # Guard: the branches above assign `summary` inside a try/except, so an
+        # error there can leave it unbound or holding a non-dict. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(summary, dict):
+            return out
         metric_priority = [
             ("Videos watched since registration", ["videoCount"]),
             ("Videos watched to the end since registration", ["videosWatchedToTheEndSinceAccountRegistration", "Videos watched to the end since account registration", "Video's tot het einde bekeken sinds accountregistratie"]),
@@ -502,7 +510,9 @@ def settings_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             return out
         try:
             settings_map = _parse_tiktok_txt(data.data)
-            if len(settings_map) == 0:
+            # _parse_tiktok_txt() returns None for an empty file; len(None)
+            # would raise instead of taking the intended "nothing here" exit.
+            if not settings_map:
                 return out
         except Exception as e:
             logger.error("Exception caught: %s", e)
@@ -510,6 +520,11 @@ def settings_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
     else:
         return out
     try:
+        # Guard: the branches above assign `settings_map` inside a try/except,
+        # so an error there can leave it unbound or holding a non-dict. Kept
+        # inside this try so an unbound name is still counted, exactly as before.
+        if not isinstance(settings_map, dict):
+            return out
         rows = []
         content_section_labels = ["Content Preferences", "Contentvoorkeuren"]
         for label in content_section_labels:
@@ -626,6 +641,11 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
     else:
         return out    
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date", "Datum"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -720,6 +740,11 @@ def favorite_videos_to_df(reader: ZipArchiveReader, errors: Counter, validation)
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date", "Datum"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -813,6 +838,11 @@ def follower_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date", "Datum"), _item_get(item, "UserName", "User Name", "Gebruikersnaam")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "UserName"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -906,6 +936,11 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date", "Datum"), _item_get(item, "UserName", "User Name", "Gebruikersnaam")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "UserName"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -1000,6 +1035,11 @@ def hashtag_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.D
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [
             (_item_get(item, "HashtagName", "Hashtag Name", "Hashtag naam"), _item_get(item, "HashtagLink", "Hashtag Link"))
             for item in items
@@ -1095,6 +1135,11 @@ def like_list_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date", "Datum"), _item_get(item, "Link")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "Link"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -1197,6 +1242,11 @@ def searches_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:       
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [(_item_get(item, "Date","Datum"), _item_get(item, "SearchTerm", "Search Term", "Zoekterm")) for item in items]
         out = pd.DataFrame(rows, columns=["Date", "SearchTerm"])  # pyright: ignore
         out = out.sort_values("Date", ascending=False)
@@ -1296,6 +1346,11 @@ def share_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [
             (
                 _item_get(item, "Date", "Datum"),
@@ -1409,6 +1464,11 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             logger.error("Exception caught: %s", e)
             errors[type(e).__name__] += 1
     try:
+        # Guard: the branches above assign `items` inside a try/except, so an
+        # error there can leave it unbound or holding a non-list. Kept inside
+        # this try so an unbound name is still counted, exactly as before.
+        if not isinstance(items, list):
+            return out
         rows = [
             (
                 _item_get(item, "Date", "Datum"),
@@ -1450,13 +1510,14 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 # Main extraction & flow
 # ---------------------------------------------------------------------------
 
-def extraction(tiktok_zip: str, validation) -> ExtractionResult:
+def extraction(tiktok_zip: SeekableBinaryReader, validation) -> ExtractionResult:
     """Extract data from a TikTok DDP zip and return consent-form tables.
 
     Parameters
     ----------
     tiktok_zip:
-        Path to the TikTok DDP zip archive on disk.
+        Seekable binary reader over the TikTok DDP zip — the upload
+        adapter itself, never a path (ADR-0026).
     validation:
         Validation result object that is passed on to the extractor functions in 
         ``EXTRACTOR_REGISTRY``, and whose ``archive_members`` attribute is passed 
