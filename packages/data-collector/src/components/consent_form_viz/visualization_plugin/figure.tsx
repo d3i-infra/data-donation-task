@@ -57,9 +57,7 @@ export interface ValidatedFigureProps {
 export const FigureComponent = ({
   table,
   visualization,
-  locale,
-  handleDelete,
-  handleUndo
+  locale
 }: ValidatedFigureProps): JSX.Element => {
   const [visualizationData, status] = useVisualizationData(table, visualization)
   const [longLoading, setLongLoading] = useState<boolean>(false)

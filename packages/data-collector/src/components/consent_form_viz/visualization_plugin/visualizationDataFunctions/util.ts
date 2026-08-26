@@ -158,7 +158,7 @@ export function extractUrlDomain(x: string): string {
   try {
     const url = new URL(x);
     domain = url.hostname.replace(/^www\./, "").replace(/^m\./, "");
-  } catch (_) {
+  } catch {
     domain = x;
   }
   return domain.trim();

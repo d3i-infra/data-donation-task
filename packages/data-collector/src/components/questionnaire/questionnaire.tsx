@@ -28,10 +28,6 @@ export const Questionnaire = (props: Props): JSX.Element => {
     resolve?.({ __type__: 'PayloadJSON', value })
   }
 
-  function handleCancel (): void {
-    resolve?.({ __type__: 'PayloadFalse', value: false })
-  }
-
   const renderQuestion = (item: any) => {
     if (isPropsUIQuestionMultipleChoice(item)) {
       return (
