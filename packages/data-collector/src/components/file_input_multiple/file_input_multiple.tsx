@@ -1,18 +1,23 @@
 import * as React from 'react'
 import {
-  Translatable,
   ReactFactoryContext,
   PrimaryButton,
   BodySmall
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
 import { resolveText } from "../../locale/text"
-import { PropsUIPromptFileInputMultiple } from "./types.ts"
+import { PropsUIPromptFileInputMultiple, Translatable } from "./types.ts"
 import CloseSvg  from "./assets/close.svg"
 
 type Props = PropsUIPromptFileInputMultiple & ReactFactoryContext
 
-export const FileInputMultiple = (props: Props): JSX.Element => {
+// The type `resolve` actually accepts (feldspar's `Payload` union, not exported
+// from @eyra/feldspar's public API — ADR-0002 forbids adding the export just for
+// this cast). Derived structurally so the bridge cast below stays honest without
+// duplicating feldspar's Payload union here.
+type ResolvePayload = Parameters<NonNullable<Props['resolve']>>[0]
+
+export const FileInputMultiple = (props: Props): React.JSX.Element => {
   const [waiting, setWaiting] = React.useState<boolean>(false)
   const [files, setFiles] = React.useState<File[]>([])
   const input = React.useRef<HTMLInputElement>(null)
@@ -49,7 +54,13 @@ export const FileInputMultiple = (props: Props): JSX.Element => {
   function handleConfirm (): void {
     if (files !== undefined && !waiting) {
       setWaiting(true)
-      resolve?.({ __type__: 'PayloadFileArray', value: files })
+      // `PayloadFileArray` is not (and was never) a member of feldspar's Payload
+      // union: packages/python/port/helpers/flow_builder.py only recognizes
+      // `__type__ === "PayloadFile"` and silently skips anything else, so this
+      // call is already inert at runtime. Bridge cast lets tsc reflect that
+      // honestly instead of masking it; Task 5 rebuilds this component's donate
+      // path and removes the cast then.
+      resolve?.({ __type__: 'PayloadFileArray', value: files } as unknown as ResolvePayload)
     }
   }
 

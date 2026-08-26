@@ -15,13 +15,13 @@ import {
     PropsUIPromptConsentFormTableViz,
     PropsUITableRow,
 } from "./types"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, ReactElement } from "react"
 import _ from "lodash"
 import { TableContainer } from "./table_container"
 
 type Props = PropsUIPromptConsentFormViz & ReactFactoryContext
 
-export const ConsentFormViz = (props: Props): JSX.Element => {
+export const ConsentFormViz = (props: Props): ReactElement => {
   const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
   const { locale, resolve } = props
   const { description } = prepareCopy(props)

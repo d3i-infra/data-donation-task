@@ -12,7 +12,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionMultipleChoice & parentSetter & ReactFactoryContext
 
-export const MultipleChoiceQuestion = (props: Props): JSX.Element => {
+export const MultipleChoiceQuestion = (props: Props): React.JSX.Element => {
   const { question, choices, id, parentSetter, locale } = props
   const [selectedChoice, setSelectedChoice] = React.useState<string>("");
   const [checkedArray, setCheckedArray] = React.useState(Array(choices.length).fill(false));

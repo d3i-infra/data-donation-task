@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 import TextBundle from '@eyra/feldspar'
 import { resolveAll } from '../../locale/text'
 import { TableWithContext } from './types'
@@ -11,7 +11,7 @@ interface Props {
   locale: string
 }
 
-export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): JSX.Element => {
+export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): ReactElement => {
   const text = useMemo(() => getTranslations(locale), [locale])
 
   const deleted = table.deletedRowCount

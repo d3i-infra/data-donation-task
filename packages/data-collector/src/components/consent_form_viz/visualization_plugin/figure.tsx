@@ -1,5 +1,5 @@
 import { VisualizationData, ChartVisualizationData, TextVisualizationData, Table, zVisualizationType } from './types'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState, ReactElement } from 'react'
 
 import useVisualizationData from './visualizationDataFunctions/useVisualizationData'
 
@@ -27,7 +27,7 @@ export const Figure = ({
   locale,
   handleDelete,
   handleUndo
-}: FigureProps): JSX.Element => {
+}: FigureProps): ReactElement => {
   const visualizationValidator = useMemo(() => zVisualizationType.safeParse(visualizationInput), [visualizationInput])
 
   if (!visualizationValidator.success) {
@@ -58,7 +58,7 @@ export const FigureComponent = ({
   table,
   visualization,
   locale
-}: ValidatedFigureProps): JSX.Element => {
+}: ValidatedFigureProps): ReactElement => {
   const [visualizationData, status] = useVisualizationData(table, visualization)
   const [longLoading, setLongLoading] = useState<boolean>(false)
   const [showStatus, setShowStatus] = useState<ShowStatus>('visible')
@@ -141,7 +141,7 @@ export const RenderVisualization = memo(
     fallbackMessage: string
     loading: boolean
     locale: string
-  }): JSX.Element | null => {
+  }): ReactElement | null => {
     if (visualizationData == null) return null
 
     const fallback = <div className='m-auto font-bodybold text-4xl text-grey2 '>{fallbackMessage}</div>

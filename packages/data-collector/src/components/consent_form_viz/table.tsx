@@ -1,12 +1,13 @@
-import { 
+import {
     useEffect,
     useLayoutEffect,
     useMemo,
     useRef,
     useState,
-    ReactNode, 
-    Dispatch, 
-    SetStateAction 
+    ReactNode,
+    ReactElement,
+    Dispatch,
+    SetStateAction
 } from 'react'
 import Highlighter from 'react-highlight-words'
 import { 
@@ -48,7 +49,7 @@ export const Table = ({
   handleDelete,
   handleUndo,
   pageSize = 7
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const [page, setPage] = useState(0)
   const columnNames = table.head.cells
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -108,7 +109,7 @@ export const Table = ({
     return items
   }, [table, page, pageSize])
 
-  function renderHeaderCell (value: string, i: number): JSX.Element {
+  function renderHeaderCell (value: string, i: number): ReactElement {
     // Display translated header if available, fall back to raw column name
     const displayName = table.headers?.[value] ?? value
     return (
@@ -120,7 +121,7 @@ export const Table = ({
     )
   }
 
-  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element | null {
+  function renderRow (item: PropsUITableRow | null, i: number): ReactElement | null {
     if (item == null && i >= unfilteredRows) return null
     if (item == null) {
       return (
@@ -244,7 +245,7 @@ function Cell ({
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
-}): JSX.Element {
+}): ReactElement {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const isUrl = /^https?:\/\//.test(cell)
@@ -320,7 +321,7 @@ function Cell ({
   )
 }
 
-function TooltipIcon (): JSX.Element {
+function TooltipIcon (): ReactElement {
   return (
     <svg
       className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
@@ -347,7 +348,7 @@ function IconButton (props: {
   color: string
   disabled?: boolean
   hidden?: boolean
-}): JSX.Element | null {
+}): ReactElement | null {
   if (props.hidden ?? false) return null
   const disabled = props.disabled ?? false
   return (

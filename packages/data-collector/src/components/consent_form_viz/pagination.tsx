@@ -1,10 +1,12 @@
+import { ReactElement } from 'react'
+
 export interface Props {
   page: number
   setPage: (page: number) => void
   nPages: number
 }
 
-export const Pagination = ({ page, setPage, nPages }: Props): JSX.Element => {
+export const Pagination = ({ page, setPage, nPages }: Props): ReactElement => {
   function activeButton (active: boolean): string {
     if (active) return 'text-primary'
     return 'text-grey3 hover:cursor-default'

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect, useRef } from "react"
+import { useCallback, useMemo, useState, useEffect, useRef, ReactElement } from "react"
 import {
     Title4,
 } from "@eyra/feldspar"
@@ -21,7 +21,7 @@ interface TableContainerProps {
   locale: string
 }
 
-export const TableContainer = ({ id, table, updateTable, locale }: TableContainerProps): JSX.Element => {
+export const TableContainer = ({ id, table, updateTable, locale }: TableContainerProps): ReactElement => {
   const tableVisualizations = table.visualizations != null ? table.visualizations : []
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
   const [search, setSearch] = useState<string>("")

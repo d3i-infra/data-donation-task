@@ -1,3 +1,4 @@
+import { ReactElement } from "react"
 import {
   Title1,
   BodyLarge,
@@ -9,7 +10,7 @@ import { PropsUIPageError } from "./types"
 
 type Props = PropsUIPageError & ReactFactoryContext
 
-export const ErrorPage = (props: Props): JSX.Element => {
+export const ErrorPage = (props: Props): ReactElement => {
 
   const { message } = props
   const { title, text } = prepareCopy(props)

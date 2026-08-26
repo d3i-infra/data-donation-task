@@ -18,7 +18,7 @@ import { OpenQuestion } from './open_question'
 
 type Props = PropsUIPromptQuestionnaire & ReactFactoryContext
 
-export const Questionnaire = (props: Props): JSX.Element => {
+export const Questionnaire = (props: Props): React.JSX.Element => {
   const { questions, description, resolve, locale } = props
   const [answers, setAnswers] = React.useState<{}>({});
   const copy = prepareCopy(locale)
