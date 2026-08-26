@@ -64,6 +64,7 @@ DDP_CATEGORIES = [
             "recently_deleted_content.json",
             "liked_posts.json",
             "stories.json",
+            "stories_viewed.json",
             "profile_photos.json",
             "followers.json",
             "signup_information.json",
@@ -128,7 +129,7 @@ def _sort_by_date(out: pd.DataFrame, date_column: str) -> pd.DataFrame:
 # English keys -- match against known language variants.
 _URL_LABELS = ["URL", "الرابط", "URL-адрес"]
 _NAME_LABELS = ["Naam", "Name", "Nazwa", "Ad", "الاسم", "Имя", "Nome", "Nume", "Nombre", "Emri"]
-_USERNAME_LABELS = ["Gebruikersnaam", "Username", "Author", "Nutzername", "Nazwa użytkownika", "Kullanıcı adı", "اسم المستخدم", "Имя пользователя", "Nome utente", "Nume de utilizator", "Nombre de usuario", "Emri i përdoruesit"]
+_USERNAME_LABELS = ["Gebruikersnaam", "Username", "Author", "Nutzername", "Benutzername","Nazwa użytkownika", "Kullanıcı adı", "اسم المستخدم", "Имя пользователя", "Nome utente", "Nume de utilizator", "Nombre de usuario", "Emri i përdoruesit"]
 _AUTHOR_LABELS = ["Author", "Auteur", "Autor", "Yazar", "الكاتب", "Автор", "Autore"]
 _TIME_LABELS = ["Time", "Tijd", "Zeit", "Godzina", "Saat", "الوقت", "Время", "Ora", "Hora"]
 _COMMENT_LABELS = ["Comment", "Opmerking", "Kommentar", "Komentarz", "Yorum", "تعليق", "Комментарий", "Commento", "Comentariu", "Comentario", "Koment"]
@@ -1761,7 +1762,141 @@ def story_likes_to_df(
         errors[type(e).__name__] += 1
 
     return out
+def stories_viewed_to_df(
+    reader: ZipArchiveReader,
+    errors: Counter,
+    *,
+    filename: str = "stories_viewed.json",
+) -> pd.DataFrame:
+    """Extract the list of Instagram Stories viewed by the participant.
 
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load JSON files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction. Updated in-place.
+    filename:
+        Path inside the zip archive to read. Defaults to
+        ``"stories_viewed.json"``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Author``, ``Date``.
+        Empty DataFrame when the file is absent or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one Instagram Story viewed by the participant, including the author and time of the view.",
+          "source_file": "stories_viewed.json",
+          "columns": {
+            "Author": "Username or display name of the account that published the viewed Story.",
+            "Date": "ISO 8601 timestamp of when the Story was viewed."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "instagram_stories_viewed",
+          "title": {
+            "en": "Stories viewed on Instagram",
+            "nl": "Stories bekeken op Instagram",
+            "de": "Auf Instagram angesehene Storys",
+            "pl": "Wyświetlone relacje na Instagramie",
+            "tr": "Instagram'da görüntülenen hikayeler",
+            "ar": "القصص التي شاهدتها على إنستغرام",
+            "ru": "Просмотренные истории в Instagram",
+            "it": "Storie visualizzate su Instagram",
+            "ro": "Povești vizualizate pe Instagram",
+            "es": "Historias vistas en Instagram",
+            "sq": "Stories të shikuara në Instagram"
+          },
+          "description": {
+            "en": "This table shows the Instagram Stories you viewed.",
+            "nl": "Deze tabel toont de Instagram Stories die je hebt bekeken.",
+            "de": "Diese Tabelle zeigt die Instagram-Storys, die Sie angesehen haben.",
+            "pl": "Ta tabela pokazuje relacje na Instagramie, które wyświetliłeś/aś.",
+            "tr": "Bu tablo Instagram'da görüntülediğin hikayeleri gösterir.",
+            "ar": "يعرض هذا الجدول قصص إنستغرام التي شاهدتها.",
+            "ru": "В этой таблице показаны истории Instagram, которые вы просмотрели.",
+            "it": "Questa tabella mostra le Storie di Instagram che hai visualizzato.",
+            "ro": "Acest tabel arată poveștile de pe Instagram pe care le-ai vizualizat.",
+            "es": "Esta tabla muestra las historias de Instagram que viste.",
+            "sq": "Kjo tabelë tregon Stories në Instagram që ke parë."
+          },
+          "headers": {
+            "Author": {
+              "en": "Author",
+              "nl": "Auteur",
+              "de": "Autor*in",
+              "pl": "Autor",
+              "tr": "Yazar",
+              "ar": "الكاتب",
+              "ru": "Автор",
+              "it": "Autore",
+              "ro": "Autor",
+              "es": "Autor",
+              "sq": "Autor"
+            },
+            "Date": {
+              "en": "Date and time",
+              "nl": "Datum en tijd",
+              "de": "Datum und Uhrzeit",
+              "pl": "Data i godzina",
+              "tr": "Tarih ve saat",
+              "ar": "التاريخ والوقت",
+              "ru": "Дата и время",
+              "it": "Data e ora",
+              "ro": "Data și ora",
+              "es": "Fecha y hora",
+              "sq": "Data dhe ora"
+            }
+          }
+        }
+    """
+
+    result = reader.json(filename)
+
+    if not result.found:
+        return pd.DataFrame()
+
+    data = result.data
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        for item in data:
+            owner_name, owner_username, _ = _extract_owner_details(
+                item.get("label_values", [])
+            )
+
+            author = owner_username or owner_name
+
+            datapoints.append((
+                author,
+                eh.epoch_to_iso(
+                    item.get("timestamp", ""),
+                    errors=errors,
+                ),
+            ))
+
+        out = pd.DataFrame(
+            datapoints,
+            columns=["Author", "Date"],
+        )
+
+        out = _sort_by_date(out, "Date")
+
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
 
 def threads_viewed_to_df(
     reader: ZipArchiveReader,
@@ -2075,6 +2210,7 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "liked_posts_to_df": liked_posts_to_df,
     "profile_searches_to_df": profile_searches_to_df,
     "story_likes_to_df": story_likes_to_df,
+    "stories_viewed_to_df": stories_viewed_to_df,
     "threads_viewed_to_df": threads_viewed_to_df,
     "saved_posts_to_df": saved_posts_to_df,
 }
