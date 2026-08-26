@@ -71,6 +71,10 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   zips anything. The normal development/Playwright wheel
   (`pnpm run build:py`) is untouched and still includes `e2etest`. See
   ADR-0004.
+* **Removed the stale tracked `port-0.0.0.tar.gz`** from
+  `packages/data-collector/public/`. It previously rode into every release
+  zip via Vite's publicDir but has been deleted. Release zips no longer
+  contain it.
 
 ### Fixed
 

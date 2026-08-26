@@ -16,14 +16,16 @@ get zipped by `release.sh`:
   check: the selected platform's own module/config must be present (so the
   check can't pass vacuously against an empty or broken wheel) and no member
   path may reference e2etest.
-* Any sdist tarball (`port-*.tar.gz`) — zero or more. A tracked, stale
-  `packages/data-collector/public/port-0.0.0.tar.gz` currently ships in every
-  release zip alongside the wheel; today it predates the multi-platform
-  config system and contains neither `platforms/` nor `configs/`, but
-  nothing stops it from being regenerated with current content, at which
-  point it would carry e2etest right past a verifier that only ever looked
-  at the wheel. Sdist member names carry a `port-<version>/` prefix the
-  wheel doesn't have, so only the absence check applies here — the
+* Any sdist tarball (`port-*.tar.gz`) — zero or more. A stale sdist
+  (`port-0.0.0.tar.gz`) used to be tracked in the data collector's public/
+  directory and shipped in every release zip alongside the wheel; it has
+  been removed, but nothing structurally prevents another `port-*` archive
+  from appearing — so every `port-*` archive found in the dist directory is
+  checked. It predated the multi-platform config system and contained neither
+  `platforms/` nor `configs/`, but had the same risk: an sdist regenerated
+  with current content could carry e2etest past a verifier that only ever
+  looked at the wheel. Sdist member names carry a `port-<version>/` prefix
+  the wheel doesn't have, so only the absence check applies here — the
   presence/required check is wheel-specific by construction.
 
 Usage
