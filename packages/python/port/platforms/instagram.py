@@ -846,7 +846,7 @@ def posts_viewed_to_df(
             "Author": {
               "en": "Author",
               "nl": "Auteur",
-              "de": "Autor",
+              "de": "Autor*in",
               "pl": "Autor",
               "tr": "Yazar",
               "ar": "الكاتب",
@@ -1054,7 +1054,7 @@ def videos_watched_to_df(
             "Author": {
               "en": "Author",
               "nl": "Auteur",
-              "de": "Autor",
+              "de": "Autor*in",
               "pl": "Autor",
               "tr": "Yazar",
               "ar": "الكاتب",
@@ -2092,7 +2092,7 @@ def threads_viewed_to_df(
             "Author": {
               "en": "Author",
               "nl": "Auteur",
-              "de": "Autor",
+              "de": "Autor*in",
               "pl": "Autor",
               "tr": "Yazar",
               "ar": "الكاتب",
