@@ -13,6 +13,17 @@ TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
 
 CONFIGS_DIR="packages/python/port/configs"
 
+# e2etest is repository test infrastructure (Playwright's error-flow fixture),
+# not a researcher platform: its config must not represent study membership
+# during release, and the fault-injection module it selects must never reach
+# a participant. Reject it before anything else runs — see ADR-0004.
+if [ "${VITE_PLATFORM:-}" = "e2etest" ]; then
+    echo "ERROR: e2etest is test-only and cannot be released." >&2
+    echo "       It exists for 'VITE_PLATFORM=e2etest pnpm test:e2e' and" >&2
+    echo "       'VITE_PLATFORM=e2etest pnpm start' only." >&2
+    exit 1
+fi
+
 # If VITE_PLATFORM is already set, release only that platform
 if [ -n "$VITE_PLATFORM" ]; then
     config_file="$CONFIGS_DIR/${VITE_PLATFORM}_config.json"
@@ -29,6 +40,10 @@ else
         [ -f "$config_file" ] || continue
         basename="${config_file##*/}"          # e.g. chatgpt_config.json
         platform="${basename%_config.json}"    # e.g. chatgpt
+        # Documented exception to "every config is a study platform": e2etest
+        # is Playwright's error-flow fixture, not something a researcher
+        # deploys. See the rejection above and ADR-0004.
+        [ "$platform" = "e2etest" ] && continue
         platforms+=("$platform")
     done
 
@@ -122,7 +137,19 @@ for PLATFORM in "${platforms[@]}"; do
 
     echo "Building for platform: ${PLATFORM}..."
     export VITE_PLATFORM=$PLATFORM
-    pnpm run build
+    pnpm run build:release
+
+    # Defense-in-depth: check the artifact that will actually ship, not just
+    # the staged build that produced it. Catches a stale wheel, a copy-step
+    # regression, or a future change to the build pipeline that would
+    # otherwise let e2etest slip back into a release zip unnoticed. See
+    # ADR-0004 and scripts/verify_release_wheel.py.
+    echo "Verifying release artifact for platform: ${PLATFORM}..."
+    if ! "$VALIDATOR_PYTHON" scripts/verify_release_wheel.py "$PLATFORM" \
+        --dist-dir packages/data-collector/dist; then
+        echo "ERROR: release artifact verification failed for '${PLATFORM}'; nothing was zipped." >&2
+        exit 1
+    fi
 
     RELEASE_NAME="${NAME}_${PLATFORM}_${BRANCH}_${TIMESTAMP}.zip"
     cd packages/data-collector/dist

@@ -41,5 +41,6 @@ runtime in `packages/python` (Poetry).
 - E2E (Playwright): `pnpm test:e2e` — boots the dev server on port 3000 itself. The
   supported error-flow e2e command is `VITE_PLATFORM=e2etest pnpm test:e2e` (the
   e2etest platform is the example platform plus a fault-injection trigger). e2etest
-  is not releasable; release isolation for it lands in a later task.
+  is not releasable — `release.sh` rejects it explicitly and excludes its module/config
+  from the production wheel (ADR-0004).
 - Memory benchmarks: `scripts/benchmarks/` (see its README)

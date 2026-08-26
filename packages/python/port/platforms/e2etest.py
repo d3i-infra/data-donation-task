@@ -46,6 +46,7 @@ from port.helpers.extraction_helpers import ZipArchiveReader
 from port.helpers.flow_builder import FlowBuilder
 from port.helpers.validate import ValidateInput
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -117,7 +118,7 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 }
 
 
-def extraction(zip_path: str, validation: ValidateInput) -> ExtractionResult:
+def extraction(zip_path: SeekableBinaryReader, validation: ValidateInput) -> ExtractionResult:
     """Extract like the example platform, unless the archive is the trigger.
 
     The trigger check runs before any config or file access, so tripping it
@@ -144,10 +145,10 @@ class E2eTestFlow(FlowBuilder):
     def __init__(self, session_id: str):
         super().__init__(session_id, "example")
 
-    def validate_file(self, file: str) -> ValidateInput:
+    def validate_file(self, file: SeekableBinaryReader) -> ValidateInput:
         return example.validate_zip_file(file)
 
-    def extract_data(self, file_value: str, validation: ValidateInput) -> ExtractionResult:
+    def extract_data(self, file_value: SeekableBinaryReader, validation: ValidateInput) -> ExtractionResult:
         return extraction(file_value, validation)
 
 
