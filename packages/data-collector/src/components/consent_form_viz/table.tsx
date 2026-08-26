@@ -118,20 +118,25 @@ export const Table = ({
   }, [table, page, pageSize])
 
   function getColumnStyle(index: number): React.CSSProperties {
-    if (table.id !== 'facebook_reels_usage') {
-      return {}
+    if (table.id === 'facebook_reels_usage') {
+      if (index === 0) {
+        return { width: '75%' }
+      }
+
+      if (index === 1) {
+        return { width: '25%' }
+      }
     }
 
+  if (table.id === 'instagram_other_categories_used_to_reach_you') {
     if (index === 0) {
-      return { width: '75%' }
+      return { width: '100%' }
     }
-
-    if (index === 1) {
-      return { width: '25%' }
-    }
-
-    return {}
   }
+
+  return {}
+}
+
 
   function renderHeaderCell(value: string, i: number): JSX.Element {
     const displayName = table.headers?.[value] ?? value
@@ -192,8 +197,14 @@ export const Table = ({
               cellClass={cellClass}
               setTooltip={setTooltip}
               allowWrap={
-                table.id === 'facebook_reels_usage' &&
-                j === 0
+                (
+                  table.id === 'facebook_reels_usage' &&
+                  j === 0
+                ) ||
+                (
+                  table.id === 'instagram_other_categories_used_to_reach_you' &&
+                  j === 0
+                )
               }
             />
           </td>
