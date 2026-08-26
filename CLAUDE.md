@@ -38,5 +38,8 @@ runtime in `packages/python` (Poetry).
 - Python tests: `pnpm test:py` — extra args pass through, e.g.
   `pnpm test:py -- tests/test_ui_locale.py -q`
 - Typecheck: `pnpm typecheck:py` (Pyright); tests + typecheck together: `pnpm verify:py`
-- E2E (Playwright): `pnpm test:e2e` — boots the dev server on port 3000 itself
+- E2E (Playwright): `pnpm test:e2e` — boots the dev server on port 3000 itself. The
+  supported error-flow e2e command is `VITE_PLATFORM=e2etest pnpm test:e2e` (the
+  e2etest platform is the example platform plus a fault-injection trigger). e2etest
+  is not releasable; release isolation for it lands in a later task.
 - Memory benchmarks: `scripts/benchmarks/` (see its README)
