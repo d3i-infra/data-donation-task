@@ -64,11 +64,19 @@ export const FigureComponent = ({
   const [showStatus, setShowStatus] = useState<ShowStatus>('visible')
   const [resizeLoading, setResizeLoading] = useState<boolean>(false)
 
+  // Reset longLoading as soon as status leaves 'loading', without a synchronous
+  // setState in an effect body (which would cause an extra cascading render).
+  // This is the React-documented "adjusting state when a prop changes" pattern:
+  // detect the transition during render and update state immediately, instead
+  // of doing it in a useEffect after commit.
+  const [prevStatus, setPrevStatus] = useState(status)
+  if (status !== prevStatus) {
+    setPrevStatus(status)
+    if (status !== 'loading') setLongLoading(false)
+  }
+
   useEffect(() => {
-    if (status !== 'loading') {
-      setLongLoading(false)
-      return
-    }
+    if (status !== 'loading') return
     const timer = setTimeout((): void => {
       setLongLoading(true)
     }, 1000)

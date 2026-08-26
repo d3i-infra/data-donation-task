@@ -69,6 +69,7 @@ export const Table = ({
   const cellClass = 'min-h-[2.1rem] md:min-h-[2.5rem] px-3 flex items-center font-table-row'
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: pagination reset on table swap; fix needs ADR-0031-safe redesign
     setSelected(new Set())
     setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
   }, [table, nPages])

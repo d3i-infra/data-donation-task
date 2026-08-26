@@ -13,6 +13,7 @@ export default function useVisualizationData (
 
   useEffect(() => {
     if (window.Worker === undefined) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: useVisualizationData status resets are tied to the ephemeral-worker spawn/terminate sequence this effect owns (ADR-0032); splitting the status resets out into a render-phase pattern risks a redesign of the worker lifecycle in the exact file the ADR-0032 checks scrutinize (selectVisualizationColumns-before-postMessage, worker.terminate() on every path).
       setStatus('error')
       return
     }
