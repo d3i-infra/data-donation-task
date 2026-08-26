@@ -28,6 +28,7 @@ Platform info::
 """
 
 import logging
+import re
 from collections import Counter
 from typing import Callable
 
@@ -1414,6 +1415,29 @@ def your_saved_items_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.Data
     return out
 
 
+def _extract_commented_post_author(title: str) -> str:
+    """Extract the content author from an English Facebook comment title."""
+    title = title.strip()
+
+    own_match = re.fullmatch(
+        r"(.+?) commented on (?:his|her|their) own\s+.+",
+        title,
+        re.IGNORECASE,
+    )
+    if own_match:
+        return own_match.group(1).strip()
+
+    author_match = re.fullmatch(
+        r".+? commented on (.+)['’]s?\s+.+",
+        title,
+        re.IGNORECASE,
+    )
+    if author_match:
+        return author_match.group(1).strip()
+
+    return ""
+
+
 def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     """Extract all comments you made on Facebook.
 
@@ -1428,16 +1452,16 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     Returns
     -------
     pd.DataFrame
-        Columns: ``Title``, ``Comment``, ``Timestamp``.
+        Columns: ``Author``, ``Comment``, ``Timestamp``.
         Empty DataFrame when the file is absent or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents a comment the participant made on a Facebook post or other content, including the title, comment text, and timestamp.",
+          "summary": "Each row represents a comment the participant made on Facebook, including the author of the commented content, comment text, and timestamp.",
           "source_file": "comments_and_reactions/comments.json",
           "columns": {
-            "Title": "Title of the post the comment was made on.",
+            "Author": "Author of the post or other content the comment was made on, parsed from Facebook's English activity description.",
             "Comment": "Text content of the comment.",
             "Timestamp": "ISO 8601 timestamp of when the comment was made."
           }
@@ -1474,18 +1498,18 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             "sq": "Kjo tabelë tregon të gjitha komentet që ke bërë në postimet e Facebook-ut dhe përmbajtje të tjera."
           },
           "headers": {
-            "Title": {
-              "en": "Title",
-              "nl": "Titel",
-              "de": "Titel",
-              "pl": "Tytuł",
-              "tr": "Başlık",
-              "ar": "العنوان",
-              "ru": "Заголовок",
-              "it": "Titolo",
-              "ro": "Titlu",
-              "es": "Título",
-              "sq": "Titulli"
+            "Author": {
+              "en": "Author of the commented post",
+              "nl": "Auteur van het bericht",
+              "de": "Autor*in des kommentierten Beitrags",
+              "pl": "Autor/ka komentowanego posta",
+              "tr": "Yorum yapılan gönderinin yazarı",
+              "ar": "مؤلف المنشور المعلّق عليه",
+              "ru": "Автор прокомментированной публикации",
+              "it": "Autore del post commentato",
+              "ro": "Autorul postării comentate",
+              "es": "Autor de la publicación comentada",
+              "sq": "Autori i postimit të komentuar"
             },
             "Comment": {
               "en": "Comment",
@@ -1530,12 +1554,14 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             denested_dict = eh.dict_denester(item)
 
             datapoints.append((
-                eh.fix_latin1_string(eh.find_item(denested_dict, "title")),
+                _extract_commented_post_author(
+                    eh.fix_latin1_string(eh.find_item(denested_dict, "title"))
+                ),
                 eh.fix_latin1_string(eh.find_item(denested_dict, "comment-comment")),
                 eh.epoch_to_iso(eh.find_item(denested_dict, "timestamp"), errors=errors),
             ))
 
-        out = pd.DataFrame(datapoints, columns=["Title", "Comment", "Timestamp"]) #pyright: ignore
+        out = pd.DataFrame(datapoints, columns=["Author", "Comment", "Timestamp"]) #pyright: ignore
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
