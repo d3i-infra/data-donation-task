@@ -297,7 +297,7 @@ def facebook_reels_usage_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.
                 "The number of Reels you have liked in the last 30 days":
                     "In den letzten 30 Tagen mit „Gefällt mir“ markiert",
 
-                "Die Anzahl der Reels, die du in den letzten 7 Tagen im horizontalen Reels-Bereich gesehen hast":
+                "The number of Reels you have seen in the horizontal Reels tray in the last 7 days":
                     "In den letzten 7 Tagen im horizontalen Reels-Bereich angesehen",
 
                 "The number of Reels you have clicked from the horizontal Reels tray in the last 7 days":
