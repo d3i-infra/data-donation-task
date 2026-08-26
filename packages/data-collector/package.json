@@ -44,6 +44,7 @@
     "preview": "vite preview",
     "start": "vite",
     "test": "jest",
+    "typecheck": "tsc --noEmit",
     "lint": "eslint src --max-warnings 0 --report-unused-disable-directives",
     "clean": "rimraf dist node_modules"
   },

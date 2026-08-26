@@ -9,6 +9,8 @@
     "test:js": "pnpm run --filter @eyra/feldspar test && pnpm run --filter @eyra/data-collector test",
     "test:py": "bash scripts/py-run.sh test",
     "typecheck:py": "bash scripts/py-run.sh typecheck",
+    "typecheck:js": "pnpm --filter @eyra/feldspar typecheck && pnpm --filter @eyra/data-collector typecheck",
+    "lint": "pnpm --filter @eyra/data-collector lint",
     "verify:py": "bash scripts/py-run.sh verify",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
