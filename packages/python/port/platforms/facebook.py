@@ -2220,7 +2220,6 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "pages_youve_liked_to_df": pages_youve_liked_to_df,
     "your_saved_items_to_df": your_saved_items_to_df,
     "comments_to_df": comments_to_df,
-    "likes_and_reactions_to_df": likes_and_reactions_to_df,
     "your_comment_active_days_to_df": your_comment_active_days_to_df,
     "story_reactions_to_df": story_reactions_to_df,
     "likes_and_reactions_base_to_df": likes_and_reactions_base_to_df,
