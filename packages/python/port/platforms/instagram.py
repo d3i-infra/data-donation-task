@@ -1246,7 +1246,7 @@ def post_comments_to_df(
             "Media owner": {
               "en": "Media owner",
               "nl": "Media-eigenaar",
-              "de": "Medieninhaber",
+              "de": "Autor*in des kommentierten Beitrags",
               "pl": "Właściciel mediów",
               "tr": "Medya sahibi",
               "ar": "مالك الوسائط",
