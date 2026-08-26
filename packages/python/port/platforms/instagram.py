@@ -1040,7 +1040,7 @@ def videos_watched_to_df(
           "description": {
             "en": "In this table you find the accounts of videos you watched on Instagram sorted over time. Below, you find a timeline showing you the number of videos you watched over time.",
             "nl": "In deze tabel zie je de accounts van video's die je op Instagram hebt bekeken, gesorteerd op tijd. Hieronder zie je een tijdlijn met het aantal video's dat je in de loop van de tijd hebt bekeken.",
-            "de": "In dieser Tabelle finden Sie die Konten der Videos, die Sie auf Instagram angesehen haben, sortiert nach Zeit. Unten sehen Sie eine Zeitachse mit der Anzahl der Videos, die Sie im Laufe der Zeit angesehen haben.",
+            "de": "In dieser Tabelle finden Sie die Konten der Videos, die Sie auf Instagram angesehen haben, sortiert nach Zeit. Unten sehen Sie eine Zeitachse mit der Anzahl der Videos, die Sie angesehen haben.",
             "pl": "W tej tabeli znajdziesz konta filmów, które obejrzałeś/aś na Instagramie, posortowane chronologicznie. Poniżej zobaczysz oś czasu pokazującą liczbę filmów, które oglądałeś/aś w czasie.",
             "tr": "Bu tabloda, zamana göre sıralanmış olarak Instagram'da izlediğin videoların hesaplarını bulabilirsin. Aşağıda, zaman içinde izlediğin video sayısını gösteren bir zaman çizelgesi görürsün.",
             "ar": "في هذا الجدول، تجد حسابات مقاطع الفيديو التي شاهدتها على إنستغرام مرتبة حسب الوقت. أدناه، ترى خطاً زمنياً يوضح عدد مقاطع الفيديو التي شاهدتها عبر الوقت.",
@@ -1314,7 +1314,7 @@ def liked_comments_to_df(
 
     Handles both the older ``string_list_data`` format (dict root keyed by
     ``"likes_comment_likes"``) and the newer ``label_values`` list-at-root
-    format.  Note that the comment text is not available in the newer format.
+    format.
 
     Parameters
     ----------
@@ -1322,32 +1322,32 @@ def liked_comments_to_df(
         Archive reader used to load JSON files from the DDP zip.
     errors:
         Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
+        extraction. Updated in-place.
     filename:
-        Path inside the zip archive to read.  Defaults to
+        Path inside the zip archive to read. Defaults to
         ``"liked_comments.json"``.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Account name``, ``Value``, ``Date``.
+        Columns: ``Author``, ``URL``, ``Date``.
         Empty DataFrame when the file is absent or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents one comment the participant liked on Instagram. Comment text may be absent in newer export formats.",
+          "summary": "Each row represents one comment the participant liked on Instagram, including the author of the comment, the associated URL, and when the comment was liked.",
           "source_file": "liked_comments.json",
           "columns": {
-            "Account name": "Username of the account whose comment was liked.",
-            "Value": "Text of the liked comment, if available in the export (empty in newer export formats).",
+            "Author": "Username or display name of the account whose comment was liked.",
+            "URL": "URL associated with the liked comment or the Instagram content on which it appeared.",
             "Date": "ISO 8601 timestamp of when the comment was liked."
           }
         }
 
     Table config::
 
-                {
+        {
           "id": "instagram_liked_comments",
           "title": {
             "en": "Instagram liked comments",
@@ -1376,76 +1376,98 @@ def liked_comments_to_df(
             "sq": "Lista e komenteve që i ke pëlqyer në Instagram."
           },
           "headers": {
-            "Account name": {
-              "en": "Account name",
-              "nl": "Accountnaam",
-              "de": "Kontoname",
-              "pl": "Nazwa konta",
-              "tr": "Hesap adı",
-              "ar": "اسم الحساب",
-              "ru": "Имя аккаунта",
-              "it": "Nome account",
-              "ro": "Numele contului",
-              "es": "Nombre de la cuenta",
-              "sq": "Emri i llogarisë"
+            "Author": {
+              "en": "Comment author",
+              "nl": "Auteur van de reactie",
+              "de": "Autor*in des Kommentars",
+              "pl": "Autor komentarza",
+              "tr": "Yorumun yazarı",
+              "ar": "كاتب التعليق",
+              "ru": "Автор комментария",
+              "it": "Autore del commento",
+              "ro": "Autorul comentariului",
+              "es": "Autor del comentario",
+              "sq": "Autori i komentit"
             },
-            "Value": {
-              "en": "Value",
-              "nl": "Waarde",
-              "de": "Wert",
-              "pl": "Wartość",
-              "tr": "Değer",
-              "ar": "القيمة",
-              "ru": "Значение",
-              "it": "Valore",
-              "ro": "Valoare",
-              "es": "Valor",
-              "sq": "Vlera"
+            "URL": {
+              "en": "URL",
+              "nl": "URL",
+              "de": "URL",
+              "pl": "URL",
+              "tr": "URL",
+              "ar": "الرابط",
+              "ru": "URL-адрес",
+              "it": "URL",
+              "ro": "URL",
+              "es": "URL",
+              "sq": "URL"
             },
             "Date": {
-              "en": "Date",
+              "en": "Date and time",
               "nl": "Datum en tijd",
-              "de": "Datum",
-              "pl": "Data",
-              "tr": "Tarih",
-              "ar": "التاريخ",
-              "ru": "Дата",
-              "it": "Data",
-              "ro": "Data",
-              "es": "Fecha",
-              "sq": "Data"
+              "de": "Datum und Uhrzeit",
+              "pl": "Data i godzina",
+              "tr": "Tarih ve saat",
+              "ar": "التاريخ والوقت",
+              "ru": "Дата и время",
+              "it": "Data e ora",
+              "ro": "Data și ora",
+              "es": "Fecha y hora",
+              "sq": "Data dhe ora"
             }
           }
         }
     """
+
     result = reader.json(filename)
     if not result.found:
         return pd.DataFrame()
-    data = result.data
 
+    data = result.data
     out = pd.DataFrame()
     datapoints = []
 
     try:
         if isinstance(data, dict):
-            items = data["likes_comment_likes"]  # pyright: ignore
+            items = data.get("likes_comment_likes", [])
+
             for item in items:
-                entry = item.get("string_list_data", [{}])[0]
+                string_list_data = item.get("string_list_data", [])
+
+                if not string_list_data:
+                    continue
+
+                entry = string_list_data[0]
+
                 datapoints.append((
                     eh.fix_latin1_string(item.get("title", "")),
-                    eh.fix_latin1_string(entry.get("value", "")),
-                    eh.epoch_to_iso(entry.get("timestamp", ""), errors=errors),
-                ))
-        else:
-            for item in data:  # pyright: ignore
-                owner_name, owner_username, url = _extract_owner_details(item.get("label_values", []))
-                datapoints.append((
-                    owner_username or owner_name,
-                    "",  # comment text not available in label_values format
-                    eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
+                    entry.get("href", ""),
+                    eh.epoch_to_iso(
+                        entry.get("timestamp", ""),
+                        errors=errors,
+                    ),
                 ))
 
-        out = pd.DataFrame(datapoints, columns=["Account name", "Value", "Date"])  # pyright: ignore
+        else:
+            for item in data:  # pyright: ignore
+                owner_name, owner_username, url = _extract_owner_details(
+                    item.get("label_values", [])
+                )
+
+                datapoints.append((
+                    owner_username or owner_name,
+                    url,
+                    eh.epoch_to_iso(
+                        item.get("timestamp", ""),
+                        errors=errors,
+                    ),
+                ))
+
+        out = pd.DataFrame(
+            datapoints,
+            columns=["Author", "URL", "Date"],
+        )
+
         out = _sort_by_date(out, "Date")
 
     except Exception as e:
@@ -1453,8 +1475,6 @@ def liked_comments_to_df(
         errors[type(e).__name__] += 1
 
     return out
-
-
 def liked_posts_to_df(
     reader: ZipArchiveReader,
     errors: Counter,
@@ -1473,32 +1493,32 @@ def liked_posts_to_df(
         Archive reader used to load JSON files from the DDP zip.
     errors:
         Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
+        extraction. Updated in-place.
     filename:
-        Path inside the zip archive to read.  Defaults to
+        Path inside the zip archive to read. Defaults to
         ``"liked_posts.json"``.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Account name``, ``Value``, ``Date``.
+        Columns: ``Account``, ``URL``, ``Date``.
         Empty DataFrame when the file is absent or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents one post the participant liked on Instagram, including the account whose post was liked and when the like was given.",
+          "summary": "Each row represents one post the participant liked on Instagram, including the account whose post was liked, the URL of the post, and when the like was given.",
           "source_file": "liked_posts.json",
           "columns": {
-            "Account name": "Username of the account whose post was liked.",
-            "Value": "Display name or additional label for the liked post, depending on export format.",
+            "Account": "Username or display name of the account whose post was liked.",
+            "URL": "Direct URL to the liked Instagram post.",
             "Date": "ISO 8601 timestamp of when the post was liked."
           }
         }
 
     Table config::
 
-                {
+        {
           "id": "instagram_liked_posts",
           "title": {
             "en": "Instagram liked posts",
@@ -1527,44 +1547,44 @@ def liked_posts_to_df(
             "sq": "Lista e postimeve që i ke pëlqyer në Instagram."
           },
           "headers": {
-            "Account name": {
-              "en": "Account name",
-              "nl": "Accountnaam",
+            "Account": {
+              "en": "Account",
+              "nl": "Account",
               "de": "Kontoname",
-              "pl": "Nazwa konta",
-              "tr": "Hesap adı",
-              "ar": "اسم الحساب",
-              "ru": "Имя аккаунта",
-              "it": "Nome account",
-              "ro": "Numele contului",
-              "es": "Nombre de la cuenta",
-              "sq": "Emri i llogarisë"
+              "pl": "Konto",
+              "tr": "Hesap",
+              "ar": "الحساب",
+              "ru": "Аккаунт",
+              "it": "Account",
+              "ro": "Cont",
+              "es": "Cuenta",
+              "sq": "Llogari"
             },
-            "Value": {
-              "en": "Value",
-              "nl": "Waarde",
-              "de": "Wert",
-              "pl": "Wartość",
-              "tr": "Değer",
-              "ar": "القيمة",
-              "ru": "Значение",
-              "it": "Valore",
-              "ro": "Valoare",
-              "es": "Valor",
-              "sq": "Vlera"
+            "URL": {
+              "en": "URL",
+              "nl": "URL",
+              "de": "URL",
+              "pl": "URL",
+              "tr": "URL",
+              "ar": "الرابط",
+              "ru": "URL-адрес",
+              "it": "URL",
+              "ro": "URL",
+              "es": "URL",
+              "sq": "URL"
             },
             "Date": {
-              "en": "Date",
+              "en": "Date and time",
               "nl": "Datum en tijd",
-              "de": "Datum",
-              "pl": "Data",
-              "tr": "Tarih",
-              "ar": "التاريخ",
-              "ru": "Дата",
-              "it": "Data",
-              "ro": "Data",
-              "es": "Fecha",
-              "sq": "Data"
+              "de": "Zeitstempel",
+              "pl": "Data i godzina",
+              "tr": "Tarih ve saat",
+              "ar": "التاريخ والوقت",
+              "ru": "Дата и время",
+              "it": "Data e ora",
+              "ro": "Data și ora",
+              "es": "Fecha y hora",
+              "sq": "Data dhe ora"
             }
           },
           "visualizations": [
@@ -1583,15 +1603,17 @@ def liked_posts_to_df(
                 "sq": "Llogaritë më të pëlqyera"
               },
               "type": "wordcloud",
-              "textColumn": "Account name",
+              "textColumn": "Account",
               "tokenize": false
             }
           ]
         }
     """
+
     result = reader.json(filename)
     if not result.found:
         return pd.DataFrame()
+
     data = result.data
 
     out = pd.DataFrame()
@@ -1599,24 +1621,44 @@ def liked_posts_to_df(
 
     try:
         if isinstance(data, dict):
-            items = data["likes_media_likes"]  # pyright: ignore
+            items = data.get("likes_media_likes", [])
+
             for item in items:
                 d = eh.dict_denester(item)
+
                 datapoints.append((
-                    eh.fix_latin1_string(eh.find_item(d, "title")),
-                    eh.fix_latin1_string(eh.find_item(d, "value")),
-                    eh.epoch_to_iso(eh.find_item(d, "timestamp"), errors=errors),
-                ))
-        else:
-            for item in data:  # pyright: ignore
-                owner_name, owner_username, url = _extract_owner_details(item.get("label_values", []))
-                datapoints.append((
-                    owner_username or owner_name,
-                    owner_name,
-                    eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
+                    eh.fix_latin1_string(
+                        eh.find_item(d, "title")
+                        or eh.find_item(d, "value")
+                        or ""
+                    ),
+                    eh.find_item(d, "href") or "",
+                    eh.epoch_to_iso(
+                        eh.find_item(d, "timestamp"),
+                        errors=errors,
+                    ),
                 ))
 
-        out = pd.DataFrame(datapoints, columns=["Account name", "Value", "Date"])  # pyright: ignore
+        else:
+            for item in data:  # pyright: ignore
+                owner_name, owner_username, url = _extract_owner_details(
+                    item.get("label_values", [])
+                )
+
+                datapoints.append((
+                    owner_username or owner_name,
+                    url,
+                    eh.epoch_to_iso(
+                        item.get("timestamp", ""),
+                        errors=errors,
+                    ),
+                ))
+
+        out = pd.DataFrame(
+            datapoints,
+            columns=["Account", "URL", "Date"],
+        )
+
         out = _sort_by_date(out, "Date")
 
     except Exception as e:
@@ -1625,14 +1667,13 @@ def liked_posts_to_df(
 
     return out
 
-
 def profile_searches_to_df(
     reader: ZipArchiveReader,
     errors: Counter,
     *,
     filename: str = "profile_searches.json",
 ) -> pd.DataFrame:
-    """Extract the list of profile searches into a DataFrame.
+    """Extract the list of Instagram profile searches into a DataFrame.
 
     Parameters
     ----------
@@ -1640,31 +1681,32 @@ def profile_searches_to_df(
         Archive reader used to load JSON files from the DDP zip.
     errors:
         Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
+        extraction. Updated in-place.
     filename:
-        Path inside the zip archive to read.  Defaults to
+        Path inside the zip archive to read. Defaults to
         ``"profile_searches.json"``.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Timestamp``, ``Name``.
+        Columns: ``Name``, ``URL``, ``Date``.
         Empty DataFrame when the file is absent or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents one profile search performed by the participant on Instagram, recording what was searched and when.",
+          "summary": "Each row represents one profile search performed by the participant on Instagram, including the searched profile, its URL, and when the search was performed.",
           "source_file": "profile_searches.json",
           "columns": {
-            "Name": "Username or display name that was searched for.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Name": "Username or display name of the Instagram profile that was searched for.",
+            "URL": "URL associated with the searched Instagram profile.",
+            "Date": "ISO 8601 timestamp of when the profile search was performed."
           }
         }
 
     Table config::
 
-                {
+        {
           "id": "instagram_profile_searches",
           "title": {
             "en": "Your Instagram profile searches",
@@ -1706,40 +1748,69 @@ def profile_searches_to_df(
               "es": "Nombre",
               "sq": "Emri"
             },
-            "Timestamp": {
-              "en": "Timestamp",
+            "URL": {
+              "en": "URL",
+              "nl": "URL",
+              "de": "URL",
+              "pl": "URL",
+              "tr": "URL",
+              "ar": "الرابط",
+              "ru": "URL-адрес",
+              "it": "URL",
+              "ro": "URL",
+              "es": "URL",
+              "sq": "URL"
+            },
+            "Date": {
+              "en": "Date and time",
               "nl": "Datum en tijd",
               "de": "Zeitstempel",
-              "pl": "Znacznik czasu",
-              "tr": "Zaman Damgası",
-              "ar": "الطابع الزمني",
-              "ru": "Отметка времени",
-              "it": "Timestamp",
-              "ro": "Marcaj temporal",
-              "es": "Marca de tiempo",
-              "sq": "Vula kohore"
+              "pl": "Data i godzina",
+              "tr": "Tarih ve saat",
+              "ar": "التاريخ والوقت",
+              "ru": "Дата и время",
+              "it": "Data e ora",
+              "ro": "Data și ora",
+              "es": "Fecha y hora",
+              "sq": "Data dhe ora"
             }
           }
         }
     """
+
     result = reader.json(filename)
     if not result.found:
         return pd.DataFrame()
-    data = result.data
 
+    data = result.data
     out = pd.DataFrame()
     datapoints = []
 
     try:
-        items = data["searches_user"]  # pyright: ignore
+        items = data.get("searches_user", [])
+
         for item in items:
             d = eh.dict_denester(item)
+
             datapoints.append((
-                eh.epoch_to_iso(eh.find_item(d, "timestamp"), errors=errors),
-                eh.fix_latin1_string(eh.find_item(d, "title") or eh.find_item(d, "value")),
+                eh.fix_latin1_string(
+                    eh.find_item(d, "title")
+                    or eh.find_item(d, "value")
+                    or ""
+                ),
+                eh.find_item(d, "href") or "",
+                eh.epoch_to_iso(
+                    eh.find_item(d, "timestamp"),
+                    errors=errors,
+                ),
             ))
-        out = pd.DataFrame(datapoints, columns=["Timestamp", "Name"])  # pyright: ignore
-        out = _sort_by_date(out, "Timestamp")
+
+        out = pd.DataFrame(
+            datapoints,
+            columns=["Name", "URL", "Date"],
+        )
+
+        out = _sort_by_date(out, "Date")
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -1822,7 +1893,7 @@ def story_likes_to_df(
             "Account name": {
               "en": "Account name",
               "nl": "Accountnaam",
-              "de": "Kontoname",
+              "de": "Autor*in der Story",
               "pl": "Nazwa konta",
               "tr": "Hesap adı",
               "ar": "اسم الحساب",
@@ -1951,7 +2022,7 @@ def stories_viewed_to_df(
             "Author": {
               "en": "Author",
               "nl": "Auteur",
-              "de": "Autor*in",
+              "de": "Autor*in der Story",
               "pl": "Autor",
               "tr": "Yazar",
               "ar": "الكاتب",
