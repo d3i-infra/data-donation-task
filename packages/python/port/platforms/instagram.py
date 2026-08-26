@@ -566,7 +566,7 @@ def ads_viewed_to_df(
             "Account name": {
               "en": "Account name",
               "nl": "Accountnaam",
-              "de": "Kontoname",
+              "de": "Instagram-Nutzername",
               "pl": "Nazwa konta",
               "tr": "Hesap adı",
               "ar": "اسم الحساب",
@@ -579,7 +579,7 @@ def ads_viewed_to_df(
             "Name": {
               "en": "Name",
               "nl": "Naam",
-              "de": "Name",
+              "de": "Name des Accounts",
               "pl": "Nazwa",
               "tr": "Ad",
               "ar": "الاسم",
@@ -592,7 +592,7 @@ def ads_viewed_to_df(
             "URL": {
               "en": "URL",
               "nl": "URL",
-              "de": "URL",
+              "de": "Link zur Anzeige",
               "pl": "URL",
               "tr": "URL",
               "ar": "الرابط",
@@ -605,7 +605,7 @@ def ads_viewed_to_df(
             "Date": {
               "en": "Date",
               "nl": "Datum en tijd",
-              "de": "Datum",
+              "de": "Zeitpunkt",
               "pl": "Data",
               "tr": "Tarih",
               "ar": "التاريخ",
