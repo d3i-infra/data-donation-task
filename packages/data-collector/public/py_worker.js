@@ -97,6 +97,13 @@ function unwrap(response) {
         copyFileToPyFS(response.payload.value, resolve);
         break;
 
+      case "PayloadFiles":
+        resolve({
+          __type__: "PayloadFiles",
+          value: response.payload.value.map(createAsyncFileReader),
+        });
+        break;
+
       default:
         resolve(response.payload);
     }
