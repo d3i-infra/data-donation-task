@@ -5,7 +5,7 @@ export function formatDate(
   format: DateFormat,
   minValues: number = 10
 ): [string[], Record<string, number> | null] {
-  let formattedDate: string[] = dateString;
+  let formattedDate: string[];
   const dateNumbers = dateString.map((date) => new Date(date).getTime());
   let domain: [number, number] | null = null;
   let formatter: (date: Date) => string = (date) => date.toISOString();
@@ -158,7 +158,7 @@ export function extractUrlDomain(x: string): string {
   try {
     const url = new URL(x);
     domain = url.hostname.replace(/^www\./, "").replace(/^m\./, "");
-  } catch (_) {
+  } catch {
     domain = x;
   }
   return domain.trim();

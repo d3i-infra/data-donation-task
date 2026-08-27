@@ -1,4 +1,6 @@
-export function Loader (): JSX.Element {
+import { ReactElement } from 'react'
+
+export function Loader (): ReactElement {
   return (
     <div className='flex justify-center items-center gap-6'>
       <div className='w-10 h-10'>

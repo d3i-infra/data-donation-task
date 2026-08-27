@@ -13,6 +13,13 @@ import { defineConfig, devices } from '@playwright/test';
  */
 export default defineConfig({
   testDir: './tests',
+  /* Platform-keyed spec selection: the e2etest platform's fault-injection
+   * spec and the default donation/localization specs never cross-run.
+   * Task 12 extends this same expression for `multifile_demo`. */
+  testIgnore:
+    process.env.VITE_PLATFORM === 'e2etest'
+      ? ['**/donation.spec.ts', '**/localization.spec.ts']
+      : ['**/error-flow.spec.ts'],
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */

@@ -313,7 +313,6 @@ the previous step.
 | `packages/python/pyproject.toml` | Yes | Poetry project definition (name, version, deps) |
 | `packages/python/dist/*.whl` | No | Build artifact, gitignored |
 | `packages/data-collector/public/port-0.0.0-py3-none-any.whl` | No | Copied from dist, gitignored |
-| `packages/data-collector/public/port-0.0.0.tar.gz` | Yes | Legacy committed sdist — not used by `py_worker.js` (which loads the `.whl`) |
 
 The version is hardcoded at `0.0.0` because it is never published to PyPI —
 it only needs to be loadable by micropip inside the worker.

@@ -1,5 +1,5 @@
 import { VisualizationData, ChartVisualizationData, TextVisualizationData, Table, zVisualizationType } from './types'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { memo, useEffect, useMemo, useState, ReactElement } from 'react'
 
 import useVisualizationData from './visualizationDataFunctions/useVisualizationData'
 
@@ -27,7 +27,7 @@ export const Figure = ({
   locale,
   handleDelete,
   handleUndo
-}: FigureProps): JSX.Element => {
+}: FigureProps): ReactElement => {
   const visualizationValidator = useMemo(() => zVisualizationType.safeParse(visualizationInput), [visualizationInput])
 
   if (!visualizationValidator.success) {
@@ -57,20 +57,26 @@ export interface ValidatedFigureProps {
 export const FigureComponent = ({
   table,
   visualization,
-  locale,
-  handleDelete,
-  handleUndo
-}: ValidatedFigureProps): JSX.Element => {
+  locale
+}: ValidatedFigureProps): ReactElement => {
   const [visualizationData, status] = useVisualizationData(table, visualization)
   const [longLoading, setLongLoading] = useState<boolean>(false)
   const [showStatus, setShowStatus] = useState<ShowStatus>('visible')
   const [resizeLoading, setResizeLoading] = useState<boolean>(false)
 
+  // Reset longLoading as soon as status leaves 'loading', without a synchronous
+  // setState in an effect body (which would cause an extra cascading render).
+  // This is the React-documented "adjusting state when a prop changes" pattern:
+  // detect the transition during render and update state immediately, instead
+  // of doing it in a useEffect after commit.
+  const [prevStatus, setPrevStatus] = useState(status)
+  if (status !== prevStatus) {
+    setPrevStatus(status)
+    if (status !== 'loading') setLongLoading(false)
+  }
+
   useEffect(() => {
-    if (status !== 'loading') {
-      setLongLoading(false)
-      return
-    }
+    if (status !== 'loading') return
     const timer = setTimeout((): void => {
       setLongLoading(true)
     }, 1000)
@@ -143,7 +149,7 @@ export const RenderVisualization = memo(
     fallbackMessage: string
     loading: boolean
     locale: string
-  }): JSX.Element | null => {
+  }): ReactElement | null => {
     if (visualizationData == null) return null
 
     const fallback = <div className='m-auto font-bodybold text-4xl text-grey2 '>{fallbackMessage}</div>

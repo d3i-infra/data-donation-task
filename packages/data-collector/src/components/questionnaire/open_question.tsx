@@ -4,7 +4,7 @@ import {
   Title3,
 } from "@eyra/feldspar"
 import { resolveText } from '../../locale/text'
-import { PropsUIQuestionOpen } from '../../../../types/elements'
+import { PropsUIQuestionOpen } from './types'
 
 interface parentSetter {
   parentSetter: (arg: any) => any
@@ -12,7 +12,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionOpen & parentSetter & ReactFactoryContext
 
-export const OpenQuestion = (props: Props): JSX.Element => {
+export const OpenQuestion = (props: Props): React.JSX.Element => {
 
   const { question, id, parentSetter, locale } = props
   const [userAnswer, setUserAnswer] = React.useState<string>("");

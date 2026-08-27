@@ -14,9 +14,12 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tailwindcss/postcss": "^4.2.4",
+    "@types/d3-cloud": "^1.2.9",
     "@types/jest": "30.0.0",
+    "@types/lodash": "4.17.24",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.2",
+    "@types/react-highlight-words": "^0.20.1",
     "@typescript-eslint/eslint-plugin": "^8.59.3",
     "@typescript-eslint/parser": "^8.60.1",
     "@vitejs/plugin-react": "^6.0.2",
@@ -41,7 +44,8 @@
     "preview": "vite preview",
     "start": "vite",
     "test": "jest",
-    "lint": "eslint src",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --max-warnings 0 --report-unused-disable-directives",
     "clean": "rimraf dist node_modules"
   },
   "browserslist": {

@@ -1,7 +1,8 @@
+import { ReactElement, KeyboardEvent } from 'react'
 import { PropsUISearchBar } from './types'
 
-export const SearchBar = ({ search, onSearch, placeholder }: PropsUISearchBar): JSX.Element => {
-  function handleKeyPress (event: React.KeyboardEvent<HTMLInputElement>): void {
+export const SearchBar = ({ search, onSearch, placeholder }: PropsUISearchBar): ReactElement => {
+  function handleKeyPress (event: KeyboardEvent<HTMLInputElement>): void {
     if (event.key === 'Enter') {
       event.preventDefault()
     }

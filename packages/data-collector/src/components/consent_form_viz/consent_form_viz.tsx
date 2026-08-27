@@ -15,37 +15,13 @@ import {
     PropsUIPromptConsentFormTableViz,
     PropsUITableRow,
 } from "./types"
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useCallback, useEffect, useRef, useState, ReactElement } from "react"
 import _ from "lodash"
 import { TableContainer } from "./table_container"
 
 type Props = PropsUIPromptConsentFormViz & ReactFactoryContext
 
-export const ConsentFormViz = (props: Props): JSX.Element => {
-  const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
-  const { locale, resolve } = props
-  const { description } = prepareCopy(props)
-  // The state initializer above already parsed props.tables; only re-parse
-  // when the host actually sends new tables (issue #122 double parse).
-  const parsedTables = useRef(props.tables)
-
-  useEffect(() => {
-    if (parsedTables.current === props.tables) return
-    parsedTables.current = props.tables
-    setTables(parseTables(props.tables))
-  }, [props.tables])
-
-  const updateTable = useCallback((tableId: string, table: TableWithContext) => {
-    setTables((tables) => {
-      const index = tables.findIndex((table) => table.id === tableId)
-      if (index === -1) return tables
-
-      const newTables = [...tables]
-      newTables[index] = table
-      return newTables
-    })
-  }, [])
-
+export const ConsentFormViz = (props: Props): ReactElement => {
   function rowCell(dataFrame: any, column: string, row: number): string {
     const text = String(dataFrame[column][`${row}`])
     return text
@@ -127,6 +103,31 @@ export const ConsentFormViz = (props: Props): JSX.Element => {
       deleteOption: tableData.delete_option,
     }
   }
+
+  const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
+  const { locale, resolve } = props
+  const { description } = prepareCopy(props)
+  // The state initializer above already parsed props.tables; only re-parse
+  // when the host actually sends new tables (issue #122 double parse).
+  const parsedTables = useRef(props.tables)
+
+  useEffect(() => {
+    if (parsedTables.current === props.tables) return
+    parsedTables.current = props.tables
+    setTables(parseTables(props.tables))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: consent_form_viz re-parse effect intentionally omits `parseTables` from deps. parseTables is a plain closure re-created every render, so listing it would make the dependency "changed" on every render regardless of whether props.tables actually changed; the effect's own ref-comparison guard (not this array) is what enforces ADR-0031's parse-once contract (issue #122 double parse), and widening this dependency array is exactly the kind of edit that has previously broken that contract by accident. A real fix would hoist parseTables/parseTable out of the component (or wrap them in useCallback keyed only on props.locale) so the function identity is stable and can be listed honestly.
+  }, [props.tables])
+
+  const updateTable = useCallback((tableId: string, table: TableWithContext) => {
+    setTables((tables) => {
+      const index = tables.findIndex((table) => table.id === tableId)
+      if (index === -1) return tables
+
+      const newTables = [...tables]
+      newTables[index] = table
+      return newTables
+    })
+  }, [])
 
   function handleDonate(): void {
     const value = serializeConsentData()

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState, useEffect, useRef } from "react"
+import { useCallback, useMemo, useState, useEffect, useRef, ReactElement } from "react"
 import {
     Title4,
 } from "@eyra/feldspar"
@@ -21,7 +21,7 @@ interface TableContainerProps {
   locale: string
 }
 
-export const TableContainer = ({ id, table, updateTable, locale }: TableContainerProps): JSX.Element => {
+export const TableContainer = ({ id, table, updateTable, locale }: TableContainerProps): ReactElement => {
   const tableVisualizations = table.visualizations != null ? table.visualizations : []
   const [searchFilterIds, setSearchFilterIds] = useState<Set<string>>()
   const [search, setSearch] = useState<string>("")
@@ -39,7 +39,7 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
       lastSearch.current = search
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, lastSearch])
+  }, [search, lastSearch, table.originalBody.rows])
 
   const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table
@@ -77,14 +77,14 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
         updateTable(id, newTable)
       }
     },
-    [id, table, searchedTable]
+    [id, table, searchedTable, updateTable]
   )
 
   const handleUndo = useCallback(() => {
     const deletedRows = table.deletedRows.slice(0, -1)
     const newTable = deleteTableRows(table, deletedRows)
     updateTable(id, newTable)
-  }, [id, table])
+  }, [id, table, updateTable])
 
   const unfilteredRows = table.body.rows.length
 

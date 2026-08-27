@@ -51,6 +51,30 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   table titles), region-tag normalization (`es-ES` → `es`), a full Dutch
   donation flow, and an unsupported `ro` falling back to English and still
   donating.
+* **`e2etest` fault-injection platform** for Playwright (`port/platforms/e2etest.py`,
+  `port/configs/e2etest_config.json`): delegates validation and extraction to
+  the `example` platform and deliberately raises when the uploaded archive
+  contains `trigger_error.txt`, giving `VITE_PLATFORM=e2etest pnpm test:e2e`
+  a reliable way to exercise the consent-gated error flow end-to-end.
+  **It is excluded from releases at the artifact level, not just from
+  selection**: `release.sh` skips `e2etest_config.json` when discovering
+  study platforms and fails immediately on an explicit
+  `VITE_PLATFORM=e2etest`, and — because Poetry otherwise packages the whole
+  `port` module tree into every production wheel regardless of which
+  platform a build selects — the per-platform build now produces its wheel
+  via `scripts/build_release_wheel.sh` (a disposable staged copy of
+  `packages/python`, never the source checkout, with `e2etest.py` and
+  `e2etest_config.json` removed before `poetry build`) and
+  `scripts/verify_release_wheel.py` re-opens the wheel that actually lands
+  in `packages/data-collector/dist` to confirm both files are absent and the
+  selected platform's own module/config are present, before `release.sh`
+  zips anything. The normal development/Playwright wheel
+  (`pnpm run build:py`) is untouched and still includes `e2etest`. See
+  ADR-0004.
+* **Removed the stale tracked `port-0.0.0.tar.gz`** from
+  `packages/data-collector/public/`. It previously rode into every release
+  zip via Vite's publicDir but has been deleted. Release zips no longer
+  contain it.
 
 ### Fixed
 
