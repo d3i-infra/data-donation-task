@@ -8,6 +8,7 @@ from port.api.file_utils import AsyncFileAdapter
 from port.helpers import ui_locale
 from port.script import process
 import port.api.props as props
+import port.helpers.port_helpers as ph
 
 
 def error_flow(platform: str | None, tb: str):
@@ -72,6 +73,11 @@ def error_flow(platform: str | None, tb: str):
         })
         yield CommandSystemDonate("error-report", error_data)
 
+    # Terminal task-incomplete page: without it the participant would be left
+    # on the stale error page after the nonzero exit halts the run cycle
+    # (#123). Its Confirm must resolve so the generator can exhaust (ADR-0025).
+    yield ph.render_task_incomplete_page(platform or "error")
+
 
 class ScriptWrapper(Generator):
     def __init__(self, script, platform: str | None = None):
@@ -85,7 +91,11 @@ class ScriptWrapper(Generator):
                 command = self._error_handler.send(data)
                 return command.toDict()
             except StopIteration:
-                return CommandSystemExit(0, "End of script").toDict()
+                # Error-end, not flow-end: a nonzero code tells the host the
+                # task was NOT completed (Issue #123). The info string crosses
+                # the bridge unconsented and must stay free of exception text
+                # (ADR-0022/0023).
+                return CommandSystemExit(1, "Error flow completed").toDict()
 
         # Automatically wrap JS file readers with AsyncFileAdapter
         if data and getattr(data, "__type__", None) == "PayloadFile":

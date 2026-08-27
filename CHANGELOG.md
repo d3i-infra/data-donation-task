@@ -96,6 +96,19 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   participant. Locale *coverage* is deliberately not checked there —
   partial bundles are legitimate, and coverage is the `--report` gate's
   job.
+* **A participant who hits a Python error no longer completes the task.**
+  When the consent-gated error flow exhausts, `ScriptWrapper.send()` now
+  returns `CommandSystemExit(1, "Error flow completed")` instead of exit 0,
+  so the host keeps the task pending rather than recording an errored
+  participant as a satisfied completion with no data donated (Issue #123).
+  The error flow's final step is a new terminal page,
+  `render_task_incomplete_page` (`port_helpers.py`), a single-button
+  Confirm telling the participant the task was not completed and that they
+  can retry by refreshing — so the participant lands there instead of
+  being stranded on the stale error page after the nonzero exit halts the
+  run cycle. See ADR-0039. Covered end-to-end by `tests/error-flow.spec.ts`
+  against the `e2etest` fault-injection platform
+  (`VITE_PLATFORM=e2etest pnpm test:e2e`).
 
 * Translation resolution no longer returns `undefined` or throws on a
   malformed bundle: `translator.ts` and `text_bundle.ts` now resolve

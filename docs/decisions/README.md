@@ -21,6 +21,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0006 — Communicate with the host through a swappable Bridge](./0006-communicate-with-the-host-through-a-swappable-bridge.md)
 - [0017 — Worker delivers uploads as PayloadFile, not a WORKERFS path](./0017-worker-delivers-uploads-as-payloadfile-not-a-workerfs-path.md)
 - [0025 — Flow completion is generator exhaustion, not an explicit exit](./0025-flow-completion-is-generator-exhaustion-not-an-explicit-exit.md)
+- [0039 — Error-flow exhaustion exits nonzero; exit 0 means completed](./0039-error-flow-exhaustion-exits-nonzero-exit-0-means-completed.md)
 
 ### Python architecture
 

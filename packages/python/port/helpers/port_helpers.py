@@ -393,6 +393,38 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
     return CommandUIRender(page)
 
 
+def render_task_incomplete_page(platform_name: str) -> CommandUIRender:
+    """Render the terminal page of the error flow: the task was not completed
+    and the participant can retry by refreshing the page.
+
+    Shown after the consent-gated error report (or its skip) so the
+    participant does not land on a stale error page when the flow exits
+    nonzero (Issue #123). Caller should yield and await response before
+    returning.
+    """
+    header = props.PropsUIHeader(
+        props.Translatable({
+            "en": "Task not completed",
+            "nl": "Taak niet voltooid",
+            "de": "Aufgabe nicht abgeschlossen",
+            "it": "Attività non completata",
+            "es": "Tarea no completada",
+        })
+    )
+    body = props.PropsUIPromptConfirm(
+        text=props.Translatable({
+            "en": "This task could not be completed. You can try again by refreshing this page. If the problem persists, please contact the researcher.",
+            "nl": "Deze taak kon niet worden voltooid. U kunt het opnieuw proberen door deze pagina te vernieuwen. Als het probleem aanhoudt, neem dan contact op met de onderzoeker.",
+            "de": "Diese Aufgabe konnte nicht abgeschlossen werden. Sie können es erneut versuchen, indem Sie diese Seite aktualisieren. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Forscher.",
+            "it": "Non è stato possibile completare questa attività. Può riprovare aggiornando questa pagina. Se il problema persiste, contatti il ricercatore.",
+            "es": "Esta tarea no se pudo completar. Puede intentarlo de nuevo actualizando esta página. Si el problema persiste, póngase en contacto con el investigador.",
+        }),
+        ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
+    )
+    page = props.PropsUIPageDataSubmission(platform_name, header, body)
+    return CommandUIRender(page)
+
+
 def render_donate_failure_page(platform_name: str) -> CommandUIRender:
     """Render donation failure page.
 
