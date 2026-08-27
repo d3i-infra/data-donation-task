@@ -67,6 +67,91 @@ def test_stop_iteration_returns_exit():
     assert result["__type__"] == "CommandSystemExit"
 
 
+class _Payload:
+    """Minimal stand-in for a JS payload object with a __type__ attribute."""
+
+    def __init__(self, type_: str):
+        self.__type__ = type_
+
+
+def _crashing_wrapper() -> ScriptWrapper:
+    def crashing():
+        data = yield
+        raise RuntimeError("test explosion")
+
+    return ScriptWrapper(crashing(), platform="X")
+
+
+def test_success_exit_code_is_zero():
+    """Normal generator exhaustion keeps exit code 0 (flow-end contract)."""
+    def finite_script():
+        return
+        yield  # make it a generator
+
+    wrapper = ScriptWrapper(finite_script())
+    result = wrapper.send(None)
+    assert result["__type__"] == "CommandSystemExit"
+    assert result["code"] == 0
+
+
+def test_error_flow_skip_renders_incomplete_page_then_exits_nonzero():
+    """After skipping the error report, the participant lands on a task-incomplete page
+    and the flow terminates with a nonzero exit (Issue #123)."""
+    import json
+
+    wrapper = _crashing_wrapper()
+
+    error_page = wrapper.send(None)
+    assert error_page["__type__"] == "CommandUIRender"
+
+    incomplete_page = wrapper.send(_Payload("PayloadFalse"))
+    assert incomplete_page["__type__"] == "CommandUIRender"
+    assert incomplete_page["page"]["__type__"] == "PropsUIPageDataSubmission"
+    assert "could not be completed" in json.dumps(incomplete_page)
+
+    exit_command = wrapper.send(_Payload("PayloadTrue"))
+    assert exit_command["__type__"] == "CommandSystemExit"
+    assert exit_command["code"] != 0
+
+
+def test_error_flow_report_donates_then_renders_incomplete_page_then_exits_nonzero():
+    """Reporting the error donates under 'error-report', then shows the task-incomplete
+    page, then terminates with a nonzero exit."""
+    import json
+
+    wrapper = _crashing_wrapper()
+
+    error_page = wrapper.send(None)
+    assert error_page["__type__"] == "CommandUIRender"
+
+    donate = wrapper.send(_Payload("PayloadTrue"))
+    assert donate["__type__"] == "CommandSystemDonate"
+    assert donate["key"] == "error-report"
+
+    incomplete_page = wrapper.send(_Payload("PayloadVoid"))
+    assert incomplete_page["__type__"] == "CommandUIRender"
+    assert "could not be completed" in json.dumps(incomplete_page)
+
+    exit_command = wrapper.send(_Payload("PayloadTrue"))
+    assert exit_command["__type__"] == "CommandSystemExit"
+    assert exit_command["code"] != 0
+
+
+def test_error_exit_info_contains_no_exception_text():
+    """The exit info crossing the bridge is PII-free: no traceback or
+    exception text (ADR-0022 / ADR-0023)."""
+    wrapper = _crashing_wrapper()
+
+    wrapper.send(None)  # error page
+    wrapper.send(_Payload("PayloadFalse"))  # task-incomplete page
+    exit_command = wrapper.send(_Payload("PayloadTrue"))
+
+    assert exit_command["__type__"] == "CommandSystemExit"
+    assert "test explosion" not in exit_command["info"]
+    assert "RuntimeError" not in exit_command["info"]
+    assert "Traceback" not in exit_command["info"]
+
+
 def test_start_function_creates_wrapper(monkeypatch):
     """start() returns a ScriptWrapper."""
     def fake_process(session_id, platform):

@@ -40,6 +40,26 @@ class TestRenderDonateFailurePage:
         assert d["page"]["__type__"] == "PropsUIPageDataSubmission"
 
 
+class TestRenderTaskIncompletePage:
+    def test_returns_command_ui_render(self):
+        result = ph.render_task_incomplete_page("TikTok")
+        assert isinstance(result, CommandUIRender)
+
+    def test_page_type_is_data_submission(self):
+        result = ph.render_task_incomplete_page("TikTok")
+        d = result.toDict()
+        assert d["page"]["__type__"] == "PropsUIPageDataSubmission"
+
+    def test_confirm_prompt_has_no_cancel_button(self):
+        """The task-incomplete page is an acknowledge page: a single OK button."""
+        result = ph.render_task_incomplete_page("TikTok")
+        d = result.toDict()
+        body = d["page"]["body"]
+        prompts = body if isinstance(body, list) else [body]
+        confirm = next(p for p in prompts if p["__type__"] == "PropsUIPromptConfirm")
+        assert confirm.get("cancel") in (None, {})
+
+
 class TestHandleDonateResult:
     def test_success_response(self):
         """PayloadResponse with value.success=True → True."""
