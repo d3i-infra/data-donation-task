@@ -2,50 +2,41 @@ import * as React from 'react'
 import {
   ReactFactoryContext,
   PrimaryButton,
+  BodyLarge,
   BodySmall
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
 import { resolveText } from "../../locale/text"
 import { PropsUIPromptFileInputMultiple, Translatable } from "./types.ts"
+import { addFiles } from "./select"
 import CloseSvg  from "./assets/close.svg"
 
 type Props = PropsUIPromptFileInputMultiple & ReactFactoryContext
 
-// The type `resolve` actually accepts (feldspar's `Payload` union, not exported
-// from @eyra/feldspar's public API — ADR-0002 forbids adding the export just for
-// this cast). Derived structurally so the bridge cast below stays honest without
-// duplicating feldspar's Payload union here.
-type ResolvePayload = Parameters<NonNullable<Props['resolve']>>[0]
-
 export const FileInputMultiple = (props: Props): React.JSX.Element => {
   const [waiting, setWaiting] = React.useState<boolean>(false)
   const [files, setFiles] = React.useState<File[]>([])
+  const [duplicates, setDuplicates] = React.useState<string[]>([])
   const input = React.useRef<HTMLInputElement>(null)
 
   const { resolve } = props
-  const { description, note, extensions, selectButton, continueButton } = prepareCopy(props)
+  const { description, note, placeholder, duplicatesNotice, extensions, selectButton, continueButton } = prepareCopy(props)
 
   function handleClick (): void {
     input.current?.click()
   }
 
-  function addFile(file: File): void {
-    const fileExists = files.some(f => f.name === file.name && f.size === file.size);
-    if (!fileExists) {
-      setFiles(prevFiles => [...prevFiles, file]);
-    }
-  };
-
   function removeFile(index: number): void {
+    setDuplicates([]);
     setFiles(prevFiles => prevFiles.filter((_, i) => i !== index));
   };
 
   function handleSelect (event: React.ChangeEvent<HTMLInputElement>): void {
     const selectedFiles = event.target.files
     if (selectedFiles != null && selectedFiles.length > 0) {
-			for (let i = 0; i < selectedFiles.length; i++) {
-				addFile(selectedFiles[i])
-			}
+      const { files: merged, duplicates: dupes } = addFiles(files, Array.from(selectedFiles))
+      setFiles(merged)
+      setDuplicates(dupes)
     } else {
       console.log('[FileInput] Error selecting file: ' + JSON.stringify(selectedFiles))
     }
@@ -54,13 +45,7 @@ export const FileInputMultiple = (props: Props): React.JSX.Element => {
   function handleConfirm (): void {
     if (files !== undefined && !waiting) {
       setWaiting(true)
-      // `PayloadFileArray` is not (and was never) a member of feldspar's Payload
-      // union: packages/python/port/helpers/flow_builder.py only recognizes
-      // `__type__ === "PayloadFile"` and silently skips anything else, so this
-      // call is already inert at runtime. Bridge cast lets tsc reflect that
-      // honestly instead of masking it; Task 5 rebuilds this component's donate
-      // path and removes the cast then.
-      resolve?.({ __type__: 'PayloadFileArray', value: files } as unknown as ResolvePayload)
+      resolve?.({ __type__: 'PayloadFiles', value: files })
     }
   }
 
@@ -71,16 +56,30 @@ export const FileInputMultiple = (props: Props): React.JSX.Element => {
           {description}
         </div>
         <div className='mt-8' />
-        <div className='p-6 border-grey4 '>
+        <div className='p-6 border-grey4 border-2 rounded'>
           <input ref={input} id='input' type='file' className='hidden' accept={extensions} onChange={handleSelect} multiple/>
-          <div className='flex flex-row gap-4 items-center'>
-            <PrimaryButton onClick={handleClick} label={selectButton} color='bg-tertiary text-grey1' />
+          <div className='flex flex-col sm:flex-row gap-2 sm:gap-4 items-center'>
+            {files.length === 0 && (
+              <BodyLarge text={placeholder} margin='' color='text-grey2' />
+            )}
+            <div className='grow' />
+            <div className='flex-wrap'>
+              <div className='flex flex-row'>
+                <PrimaryButton onClick={handleClick} label={selectButton} color='bg-tertiary text-grey1' />
+              </div>
+            </div>
           </div>
         </div>
+        {duplicates.length > 0 && (
+          <>
+            <div className='mt-2' />
+            <BodySmall text={duplicatesNotice.replace('{names}', duplicates.join(', '))} margin='' />
+          </>
+        )}
         <div>
         {files.map((file, index) => (
-            <div className="w-64 md:w-full px-4">
-                <div key={index} className="flex items-center justify-between">
+            <div key={`${file.name} ${file.size} ${file.lastModified}`} className="w-64 md:w-full px-4">
+                <div className="flex items-center justify-between">
                     <span className="truncate">{file.name}</span>
                     <button
                         onClick={() => removeFile(index)}
@@ -111,6 +110,8 @@ export const FileInputMultiple = (props: Props): React.JSX.Element => {
 interface Copy {
   description: string
   note: string
+  placeholder: string
+  duplicatesNotice: string
   extensions: string
   selectButton: string
   continueButton: string
@@ -120,6 +121,8 @@ function prepareCopy ({ description, extensions, locale }: Props): Copy {
   return {
     description: resolveText(description, locale),
     note: resolveText(note(), locale),
+    placeholder: resolveText(placeholderText(), locale),
+    duplicatesNotice: resolveText(duplicatesNoticeText(), locale),
     extensions: extensions,
     selectButton: resolveText(selectButtonLabel(), locale),
     continueButton: resolveText(continueButtonLabel(), locale)
@@ -153,3 +156,20 @@ const note = (): Translatable => {
     .add('es', 'Nota: el proceso de extraer los datos correctos del archivo se realiza en su propio ordenador. Todavía no se guarda ni se envía ningún dato.')
 }
 
+const placeholderText = (): Translatable => {
+  return new TextBundle()
+    .add('en', 'E.g. data.zip')
+    .add('de', 'Z.B. data.zip')
+    .add('nl', 'Voorbeeld: data.zip')
+    .add('it', 'Esempio: data.zip')
+    .add('es', 'Ejemplo: data.zip')
+}
+
+const duplicatesNoticeText = (): Translatable => {
+  return new TextBundle()
+    .add('en', 'Already added: {names}')
+    .add('de', 'Bereits hinzugefügt: {names}')
+    .add('nl', 'Al toegevoegd: {names}')
+    .add('it', 'Già aggiunto: {names}')
+    .add('es', 'Ya añadido: {names}')
+}
