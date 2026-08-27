@@ -46,13 +46,16 @@ def render_page(
 
 def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
     """
-    Generate a bilingual retry prompt for file processing errors.
+    Generate a multi-locale retry prompt for file processing errors.
 
     Returns a PropsUIPromptConfirm with "Try again" (ok → PayloadTrue) and
-    "Continue" (cancel → PayloadFalse) buttons. Using standard feldspar
-    PropsUIPromptConfirm instead of d3i PropsUIPromptRetry which only
-    renders a single button. See ADR-0016 for the broader
-    decision on custom vs standard prompt components.
+    "Stop for now" (cancel → PayloadFalse) buttons. Declining ends the
+    attempt as participant-abandoned (nonzero exit, task stays pending at
+    the host — see ADR-0039), so the copy must never suggest the file will
+    be accepted. Using standard feldspar PropsUIPromptConfirm instead of
+    d3i PropsUIPromptRetry which only renders a single button. See
+    ADR-0016 for the broader decision on custom vs standard prompt
+    components.
 
     Args:
         platform_name: The name of the platform whose file could not be processed.
@@ -60,18 +63,18 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
 
     text = props.Translatable(
         {
-            "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
-            "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
-            "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtige Datei ausgewählt haben. Versuchen Sie es erneut, um eine andere Datei auszuwählen.",
-            "it": f"Purtroppo non possiamo elaborare il suo file di {platform_name}. Continui se è sicuro di aver selezionato il file giusto. Riprovi per selezionare un file diverso.",
-            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Continúe si está seguro de que ha seleccionado el archivo correcto. Intente de nuevo para seleccionar un archivo diferente.",
+            "en": f"Unfortunately, we cannot process your {platform_name} file. It does not appear to be the file we expected. Try again to select a different file, or stop for now — you can return to this task later.",
+            "nl": f"Helaas kunnen we uw {platform_name}-bestand niet verwerken. Het lijkt niet het bestand te zijn dat we verwachtten. Probeer opnieuw om een ander bestand te kiezen, of stop voorlopig — u kunt later naar deze taak terugkeren.",
+            "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Es scheint nicht die erwartete Datei zu sein. Versuchen Sie es erneut, um eine andere Datei auszuwählen, oder beenden Sie vorerst — Sie können später zu dieser Aufgabe zurückkehren.",
+            "it": f"Purtroppo non possiamo elaborare il suo file di {platform_name}. Non sembra essere il file previsto. Riprovi per selezionare un file diverso, oppure interrompa per ora — potrà tornare a questa attività più tardi.",
+            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. No parece ser el archivo esperado. Intente de nuevo para seleccionar un archivo diferente, o deténgase por ahora — podrá volver a esta tarea más tarde.",
         }
     )
     ok = props.Translatable(
         {"en": "Try again", "nl": "Probeer opnieuw", "de": "Erneut versuchen", "it": "Riprova", "es": "Intentar de nuevo"}
     )
     cancel = props.Translatable(
-        {"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}
+        {"en": "Stop for now", "nl": "Voorlopig stoppen", "de": "Vorerst beenden", "it": "Interrompi per ora", "es": "Detener por ahora"}
     )
     return props.PropsUIPromptConfirm(text, ok, cancel)
 
@@ -394,13 +397,17 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
 
 
 def render_task_incomplete_page(platform_name: str) -> CommandUIRender:
-    """Render the terminal page of the error flow: the task was not completed
-    and the participant can retry by refreshing the page.
+    """Render the terminal page of an incomplete flow: the task was not
+    completed and the participant returns to the task list via the host's
+    Close control (the task stays pending, so it can be retried from there).
 
-    Shown after the consent-gated error report (or its skip) so the
-    participant does not land on a stale error page when the flow exits
-    nonzero (Issue #123). Caller should yield and await response before
-    returning.
+    The copy names the host's Close button because after the nonzero exit
+    the host paints nothing itself (verified on live Next 2026-08-27) —
+    Close is the participant's only visible way back. Shown after the
+    consent-gated error report (or its skip) and on TaskIncompleteError
+    endings, so the participant does not land on a stale page when the
+    flow exits nonzero (Issue #123). Caller should yield and await
+    response before returning.
     """
     header = props.PropsUIHeader(
         props.Translatable({
@@ -413,11 +420,11 @@ def render_task_incomplete_page(platform_name: str) -> CommandUIRender:
     )
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
-            "en": "This task could not be completed. You can try again by refreshing this page. If the problem persists, please contact the researcher.",
-            "nl": "Deze taak kon niet worden voltooid. U kunt het opnieuw proberen door deze pagina te vernieuwen. Als het probleem aanhoudt, neem dan contact op met de onderzoeker.",
-            "de": "Diese Aufgabe konnte nicht abgeschlossen werden. Sie können es erneut versuchen, indem Sie diese Seite aktualisieren. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Forscher.",
-            "it": "Non è stato possibile completare questa attività. Può riprovare aggiornando questa pagina. Se il problema persiste, contatti il ricercatore.",
-            "es": "Esta tarea no se pudo completar. Puede intentarlo de nuevo actualizando esta página. Si el problema persiste, póngase en contacto con el investigador.",
+            "en": "This task could not be completed. Use the Close button to return to your tasks — from there you can try this task again. If the problem persists, please contact the researcher.",
+            "nl": "Deze taak kon niet worden voltooid. Gebruik de knop Sluiten om terug te keren naar uw taken — daar kunt u deze taak opnieuw proberen. Als het probleem aanhoudt, neem dan contact op met de onderzoeker.",
+            "de": "Diese Aufgabe konnte nicht abgeschlossen werden. Verwenden Sie die Schaltfläche Schließen, um zu Ihren Aufgaben zurückzukehren — dort können Sie diese Aufgabe erneut versuchen. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Forscher.",
+            "it": "Non è stato possibile completare questa attività. Usi il pulsante Chiudi per tornare alle sue attività — da lì potrà riprovare questa attività. Se il problema persiste, contatti il ricercatore.",
+            "es": "Esta tarea no se pudo completar. Utilice el botón Cerrar para volver a sus tareas — desde allí podrá intentar esta tarea de nuevo. Si el problema persiste, póngase en contacto con el investigador.",
         }),
         ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
     )

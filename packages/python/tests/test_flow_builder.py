@@ -159,7 +159,7 @@ class TestRetryPath:
         cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
-        # User clicks "Continue" (declines retry)
+        # User clicks "Stop for now" (declines retry)
         with pytest.raises(TaskIncompleteError) as exc:
             advance_past_logs(gen, make_payload("PayloadFalse"))
         assert exc.value.exit_code == 2
