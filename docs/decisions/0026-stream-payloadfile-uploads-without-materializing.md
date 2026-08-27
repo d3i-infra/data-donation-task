@@ -14,6 +14,7 @@ applies_to:
     - packages/python/port/helpers/uploads.py
     - packages/python/port/helpers/validate.py
     - packages/python/port/helpers/extraction_helpers.py
+    - packages/python/port/helpers/archive_set.py
     - packages/python/tests/test_uploads.py
     - packages/python/tests/test_flow_builder.py
     - packages/python/tests/test_main_queue.py
@@ -21,6 +22,7 @@ priority: invariant
 companions:
     - packages/python/tests/test_validate.py
     - packages/python/tests/test_zip_archive_reader.py
+    - packages/python/tests/test_archive_set.py
 checks:
     - desc: no materialize_file resurrection anywhere in the Python package
       grep: 'materialize_file'
@@ -46,6 +48,7 @@ The upload pipeline passes browser `PayloadFile` / `PayloadFiles` readers direct
 
 - Do not add `materialize_file()` or any whole-upload read on the upload path; never call `read()` with no argument or `-1` on an upload adapter — this applies per file when handling a `PayloadFiles` set, not just once per upload. Never collapse a `PayloadFiles` set into one adapter or one bulk in-memory copy — each file gets its own `AsyncFileAdapter`.
 - Pass the adapter directly to `zipfile.ZipFile`, `validate_zip()`, and `ZipArchiveReader`; read size from `adapter.size` (JS metadata, no bytes) — for a `PayloadFiles` set, each element carries its own size independently.
+- The same no-materialize, bounded-read rule binds `archive_set.py`'s per-part reads (`ArchiveSet.read_member` / `SingleArchiveSource.read_member`): each opens its owning part's `zipfile.ZipFile` on demand and reads one guarded member at a time, never the whole part.
 - Type upload consumers against the `SeekableBinaryReader` Protocol in `file_utils.py`, never `str` paths — a path parameter in the upload pipeline implies materialization and is review-rejected.
 - Keep the tests proving `zipfile` uses bounded reads (`TestStreamingInvariant`), that `FlowBuilder` accepts `PayloadFile` for single uploads, and `TestPayloadFilesWrapping` (`test_main_queue.py`) proving `ScriptWrapper` wraps each `PayloadFiles` reader into its own `AsyncFileAdapter` rather than one adapter over the whole list.
 

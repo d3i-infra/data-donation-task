@@ -60,6 +60,7 @@ from typing import Callable
 
 import pandas as pd
 
+from port.helpers.archive_set import ArchiveSource
 from port.helpers.extraction_helpers import ZipArchiveReader
 from port.helpers.flow_builder import FlowBuilder
 from port.helpers.validate import (
@@ -188,6 +189,11 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
         }
     """
     rows = []
+    # Central-directory metadata is only available directly off a single
+    # SeekableBinaryReader; this example only demonstrates the single-file
+    # path (it never receives a multi-part ArchiveSource).
+    if isinstance(reader.archive, ArchiveSource):
+        return pd.DataFrame(rows)
     try:
         with zipfile.ZipFile(reader.archive, "r") as zf:
             for info in zf.infolist():

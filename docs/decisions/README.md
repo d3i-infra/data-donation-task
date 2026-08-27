@@ -45,6 +45,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0020 — Use session-platform donation keys](./0020-use-session-platform-donation-keys.md)
 - [0024 — ZipArchiveReader handles expected-missing DDP members](./0024-ziparchivereader-handles-expected-missing-ddp-members.md)
 - [0026 — Stream PayloadFile uploads without materializing](./0026-stream-payloadfile-uploads-without-materializing.md)
+- [0039 — Present multi-part uploads as one archive-set](./0039-present-multi-part-uploads-as-one-archive-set.md)
 
 ### Testing
 

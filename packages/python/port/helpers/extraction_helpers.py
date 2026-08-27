@@ -12,6 +12,7 @@ from pathlib import Path
 import zipfile
 
 from port.api.file_utils import SeekableBinaryReader
+from port.helpers.archive_set import ArchiveSource, SingleArchiveSource
 import csv
 import io
 import json
@@ -618,13 +619,19 @@ class ZipArchiveReader:
 
     def __init__(
         self,
-        archive: SeekableBinaryReader,
+        archive: SeekableBinaryReader | ArchiveSource,
         archive_members: list[str],
         errors: Counter,
     ):
         self.archive = archive
         self.archive_members = archive_members
         self.errors = errors
+        self._source: ArchiveSource = (
+            archive if isinstance(archive, ArchiveSource) else SingleArchiveSource(archive, archive_members)
+        )
+        duplicates = getattr(archive, "duplicates", None)
+        if duplicates is not None:
+            errors.update(duplicates)
 
     def resolve_member(self, filename: str) -> str | None:
         """Resolve a filename to an archive member path.
@@ -657,10 +664,10 @@ class ZipArchiveReader:
             return None
 
     def _read_member_bytes(self, member_path: str) -> io.BytesIO:
-        """Read a specific member from the zip by exact path."""
+        """Read a specific member via the archive source (single archive or
+        ArchiveSet), by exact path."""
         try:
-            with zipfile.ZipFile(self.archive, "r") as zf:
-                return io.BytesIO(zf.read(member_path))
+            return io.BytesIO(self._source.read_member(member_path))
         except Exception as e:
             logger.error("Error reading zip member: %s", type(e).__name__)
             self.errors[type(e).__name__] += 1
