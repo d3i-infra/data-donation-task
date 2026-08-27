@@ -40,6 +40,13 @@ export const FileInputMultiple = (props: Props): React.JSX.Element => {
     } else {
       console.log('[FileInput] Error selecting file: ' + JSON.stringify(selectedFiles))
     }
+    // Reset the native input's value: without this, re-picking the exact
+    // same file(s) leaves the input's value unchanged, so the browser never
+    // fires another `change` event and handleSelect never runs again — the
+    // most common duplicate-selection path (re-opening the picker and
+    // choosing the same file) would silently do nothing instead of
+    // triggering addFiles' duplicate-notice path above.
+    event.target.value = ""
   }
 
   function handleConfirm (): void {

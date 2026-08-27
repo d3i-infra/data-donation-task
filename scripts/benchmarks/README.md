@@ -56,6 +56,30 @@ must be adapted alongside the two heading selectors for non-TikTok flows.
   installation (one Chromium build) for all runs, and interleave runs
   in randomized order.
 
+### Multi-file (`PayloadFiles`) uploads
+
+To measure the multi-part upload path (`ArchiveSet`, see ADR-0039) against
+the same peak-memory budget as a single-zip upload (ADR-0034), generate a
+split fixture and point a harness at the `e2etest_multifile` test platform
+instead of a real study platform:
+
+    python3 tests/generate_test_zip.py --size 1900MB --files 4 --split 2 \
+        --output /tmp/big-part-1.zip /tmp/big-part-2.zip
+
+`--split N` distributes the generated files round-robin across N zip parts
+— each file stays whole in exactly one part, matching how a real
+multi-part Takeout export is structured. `memtest-v3-peak.cjs` expects a
+single `MEMTEST_ZIP` path today; running it against a multi-part upload
+means adapting the harness's upload step to call `setFiles([...])` with
+both part paths (see `tests/multifile.spec.ts` for the Playwright pattern)
+and its two `getByRole('heading', …)` selectors to `e2etest_multifile`'s
+headings (`Select your e2etest_multifile file`, `Your e2etest_multifile data`) —
+the donate-button selector (`'Yes, share for research'`) is unchanged.
+Build and serve with `VITE_PLATFORM=e2etest_multifile` (dev server or
+`build:release`-excluded dev build; `e2etest_multifile` is test-only and never
+ships in a release, see ADR-0004). This comparison run is Danielle's, done
+outside the agent sandbox.
+
 ### Visualization-bearing config (required for consent/chart phases)
 
 The peak harness only exercises the chart pipeline if the built config

@@ -75,6 +75,34 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   `packages/data-collector/public/`. It previously rode into every release
   zip via Vite's publicDir but has been deleted. Release zips no longer
   contain it.
+* **Multi-file uploads, end to end**, for platforms whose export arrives as
+  several zip parts that belong together (a Google Takeout export split
+  across multiple files is the motivating case). A platform opts in by
+  setting `expected_file_payload = "PayloadFiles"` on its `FlowBuilder`
+  subclass; the participant then sees a multi-select file input
+  (`FileInputMultiple`) that lists every chosen file with a remove control
+  and flags re-adding the same file with a "already added" notice instead
+  of a silent duplicate. Each selected file stays an on-demand reader the
+  whole way through — never a bulk in-memory copy — from the browser
+  (`File[]`) through the worker (`Array.map` over the same reader-wrapping
+  logic the single-file path uses) to Python, where `ScriptWrapper` wraps
+  each one in its own `AsyncFileAdapter`. `FlowBuilder.start_flow()` unions
+  the adapters into one `ArchiveSet` (`port/helpers/archive_set.py`) before
+  validation — canonical `(name, size)` part ordering, a union member
+  inventory with per-member provenance, and a materialization-time
+  `MAX_MEMBER_UNCOMPRESSED_BYTES` guard on top of the existing aggregate
+  upload-size/file-count check — so `validate_file()`/`extract_data()` read
+  through `ZipArchiveReader` exactly as they would for a single zip. A
+  payload type that neither matches `expected_file_payload` nor one of the
+  established decline shapes now renders a visible protocol-error page
+  instead of hanging silently, surfacing host/Python version skew instead
+  of masking it. See ADR-0039 (and the amended ADR-0017/ADR-0018/ADR-0024).
+  Covered by a new test-only `e2etest_multifile` platform
+  (`port/platforms/e2etest_multifile.py`, excluded from release discovery and
+  the shipped wheel exactly like `e2etest`) and
+  `tests/multifile.spec.ts` (`VITE_PLATFORM=e2etest_multifile pnpm
+  test:e2e:multi`), plus a `--split N` mode on
+  `tests/generate_test_zip.py` for generating multi-part test fixtures.
 
 ### Fixed
 

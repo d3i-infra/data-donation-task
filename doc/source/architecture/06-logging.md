@@ -60,6 +60,24 @@ sequenceDiagram
 called for you at every standard milestone — you only need to add custom
 `emit_log` calls if you add non-standard flow steps.
 
+**Upload-step outcomes are now three distinct milestone lines, not one.**
+Since the multi-file (`PayloadFiles`) flow, the file-prompt step in
+`start_flow()` can log any of:
+
+- `[Platform] Upload received: size=N` — single-file platform, upload matched.
+- `[Platform] Upload received: files=N total_size=X` — multi-file platform,
+  all N uploaded parts matched.
+- `[Platform] Protocol mismatch: expected=PayloadFile got=PayloadJSON` — the
+  response type didn't match `expected_file_payload` and wasn't a recognized
+  decline shape either (host/Python version skew). See
+  [FlowBuilder](04-flowbuilder.md) for the full three-way gate.
+
+A researcher reading host logs can now tell these three cases apart, where
+previously only the single-file "Upload received: size=N" line existed. The
+full milestone list (including `Upload skipped`, `Safety check failed`,
+`Validation`, `Extraction complete`, `Consent`, `Donation`) is in
+[FlowBuilder](04-flowbuilder.md#the-flow).
+
 ---
 
 ## Path B: JS `LogForwarder`

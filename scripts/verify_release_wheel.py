@@ -2,12 +2,13 @@
 """Postcondition check for the release artifacts embedded in a build's dist dir.
 
 `scripts/build_release_wheel.sh` builds a wheel from a staged copy of
-`packages/python` with the e2etest fault-injection module and its config
-removed. This script verifies the *artifacts that will actually ship* — every
-`port-*` archive Vite copies into `packages/data-collector/dist` (the wheel,
-and any sdist tarball), not just the staged build that produced the wheel.
-It is release.sh's last check before zipping; see ADR-0004 for the
-release-wheel boundary this enforces.
+`packages/python` with the e2etest fault-injection module, the
+e2etest_multifile test platform, and their configs removed. This script
+verifies the *artifacts that will actually ship* — every `port-*` archive
+Vite copies into `packages/data-collector/dist` (the wheel, and any sdist
+tarball), not just the staged build that produced the wheel. It is
+release.sh's last check before zipping; see ADR-0004 for the release-wheel
+boundary this enforces.
 
 Two archive types are in scope, because both can end up in `dist/` and both
 get zipped by `release.sh`:
@@ -35,10 +36,11 @@ Usage
 Exits non-zero, with a message on stderr, if:
   * no wheel (or more than one) is found in DIR,
   * any `port-*` archive (wheel or tarball) in DIR contains a member path
-    that references e2etest (exact forbidden path, or merely containing the
-    substring "e2etest", case-insensitive — catching a renamed config, a
-    `e2etest_helpers.py`, a stray `.bak`, or similar drift that an
-    exact-path check alone would miss), or
+    that references e2etest or e2etest_multifile (exact forbidden path, or
+    merely containing the substring "e2etest"/"e2etest_multifile",
+    case-insensitive — catching a renamed config, an `e2etest_helpers.py`,
+    a stray `.bak`, or similar drift that an exact-path check alone would
+    miss), or
   * the selected platform's own module or config is missing from the wheel.
 
 The checking logic (`check_wheel_names`, `check_archive_for_drift`) takes a
@@ -59,14 +61,16 @@ from pathlib import Path
 FORBIDDEN_PATHS = (
     "port/platforms/e2etest.py",
     "port/configs/e2etest_config.json",
+    "port/platforms/e2etest_multifile.py",
+    "port/configs/e2etest_multifile_config.json",
 )
 
 # Catches drift an exact-path list can't: a renamed config, an
-# `e2etest_helpers.py`, a `.bak` left behind, anything with "e2etest"
-# anywhere in its archive path. Exact FORBIDDEN_PATHS stays as the named,
-# precise signal for the two files the build script is responsible for
-# removing; this is the cheap, broad backstop underneath it.
-FORBIDDEN_SUBSTRING = "e2etest"
+# `e2etest_helpers.py`, a `.bak` left behind, anything with "e2etest" or
+# "e2etest_multifile" anywhere in its archive path. Exact FORBIDDEN_PATHS stays
+# as the named, precise signal for the four files the build script is
+# responsible for removing; this is the cheap, broad backstop underneath it.
+FORBIDDEN_SUBSTRING = ("e2etest", "e2etest_multifile")
 
 
 def required_paths(platform: str) -> tuple[str, str]:
@@ -77,9 +81,9 @@ def required_paths(platform: str) -> tuple[str, str]:
 
 
 def find_forbidden_substring_matches(names: list[str]) -> list[str]:
-    """Archive member names that reference e2etest anywhere, case-insensitively."""
-    needle = FORBIDDEN_SUBSTRING.lower()
-    return [n for n in names if needle in n.lower()]
+    """Archive member names that reference e2etest or e2etest_multifile anywhere, case-insensitively."""
+    needles = [s.lower() for s in FORBIDDEN_SUBSTRING]
+    return [n for n in names if any(needle in n.lower() for needle in needles)]
 
 
 def check_archive_for_drift(names: list[str]) -> list[str]:
@@ -92,7 +96,7 @@ def check_archive_for_drift(names: list[str]) -> list[str]:
     whose presence matters, and it's checked separately by check_wheel_names.
     """
     return [
-        f"member path references e2etest (forbidden): {match}"
+        f"member path references a test-only platform (forbidden): {match}"
         for match in find_forbidden_substring_matches(names)
     ]
 
@@ -100,24 +104,24 @@ def check_archive_for_drift(names: list[str]) -> list[str]:
 def check_wheel_names(names: list[str], platform: str) -> list[str]:
     """Return a list of human-readable violations; empty means the wheel is clean.
 
-    Checks two independent things: no member path may reference e2etest, and
-    the selected platform's own module + config must be present (a verifier
-    that only ever checked for absence could pass against an empty or broken
-    wheel).
+    Checks two independent things: no member path may reference e2etest or
+    e2etest_multifile, and the selected platform's own module + config must be
+    present (a verifier that only ever checked for absence could pass
+    against an empty or broken wheel).
     """
     names_set = set(names)
     violations: list[str] = []
 
     for forbidden in FORBIDDEN_PATHS:
         if forbidden in names_set:
-            violations.append(f"forbidden e2etest path present in wheel: {forbidden}")
+            violations.append(f"forbidden test-only platform path present in wheel: {forbidden}")
 
-    # Drift beyond the two named paths (a rename, a helper module, a stray
+    # Drift beyond the four named paths (a rename, a helper module, a stray
     # .bak, ...). Matches already reported above as an exact FORBIDDEN_PATHS
     # hit are skipped here so a plain removal failure isn't reported twice.
     for match in find_forbidden_substring_matches(names):
         if match not in FORBIDDEN_PATHS:
-            violations.append(f"member path references e2etest (forbidden, not one of the known paths): {match}")
+            violations.append(f"member path references a test-only platform (forbidden, not one of the known paths): {match}")
 
     for required in required_paths(platform):
         if required not in names_set:
@@ -183,7 +187,7 @@ def main(argv: list[str] | None = None) -> int:
         return 1
 
     archives_desc = ", ".join(checked_archives)
-    print(f"OK: {archives_desc} contains {args.platform}'s files and no e2etest references.")
+    print(f"OK: {archives_desc} contains {args.platform}'s files and no e2etest/e2etest_multifile references.")
     return 0
 
 

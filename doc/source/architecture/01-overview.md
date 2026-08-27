@@ -107,6 +107,7 @@ commands, and `sendLogs(entries)` for JS-side log entries.
 | `port.helpers.validate` | `ValidateInput`, `DDPCategory` — zip structure validation |
 | `port.helpers.uploads` | Upload safety checks — size policy from JS metadata, never reads the payload |
 | `port.helpers.extraction_helpers` | `ZipArchiveReader` and CSV/JSON parsing utilities |
+| `port.helpers.archive_set` | `ArchiveSet`/`ArchiveSource` — unions a multi-file (`PayloadFiles`) upload into one archive |
 | `port.helpers.port_helpers` | `emit_log`, `render_page`, `donate` and other helpers |
 | `port.api.commands` | `CommandSystem*` and `CommandUIRender` classes |
 | `port.api.d3i_props` | `ExtractionResult`, consent form table types |

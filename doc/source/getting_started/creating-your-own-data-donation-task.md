@@ -211,6 +211,45 @@ The example skips DDP matching on purpose — it lets you test the full flow wit
 
 ---
 
+## Multi-file platforms
+
+Some exports arrive as several zip parts that belong together — a Google
+Takeout export split across multiple files is the common case. To accept
+that instead of a single zip, set `expected_file_payload` on your flow
+class and annotate both hook overrides as `ArchiveSet`:
+
+```python
+from port.helpers.archive_set import ArchiveSet
+
+class MyPlatformFlow(FlowBuilder):
+    expected_file_payload = "PayloadFiles"
+
+    def __init__(self, session_id: str):
+        super().__init__(session_id, "myplatform")
+
+    def validate_file(self, archive_set: ArchiveSet) -> ValidateInput:
+        return validate_my_archive_set(archive_set)
+
+    def extract_data(self, archive_set: ArchiveSet, validation: ValidateInput) -> ExtractionResult:
+        return extraction(archive_set, validation)
+```
+
+This one attribute changes three things: the participant sees a multi-select
+file picker instead of a single-file one, `FlowBuilder` unions whatever
+parts they select into one `ArchiveSet` (raising a retry prompt instead of a
+traceback if a part is corrupt), and `validate_file`/`extract_data` receive
+that `ArchiveSet` rather than a single reader. Everything downstream is
+unchanged — `ZipArchiveReader(archive_set, validation.archive_members,
+errors)` works the same way it does for a single-file platform, because
+`ArchiveSet` satisfies the same `ArchiveSource` protocol
+`SingleArchiveSource` wraps a single zip in.
+
+See `packages/python/port/platforms/e2etest_multifile.py` for a minimal
+working multi-file platform, and `tests/multifile.spec.ts` for the
+Playwright coverage of the multi-select upload flow.
+
+---
+
 ## Python packages
 
 The task runs in the participant's browser via [Pyodide](https://pyodide.org/en/stable/), a Python runtime compiled to WebAssembly, so locally installed packages are not available. Check the [Pyodide package list](https://pyodide.org/en/stable/usage/packages-in-pyodide.html) and add what you need to `packages/data-collector/public/py_worker.js`:
