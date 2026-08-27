@@ -67,7 +67,7 @@ export interface PayloadFile {
   value: File
 }
 
-// D3I divergence from upstream eyra/feldspar (no upstream counterpart, offered upstream):
+// D3I divergence from upstream eyra/feldspar (no upstream counterpart, to be offered upstream):
 // carries a multi-file selection as one payload; each File is delivered to Python as its
 // own streamed reader — see ADR-0017 (amended) and the archive-set ADR.
 export interface PayloadFiles {

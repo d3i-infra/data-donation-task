@@ -30,9 +30,11 @@ satisfy via `SingleArchiveSource`.
   are deterministic across the whole set regardless of how parts were passed in.
   Parts tying on both name and size are indistinguishable without reading
   bytes (forbidden pre-validation), so their relative order is unspecified.
-- Build the member inventory as the union of all parts' namelists in canonical
-  order; the first part (by canonical order) to declare a path owns it — a
-  later part's same-path member is a duplicate, not a shadowing member.
+- Build the member inventory as the union of all parts' namelists, sorted by
+  member path — that listing order is separate from canonical part order.
+  Canonical part order instead governs duplicate-winner resolution: the
+  first part, by canonical order, to declare a path owns it — a later
+  part's same-path member is a duplicate, not a shadowing member.
 - Count exact-duplicate members in a `Counter`, keeping across-part and
   within-part duplicates distinct so neither inflates the other:
   `DuplicateMemberAcrossParts` for a path an earlier part already owns;

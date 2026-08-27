@@ -86,12 +86,9 @@ def generate_file_prompt(
     file(s) they've received from a platform and stored on their device.
     The returned prompt is rendered with: yield result = render_page(...)
 
-    When returned, result.value contains file handle(s) as PayloadFiles:
-    - If multiple=False: a single file adapter
-    - If multiple=True: a list of file adapters
-
-    The description copy accurately matches the actual behavior and platform
-    context (e.g., mentioning Google Takeout for multi-file selection).
+    When returned, result.value contains the file handle(s):
+    - If multiple=False: a single file, wrapped as PayloadFile
+    - If multiple=True: a list of files, wrapped as PayloadFiles
 
     Args:
         extensions (str): A collection of allowed MIME types.
@@ -105,11 +102,13 @@ def generate_file_prompt(
             allowed file extensions. If multiple=True, returns a
             PropsUIPromptFileInputMultiple object for selecting multiple files.
     """
+    # de/it/nl copy below: register standardized on formal Lei (it), Download-Anleitung
+    # unified (de), Dutch compounds per Taalunie (nl) — reviewed 2026-08-27.
     description = props.Translatable(
         {
             "en": "Please follow the download instructions and choose the file that you stored on your device.",
-            "nl": "Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat.",
-            "de": "Bitte folgen Sie den Download-Anweisungen und wählen Sie die Datei aus, die Sie auf Ihrem Gerät gespeichert haben.",
+            "nl": "Volg de downloadinstructies en kies het bestand dat u op uw apparaat heeft opgeslagen.",
+            "de": "Bitte folgen Sie der Download-Anleitung und wählen Sie die Datei aus, die Sie auf Ihrem Gerät gespeichert haben.",
             "it": "Segua le istruzioni per il download e scelga il file che ha salvato sul suo dispositivo.",
             "es": "Siga las instrucciones de descarga y elija el archivo que ha guardado en su dispositivo.",
         }
@@ -117,9 +116,9 @@ def generate_file_prompt(
     if multiple:
         description = props.Translatable({
             "en": "Please follow the download instructions and select ALL the files you received — Google Takeout usually delivers several zip files that belong together.",
-            "nl": "Volg de downloadinstructies en selecteer ALLE bestanden die u heeft ontvangen — Google Takeout levert meestal meerdere zip-bestanden die bij elkaar horen.",
+            "nl": "Volg de downloadinstructies en selecteer ALLE bestanden die u heeft ontvangen — Google Takeout levert meestal meerdere zipbestanden die bij elkaar horen.",
             "de": "Bitte folgen Sie der Download-Anleitung und wählen Sie ALLE erhaltenen Dateien aus — Google Takeout liefert meist mehrere zusammengehörige ZIP-Dateien.",
-            "it": "Segui le istruzioni per il download e seleziona TUTTI i file ricevuti — Google Takeout di solito fornisce più file zip che vanno insieme.",
+            "it": "Segua le istruzioni per il download e selezioni TUTTI i file ricevuti — Google Takeout di solito fornisce più file ZIP appartenenti alla stessa esportazione.",
             "es": "Siga las instrucciones de descarga y seleccione TODOS los archivos recibidos — Google Takeout suele entregar varios archivos zip que van juntos.",
         })
         return d3i_props.PropsUIPromptFileInputMultiple(description, extensions)
@@ -442,14 +441,23 @@ def render_protocol_error_page(platform_name: str) -> CommandUIRender:
     an observable protocol error, not a silent skip. See ADR-0018/0026 for
     the accepted upload payload shapes.
     """
-    header = props.Translatable({"en": "Something went wrong", "nl": "Er ging iets mis"})
+    header = props.Translatable({
+        "en": "Something went wrong",
+        "nl": "Er ging iets mis",
+        "de": "Etwas ist schiefgelaufen",
+        "it": "Qualcosa è andato storto",
+        "es": "Algo salió mal",
+    })
     body = props.PropsUIPromptConfirm(
         text=props.Translatable({
             "en": f"The study page and the {platform_name} flow are out of sync. Please close this window and try again later.",
             "nl": f"De studiepagina en de {platform_name}-flow lopen niet gelijk. Sluit dit venster en probeer het later opnieuw.",
+            "de": f"Die Studienseite und der {platform_name}-Ablauf sind nicht mehr synchron. Bitte schließen Sie dieses Fenster und versuchen Sie es später erneut.",
+            "it": f"La pagina dello studio e il flusso di {platform_name} non sono sincronizzati. Chiuda questa finestra e riprovi più tardi.",
+            "es": f"La página del estudio y el flujo de {platform_name} no están sincronizados. Cierre esta ventana e inténtelo de nuevo más tarde.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
     )
     return render_page(header, body)
 

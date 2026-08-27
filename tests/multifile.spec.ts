@@ -4,33 +4,6 @@ import * as fs from 'fs';
 import * as os from 'os';
 
 /**
- * Common setup for tests: navigate to the page and upload the two split
- * zip fixtures via the multi-select file input (modeled on donation.spec.ts's
- * setupTestWithFileUpload, but for the PayloadFiles / e2etest_multifile flow).
- */
-async function setupTestWithMultiFileUpload(page: Page): Promise<void> {
-  // Navigate to the local development server
-  await page.goto('http://localhost:3000/');
-
-  // Wait for Pyodide to initialize and render the page (can take a while on CI)
-  await expect(page.getByRole('heading', { name: 'Select your e2etest_multifile file' })).toBeVisible({ timeout: 90000 });
-
-  // Create a temporary file input for file upload
-  const fileChooserPromise = page.waitForEvent('filechooser');
-  await page.getByText('Choose file(s)').click();
-  const fileChooser = await fileChooserPromise;
-
-  // setFiles accepts an array — this is what the multi-select input exercises.
-  await fileChooser.setFiles([
-    path.join(__dirname, 'test-split-1.zip'),
-    path.join(__dirname, 'test-split-2.zip'),
-  ]);
-
-  // Click continue to process both files
-  await page.getByText('Continue').click();
-}
-
-/**
  * Helper to handle data submission and return the submitted data
  */
 
@@ -204,7 +177,7 @@ test('uploading a renamed copy of the same archive does not duplicate the donate
   // subdirectory, so the File.name the browser reports is exactly
   // 'test-split-1 (1).zip' regardless of the full path) and removed after
   // the test.
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'multifile-demo-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2etest-multifile-'));
   const renamedCopyPath = path.join(tmpDir, 'test-split-1 (1).zip');
   fs.copyFileSync(path.join(__dirname, 'test-split-1.zip'), renamedCopyPath);
 
@@ -262,7 +235,7 @@ test('too many files shows the safety error page', async ({ page }) => {
   // MAX_UPLOAD_FILES=16 (uploads.py), so 17 selected parts must stop the
   // flow at the safety check. Previously pinned only at the pytest layer
   // (test_flow_builder.py); this closes the browser leg.
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'multifile-demo-toomany-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2etest-multifile-toomany-'));
   const partPaths: string[] = [];
   for (let i = 1; i <= 17; i++) {
     const partPath = path.join(tmpDir, `part-${String(i).padStart(2, '0')}.zip`);
@@ -326,7 +299,7 @@ test('combined size over the limit shows the safety error page', async ({ page }
   // only sums .size across the selected files. Writing 11 real GiB per
   // test run would be needlessly slow and disk-hungry for a check that is
   // provably never about content.
-  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'multifile-demo-toolarge-'));
+  const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2etest-multifile-toolarge-'));
   const sparsePath = path.join(tmpDir, 'takeout-sparse-001.zip');
 
   try {

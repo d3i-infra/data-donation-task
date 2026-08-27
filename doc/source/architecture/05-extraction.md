@@ -98,8 +98,10 @@ shape.
 `ArchiveSet` orders its parts canonically by `(name, size)` — both
 JS-reported metadata, never a byte read and never upload/selection order —
 so member resolution is deterministic regardless of how the parts were
-picked. The member inventory is the union of every part's namelist in that
-canonical order; the first part to declare a path owns it. Exact-duplicate
+picked. The member inventory is the union of every part's namelist, sorted
+by member path; canonical part order is separate from that listing order
+and decides which part owns a path duplicated across parts — the first
+part to declare a path, in canonical order, owns it. Exact-duplicate
 members are counted, not silently dropped or treated as fatal, in two
 distinct `Counter` keys so neither inflates the other:
 `DuplicateMemberAcrossParts` (an earlier part already owns this path — e.g.
