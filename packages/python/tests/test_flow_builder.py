@@ -10,13 +10,16 @@ not materialize the file to a path — the AsyncFileAdapter is passed
 directly to validate_file/extract_data, and size policy is enforced
 via check_payload_size() against adapter.size before any read.
 """
+import io
 import json
+import zipfile
 from collections import Counter
 from unittest.mock import MagicMock, patch
 
 import pytest
 from port.helpers.flow_builder import FlowBuilder
 from port.helpers.uploads import FileTooLargeError
+from port.helpers.archive_set import ArchiveSet
 from port.api.commands import CommandUIRender, CommandSystemDonate, CommandSystemLog
 from port.api.d3i_props import ExtractionResult
 import port.api.props as props
@@ -308,3 +311,176 @@ class TestUploadAdapterPassthrough:
         advance_past_logs(gen, make_payload("PayloadFile", value=adapter))
 
         assert observed == [adapter]
+
+
+class MultiStubFlow(StubFlow):
+    """Concrete FlowBuilder configured for a PayloadFiles (chunked-export) upload."""
+
+    expected_file_payload = "PayloadFiles"
+
+
+def make_payload_files(n=2):
+    """Build a PayloadFiles-shaped payload with `n` valid, readable zip parts."""
+    payload = MagicMock()
+    payload.__type__ = "PayloadFiles"
+    parts = []
+    for i in range(n):
+        buf = io.BytesIO()
+        with zipfile.ZipFile(buf, "w") as zf:
+            zf.writestr(f"Takeout/f{i}.json", "{}")
+        buf.seek(0)
+        buf.name = f"takeout-{i + 1}-001.zip"
+        buf.size = 100
+        parts.append(buf)
+    payload.value = parts
+    return payload
+
+
+class TestMultiFileFlow:
+    """PayloadFiles sets are unioned into one ArchiveSet before validate/extract."""
+
+    def test_set_reaches_validate_and_extract_as_archive_set(self):
+        flow = MultiStubFlow()
+        observed = []
+        original_validate = flow.validate_file
+
+        def spy_validate(archive_set):
+            observed.append(archive_set)
+            return original_validate(archive_set)
+
+        flow.validate_file = spy_validate
+
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # Upload a two-part set → milestones → consent form (StubFlow's
+        # validate_file stub always reports status 0)
+        cmd = advance_past_logs(gen, make_payload_files(n=2))
+        assert isinstance(cmd, CommandUIRender)
+
+        assert len(observed) == 1
+        assert isinstance(observed[0], ArchiveSet)
+        assert observed[0].members == ["Takeout/f0.json", "Takeout/f1.json"]
+
+    def test_single_payload_to_multi_flow_is_visible_error_not_skip(self):
+        flow = MultiStubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # A singular PayloadFile arriving when this flow expects PayloadFiles
+        # is a protocol mismatch, not a participant skip: a visible error
+        # page, whose prompt came from ph.render_protocol_error_page.
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+        assert cmd.page.header.title.translations["en"] == "Something went wrong"
+        assert "out of sync" in cmd.page.body.text.translations["en"]
+
+        # Generator returns after the error page is acknowledged.
+        with pytest.raises(StopIteration):
+            gen.send(make_payload("PayloadTrue"))
+
+    def test_multi_payload_to_single_flow_is_visible_error_not_skip(self):
+        flow = StubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # A PayloadFiles set arriving when this flow expects a singular
+        # PayloadFile is the symmetric protocol mismatch — also a visible
+        # error page, never a participant skip.
+        cmd = advance_past_logs(gen, make_payload_files())
+        assert isinstance(cmd, CommandUIRender)
+        assert cmd.page.header.title.translations["en"] == "Something went wrong"
+        assert "out of sync" in cmd.page.body.text.translations["en"]
+
+        # Generator returns after the error page is acknowledged.
+        with pytest.raises(StopIteration):
+            gen.send(make_payload("PayloadTrue"))
+
+    def test_unknown_type_is_visible_error(self):
+        flow = StubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # An unrecognized __type__ is a protocol mismatch too, not a skip.
+        cmd = advance_past_logs(gen, make_payload("PayloadBogus"))
+        assert isinstance(cmd, CommandUIRender)
+        assert cmd.page.header.title.translations["en"] == "Something went wrong"
+
+        with pytest.raises(StopIteration):
+            gen.send(make_payload("PayloadTrue"))
+
+    def test_established_skips_unchanged_for_multi_flow(self):
+        flow = MultiStubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # PayloadFalse is still a silent skip, even for a flow that expects
+        # PayloadFiles — the pinned skip set (PayloadFalse/PayloadVoid/
+        # PayloadString) never routes to the protocol-error page.
+        with pytest.raises(StopIteration):
+            advance_past_logs(gen, make_payload("PayloadFalse"))
+
+    def test_corrupt_part_routes_to_retry(self):
+        flow = MultiStubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        good = make_payload_files(n=1).value[0]
+        bad = io.BytesIO(b"not a zip file")
+        bad.seek(0)
+        bad.name = "takeout-2-001.zip"
+        bad.size = len(b"not a zip file")
+
+        # One good part + one unreadable part → ArchiveSet(...) raises
+        # zipfile.BadZipFile → routed to the existing retry prompt, not a
+        # traceback.
+        cmd = advance_past_logs(gen, make_payload("PayloadFiles", value=[good, bad]))
+        assert isinstance(cmd, CommandUIRender)
+        assert cmd.page.header.title.translations["en"] == "Try again"
+
+        # User declines the retry → flow ends.
+        with pytest.raises(StopIteration):
+            gen.send(make_payload("PayloadFalse"))
+
+
+class TestTooManyFilesSafetyPath:
+    """A PayloadFiles set over uploads.MAX_UPLOAD_FILES hits the safety-error
+    page — not an uncaught TooManyFilesError. Widens the flow_builder safety
+    catch from FileTooLargeError alone to (FileTooLargeError, TooManyFilesError).
+    """
+
+    def test_too_many_files_shows_safety_error_page(self):
+        flow = MultiStubFlow()
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # 17 files exceeds MAX_UPLOAD_FILES (16) → TooManyFilesError, caught
+        # and rendered as the safety-error page.
+        cmd = advance_past_logs(gen, make_payload_files(n=17))
+        assert isinstance(cmd, CommandUIRender)
+        assert cmd.page.header.title.translations["en"] == "File cannot be processed"
+
+        # User acknowledges
+        with pytest.raises(StopIteration):
+            gen.send(make_payload("PayloadTrue"))

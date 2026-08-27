@@ -422,6 +422,27 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
     return CommandUIRender(page)
 
 
+def render_protocol_error_page(platform_name: str) -> CommandUIRender:
+    """Shown when the UI returned a payload type the flow cannot process —
+    version skew between the study page and the flow, never participant data.
+
+    Caller should yield and await response before returning. Distinct from
+    the participant-skip case: a mismatched or unrecognized `__type__` is
+    an observable protocol error, not a silent skip. See ADR-0018/0026 for
+    the accepted upload payload shapes.
+    """
+    header = props.Translatable({"en": "Something went wrong", "nl": "Er ging iets mis"})
+    body = props.PropsUIPromptConfirm(
+        text=props.Translatable({
+            "en": f"The study page and the {platform_name} flow are out of sync. Please close this window and try again later.",
+            "nl": f"De studiepagina en de {platform_name}-flow lopen niet gelijk. Sluit dit venster en probeer het later opnieuw.",
+        }),
+        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan"}),
+    )
+    return render_page(header, body)
+
+
 def handle_donate_result(result) -> bool:
     """Inspect donate result. Returns True on success, False on failure.
 
