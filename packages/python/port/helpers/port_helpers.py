@@ -81,13 +81,17 @@ def generate_file_prompt(
 ) -> props.PropsUIPromptFileInput | d3i_props.PropsUIPromptFileInputMultiple:
     """
     Generates a file input prompt for selecting file(s) for a platform.
-    This function creates a bilingual (English and Dutch) file input prompt
-    that instructs the user to select file(s) they've received from a platform
-    and stored on their device.
 
-    The prompt that is returned by this function needs to be rendered using: yield result = render_page(...)
-    result.value should then contain the file handle(s).
-    In case multiple is true, a list with file handles is returned.
+    Creates a multilingual file input prompt that instructs the user to select
+    file(s) they've received from a platform and stored on their device.
+    The returned prompt is rendered with: yield result = render_page(...)
+
+    When returned, result.value contains file handle(s) as PayloadFiles:
+    - If multiple=False: a single file adapter
+    - If multiple=True: a list of file adapters
+
+    The description copy accurately matches the actual behavior and platform
+    context (e.g., mentioning Google Takeout for multi-file selection).
 
     Args:
         extensions (str): A collection of allowed MIME types.
@@ -111,6 +115,13 @@ def generate_file_prompt(
         }
     )
     if multiple:
+        description = props.Translatable({
+            "en": "Please follow the download instructions and select ALL the files you received — Google Takeout usually delivers several zip files that belong together.",
+            "nl": "Volg de downloadinstructies en selecteer ALLE bestanden die u heeft ontvangen — Google Takeout levert meestal meerdere zip-bestanden die bij elkaar horen.",
+            "de": "Bitte folgen Sie der Download-Anleitung und wählen Sie ALLE erhaltenen Dateien aus — Google Takeout liefert meist mehrere zusammengehörige ZIP-Dateien.",
+            "it": "Segui le istruzioni per il download e seleziona TUTTI i file ricevuti — Google Takeout di solito fornisce più file zip che vanno insieme.",
+            "es": "Siga las instrucciones de descarga y seleccione TODOS los archivos recibidos — Google Takeout suele entregar varios archivos zip que van juntos.",
+        })
         return d3i_props.PropsUIPromptFileInputMultiple(description, extensions)
 
     return props.PropsUIPromptFileInput(description, extensions)
