@@ -78,8 +78,6 @@ DDP_CATEGORIES = [
             "eligibility.json",
             "pending_follow_requests.json",
             "videos_watched.json",
-            "ads_viewed.json",
-            "ads_interests.json",
             "account_searches.json",
             "profile_searches.json",
             "followers_1.json",
