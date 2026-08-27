@@ -1942,8 +1942,11 @@ def _lv_get(lv: dict, candidates: list) -> str:
     return ""
 
 
-def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
-    """Extract likes and reactions from Facebook (base format).
+def likes_and_reactions_base_to_df(
+    reader: ZipArchiveReader,
+    errors: Counter
+) -> pd.DataFrame:
+    """Extract likes and reactions from Facebook.
 
     Reads ``likes_and_reactions.json`` (no number suffix) or, if absent, the
     numbered variants ``likes_and_reactions_1.json``, ``_2.json``, etc.
@@ -1956,22 +1959,22 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
         Archive reader used to load JSON files from the DDP zip.
     errors:
         Mutable counter that accumulates error type counts encountered during
-        extraction.  Updated in-place.
+        extraction. Updated in-place.
 
     Returns
     -------
     pd.DataFrame
-        Columns: ``Reaction``, ``Name``, ``URL``, ``Timestamp``.
+        Columns: ``Account``, ``Reaction``, ``URL``, ``Timestamp``.
         Empty DataFrame when no matching files are found or parsing fails.
 
     Table documentation::
 
         {
-          "summary": "Each row represents a like or reaction the participant gave on Facebook, including the reaction type, name, URL, and timestamp.",
+          "summary": "Each row represents a like or reaction the participant gave on Facebook, including the account or author of the content, reaction type, URL, and timestamp.",
           "source_file": "likes_and_reactions.json or likes_and_reactions_1.json (and numbered variants)",
           "columns": {
+            "Account": "Name of the account or author whose content the participant reacted to.",
             "Reaction": "Type of reaction (e.g. Like, Love, Haha).",
-            "Name": "Name of the content that was reacted to.",
             "URL": "URL of the content that was reacted to.",
             "Timestamp": "ISO 8601 timestamp of when the reaction was made."
           }
@@ -2008,6 +2011,19 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
             "sq": "Kjo tabelë tregon pëlqimet dhe reagimet e tua ndaj postimeve dhe përmbajtjeve të tjera në Facebook."
           },
           "headers": {
+            "Account": {
+              "en": "Account / author",
+              "nl": "Account / auteur",
+              "de": "Autor*in",
+              "pl": "Konto / autor",
+              "tr": "Hesap / yazar",
+              "ar": "الحساب / الكاتب",
+              "ru": "Аккаунт / автор",
+              "it": "Account / autore",
+              "ro": "Cont / autor",
+              "es": "Cuenta / autor",
+              "sq": "Llogaria / autori"
+            },
             "Reaction": {
               "en": "Reaction",
               "nl": "Reactie",
@@ -2020,19 +2036,6 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
               "ro": "Reacție",
               "es": "Reacción",
               "sq": "Reagimi"
-            },
-            "Name": {
-              "en": "Name",
-              "nl": "Naam",
-              "de": "Name",
-              "pl": "Nazwa",
-              "tr": "Ad",
-              "ar": "الاسم",
-              "ru": "Название",
-              "it": "Nome",
-              "ro": "Nume",
-              "es": "Nombre",
-              "sq": "Emri"
             },
             "URL": {
               "en": "URL",
@@ -2048,40 +2051,56 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
               "sq": "URL"
             },
             "Timestamp": {
-              "en": "Timestamp",
+              "en": "Date and time",
               "nl": "Datum en tijd",
               "de": "Zeitstempel",
-              "pl": "Znacznik czasu",
-              "tr": "Zaman Damgası",
-              "ar": "الطابع الزمني",
-              "ru": "Отметка времени",
-              "it": "Timestamp",
-              "ro": "Marcaj temporal",
-              "es": "Marca de tiempo",
-              "sq": "Vula kohore"
+              "pl": "Data i godzina",
+              "tr": "Tarih ve saat",
+              "ar": "التاريخ والوقت",
+              "ru": "Дата и время",
+              "it": "Data e ora",
+              "ro": "Data și ora",
+              "es": "Fecha y hora",
+              "sq": "Data dhe ora"
             }
           }
         }
     """
+
     datapoints = []
 
     def _parse_items(d: list) -> None:
         for item in d:
-            lv = {x.get("label", ""): x.get("value", "") for x in item.get("label_values", [])}
+            lv = {
+                x.get("label", ""): x.get("value", "")
+                for x in item.get("label_values", [])
+            }
+
             datapoints.append((
-                eh.fix_latin1_string(_lv_get(lv, _REACTION_LABEL_CANDIDATES)),
-                eh.fix_latin1_string(_lv_get(lv, _NAME_LABEL_CANDIDATES)),
+                eh.fix_latin1_string(
+                    _lv_get(lv, _NAME_LABEL_CANDIDATES)
+                ),
+                eh.fix_latin1_string(
+                    _lv_get(lv, _REACTION_LABEL_CANDIDATES)
+                ),
                 _lv_get(lv, _URL_LABEL_CANDIDATES),
-                eh.epoch_to_iso(item.get("timestamp", ""), errors=errors),
+                eh.epoch_to_iso(
+                    item.get("timestamp", ""),
+                    errors=errors,
+                ),
             ))
 
     try:
         result = reader.json("likes_and_reactions.json")
+
         if result.found:
             _parse_items(result.data)  # pyright: ignore
         else:
             # Fall back to numbered files for DDPs that only export _1, _2, ...
-            results = reader.json_all(r"(^|/)likes_and_reactions_\d+\.json$")
+            results = reader.json_all(
+                r"(^|/)likes_and_reactions_\d+\.json$"
+            )
+
             for r in results:
                 _parse_items(r.data)  # pyright: ignore
 
@@ -2089,7 +2108,15 @@ def likes_and_reactions_base_to_df(reader: ZipArchiveReader, errors: Counter) ->
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1
 
-    out = pd.DataFrame(datapoints, columns=["Reaction", "Name", "URL", "Timestamp"]) if datapoints else pd.DataFrame()  # pyright: ignore
+    out = (
+        pd.DataFrame(
+            datapoints,
+            columns=["Account", "Reaction", "URL", "Timestamp"],
+        )
+        if datapoints
+        else pd.DataFrame()
+    )
+
     return out
 
 
