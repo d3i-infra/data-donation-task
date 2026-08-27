@@ -75,9 +75,10 @@ test('declining retry after an invalid file shows task-incomplete page and exits
 
   await expect(page.getByRole('heading', { name: 'Try again' })).toBeVisible({ timeout: 60000 });
 
-  // Decline the retry ("Continue" is the cancel button; exact match keeps
-  // the prompt body text — which also contains the word — out of scope)
-  await page.getByText('Continue', { exact: true }).click();
+  // Decline the retry ("Stop for now" is the cancel button; exact match
+  // keeps the prompt body text — which contains the same words in
+  // lowercase — out of scope)
+  await page.getByText('Stop for now', { exact: true }).click();
 
   // Terminal task-incomplete page, not a silent completion
   await expect(page.getByText('Task not completed')).toBeVisible();

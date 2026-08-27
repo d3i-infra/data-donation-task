@@ -158,6 +158,15 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ### Changed
 
+* **Incomplete-flow copy tells the truth about what the buttons do.** The
+  retry prompt's cancel button is now "Stop for now" instead of "Continue"
+  (declining ends the attempt as participant-abandoned and the task stays
+  pending — the old copy implied the file would be accepted), and its text
+  says so plainly. The "Task not completed" page now points participants
+  at the host's Close button to return to their task list, instead of
+  telling them to refresh — verified on live Next that after a nonzero
+  exit the host paints nothing, so Close is the only visible way back.
+  All five locales updated in their established registers.
 * Pyright debt cleanup: upload consumers are typed as
   `SeekableBinaryReader` (ADR-0026), TikTok extractor payloads are
   narrowed before use, and the remaining optional/union type errors

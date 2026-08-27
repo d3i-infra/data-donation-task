@@ -59,6 +59,51 @@ class TestRenderTaskIncompletePage:
         confirm = next(p for p in prompts if p["__type__"] == "PropsUIPromptConfirm")
         assert confirm.get("cancel") in (None, {})
 
+    def test_copy_points_at_the_host_close_control(self):
+        """After the nonzero exit the host paints nothing (verified on live
+        Next 2026-08-27): the participant's way back to the task list is the
+        host's own Close control, so the page must name it — not tell them
+        to refresh into the void. The e2e spec pins the opening sentence."""
+        import json
+
+        result = ph.render_task_incomplete_page("TikTok")
+        serialized = json.dumps(result.toDict())
+
+        assert "This task could not be completed" in serialized
+        assert "Close" in serialized
+        assert "refreshing" not in serialized
+
+
+class TestGenerateRetryPrompt:
+    def _confirm(self):
+        return ph.generate_retry_prompt("Facebook").toDict()
+
+    def test_cancel_button_is_not_labelled_continue(self):
+        """'Continue' was a lie: declining the retry ends the attempt and
+        leads to the task-incomplete page. The label must say so."""
+        confirm = self._confirm()
+        assert confirm["cancel"]["translations"]["en"] == "Stop for now"
+        assert all(
+            label != "Continue" for label in confirm["cancel"]["translations"].values()
+        )
+
+    def test_ok_button_stays_try_again(self):
+        confirm = self._confirm()
+        assert confirm["ok"]["translations"]["en"] == "Try again"
+
+    def test_text_no_longer_promises_continuing(self):
+        """The old copy told a participant who was sure about their file to
+        'Continue' — but the file is never processed either way."""
+        confirm = self._confirm()
+        en = confirm["text"]["translations"]["en"]
+        assert "Continue, if you are sure" not in en
+        assert "stop for now" in en
+
+    def test_all_five_locales_present_on_text_and_buttons(self):
+        confirm = self._confirm()
+        for part in ("text", "ok", "cancel"):
+            assert set(confirm[part]["translations"].keys()) == {"en", "nl", "de", "it", "es"}
+
 
 class TestHandleDonateResult:
     def test_success_response(self):
