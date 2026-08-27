@@ -179,8 +179,15 @@ class FlowBuilder:
             # 7. If no tables → no-data page
             if not result.tables:
                 logger.info("No data extracted for %s", self.platform_name)
-                _ = yield ph.render_no_data_page(self.platform_name)
-                return
+
+                no_data_result = yield ph.render_no_data_page(
+                    self.platform_name
+                )
+
+                if no_data_result.__type__ == "PayloadTrue":
+                    continue  # Erneut versuchen → zurück zur Dateiauswahl
+
+                return  # Fortfahren → Plattform-Flow beenden
 
             break  # proceed to consent
 
