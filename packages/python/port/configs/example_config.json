@@ -16,39 +16,47 @@
       "id": "example_file_stats",
       "title": {
         "en": "Files in the zip",
-        "nl": "Bestanden in de zip"
+        "nl": "Bestanden in de zip",
+        "de": "Dateien in der ZIP-Datei"
       },
       "description": {
         "en": "This table lists every file found inside the uploaded zip archive together with its size and date information.",
-        "nl": "Deze tabel bevat alle bestanden in het geüploade zip-archief, inclusief grootte en datuminformatie."
+        "nl": "Deze tabel bevat alle bestanden in het geüploade zip-archief, inclusief grootte en datuminformatie.",
+        "de": "Diese Tabelle listet alle Dateien im hochgeladenen ZIP-Archiv mit Größen- und Datumsinformationen auf."
       },
       "headers": {
         "filename": {
           "en": "Filename",
-          "nl": "Bestandsnaam"
+          "nl": "Bestandsnaam",
+          "de": "Dateiname"
         },
         "basename": {
           "en": "File name",
-          "nl": "Bestandsnaam (kort)"
+          "nl": "Bestandsnaam (kort)",
+          "de": "Dateiname (kurz)"
         },
         "size": {
           "en": "Size (bytes)",
-          "nl": "Grootte (bytes)"
+          "nl": "Grootte (bytes)",
+          "de": "Größe (Bytes)"
         },
         "compressed_size": {
           "en": "Compressed size (bytes)",
-          "nl": "Gecomprimeerde grootte (bytes)"
+          "nl": "Gecomprimeerde grootte (bytes)",
+          "de": "Komprimierte Größe (Bytes)"
         },
         "date_modified": {
           "en": "Date modified",
-          "nl": "Datum gewijzigd"
+          "nl": "Datum gewijzigd",
+          "de": "Änderungsdatum"
         }
       },
       "visualizations": [
         {
           "title": {
             "en": "File names",
-            "nl": "Bestandsnamen"
+            "nl": "Bestandsnamen",
+            "de": "Dateinamen"
           },
           "type": "wordcloud",
           "textColumn": "basename"

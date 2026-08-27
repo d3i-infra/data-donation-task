@@ -1,18 +1,23 @@
 import * as React from 'react'
 import {
-  Translatable,
-  Translator,
   ReactFactoryContext,
   PrimaryButton,
   BodySmall
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
-import { PropsUIPromptFileInputMultiple } from "./types.ts"
+import { resolveText } from "../../locale/text"
+import { PropsUIPromptFileInputMultiple, Translatable } from "./types.ts"
 import CloseSvg  from "./assets/close.svg"
 
 type Props = PropsUIPromptFileInputMultiple & ReactFactoryContext
 
-export const FileInputMultiple = (props: Props): JSX.Element => {
+// The type `resolve` actually accepts (feldspar's `Payload` union, not exported
+// from @eyra/feldspar's public API — ADR-0002 forbids adding the export just for
+// this cast). Derived structurally so the bridge cast below stays honest without
+// duplicating feldspar's Payload union here.
+type ResolvePayload = Parameters<NonNullable<Props['resolve']>>[0]
+
+export const FileInputMultiple = (props: Props): React.JSX.Element => {
   const [waiting, setWaiting] = React.useState<boolean>(false)
   const [files, setFiles] = React.useState<File[]>([])
   const input = React.useRef<HTMLInputElement>(null)
@@ -49,7 +54,13 @@ export const FileInputMultiple = (props: Props): JSX.Element => {
   function handleConfirm (): void {
     if (files !== undefined && !waiting) {
       setWaiting(true)
-      resolve?.({ __type__: 'PayloadFileArray', value: files })
+      // `PayloadFileArray` is not (and was never) a member of feldspar's Payload
+      // union: packages/python/port/helpers/flow_builder.py only recognizes
+      // `__type__ === "PayloadFile"` and silently skips anything else, so this
+      // call is already inert at runtime. Bridge cast lets tsc reflect that
+      // honestly instead of masking it; Task 5 rebuilds this component's donate
+      // path and removes the cast then.
+      resolve?.({ __type__: 'PayloadFileArray', value: files } as unknown as ResolvePayload)
     }
   }
 
@@ -107,11 +118,11 @@ interface Copy {
 
 function prepareCopy ({ description, extensions, locale }: Props): Copy {
   return {
-    description: Translator.translate(description, locale),
-    note: Translator.translate(note(), locale),
+    description: resolveText(description, locale),
+    note: resolveText(note(), locale),
     extensions: extensions,
-    selectButton: Translator.translate(selectButtonLabel(), locale),
-    continueButton: Translator.translate(continueButtonLabel(), locale)
+    selectButton: resolveText(selectButtonLabel(), locale),
+    continueButton: resolveText(continueButtonLabel(), locale)
   }
 }
 
@@ -120,6 +131,8 @@ const continueButtonLabel = (): Translatable => {
     .add('en', 'Continue')
     .add('de', 'Weiter')
     .add('nl', 'Verder')
+    .add('it', 'Continua')
+    .add('es', 'Continuar')
 }
 
 const selectButtonLabel = (): Translatable => {
@@ -127,6 +140,8 @@ const selectButtonLabel = (): Translatable => {
     .add('en', 'Choose file(s)')
     .add('de', 'Datei(en) auswählen')
     .add('nl', 'Kies bestand(en)')
+    .add('it', 'Scegli file')
+    .add('es', 'Elegir archivo(s)')
 }
 
 const note = (): Translatable => {
@@ -134,5 +149,7 @@ const note = (): Translatable => {
     .add('en', 'Note: The process to extract the correct data from the file is done on your own computer. No data is stored or sent yet.')
     .add('de', 'Anmerkung: Die weitere Verarbeitung der Datei erfolgt auf Ihrem eigenen Endgerät. Es werden noch keine Daten gespeichert oder weiter gesendet.')
     .add('nl', 'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.')
+    .add('it', "Nota: l'estrazione dei dati corretti dal file avviene sul suo computer. Non viene ancora salvato né inviato alcun dato.")
+    .add('es', 'Nota: el proceso de extraer los datos correctos del archivo se realiza en su propio ordenador. Todavía no se guarda ni se envía ningún dato.')
 }
 

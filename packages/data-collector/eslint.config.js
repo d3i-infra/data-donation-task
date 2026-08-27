@@ -4,6 +4,7 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
+import d3i from './eslint.config.d3i.js'
 
 export default [
   { ignores: ['dist'] },
@@ -36,4 +37,5 @@ export default [
       ],
     },
   },
+  ...d3i,
 ]

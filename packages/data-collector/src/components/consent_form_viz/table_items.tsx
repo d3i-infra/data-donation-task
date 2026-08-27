@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 import TextBundle from '@eyra/feldspar'
-import { Translator } from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { TableWithContext } from './types'
 import UndoSvg from './assets/images/undo.svg'
 
@@ -11,7 +11,7 @@ interface Props {
   locale: string
 }
 
-export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): JSX.Element => {
+export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): ReactElement => {
   const text = useMemo(() => getTranslations(locale), [locale])
 
   const deleted = table.deletedRowCount
@@ -75,14 +75,8 @@ export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props):
   )
 }
 
-function getTranslations(locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-
-  return translated
+function getTranslations (locale: string): Record<string, string> {
+  return resolveAll(translations, locale)
 }
 
 const translations = {
@@ -111,6 +105,7 @@ const translations = {
     .add('ro', 'înregistrări')
     .add('es', 'entradas')
     .add('sq', 'hyrje'),
+
 
   noData: new TextBundle()
     .add('en', 'no data')

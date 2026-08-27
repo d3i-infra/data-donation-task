@@ -73,7 +73,7 @@ The Vite app that gets built and served. This is the composition root that
 wires feldspar together with D3I-specific components:
 
 - Hosts `py_worker.js` (the worker entry point) and the Python wheel
-  (`port-0.0.0.tar.gz`) in its `public/` directory
+  (`port-0.0.0-py3-none-any.whl`) in its `public/` directory
 - Registers custom prompt factories for D3I UI components (consent form with
   visualizations, multi-file input, questionnaire, error page, retry prompt)
 - Configures `ScriptHostComponent` with the worker URL, log level, and

@@ -6,6 +6,7 @@ authors = ["Emiel van der Veen <e.vanderveen@eyra.co>"]
 include = [
   { path = "port/assets", format = ["sdist", "wheel"] },
   { path = "port/configs", format = ["sdist", "wheel"] },
+  { path = "port/helpers/ui_locales.json", format = ["sdist", "wheel"] },
 ]
 
 [tool.poetry.dependencies]

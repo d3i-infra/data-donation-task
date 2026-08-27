@@ -15,7 +15,7 @@ from collections import Counter
 from unittest.mock import MagicMock, patch
 
 import pytest
-from port.helpers.flow_builder import FlowBuilder
+from port.helpers.flow_builder import FlowBuilder, TaskIncompleteError
 from port.helpers.uploads import FileTooLargeError
 from port.api.commands import CommandUIRender, CommandSystemDonate, CommandSystemLog
 from port.api.d3i_props import ExtractionResult
@@ -144,11 +144,31 @@ class TestRetryPath:
         cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
+    def test_retry_declined_raises_abandoned(self):
+        """Declining the retry prompt must NOT exhaust the generator (exit 0 /
+        completed at the host) — it raises TaskIncompleteError with the
+        participant-abandoned exit code so the host keeps the task pending."""
+        flow = StubFlow(validation_status=1)
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # Upload invalid file → milestones → retry prompt
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        # User clicks "Continue" (declines retry)
+        with pytest.raises(TaskIncompleteError) as exc:
+            advance_past_logs(gen, make_payload("PayloadFalse"))
+        assert exc.value.exit_code == 2
+
 
 class TestSkipPath:
     """User skips file selection (anything other than PayloadFile)."""
 
-    def test_skip_returns_immediately(self):
+    def test_skip_raises_abandoned(self):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -157,9 +177,11 @@ class TestSkipPath:
         assert isinstance(cmd, CommandUIRender)
 
         # User skips with non-PayloadFile response — emits an
-        # "Upload skipped" diagnostic log, then returns.
-        with pytest.raises(StopIteration):
+        # "Upload skipped" diagnostic log, then ends abandoned so the
+        # host keeps the task pending instead of completing it.
+        with pytest.raises(TaskIncompleteError) as exc:
             advance_past_logs(gen, make_payload("PayloadFalse"))
+        assert exc.value.exit_code == 2
 
     def test_payload_string_now_treated_as_skip(self):
         """SRC compat dropped per ADR-0026: PayloadString is not a valid upload."""
@@ -170,15 +192,18 @@ class TestSkipPath:
         assert isinstance(cmd, CommandUIRender)
 
         # PayloadString hits the same skip branch as any other non-PayloadFile,
-        # which now emits an "Upload skipped" diagnostic log before returning.
-        with pytest.raises(StopIteration):
+        # which emits an "Upload skipped" diagnostic log and ends abandoned.
+        with pytest.raises(TaskIncompleteError) as exc:
             advance_past_logs(gen, make_payload("PayloadString", value="/tmp/legacy.zip"))
+        assert exc.value.exit_code == 2
 
 
 class TestNoDataPath:
     """Valid file but extraction returns empty table list."""
 
-    def test_no_data_shows_page_then_returns(self):
+    def test_no_data_try_again_loops_back_to_file_prompt(self):
+        """Fork behavior: the no-data page offers "Try again" (PayloadTrue),
+        which loops back to the file prompt instead of ending the flow."""
         flow = StubFlow(tables=[])
         gen = flow.start_flow()
 
@@ -190,9 +215,37 @@ class TestNoDataPath:
         cmd = advance_past_logs(gen, make_payload_file())
         assert isinstance(cmd, CommandUIRender)
 
-        # User acknowledges
+        # "Try again" → back to the file prompt
+        cmd = advance_past_logs(gen, make_payload("PayloadTrue"))
+        assert isinstance(cmd, CommandUIRender)
+
+    def test_no_data_continue_completes(self):
+        """"Continue" (PayloadFalse) on the no-data page ends the flow as a
+        completion — clean no-data is a legitimate exit-0 outcome."""
+        flow = StubFlow(tables=[])
+        gen = flow.start_flow()
+
+        start_and_skip_logs(gen)
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
         with pytest.raises(StopIteration):
-            gen.send(make_payload("PayloadTrue"))
+            gen.send(make_payload("PayloadFalse"))
+
+    def test_no_data_with_extraction_errors_is_a_failure_not_a_completion(self):
+        """Zero tables WITH extraction errors is an extraction failure, never
+        the clean no-data acknowledgment (which completes) — see ADR-0019's
+        no-data/extraction-bug separation. It routes through the uncaught-error
+        path, so the participant is offered the error report and stays pending."""
+        flow = StubFlow(tables=[])
+        flow.extract_data = lambda file, validation: ExtractionResult(
+            tables=[], errors=Counter({"KeyError": 3})
+        )
+        gen = flow.start_flow()
+
+        start_and_skip_logs(gen)
+        with pytest.raises(RuntimeError):
+            advance_past_logs(gen, make_payload_file())
 
 
 class TestSafetyErrorPath:
@@ -202,7 +255,7 @@ class TestSafetyErrorPath:
         "port.helpers.flow_builder.uploads.check_payload_size",
         side_effect=FileTooLargeError("too big"),
     )
-    def test_safety_error_shows_page_then_returns(self, mock_check):
+    def test_safety_error_shows_page_then_raises_upload_rejected(self, mock_check):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -214,16 +267,17 @@ class TestSafetyErrorPath:
         cmd = advance_past_logs(gen, make_payload_file(size=3 * 1024**3))
         assert isinstance(cmd, CommandUIRender)
 
-        # User acknowledges
-        with pytest.raises(StopIteration):
+        # User acknowledges → upload-rejected exit, not a completion
+        with pytest.raises(TaskIncompleteError) as exc:
             gen.send(make_payload("PayloadTrue"))
+        assert exc.value.exit_code == 4
 
 
 class TestDonateFailurePath:
     """Donation fails after consent."""
 
     @patch("port.helpers.flow_builder.ph.handle_donate_result", return_value=False)
-    def test_donate_failure_shows_page_then_returns(self, mock_handle):
+    def test_donate_failure_shows_page_then_raises_donation_failed(self, mock_handle):
         flow = StubFlow()
         gen = flow.start_flow()
 
@@ -242,9 +296,29 @@ class TestDonateFailurePath:
         cmd = advance_past_logs(gen, make_payload("PayloadResponse", success=False))
         assert isinstance(cmd, CommandUIRender)
 
-        # User acknowledges
-        with pytest.raises(StopIteration):
+        # User acknowledges → donation-failed exit, not a completion
+        with pytest.raises(TaskIncompleteError) as exc:
             gen.send(make_payload("PayloadTrue"))
+        assert exc.value.exit_code == 3
+
+    @patch("port.helpers.flow_builder.ph.handle_donate_result", return_value=False)
+    def test_decline_record_failure_stays_silent_completion(self, mock_handle):
+        """A failed decline-record delivery is invisible infrastructure: the
+        participant declined to donate, so the flow still completes (exit 0)."""
+        flow = StubFlow()
+        gen = flow.start_flow()
+
+        start_and_skip_logs(gen)
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        # User declines consent → decline record donated
+        cmd = advance_past_logs(gen, make_payload("PayloadFalse"))
+        assert isinstance(cmd, CommandSystemDonate)
+
+        # Delivery of the decline record fails → silent, plain exhaustion
+        with pytest.raises(StopIteration):
+            advance_past_logs(gen, make_payload("PayloadResponse", success=False))
 
 
 class TestSessionIdType:

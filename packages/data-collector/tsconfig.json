@@ -20,12 +20,6 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
 
-    /* Path mapping */
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["./src/*"]
-    },
-
     /* Additional options */
     "allowJs": true,
     "esModuleInterop": true,
@@ -33,5 +27,6 @@
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src"],
+  "exclude": ["src/test_support", "src/**/*.test.ts", "src/**/*.test.tsx"]
 }

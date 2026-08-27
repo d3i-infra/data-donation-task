@@ -1,8 +1,9 @@
+import { ReactElement } from 'react'
 import { PropsUICheckBox } from './types'
 import CheckSvg from './assets/images/check.svg'
 import CheckActiveSvg from './assets/images/check_active.svg'
 
-export const CheckBox = ({ id, selected, size = 'w-6 h-6', onSelect }: PropsUICheckBox): JSX.Element => {
+export const CheckBox = ({ id, selected, size = 'w-6 h-6', onSelect }: PropsUICheckBox): ReactElement => {
   return (
     <div id={id} className='radio-item flex flex-row gap-3 cursor-pointer' onClick={onSelect}>
       <div className={`shrink-0  ${size}`}>

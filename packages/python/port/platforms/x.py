@@ -47,6 +47,7 @@ from port.helpers.validate import (
     Language,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -805,13 +806,14 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 # Main extraction & flow
 # ---------------------------------------------------------------------------
 
-def extraction(x_zip: str, validation) -> ExtractionResult:
+def extraction(x_zip: SeekableBinaryReader, validation) -> ExtractionResult:
     """Extract data from an X (Twitter) DDP zip and return consent-form tables.
 
     Parameters
     ----------
     x_zip:
-        Path to the X DDP zip archive on disk.
+        Seekable binary reader over the X DDP zip — the upload
+        adapter itself, never a path (ADR-0026).
     validation:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.

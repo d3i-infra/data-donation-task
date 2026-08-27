@@ -1,10 +1,10 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   Title3,
 } from "@eyra/feldspar"
-import { PropsUIQuestionOpen } from '../../../../types/elements'
+import { resolveText } from '../../locale/text'
+import { PropsUIQuestionOpen } from './types'
 
 interface parentSetter {
   parentSetter: (arg: any) => any
@@ -12,7 +12,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionOpen & parentSetter & ReactFactoryContext
 
-export const OpenQuestion = (props: Props): JSX.Element => {
+export const OpenQuestion = (props: Props): React.JSX.Element => {
 
   const { question, id, parentSetter, locale } = props
   const [userAnswer, setUserAnswer] = React.useState<string>("");
@@ -47,7 +47,7 @@ export const OpenQuestion = (props: Props): JSX.Element => {
 
   function prepareCopy (locale: string): Copy {
     return {
-      question: Translator.translate(question, locale)
+      question: resolveText(question, locale)
     }
   }
 }

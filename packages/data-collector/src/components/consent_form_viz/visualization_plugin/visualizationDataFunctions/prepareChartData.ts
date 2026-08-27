@@ -110,6 +110,11 @@ function aggregateData (table: Table, visualization: ChartVisualization): Record
       }
 
       const yValue = yValues[i]
+      // Number() never returns null/undefined (only NaN for unparsable input), so
+      // `Number(yValue) ?? 0` never actually falls back -- a non-numeric cell poisons
+      // the running sum with NaN. Guard against NaN explicitly instead.
+      const numericYValue = Number(yValue)
+      const yValueOrZero = Number.isNaN(numericYValue) ? 0 : numericYValue
       const group = yGroup != null ? yGroup[i] : value.column
 
       const sortBy = xSortable != null ? xSortable[xValue] : groupBy[i]
@@ -117,7 +122,7 @@ function aggregateData (table: Table, visualization: ChartVisualization): Record
       // calculate group summary statistics. This is used for the mean, pct and count_pct aggregations
       if (groupSummary[group] === undefined) groupSummary[group] = { n: 0, sum: 0 }
       if (aggFun === 'count_pct' || aggFun === 'mean') groupSummary[group].n += 1
-      if (aggFun === 'pct') groupSummary[group].sum += Number(yValue) ?? 0
+      if (aggFun === 'pct') groupSummary[group].sum += yValueOrZero
 
       if (aggregate[xValue] === undefined) {
         aggregate[xValue] = {
@@ -135,7 +140,7 @@ function aggregateData (table: Table, visualization: ChartVisualization): Record
       if (aggregate[xValue].values[group] === undefined) aggregate[xValue].values[group] = 0
       if (aggFun === 'count' || aggFun === 'count_pct') aggregate[xValue].values[group] += 1
       if (aggFun === 'sum' || aggFun === 'mean' || aggFun === 'pct') {
-        aggregate[xValue].values[group] += Number(yValue) ?? 0
+        aggregate[xValue].values[group] += yValueOrZero
       }
     }
 

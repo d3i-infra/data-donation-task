@@ -5,6 +5,7 @@ import {
   useRef,
   useState,
   ReactNode,
+  ReactElement,
   Dispatch,
   SetStateAction
 } from 'react'
@@ -16,11 +17,10 @@ import UndoSvg from './assets/images/undo.svg'
 import DeleteSvg from './assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '@eyra/feldspar'
-import {
-  Translator,
-} from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { CheckBox } from './check_box'
 import { PropsUITableRow } from './types'
+import { formatBerlinTimestamp } from './util'
 
 export interface Props {
   table: TableWithContext
@@ -49,7 +49,7 @@ export const Table = ({
   handleDelete,
   handleUndo,
   pageSize = 7
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const [page, setPage] = useState(0)
   const columnNames = table.head.cells
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -70,6 +70,7 @@ export const Table = ({
     'min-h-[2.1rem] md:min-h-[2.5rem] px-3 flex items-center font-table-row'
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: pagination reset on table swap; fix needs ADR-0031-safe redesign
     setSelected(new Set())
     setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
   }, [table, nPages])
@@ -117,7 +118,7 @@ export const Table = ({
     return items
   }, [table, page, pageSize])
 
-  function getColumnStyle(index: number): React.CSSProperties {
+  function getColumnStyle (index: number): React.CSSProperties {
     if (table.id === 'facebook_reels_usage') {
       if (index === 0) {
         return { width: '75%' }
@@ -128,17 +129,17 @@ export const Table = ({
       }
     }
 
-  if (table.id === 'instagram_other_categories_used_to_reach_you') {
-    if (index === 0) {
-      return { width: '100%' }
+    if (table.id === 'instagram_other_categories_used_to_reach_you') {
+      if (index === 0) {
+        return { width: '100%' }
+      }
     }
+
+    return {}
   }
 
-  return {}
-}
-
-
-  function renderHeaderCell(value: string, i: number): JSX.Element {
+  function renderHeaderCell (value: string, i: number): ReactElement {
+    // Display translated header if available, fall back to raw column name
     const displayName = table.headers?.[value] ?? value
 
     return (
@@ -155,10 +156,7 @@ export const Table = ({
     )
   }
 
-  function renderRow(
-    item: PropsUITableRow | null,
-    i: number
-  ): JSX.Element | null {
+  function renderRow (item: PropsUITableRow | null, i: number): ReactElement | null {
     if (item == null && i >= unfilteredRows) return null
 
     if (item == null) {
@@ -336,16 +334,7 @@ function formatDateForDisplay(
   const date = new Date(value)
   if (Number.isNaN(date.getTime())) return value
 
-  return new Intl.DateTimeFormat('de-DE', {
-    timeZone: 'Europe/Berlin',
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-    hour12: false
-  }).format(date)
+  return formatBerlinTimestamp(date)
 }
 
 function Cell({
@@ -364,7 +353,7 @@ function Cell({
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
   allowWrap?: boolean
-}): JSX.Element {
+}): ReactElement {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const isUrl = /^https?:\/\//.test(cell)
@@ -468,7 +457,7 @@ function Cell({
   )
 }
 
-function TooltipIcon(): JSX.Element {
+function TooltipIcon (): ReactElement {
   return (
     <svg
       className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
@@ -495,7 +484,7 @@ function IconButton(props: {
   color: string
   disabled?: boolean
   hidden?: boolean
-}): JSX.Element | null {
+}): ReactElement | null {
   if (props.hidden ?? false) return null
 
   const disabled = props.disabled ?? false
@@ -518,14 +507,8 @@ function IconButton(props: {
   )
 }
 
-function getTranslations(locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-
-  return translated
+function getTranslations (locale: string): Record<string, string> {
+  return resolveAll(translations, locale)
 }
 
 const translations = {
@@ -541,7 +524,6 @@ const translations = {
     .add('ro', 'Șterge')
     .add('es', 'Eliminar')
     .add('sq', 'Fshi'),
-
   undo: new TextBundle()
     .add('en', 'Undo')
     .add('nl', 'Herstel')

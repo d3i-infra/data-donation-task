@@ -286,38 +286,82 @@ def generate_questionnaire() -> d3i_props.PropsUIPromptQuestionnaire:
         translations={
             "en": "Customer Satisfaction Survey for our Online Store",
             "nl": "Klanttevredenheidsonderzoek voor onze Online Winkel",
+            "de": "Kundenzufriedenheitsumfrage für unseren Online-Shop",
+            "it": "Sondaggio sulla soddisfazione dei clienti per il nostro negozio online",
+            "es": "Encuesta de satisfacción del cliente para nuestra tienda en línea",
         }
     )
 
     open_question = props.Translatable(
-        translations={"en": "How can we improve our services?", "nl": "Hoe kunnen we onze diensten verbeteren?"}
+        translations={
+            "en": "How can we improve our services?",
+            "nl": "Hoe kunnen we onze diensten verbeteren?",
+            "de": "Wie können wir unsere Dienstleistungen verbessern?",
+            "it": "Come possiamo migliorare i nostri servizi?",
+            "es": "¿Cómo podemos mejorar nuestros servicios?",
+        }
     )
 
     mc_question = props.Translatable(
-        translations={"en": "How would you rate your overall experience?", "nl": "Hoe zou u uw algemene ervaring beoordelen?"}
+        translations={
+            "en": "How would you rate your overall experience?",
+            "nl": "Hoe zou u uw algemene ervaring beoordelen?",
+            "de": "Wie würden Sie Ihre Gesamterfahrung bewerten?",
+            "it": "Come valuterebbe la sua esperienza complessiva?",
+            "es": "¿Cómo valoraría su experiencia general?",
+        }
     )
 
     mc_choices = [
-        props.Translatable(translations={"en": "Excellent", "nl": "Uitstekend"}),
-        props.Translatable(translations={"en": "Good", "nl": "Goed"}),
-        props.Translatable(translations={"en": "Average", "nl": "Gemiddeld"}),
-        props.Translatable(translations={"en": "Poor", "nl": "Slecht"}),
-        props.Translatable(translations={"en": "Very Poor", "nl": "Zeer slecht"}),
+        props.Translatable(
+            translations={"en": "Excellent", "nl": "Uitstekend", "de": "Ausgezeichnet", "it": "Eccellente", "es": "Excelente"}
+        ),
+        props.Translatable(translations={"en": "Good", "nl": "Goed", "de": "Gut", "it": "Buono", "es": "Bueno"}),
+        props.Translatable(
+            translations={"en": "Average", "nl": "Gemiddeld", "de": "Durchschnittlich", "it": "Nella media", "es": "Regular"}
+        ),
+        props.Translatable(translations={"en": "Poor", "nl": "Slecht", "de": "Schlecht", "it": "Scarso", "es": "Malo"}),
+        props.Translatable(
+            translations={"en": "Very Poor", "nl": "Zeer slecht", "de": "Sehr schlecht", "it": "Molto scarso", "es": "Muy malo"}
+        ),
     ]
 
     checkbox_question = props.Translatable(
         translations={
             "en": "Which of our products have you purchased? (Select all that apply)",
             "nl": "Welke van onze producten heeft u gekocht? (Selecteer alle toepasselijke)",
+            "de": "Welche unserer Produkte haben Sie gekauft? (Wählen Sie alle zutreffenden aus)",
+            "it": "Quali dei nostri prodotti ha acquistato? (Selezioni tutte le opzioni pertinenti)",
+            "es": "¿Cuáles de nuestros productos ha comprado? (Seleccione todas las opciones que correspondan)",
         }
     )
 
     checkbox_choices = [
-        props.Translatable(translations={"en": "Electronics", "nl": "Elektronica"}),
-        props.Translatable(translations={"en": "Clothing", "nl": "Kleding"}),
-        props.Translatable(translations={"en": "Home Goods", "nl": "Huishoudelijke artikelen"}),
-        props.Translatable(translations={"en": "Books", "nl": "Boeken"}),
-        props.Translatable(translations={"en": "Food Items", "nl": "Voedingsproducten"}),
+        props.Translatable(
+            translations={"en": "Electronics", "nl": "Elektronica", "de": "Elektronik", "it": "Elettronica", "es": "Electrónica"}
+        ),
+        props.Translatable(
+            translations={"en": "Clothing", "nl": "Kleding", "de": "Kleidung", "it": "Abbigliamento", "es": "Ropa"}
+        ),
+        props.Translatable(
+            translations={
+                "en": "Home Goods",
+                "nl": "Huishoudelijke artikelen",
+                "de": "Haushaltswaren",
+                "it": "Articoli per la casa",
+                "es": "Artículos para el hogar",
+            }
+        ),
+        props.Translatable(translations={"en": "Books", "nl": "Boeken", "de": "Bücher", "it": "Libri", "es": "Libros"}),
+        props.Translatable(
+            translations={
+                "en": "Food Items",
+                "nl": "Voedingsproducten",
+                "de": "Lebensmittel",
+                "it": "Alimentari",
+                "es": "Alimentos",
+            }
+        ),
     ]
 
     open_ended_question = d3i_props.PropsUIQuestionOpen(id=1, question=open_question)
@@ -436,6 +480,38 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
     return CommandUIRender(page)
 
 
+def render_task_incomplete_page(platform_name: str) -> CommandUIRender:
+    """Render the terminal page of the error flow: the task was not completed
+    and the participant can retry by refreshing the page.
+
+    Shown after the consent-gated error report (or its skip) so the
+    participant does not land on a stale error page when the flow exits
+    nonzero (Issue #123). Caller should yield and await response before
+    returning.
+    """
+    header = props.PropsUIHeader(
+        props.Translatable({
+            "en": "Task not completed",
+            "nl": "Taak niet voltooid",
+            "de": "Aufgabe nicht abgeschlossen",
+            "it": "Attività non completata",
+            "es": "Tarea no completada",
+        })
+    )
+    body = props.PropsUIPromptConfirm(
+        text=props.Translatable({
+            "en": "This task could not be completed. You can try again by refreshing this page. If the problem persists, please contact the researcher.",
+            "nl": "Deze taak kon niet worden voltooid. U kunt het opnieuw proberen door deze pagina te vernieuwen. Als het probleem aanhoudt, neem dan contact op met de onderzoeker.",
+            "de": "Diese Aufgabe konnte nicht abgeschlossen werden. Sie können es erneut versuchen, indem Sie diese Seite aktualisieren. Wenn das Problem weiterhin besteht, wenden Sie sich bitte an den Forscher.",
+            "it": "Non è stato possibile completare questa attività. Può riprovare aggiornando questa pagina. Se il problema persiste, contatti il ricercatore.",
+            "es": "Esta tarea no se pudo completar. Puede intentarlo de nuevo actualizando esta página. Si el problema persiste, póngase en contacto con el investigador.",
+        }),
+        ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
+    )
+    page = props.PropsUIPageDataSubmission(platform_name, header, body)
+    return CommandUIRender(page)
+
+
 def render_donate_failure_page(platform_name: str) -> CommandUIRender:
     """Render donation failure page.
 
@@ -486,12 +562,14 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
 def handle_donate_result(result) -> bool:
     """Inspect donate result. Returns True on success, False on failure.
 
-    eyra/feldspar develop (Feb 2026+) returns PayloadResponse for
-    CommandSystemDonate with value.success indicating outcome. Older
-    feldspar and FakeBridge (dev mode) return PayloadVoid (fire-and-forget).
+    Both current bridges acknowledge a CommandSystemDonate with a structured
+    result, so production and local dev alike reach Python as PayloadResponse:
+    LiveBridge relays the host's reply, and FakeBridge returns the outcome of
+    its own /data-submission POST. PayloadVoid arrives only from a bridge that
+    resolves a donate without an acknowledgment (an older host, a stub bridge).
 
-    PayloadResponse → check value.success (production path, checked first)
-    PayloadVoid / None → True (dev mode / backward-compat)
+    PayloadResponse → check value.success (the path every current bridge takes)
+    PayloadVoid / None → True (legacy no-acknowledgment shape)
     Anything else → log warning, return False
     """
     if result is None:

@@ -1,0 +1,26 @@
+{
+  "supported": [
+    "en",
+    "nl",
+    "de",
+    "it",
+    "es",
+    "pl",
+    "tr",
+    "ar",
+    "ru",
+    "ro",
+    "sq"
+  ],
+  "default": "de",
+  "provisional": [
+    "ar",
+    "es",
+    "it",
+    "pl",
+    "ro",
+    "ru",
+    "sq",
+    "tr"
+  ]
+}

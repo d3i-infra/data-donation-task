@@ -1,9 +1,14 @@
-import React, { useEffect, useMemo, useRef } from "react"
+import { ReactElement, useEffect, useMemo, useRef } from "react"
 import cloud from "d3-cloud"
 import stopwords from "./common_stopwords"
 import { TextVisualizationData } from "../types"
 
 type Word = { text: string; value: number }
+
+// d3-cloud mutates each word in place, adding x/y/rotate once layout
+// completes — they don't exist on the objects passed into .words().
+type LayoutWord = { text: string; size: number; x?: number; y?: number; rotate?: number }
+type LayoutCloud = ReturnType<typeof cloud<LayoutWord>>
 
 interface Props {
   visualizationData: TextVisualizationData
@@ -14,7 +19,7 @@ const COLORS = ["#444", "#1E3FCC", "#4272EF", "#CC9F3F", "#FFCF60"] as const
 const FONT_FAMILY = "Finador-Bold"
 const FONT_SIZES: [number, number] = [20, 50]
 
-function Wordcloud({ visualizationData, nWords = 100 }: Props): JSX.Element | null {
+function Wordcloud({ visualizationData, nWords = 100 }: Props): ReactElement | null {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const svgRef = useRef<SVGSVGElement | null>(null)
 
@@ -34,7 +39,7 @@ function Wordcloud({ visualizationData, nWords = 100 }: Props): JSX.Element | nu
     const parent = container.parentElement || container
     const svg = svgRef.current
 
-    let activeLayout: ReturnType<typeof cloud> | undefined
+    let activeLayout: LayoutCloud | undefined
     let raf = 0
     let curW = 0
     let curH = 0
@@ -52,7 +57,7 @@ function Wordcloud({ visualizationData, nWords = 100 }: Props): JSX.Element | nu
       activeLayout = undefined
     }
 
-    const draw = (placed: Array<{ text: string; size: number; x: number; y: number }>) => {
+    const draw = (placed: LayoutWord[]) => {
       const g = document.createElementNS("http://www.w3.org/2000/svg", "g")
       g.setAttribute("transform", `translate(${curW / 2},${curH / 2})`)
       placed.forEach((word, idx) => {
@@ -80,13 +85,7 @@ function Wordcloud({ visualizationData, nWords = 100 }: Props): JSX.Element | nu
 
       stopLayout()
 
-      const layout = cloud<{
-        text: string
-        size: number
-        x: number
-        y: number
-        rotate: number
-      }>()
+      const layout = cloud<LayoutWord>()
         .size([w, h])
         .words(words.map(d => ({ text: d.text, size: scaleSize(d.value) })))
         .padding(4)
