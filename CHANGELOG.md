@@ -110,6 +110,29 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   against the `e2etest` fault-injection platform
   (`VITE_PLATFORM=e2etest pnpm test:e2e`).
 
+* **Graceful dead-ends no longer complete the task either.** Cancelling at
+  the file picker, declining the retry prompt after an invalid file, a
+  rejected upload (too large / chunked export), and a failed donation
+  delivery previously exhausted the flow into exit 0 — a green checkmark in
+  Next with no data donated. `FlowBuilder.start_flow()` now raises
+  `TaskIncompleteError` on those paths and `ScriptWrapper` shows the
+  task-incomplete page, then exits with the category's fixed code:
+  2 = participant abandoned, 3 = donation delivery failed, 4 = upload
+  rejected (1 remains the unhandled-error exit). Codes are a fork-local
+  convention pending an agreed contract with Eyra — the host only
+  distinguishes 0 from nonzero today. Genuine completions are unchanged:
+  donation success, consent declined (decline record), and a clean
+  no-data-found still exit 0 — but zero tables *with* extraction errors
+  now routes through the consent-gated error flow (exit 1) instead of
+  masquerading as "no data found", closing a gap against ADR-0019's
+  no-data/extraction-bug separation. `TaskIncompleteError` is raised with
+  a reason key and derives its fixed `(code, info)` pair from its own
+  `EXITS` table, so raise sites cannot put arbitrary text on the bridge. **Behavior change for live studies:** participants who
+  previously "finished" via these dead-ends now stay pending and can
+  re-enter the task. See ADR-0039. Covered by a second
+  `tests/error-flow.spec.ts` test (`tests/invalid.zip` fixture) and unit
+  tests in `test_flow_builder.py` / `test_main_queue.py`.
+
 * Translation resolution no longer returns `undefined` or throws on a
   malformed bundle: `translator.ts` and `text_bundle.ts` now resolve
   exact locale → default locale → first available translation →
