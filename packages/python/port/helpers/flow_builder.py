@@ -101,7 +101,7 @@ class FlowBuilder:
             # 2. Safety check (size only — uses JS metadata, no read)
             try:
                 uploads.check_payload_size(file_result)
-            except (uploads.FileTooLargeError, uploads.ChunkedExportError) as e:
+            except uploads.FileTooLargeError as e:
                 logger.error("Safety check failed for %s: %s", self.platform_name, e)
                 yield from ph.emit_log("info", f"[{self.platform_name}] Safety check failed: {type(e).__name__}")
                 _ = yield ph.render_safety_error_page(self.platform_name, e)

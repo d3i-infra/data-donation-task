@@ -196,7 +196,7 @@ class TestNoDataPath:
 
 
 class TestSafetyErrorPath:
-    """File fails safety check (oversize / chunked-export sentinel)."""
+    """File fails safety check (oversize)."""
 
     @patch(
         "port.helpers.flow_builder.uploads.check_payload_size",
