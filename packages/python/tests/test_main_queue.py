@@ -77,3 +77,22 @@ def test_start_function_creates_wrapper(monkeypatch):
     from port.main import start
     wrapper = start({"sessionId": "session123", "platform": "LinkedIn"})
     assert isinstance(wrapper, ScriptWrapper)
+
+
+class TestPayloadFilesWrapping:
+    def test_each_reader_wrapped_in_adapter(self):
+        from port.api.file_utils import AsyncFileAdapter
+        import port.main as main
+        readers = []
+        for name, size in (("takeout-1-001.zip", 10), ("takeout-2-001.zip", 20)):
+            r = MagicMock(); r.size = size; r.name = name; readers.append(r)
+        data = MagicMock()
+        data.__type__ = "PayloadFiles"
+        data.value = readers
+        script = MagicMock()
+        script.send.return_value = MagicMock(toDict=lambda: {"__type__": "CommandUIRender"})
+        wrapper = main.ScriptWrapper(script, platform="example")
+        wrapper.send(data)
+        sent = script.send.call_args[0][0]
+        assert [type(a) for a in sent.value] == [AsyncFileAdapter, AsyncFileAdapter]
+        assert [a.size for a in sent.value] == [10, 20]
