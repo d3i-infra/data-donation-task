@@ -166,7 +166,7 @@ test('uploading a renamed copy of the same archive does not duplicate the donate
   //     under a different NAME is not this layer's job, and it shouldn't
   //     try (it would have to hash file contents client-side to do so).
   //   - ArchiveSet's canonical (name, size) part ordering + first-part-wins
-  //     member resolution (ADR-0039) is the layer that actually dedupes
+  //     member resolution (ADR-0040) is the layer that actually dedupes
   //     identical member content across parts: the "loser" part's members
   //     are counted in ArchiveSet.duplicates["DuplicateMemberAcrossParts"]
   //     — visible to a researcher inspecting extraction errors, never
@@ -230,11 +230,13 @@ test('uploading a renamed copy of the same archive does not duplicate the donate
   }
 });
 
-test('too many files shows the safety error page', async ({ page }) => {
+test('too many files shows the safety error page and exits upload-rejected', async ({ page }) => {
   // uploads.check_payload_size() runs before validate_file/extract_data —
   // MAX_UPLOAD_FILES=16 (uploads.py), so 17 selected parts must stop the
   // flow at the safety check. Previously pinned only at the pytest layer
   // (test_flow_builder.py); this closes the browser leg.
+  const consoleMessages: string[] = [];
+  page.on('console', (msg) => consoleMessages.push(msg.text()));
   const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'e2etest-multifile-toomany-'));
   const partPaths: string[] = [];
   for (let i = 1; i <= 17; i++) {
@@ -273,11 +275,19 @@ test('too many files shows the safety error page', async ({ page }) => {
     await expect(page.getByRole('heading', { name: 'File cannot be processed' })).toBeVisible({ timeout: 90000 });
     await expect(page.getByText('at most 16')).toBeVisible();
 
-    // Still LAYER 1: the flow terminates here (FlowBuilder returns
-    // unconditionally after rendering this page, regardless of which
-    // button is clicked) — it must not loop back to the file prompt.
+    // Still LAYER 1: the flow terminates here (FlowBuilder raises
+    // TaskIncompleteError after rendering this page, regardless of which
+    // button is clicked) — it must not loop back to the file prompt, and
+    // a rejected upload is never a completion, so the run exits nonzero
+    // with the upload-rejected code (ADR-0039).
     await page.getByText('Continue', { exact: true }).first().click();
     await expect(page.getByRole('heading', { name: 'Select your e2etest_multifile file' })).not.toBeVisible();
+    await expect(page.getByText('Task not completed')).toBeVisible();
+    await page.getByText('OK', { exact: true }).click();
+    await expect
+      .poll(() => consoleMessages.find((m) => m.includes('[FakeBridge] received exit')), { timeout: 30000 })
+      .toContain('received exit: 4=Upload rejected');
+    expect(consoleMessages.find((m) => m.includes('received exit: 0='))).toBeUndefined();
     expect(submissionWatch.wasCalled()).toBe(false);
   } finally {
     fs.rmSync(tmpDir, { recursive: true, force: true });

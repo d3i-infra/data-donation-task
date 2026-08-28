@@ -35,7 +35,7 @@ checks:
 
 ## Decision
 
-Platform extraction reads archive members through `ZipArchiveReader`. `json()` / `json_all()` / `csv()` / `raw()` return result objects with `found`; a missing expected file is skipped, not raised. `ZipArchiveReader` consumes an `ArchiveSource` (`SingleArchiveSource` for one archive, `ArchiveSet` for N uploaded parts — ADR-0039) rather than opening a zip itself; expected-missing semantics are unchanged regardless of which source backs it.
+Platform extraction reads archive members through `ZipArchiveReader`. `json()` / `json_all()` / `csv()` / `raw()` return result objects with `found`; a missing expected file is skipped, not raised. `ZipArchiveReader` consumes an `ArchiveSource` (`SingleArchiveSource` for one archive, `ArchiveSet` for N uploaded parts — ADR-0040) rather than opening a zip itself; expected-missing semantics are unchanged regardless of which source backs it.
 
 ## Guidance
 
@@ -48,4 +48,4 @@ Platform extraction reads archive members through `ZipArchiveReader`. `json()` /
 
 ## Why
 
-DDPs vary by version, language, and download options, so expected files are routinely absent — absence is normal, not an error. The old helpers cascaded ~4 error lines per missing file (a three-year Facebook DDP: ~31K console lines, 559 inflated error counts), burying real failures and hiding broken-vs-absent from researchers. Found/not-found results kill the cascade at the source; a sentinel alone would still cascade through the parsers, and pre-filtering put existence checks in the wrong layer. Caching the member list reuses validation's walk (previously 25+ zip re-opens per Facebook extraction), and exact-then-path-boundary resolution replaced a regex match that could extract the wrong file. Layering: discovery lives in `validate.py` for a single archive or `ArchiveSet` for a multi-part upload (ADR-0039), the reader resolves member paths against whichever `ArchiveSource` it is given, the platform parses.
+DDPs vary by version, language, and download options, so expected files are routinely absent — absence is normal, not an error. The old helpers cascaded ~4 error lines per missing file (a three-year Facebook DDP: ~31K console lines, 559 inflated error counts), burying real failures and hiding broken-vs-absent from researchers. Found/not-found results kill the cascade at the source; a sentinel alone would still cascade through the parsers, and pre-filtering put existence checks in the wrong layer. Caching the member list reuses validation's walk (previously 25+ zip re-opens per Facebook extraction), and exact-then-path-boundary resolution replaced a regex match that could extract the wrong file. Layering: discovery lives in `validate.py` for a single archive or `ArchiveSet` for a multi-part upload (ADR-0040), the reader resolves member paths against whichever `ArchiveSource` it is given, the platform parses.

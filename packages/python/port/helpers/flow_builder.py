@@ -22,10 +22,35 @@ from port.helpers.archive_set import ArchiveSet
 logger = logging.getLogger(__name__)
 
 
+class TaskIncompleteError(Exception):
+    """Flow ended without completion. ScriptWrapper maps this to a nonzero
+    exit command so the host keeps the task pending (never completed).
+
+    Raised with a reason key only: the fixed (code, info) pair comes from
+    EXITS, so a raise site can never put exception or participant text on
+    the bridge — exit info crosses it unconsented (ADR-0022/0023). Codes
+    are a fork-local convention pending an agreed exit-code contract with
+    Eyra; the host only distinguishes 0 from nonzero today (see ADR-0039).
+    """
+
+    EXITS = {
+        "abandoned": (2, "Participant abandoned the task"),
+        "donation_failed": (3, "Donation delivery failed"),
+        "upload_rejected": (4, "Upload rejected"),
+    }
+
+    def __init__(self, reason: str):
+        exit_code, exit_info = self.EXITS[reason]
+        super().__init__(exit_info)
+        self.reason = reason
+        self.exit_code = exit_code
+        self.exit_info = exit_info
+
+
 class FlowBuilder:
     # Subclasses handling a Google-Takeout-style chunked export set this to
     # "PayloadFiles"; the file prompt, safety check, and archive-set
-    # construction below key off this attribute. See ADR-0039 (ArchiveSet).
+    # construction below key off this attribute. See ADR-0040 (ArchiveSet).
     expected_file_payload: str = "PayloadFile"
 
     def __init__(self, session_id: str, platform_name: str):
@@ -73,7 +98,10 @@ class FlowBuilder:
         Control flow rules:
         - continue: retry upload only
         - break: successful extraction, proceed to consent
-        - return: every terminal path
+        - return: terminal paths that ARE completions (exit 0 at the host)
+        - raise TaskIncompleteError: terminal paths that are NOT completions —
+          ScriptWrapper shows the task-incomplete page and exits nonzero so
+          the host keeps the task pending (ADR-0039)
 
         Flow milestones are sent to the host via explicit CommandSystemLog yields
         (through emit_log). These must be PII-free. Local logger keeps full
@@ -101,7 +129,7 @@ class FlowBuilder:
                     "info",
                     f"[{self.platform_name}] Upload skipped: type={file_result.__type__}",
                 )
-                return
+                raise TaskIncompleteError("abandoned")
             else:
                 logger.info(
                     "Protocol mismatch for %s: expected=%s got=%s",
@@ -113,15 +141,17 @@ class FlowBuilder:
                     "info",
                     f"[{self.platform_name}] Protocol mismatch: expected={self.expected_file_payload} got={file_result.__type__}",
                 )
-                yield ph.render_protocol_error_page(self.platform_name)
-                return
+                _ = yield ph.render_protocol_error_page(self.platform_name)
+                # Nothing usable arrived, so nothing can be donated: the
+                # payload is rejected and the run must not exit 0 (ADR-0039).
+                raise TaskIncompleteError("upload_rejected")
 
             is_multi = self.expected_file_payload == "PayloadFiles"
 
             if is_multi:
                 # A PayloadFiles set — file_result.value is a list of
                 # AsyncFileAdapters, one per uploaded part. Never
-                # materialized. See ADR-0026/ADR-0039.
+                # materialized. See ADR-0026/ADR-0040.
                 parts = file_result.value
                 total_size = sum(p.size for p in parts)
                 yield from ph.emit_log(
@@ -144,12 +174,12 @@ class FlowBuilder:
                 logger.error("Safety check failed for %s: %s", self.platform_name, e)
                 yield from ph.emit_log("info", f"[{self.platform_name}] Safety check failed: {type(e).__name__}")
                 _ = yield ph.render_safety_error_page(self.platform_name, e)
-                return
+                raise TaskIncompleteError("upload_rejected")
 
             if is_multi:
                 # Build the union archive-set from the uploaded parts. A
                 # corrupt/unreadable part surfaces here as zipfile.BadZipFile
-                # (ADR-0039) — route it through the existing retry-prompt
+                # (ADR-0040) — route it through the existing retry-prompt
                 # path rather than a traceback, same as an invalid single
                 # file failing DDP validation below.
                 try:
@@ -158,7 +188,8 @@ class FlowBuilder:
                     logger.info("Corrupt part in %s upload; prompting retry", self.platform_name)
                     if (yield from self._prompt_retry()):
                         continue  # loop back to step 1
-                    return  # user declined retry
+                    yield from ph.emit_log("info", f"[{self.platform_name}] Retry declined")
+                    raise TaskIncompleteError("abandoned")
 
             # 3. Validate
             # `archive` is a SeekableBinaryReader for a PayloadFile flow, or
@@ -182,7 +213,8 @@ class FlowBuilder:
                 logger.info("Invalid %s file; prompting retry", self.platform_name)
                 if (yield from self._prompt_retry()):
                     continue  # loop back to step 1
-                return  # user declined retry
+                yield from ph.emit_log("info", f"[{self.platform_name}] Retry declined")
+                raise TaskIncompleteError("abandoned")
 
             # 5. Extract
             logger.info("Extracting data for %s", self.platform_name)
@@ -200,8 +232,17 @@ class FlowBuilder:
             else:
                 yield from ph.emit_log("info", f"[{self.platform_name}] Extraction complete: {len(result.tables)} tables, {total_rows} rows; errors: none")
 
-            # 7. If no tables → no-data page
+            # 7. If no tables → no-data page (clean empties only: zero tables
+            # WITH extraction errors is an extraction failure, never presented
+            # as "no data found" — the no-data/extraction-bug separation in
+            # the no-data ADR. Raising routes it through the consent-gated
+            # error flow, so the participant stays pending.)
             if not result.tables:
+                if result.errors:
+                    raise RuntimeError(
+                        f"Extraction produced no tables with errors: "
+                        f"{', '.join(f'{k}×{v}' for k, v in result.errors.items())}"
+                    )
                 logger.info("No data extracted for %s", self.platform_name)
                 _ = yield ph.render_no_data_page(self.platform_name)
                 return
@@ -239,7 +280,7 @@ class FlowBuilder:
             logger.error("Donation failed for %s", self.platform_name)
             yield from ph.emit_log("info", f"[{self.platform_name}] Donation result: failed")
             _ = yield ph.render_donate_failure_page(self.platform_name)
-            return
+            raise TaskIncompleteError("donation_failed")
 
         yield from ph.emit_log("info", f"[{self.platform_name}] Donation result: success")
 
@@ -247,9 +288,10 @@ class FlowBuilder:
         """Render the retry prompt and report the participant's choice.
 
         Generator helper: `yield from` it to get back True (retry — caller
-        should `continue`) or False (declined — caller should `return`).
-        Shared by the invalid-file path and the corrupt-archive-set path,
-        which both fall back to the same retry UI.
+        should `continue`) or False (declined — caller should raise
+        TaskIncompleteError("abandoned"), since a declined retry is not a
+        completion; ADR-0039). Shared by the invalid-file path and the
+        corrupt-archive-set path, which both fall back to the same retry UI.
         """
         retry_prompt = self.generate_retry_prompt()
         retry_result = yield ph.render_page(self.UI_TEXT["retry_header"], retry_prompt)
@@ -270,7 +312,7 @@ class FlowBuilder:
         seekable binary reader, never a path — for the default single-file
         flow (`expected_file_payload == "PayloadFile"`). A subclass that
         sets `expected_file_payload = "PayloadFiles"` receives the unioned
-        `ArchiveSet` over all uploaded parts here instead (ADR-0039); such a
+        `ArchiveSet` over all uploaded parts here instead (ADR-0040); such a
         subclass should narrow this annotation locally to `ArchiveSet`.
         """
         raise NotImplementedError("Must be implemented by subclass")
@@ -283,7 +325,7 @@ class FlowBuilder:
         seekable binary reader, never a path — for the default single-file
         flow (`expected_file_payload == "PayloadFile"`). A subclass that
         sets `expected_file_payload = "PayloadFiles"` receives the unioned
-        `ArchiveSet` over all uploaded parts here instead (ADR-0039); such a
+        `ArchiveSet` over all uploaded parts here instead (ADR-0040); such a
         subclass should narrow this annotation locally to `ArchiveSet`.
         """
         raise NotImplementedError("Must be implemented by subclass")

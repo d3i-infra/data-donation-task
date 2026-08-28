@@ -109,7 +109,7 @@ never one bulk copy: the browser sends a `File[]`, `py_worker.js` maps each
 one through the same reader-wrapping logic (`Array.map(createAsyncFileReader)`,
 ADR-0017) into a `PayloadFiles.value` list, and `main.py` wraps each reader
 in its own `AsyncFileAdapter`. `FlowBuilder.start_flow()` then unions those
-adapters into one `ArchiveSet` (ADR-0039) before validation — see
+adapters into one `ArchiveSet` (ADR-0040) before validation — see
 [Extraction](05-extraction.md#multi-file-archives-archiveset).
 
 ---

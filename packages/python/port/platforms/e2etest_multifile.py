@@ -11,7 +11,7 @@ was renamed to join); it can only be built by explicitly setting
 It demonstrates the ``PayloadFiles`` (multi-part upload) flow end-to-end:
 setting ``expected_file_payload = "PayloadFiles"`` makes ``FlowBuilder``
 present the file picker with multi-select enabled, union whatever parts the
-participant selects into one ``ArchiveSet`` (ADR-0039), and hand that
+participant selects into one ``ArchiveSet`` (ADR-0040), and hand that
 ``ArchiveSet`` to ``validate_file``/``extract_data`` here instead of a single
 ``AsyncFileAdapter``. Two extractors read through ``ZipArchiveReader`` — the
 same reader real multi-part platforms use: ``archive_membership_to_df``
@@ -156,7 +156,7 @@ def archive_content_preview_to_df(reader: ZipArchiveReader, errors: Counter) -> 
     (``extraction_helpers.py``), which for an ``ArchiveSet`` is
     ``ArchiveSet.read_member`` — opening exactly the owning part's
     ``zipfile.ZipFile`` on demand and enforcing
-    ``MAX_MEMBER_UNCOMPRESSED_BYTES`` before returning bytes (ADR-0039).
+    ``MAX_MEMBER_UNCOMPRESSED_BYTES`` before returning bytes (ADR-0040).
     This is the code path every real content-parsing extractor
     (``reader.json()``/``csv()``/``raw()``) exercises; ``file_stats_to_df``
     in ``example.py`` never calls it, since it reads only the zip's central
@@ -246,7 +246,7 @@ def extraction(archive_set: ArchiveSet, validation: ValidateInput) -> Extraction
     ``ZipArchiveReader`` over the validated archive and its cached member
     list, then drive the extractor registry through ``run_extraction``. The
     only difference is the archive is an ``ArchiveSet`` union of N parts
-    instead of a single ``SeekableBinaryReader`` (ADR-0039).
+    instead of a single ``SeekableBinaryReader`` (ADR-0040).
     """
     config = load_port_config(EXTRACTOR_REGISTRY, "e2etest_multifile")
     errors: Counter = Counter()
@@ -261,7 +261,7 @@ class E2eTestMultifileFlow(FlowBuilder):
     renders the multi-select file prompt, unions whatever parts the
     participant selects into an ``ArchiveSet``, and passes that
     ``ArchiveSet`` — never a single reader — to the two overrides below. See
-    the ``FlowBuilder.expected_file_payload`` docstring and ADR-0039.
+    the ``FlowBuilder.expected_file_payload`` docstring and ADR-0040.
     """
 
     expected_file_payload = "PayloadFiles"
@@ -275,7 +275,7 @@ class E2eTestMultifileFlow(FlowBuilder):
         By the time this runs, ``FlowBuilder`` has already constructed the
         ``ArchiveSet`` from every uploaded part, which raises
         ``zipfile.BadZipFile`` on a corrupt part before validation ever
-        starts (routed to the retry prompt, ADR-0039) — so there is nothing
+        starts (routed to the retry prompt, ADR-0040) — so there is nothing
         left to check here. A real multi-part platform would inspect
         ``archive_set.members`` against its own ``DDP_CATEGORIES`` instead.
         """

@@ -47,17 +47,17 @@ a `PayloadFile` whose value is an `AsyncFileAdapter` — a seekable file-like
 passed directly to validation and extraction, never materialized to a path.
 A subclass that opts into the multi-file flow instead receives a
 `PayloadFiles` whose value is a list of such readers, which `start_flow()`
-unions into one `ArchiveSet` before validation (see ADR-0039).
+unions into one `ArchiveSet` before validation (see ADR-0040).
 
 ```mermaid
 flowchart TD
     A["1. Render file prompt\nCommandUIRender + PropsUIPromptFileInput(Multiple)"]
     B{"type == expected_file_payload?"}
-    SK["Skip (silent)\nreturn"]
-    PE["Render protocol-error page\nreturn"]
+    SK["Skip (silent)\nraise TaskIncompleteError(abandoned)"]
+    PE["Render protocol-error page\nraise TaskIncompleteError(upload_rejected)"]
     D["2. Safety check\nuploads.check_payload_size()\nsize metadata only"]
     E{"Safe?"}
-    F["Render safety error page\nreturn"]
+    F["Render safety error page\nraise TaskIncompleteError(upload_rejected)"]
     MX{"Multi-file?\nexpected_file_payload\n== PayloadFiles"}
     ASB["Build ArchiveSet(parts)"]
     ASOK{"Readable?"}
@@ -68,13 +68,14 @@ flowchart TD
     K["5. Extract\nself.extract_data(archive, validation)"]
     L["6. Log extraction summary\nph.emit_log() — counts only"]
     M{"7. Any tables?"}
-    N["Render no-data page\nreturn"]
+    N["Render no-data page\nreturn (a completion)"]
     O["8. Render consent form\nCommandUIRender + PropsUIPromptConsentFormViz"]
     P{"PayloadJSON\nor PayloadFalse?"}
     Q["9. Donate\nCommandSystemDonate(session_id-platform, json)"]
     R{"Donation\nsucceeded?"}
-    S["Render failure page\nreturn"]
+    S["Render failure page\nraise TaskIncompleteError(donation_failed)"]
     T["Flow complete\nreturn"]
+    X["Retry declined\nraise TaskIncompleteError(abandoned)"]
 
     A --> B
     B -- "PayloadFalse/Void/String\n(skip)" --> SK
@@ -91,7 +92,7 @@ flowchart TD
     H -- "no" --> RT
     RT --> J
     J -- "PayloadTrue" --> A
-    J -- "PayloadFalse" --> T
+    J -- "PayloadFalse" --> X
     H -- "yes" --> K --> L --> M
     M -- "no tables" --> N
     M -- "yes" --> O --> P
@@ -115,17 +116,21 @@ one attribute drives three things:
   response's `__type__` must equal `expected_file_payload` exactly to
   proceed. `PayloadFalse` / `PayloadVoid` / `PayloadString` are the
   established participant-declined shapes (pinned by ADR-0026) and stay a
-  silent skip — no error page. Anything else is a genuine protocol mismatch
-  (host/Python version skew, not a decline) and gets a visible
-  `render_protocol_error_page(platform_name)` instead of silently hanging or
-  crashing.
+  silent skip — no error page, though still a non-completion, so the skip
+  raises `TaskIncompleteError("abandoned")` (ADR-0039). Anything else is a
+  genuine protocol mismatch (host/Python version skew, not a decline) and
+  gets a visible `render_protocol_error_page(platform_name)` instead of
+  silently hanging or crashing, followed by
+  `TaskIncompleteError("upload_rejected")` — nothing usable was uploaded, so
+  the run must not exit 0.
 - When `expected_file_payload == "PayloadFiles"`, `start_flow()` builds
   `archive = ArchiveSet(parts)` from the uploaded readers right after the
   safety check, and passes that `ArchiveSet` — not a single reader — to
   `validate_file()`/`extract_data()`. `ArchiveSet` raises
   `zipfile.BadZipFile` if any part is unreadable; `start_flow()` catches
   that and routes it through the same retry prompt an invalid single file
-  uses, rather than raising.
+  uses, rather than raising. Declining that retry is an abandonment like any
+  other: `TaskIncompleteError("abandoned")`, never a completion.
 
 A single-file platform (the common case) never has to think about any of
 this — `expected_file_payload` simply keeps its default.
@@ -134,7 +139,8 @@ this — `expected_file_payload` simply keeps its default.
 
 `_prompt_retry()` is a small generator helper: it renders the retry
 confirm prompt and returns `True` (retry — caller `continue`s the outer
-loop) or `False` (declined — caller `return`s). Two different failures
+loop) or `False` (declined — caller raises
+`TaskIncompleteError("abandoned")`). Two different failures
 share it rather than each rendering their own prompt:
 
 1. `validate_file()` returned a non-zero status code (an invalid single

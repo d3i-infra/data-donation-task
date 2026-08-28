@@ -238,7 +238,7 @@ def generate_split_zips(output_paths, target_size_bytes, num_files):
 
     Files are never split across parts — the same "each Takeout part carries
     only whole files" property a real multi-part Google Takeout export has
-    (ArchiveSet's canonical union relies on it, see ADR-0039). Each part's
+    (ArchiveSet's canonical union relies on it, see ADR-0040). Each part's
     zip comment records a Takeout-style internal label
     (``takeout-test-<i>-001.zip``, 1-based) purely for documentation/realism;
     the file itself is written to whichever path the caller passed in

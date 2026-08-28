@@ -3,7 +3,7 @@
 ``e2etest_multifile`` exists so the Playwright suite can exercise the
 `PayloadFiles` upload path (`tests/multifile.spec.ts`) end-to-end: a
 participant selects two zip parts, ``FlowBuilder`` unions them into one
-``ArchiveSet`` (ADR-0039), and this platform's extractor produces a table
+``ArchiveSet`` (ADR-0040), and this platform's extractor produces a table
 whose rows are provably sourced from both parts. Like ``e2etest``, it is
 excluded from release discovery and the shipped wheel — see release.sh,
 scripts/build_release_wheel.sh, and scripts/verify_release_wheel.py.

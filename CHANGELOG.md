@@ -96,7 +96,8 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   payload type that neither matches `expected_file_payload` nor one of the
   established decline shapes now renders a visible protocol-error page
   instead of hanging silently, surfacing host/Python version skew instead
-  of masking it. See ADR-0039 (and the amended ADR-0017/ADR-0018/ADR-0024).
+  of masking it, and then exits nonzero like every other incomplete ending
+  (ADR-0039). See ADR-0040 (and the amended ADR-0017/ADR-0018/ADR-0024).
   Covered by a new test-only `e2etest_multifile` platform
   (`port/platforms/e2etest_multifile.py`, excluded from release discovery and
   the shipped wheel exactly like `e2etest`) and
@@ -124,6 +125,48 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   participant. Locale *coverage* is deliberately not checked there —
   partial bundles are legitimate, and coverage is the `--report` gate's
   job.
+* **A participant who hits a Python error no longer completes the task.**
+  When the consent-gated error flow exhausts, `ScriptWrapper.send()` now
+  returns `CommandSystemExit(1, "Error flow completed")` instead of exit 0,
+  so the host keeps the task pending rather than recording an errored
+  participant as a satisfied completion with no data donated (Issue #123).
+  The error flow's final step is a new terminal page,
+  `render_task_incomplete_page` (`port_helpers.py`), a single-button
+  Confirm telling the participant the task was not completed and that they
+  can retry by refreshing — so the participant lands there instead of
+  being stranded on the stale error page after the nonzero exit halts the
+  run cycle. See ADR-0039. Covered end-to-end by `tests/error-flow.spec.ts`
+  against the `e2etest` fault-injection platform
+  (`VITE_PLATFORM=e2etest pnpm test:e2e`).
+
+* **Graceful dead-ends no longer complete the task either.** Cancelling at
+  the file picker, declining the retry prompt after an invalid file or
+  after a corrupt part in a multi-file upload, a rejected upload (too
+  large, or too many parts in a chunked export), a payload-protocol
+  mismatch, and a failed donation delivery previously exhausted the flow
+  into exit 0 — a green checkmark in
+  Next with no data donated. `FlowBuilder.start_flow()` now raises
+  `TaskIncompleteError` on those paths and `ScriptWrapper` shows the
+  task-incomplete page, then exits with the category's fixed code:
+  2 = participant abandoned, 3 = donation delivery failed, 4 = upload
+  rejected (1 remains the unhandled-error exit). Codes are a fork-local
+  convention pending an agreed contract with Eyra — the host only
+  distinguishes 0 from nonzero today. Genuine completions are unchanged:
+  donation success, consent declined (decline record), and a clean
+  no-data-found still exit 0 — but zero tables *with* extraction errors
+  now routes through the consent-gated error flow (exit 1) instead of
+  masquerading as "no data found", closing a gap against ADR-0019's
+  no-data/extraction-bug separation. `TaskIncompleteError` is raised with
+  a reason key and derives its fixed `(code, info)` pair from its own
+  `EXITS` table, so raise sites cannot put arbitrary text on the bridge.
+  The multi-file pipeline's own dead ends are covered by the same rule:
+  the safety-error page (aggregate size / part count), the protocol-error
+  page, and a declined retry after an unreadable part all exit nonzero.
+  **Behavior change for live studies:** participants who
+  previously "finished" via these dead-ends now stay pending and can
+  re-enter the task. See ADR-0039. Covered by a second
+  `tests/error-flow.spec.ts` test (`tests/invalid.zip` fixture) and unit
+  tests in `test_flow_builder.py` / `test_main_queue.py`.
 
 * Translation resolution no longer returns `undefined` or throws on a
   malformed bundle: `translator.ts` and `text_bundle.ts` now resolve

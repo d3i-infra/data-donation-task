@@ -58,7 +58,7 @@ must be adapted alongside the two heading selectors for non-TikTok flows.
 
 ### Multi-file (`PayloadFiles`) uploads
 
-To measure the multi-part upload path (`ArchiveSet`, see ADR-0039) against
+To measure the multi-part upload path (`ArchiveSet`, see ADR-0040) against
 the same peak-memory budget as a single-zip upload (ADR-0034), generate a
 split fixture and point a harness at the `e2etest_multifile` test platform
 instead of a real study platform:

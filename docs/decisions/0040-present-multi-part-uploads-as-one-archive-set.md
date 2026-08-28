@@ -69,7 +69,7 @@ the same reason, without reimplementing `zipfile`'s central-directory resolution
 to force first-entry semantics — real DDP exports show zero such duplicates, so
 this is a defensive observability path, not a load-bearing one. Guarding size at
 materialization, not at inventory time, keeps the earlier metadata-only upload
-checks (ADR-0018) honest: inventory
-discovery only reads each part's central directory, never member bytes, while the
+checks (ADR-0018) genuinely metadata-only: inventory discovery only reads each
+part's central directory, never member bytes, while the
 guard still bounds decompression-bomb risk before any single member is read fully
 into memory.

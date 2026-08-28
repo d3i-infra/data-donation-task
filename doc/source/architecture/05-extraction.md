@@ -112,7 +112,7 @@ one part's own central directory). `ZipArchiveReader` merges
 up in the same extraction-summary log line as any other error type.
 Constructing an `ArchiveSet` raises `zipfile.BadZipFile` if any part isn't a
 readable zip; `FlowBuilder.start_flow()` catches that and routes it to the
-retry prompt (see ADR-0039).
+retry prompt (see ADR-0040).
 
 ### The materialization-time member guard
 

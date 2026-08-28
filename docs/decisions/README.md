@@ -21,6 +21,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0006 — Communicate with the host through a swappable Bridge](./0006-communicate-with-the-host-through-a-swappable-bridge.md)
 - [0017 — Worker delivers uploads as PayloadFile, not a WORKERFS path](./0017-worker-delivers-uploads-as-payloadfile-not-a-workerfs-path.md)
 - [0025 — Flow completion is generator exhaustion, not an explicit exit](./0025-flow-completion-is-generator-exhaustion-not-an-explicit-exit.md)
+- [0039 — Exit nonzero on every incomplete ending; 0 means completed](./0039-error-flow-exhaustion-exits-nonzero-exit-0-means-completed.md)
 
 ### Python architecture
 
@@ -45,7 +46,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0020 — Use session-platform donation keys](./0020-use-session-platform-donation-keys.md)
 - [0024 — ZipArchiveReader handles expected-missing DDP members](./0024-ziparchivereader-handles-expected-missing-ddp-members.md)
 - [0026 — Stream PayloadFile uploads without materializing](./0026-stream-payloadfile-uploads-without-materializing.md)
-- [0039 — Present multi-part uploads as one archive-set](./0039-present-multi-part-uploads-as-one-archive-set.md)
+- [0040 — Present multi-part uploads as one archive-set](./0040-present-multi-part-uploads-as-one-archive-set.md)
 
 ### Testing
 
