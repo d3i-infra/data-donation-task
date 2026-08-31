@@ -104,6 +104,49 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   `tests/multifile.spec.ts` (`VITE_PLATFORM=e2etest_multifile pnpm
   test:e2e:multi`), plus a `--split N` mode on
   `tests/generate_test_zip.py` for generating multi-part test fixtures.
+* **Google Takeout platform.** Participants can now donate a Google
+  Takeout export — which usually arrives as several zip files — and the
+  task extracts twelve tables: YouTube (watch history, search history,
+  subscriptions, comments), Google Search, Chrome, Video Search, Ads,
+  Discover, and News (both the reading activity and the followed/saved
+  items). The multi-file pipeline above does the heavy lifting: sources
+  are found no matter which zip part they landed in. Highlights of what
+  it took:
+  - Google translates folder names, file names, and even the
+    "My Activity" filename itself differently per account language. The
+    path tables cover seven locales (English, Dutch, German, Spanish,
+    Arabic, Turkish, Simplified Chinese), verified byte-for-byte against
+    real exports generated in each language — diacritics, invisible RTL
+    marks and all. Older-era spellings are kept as trailing fallbacks
+    rather than discarded.
+  - Each source is read in whichever format it was exported (JSON, HTML,
+    CSV or TXT), and large activity HTML files stream through lxml so the
+    input side is bounded: the file streams from the zip member and the
+    parse tree is cleared per record, rather than the whole document
+    sitting in memory at once. The parsed rows, downstream tables, consent
+    transport, and donation serialization all still scale with row count
+    and remain unbounded — a heavy user's history stays within the
+    reference iOS survival budget by extracted row count, not export
+    size; see ADR-0034 for the measured numbers. Takeout HTML ships with
+    no charset declaration, so UTF-8 is declared explicitly — without it,
+    every non-ASCII character mis-decodes.
+  - Timestamps arrive in five different shapes across locales
+    (month-name, day-first numeric, CJK 年月日, Arabic with RTL marks
+    and ص/م meridiems); all of them now parse to ISO 8601. Canary tests
+    over the local fixture corpus enforce this permanently: no mojibake,
+    no future-dated timestamps, no unparseable timestamp cells in any
+    extracted table.
+  - If a participant happens to include Takeout's own error report
+    (`archive_browser.html`), the number of files Google itself failed
+    to export is surfaced to researchers as
+    `errors["ExportReportedFailedFiles"]`. Participants are never asked
+    for the report and see no difference without it.
+  - A new benchmark scenario generates an iOS-realistic multi-zip export
+    (one part holding a 300 MB history file) for
+    `scripts/benchmarks/memtest-v3-peak.cjs`, which now accepts several
+    zips at once.
+  See ADR-0013 (validation exception), ADR-0027 (extractor canaries),
+  ADR-0034 (memory budget), ADR-0040 (archive-set pipeline).
 
 ### Fixed
 

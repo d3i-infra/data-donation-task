@@ -42,6 +42,22 @@ VITE_PLATFORM=example pnpm start
 
 Visit [`http://localhost:3000`](http://localhost:3000).
 
+### Dev-mode notes
+
+A successful donation in dev mode does **not** navigate anywhere — that's
+expected, not a hang. The flow exhausts, exits `0`, and the console prints
+`[FakeBridge] received exit: 0=` and stays put. Navigating on completion is
+the host's job in production (Next); `FakeBridge` only logs the exit, since
+there is no host to hand off to locally.
+
+The dev server also accepts the donation POST itself: `vite.config.ts`
+registers a dev-only middleware (`devDonateSinkPlugin`, active only under
+`pnpm start`, never in a production build) on `POST /data-submission` that
+returns `200` and logs `[dev-donate-sink] POST /data-submission key=... bytes=...`
+— without it, a bare `pnpm start` run 404s at the donate step, since Vite's
+dev server has no such route by default. Playwright specs never touch this
+sink; each one stubs `/data-submission` itself before driving the flow.
+
 ## Commands
 
 ### Development

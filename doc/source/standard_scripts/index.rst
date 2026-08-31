@@ -20,6 +20,7 @@ Currently we have default scripts for the following platforms:
 
 * ChatGPT
 * Chrome
+* Google
 * Instagram
 * Facebook
 * LinkedIn

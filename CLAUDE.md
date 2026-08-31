@@ -38,9 +38,13 @@ runtime in `packages/python` (Poetry).
 - Python tests: `pnpm test:py` — extra args pass through, e.g.
   `pnpm test:py -- tests/test_ui_locale.py -q`
 - Typecheck: `pnpm typecheck:py` (Pyright); tests + typecheck together: `pnpm verify:py`
-- E2E (Playwright): `pnpm test:e2e` — boots the dev server on port 3000 itself. The
-  supported error-flow e2e command is `VITE_PLATFORM=e2etest pnpm test:e2e` (the
-  e2etest platform is the example platform plus a fault-injection trigger). e2etest
-  is not releasable — `release.sh` rejects it explicitly and excludes its module/config
-  from the production wheel (ADR-0004).
+- E2E (Playwright): `VITE_PLATFORM=<platform> pnpm test:e2e` — boots the dev server on
+  port 3000 itself; `VITE_PLATFORM` is required (`check-deps.sh` enforces it). The
+  platform selects the spec set (`playwright.config.ts`):
+  `VITE_PLATFORM=example` runs the default donation + localization suite,
+  `VITE_PLATFORM=e2etest` runs the error-flow suite (the example platform plus a
+  fault-injection trigger), and `VITE_PLATFORM=e2etest_multifile` runs the multi-file
+  upload suite (`tests/multifile.spec.ts`). Neither test platform is releasable —
+  `release.sh` rejects both explicitly and excludes their modules/configs from the
+  production wheel (ADR-0004).
 - Memory benchmarks: `scripts/benchmarks/` (see its README)
