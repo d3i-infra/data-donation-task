@@ -97,6 +97,13 @@ function unwrap(response) {
         copyFileToPyFS(response.payload.value, resolve);
         break;
 
+      case "PayloadFiles":
+        resolve({
+          __type__: "PayloadFiles",
+          value: response.payload.value.map(createAsyncFileReader),
+        });
+        break;
+
       default:
         resolve(response.payload);
     }
@@ -149,7 +156,7 @@ function startPyodide() {
 
 function loadPackages() {
   console.log("[ProcessingWorker] loading packages");
-  return self.pyodide.loadPackage(["micropip", "numpy", "pandas"]);
+  return self.pyodide.loadPackage(["micropip", "numpy", "pandas", "lxml"]);
 }
 
 function installPortPackage() {

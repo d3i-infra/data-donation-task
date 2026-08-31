@@ -75,6 +75,78 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   `packages/data-collector/public/`. It previously rode into every release
   zip via Vite's publicDir but has been deleted. Release zips no longer
   contain it.
+* **Multi-file uploads, end to end**, for platforms whose export arrives as
+  several zip parts that belong together (a Google Takeout export split
+  across multiple files is the motivating case). A platform opts in by
+  setting `expected_file_payload = "PayloadFiles"` on its `FlowBuilder`
+  subclass; the participant then sees a multi-select file input
+  (`FileInputMultiple`) that lists every chosen file with a remove control
+  and flags re-adding the same file with a "already added" notice instead
+  of a silent duplicate. Each selected file stays an on-demand reader the
+  whole way through — never a bulk in-memory copy — from the browser
+  (`File[]`) through the worker (`Array.map` over the same reader-wrapping
+  logic the single-file path uses) to Python, where `ScriptWrapper` wraps
+  each one in its own `AsyncFileAdapter`. `FlowBuilder.start_flow()` unions
+  the adapters into one `ArchiveSet` (`port/helpers/archive_set.py`) before
+  validation — canonical `(name, size)` part ordering, a union member
+  inventory with per-member provenance, and a materialization-time
+  `MAX_MEMBER_UNCOMPRESSED_BYTES` guard on top of the existing aggregate
+  upload-size/file-count check — so `validate_file()`/`extract_data()` read
+  through `ZipArchiveReader` exactly as they would for a single zip. A
+  payload type that neither matches `expected_file_payload` nor one of the
+  established decline shapes now renders a visible protocol-error page
+  instead of hanging silently, surfacing host/Python version skew instead
+  of masking it, and then exits nonzero like every other incomplete ending
+  (ADR-0039). See ADR-0040 (and the amended ADR-0017/ADR-0018/ADR-0024).
+  Covered by a new test-only `e2etest_multifile` platform
+  (`port/platforms/e2etest_multifile.py`, excluded from release discovery and
+  the shipped wheel exactly like `e2etest`) and
+  `tests/multifile.spec.ts` (`VITE_PLATFORM=e2etest_multifile pnpm
+  test:e2e:multi`), plus a `--split N` mode on
+  `tests/generate_test_zip.py` for generating multi-part test fixtures.
+* **Google Takeout platform.** Participants can now donate a Google
+  Takeout export — which usually arrives as several zip files — and the
+  task extracts twelve tables: YouTube (watch history, search history,
+  subscriptions, comments), Google Search, Chrome, Video Search, Ads,
+  Discover, and News (both the reading activity and the followed/saved
+  items). The multi-file pipeline above does the heavy lifting: sources
+  are found no matter which zip part they landed in. Highlights of what
+  it took:
+  - Google translates folder names, file names, and even the
+    "My Activity" filename itself differently per account language. The
+    path tables cover seven locales (English, Dutch, German, Spanish,
+    Arabic, Turkish, Simplified Chinese), verified byte-for-byte against
+    real exports generated in each language — diacritics, invisible RTL
+    marks and all. Older-era spellings are kept as trailing fallbacks
+    rather than discarded.
+  - Each source is read in whichever format it was exported (JSON, HTML,
+    CSV or TXT), and large activity HTML files stream through lxml so the
+    input side is bounded: the file streams from the zip member and the
+    parse tree is cleared per record, rather than the whole document
+    sitting in memory at once. The parsed rows, downstream tables, consent
+    transport, and donation serialization all still scale with row count
+    and remain unbounded — a heavy user's history stays within the
+    reference iOS survival budget by extracted row count, not export
+    size; see ADR-0034 for the measured numbers. Takeout HTML ships with
+    no charset declaration, so UTF-8 is declared explicitly — without it,
+    every non-ASCII character mis-decodes.
+  - Timestamps arrive in five different shapes across locales
+    (month-name, day-first numeric, CJK 年月日, Arabic with RTL marks
+    and ص/م meridiems); all of them now parse to ISO 8601. Canary tests
+    over the local fixture corpus enforce this permanently: no mojibake,
+    no future-dated timestamps, no unparseable timestamp cells in any
+    extracted table.
+  - If a participant happens to include Takeout's own error report
+    (`archive_browser.html`), the number of files Google itself failed
+    to export is surfaced to researchers as
+    `errors["ExportReportedFailedFiles"]`. Participants are never asked
+    for the report and see no difference without it.
+  - A new benchmark scenario generates an iOS-realistic multi-zip export
+    (one part holding a 300 MB history file) for
+    `scripts/benchmarks/memtest-v3-peak.cjs`, which now accepts several
+    zips at once.
+  See ADR-0013 (validation exception), ADR-0027 (extractor canaries),
+  ADR-0034 (memory budget), ADR-0040 (archive-set pipeline).
 
 ### Fixed
 
@@ -111,9 +183,11 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   (`VITE_PLATFORM=e2etest pnpm test:e2e`).
 
 * **Graceful dead-ends no longer complete the task either.** Cancelling at
-  the file picker, declining the retry prompt after an invalid file, a
-  rejected upload (too large / chunked export), and a failed donation
-  delivery previously exhausted the flow into exit 0 — a green checkmark in
+  the file picker, declining the retry prompt after an invalid file or
+  after a corrupt part in a multi-file upload, a rejected upload (too
+  large, or too many parts in a chunked export), a payload-protocol
+  mismatch, and a failed donation delivery previously exhausted the flow
+  into exit 0 — a green checkmark in
   Next with no data donated. `FlowBuilder.start_flow()` now raises
   `TaskIncompleteError` on those paths and `ScriptWrapper` shows the
   task-incomplete page, then exits with the category's fixed code:
@@ -127,7 +201,11 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   masquerading as "no data found", closing a gap against ADR-0019's
   no-data/extraction-bug separation. `TaskIncompleteError` is raised with
   a reason key and derives its fixed `(code, info)` pair from its own
-  `EXITS` table, so raise sites cannot put arbitrary text on the bridge. **Behavior change for live studies:** participants who
+  `EXITS` table, so raise sites cannot put arbitrary text on the bridge.
+  The multi-file pipeline's own dead ends are covered by the same rule:
+  the safety-error page (aggregate size / part count), the protocol-error
+  page, and a declined retry after an unreadable part all exit nonzero.
+  **Behavior change for live studies:** participants who
   previously "finished" via these dead-ends now stay pending and can
   re-enter the task. See ADR-0039. Covered by a second
   `tests/error-flow.spec.ts` test (`tests/invalid.zip` fixture) and unit

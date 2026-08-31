@@ -8,9 +8,9 @@ exists (no environment awareness leaks into ``port/``).
 Wheels and sdist tarballs are real zip/tar files, so the forbidden/required
 path checks are tested against small synthetic archives built in
 ``tmp_path`` — no real build is needed to exercise the logic that matters:
-the forbidden e2etest paths (exact, and as drift — any path referencing
-"e2etest" at all) must be absent, and the selected platform's own module +
-config must be present in the wheel.
+the forbidden e2etest and e2etest_multifile paths (exact, and as drift — any
+path referencing "e2etest" or "e2etest_multifile" at all) must be absent, and
+the selected platform's own module + config must be present in the wheel.
 """
 
 import importlib.util
@@ -93,6 +93,26 @@ class TestCheckWheelNames:
         violations = verifier.check_wheel_names(names, "example")
         assert len(violations) == 2
 
+    def test_forbidden_e2etest_multifile_module_present_is_a_violation(self):
+        names = CLEAN_REAL_PLATFORM_NAMES + ["port/platforms/e2etest_multifile.py"]
+        violations = verifier.check_wheel_names(names, "example")
+        assert any("port/platforms/e2etest_multifile.py" in v for v in violations)
+
+    def test_forbidden_e2etest_multifile_config_present_is_a_violation(self):
+        names = CLEAN_REAL_PLATFORM_NAMES + ["port/configs/e2etest_multifile_config.json"]
+        violations = verifier.check_wheel_names(names, "example")
+        assert any("port/configs/e2etest_multifile_config.json" in v for v in violations)
+
+    def test_all_four_forbidden_paths_present_are_all_reported(self):
+        names = CLEAN_REAL_PLATFORM_NAMES + [
+            "port/platforms/e2etest.py",
+            "port/configs/e2etest_config.json",
+            "port/platforms/e2etest_multifile.py",
+            "port/configs/e2etest_multifile_config.json",
+        ]
+        violations = verifier.check_wheel_names(names, "example")
+        assert len(violations) == 4
+
     def test_missing_selected_platform_module_is_a_violation(self):
         """A wheel that merely lacks e2etest is not proof the verifier works —
         it must also positively require the selected platform's own files."""
@@ -139,6 +159,12 @@ class TestCheckWheelNames:
         names = CLEAN_REAL_PLATFORM_NAMES + ["port/platforms/E2ETest_extra.py"]
         violations = verifier.check_wheel_names(names, "example")
         assert any("E2ETest_extra.py" in v for v in violations)
+
+    def test_e2etest_multifile_drift_is_caught(self):
+        """The same drift backstop applies to e2etest_multifile, not just e2etest."""
+        names = CLEAN_REAL_PLATFORM_NAMES + ["port/configs/e2etest_multifile_config_v2.json"]
+        violations = verifier.check_wheel_names(names, "example")
+        assert any("e2etest_multifile_config_v2.json" in v for v in violations)
 
     def test_exact_known_path_is_not_double_reported_as_drift(self):
         """The two named paths get one violation each (from the exact
@@ -294,6 +320,19 @@ class TestCliExitCodes:
         )
         assert result.returncode == 1
         assert "e2etest_config.json" in result.stderr
+
+    def test_cli_fails_on_wheel_with_forbidden_e2etest_multifile_module(self, tmp_path):
+        _make_wheel(
+            tmp_path / "port-0.0.0-py3-none-any.whl",
+            CLEAN_REAL_PLATFORM_NAMES + ["port/platforms/e2etest_multifile.py"],
+        )
+        result = subprocess.run(
+            [sys.executable, str(VERIFIER), "example", "--dist-dir", str(tmp_path)],
+            capture_output=True,
+            text=True,
+        )
+        assert result.returncode == 1
+        assert "e2etest_multifile.py" in result.stderr
 
     def test_cli_fails_when_no_wheel_present(self, tmp_path):
         result = subprocess.run(

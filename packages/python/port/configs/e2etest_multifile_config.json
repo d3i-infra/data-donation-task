@@ -1,0 +1,92 @@
+{
+  "platform_info": {
+    "name": "e2etest_multifile",
+    "filetypes": [
+      "zip"
+    ],
+    "languages": [
+      "en",
+      "nl"
+    ],
+    "description": "Test-only platform for the Playwright multi-file e2e suite: accepts multiple zip parts and reports which part each archive member came from. Excluded from release discovery; never deployed to participants.",
+    "time_last_tested": "not yet implemented"
+  },
+  "tables": [
+    {
+      "id": "e2etest_multifile_membership",
+      "title": {
+        "en": "Files across uploaded parts",
+        "nl": "Bestanden over geüploade delen"
+      },
+      "description": {
+        "en": "This table lists every file found across the uploaded archive parts, together with which part it came from.",
+        "nl": "Deze tabel bevat alle bestanden in de geüploade archiefdelen, inclusief het deel waar ze vandaan komen."
+      },
+      "headers": {
+        "filename": {
+          "en": "Filename",
+          "nl": "Bestandsnaam"
+        },
+        "part_index": {
+          "en": "Part",
+          "nl": "Deel"
+        }
+      },
+      "visualizations": [
+        {
+          "title": {
+            "en": "File names",
+            "nl": "Bestandsnamen"
+          },
+          "type": "wordcloud",
+          "textColumn": "filename"
+        }
+      ],
+      "extractor": "archive_membership_to_df",
+      "documentation": {
+        "summary": "Each row represents one file entry across the participant's uploaded archive parts, including which part it was found in.",
+        "source_file": "the uploaded zip parts themselves (central directories)",
+        "columns": {
+          "filename": "Full path of the file inside the archive set.",
+          "part_index": "Position (0-based) of the uploaded part that owns this member, in canonical (name, size) order."
+        }
+      }
+    },
+    {
+      "id": "e2etest_multifile_content_preview",
+      "title": {
+        "en": "Content read from each part",
+        "nl": "Inhoud gelezen uit elk deel"
+      },
+      "description": {
+        "en": "This table shows the first line actually read from each uploaded file's content, confirming data was read from every part.",
+        "nl": "Deze tabel toont de eerste regel die daadwerkelijk is gelezen uit elk geüpload bestand, ter bevestiging dat er gegevens uit elk deel zijn gelezen."
+      },
+      "headers": {
+        "filename": {
+          "en": "Filename",
+          "nl": "Bestandsnaam"
+        },
+        "part_index": {
+          "en": "Part",
+          "nl": "Deel"
+        },
+        "content_preview": {
+          "en": "Content preview",
+          "nl": "Inhoudsvoorbeeld"
+        }
+      },
+      "visualizations": [],
+      "extractor": "archive_content_preview_to_df",
+      "documentation": {
+        "summary": "Each row shows the first line actually read from one archive member's content, proving the value came from the member's bytes and not just its name.",
+        "source_file": "the uploaded zip parts themselves (member content, read on demand)",
+        "columns": {
+          "filename": "Full path of the file inside the archive set.",
+          "part_index": "Position (0-based) of the uploaded part that owns this member, in canonical (name, size) order.",
+          "content_preview": "The first line of the member's actual content, read via ArchiveSet.read_member."
+        }
+      }
+    }
+  ]
+}

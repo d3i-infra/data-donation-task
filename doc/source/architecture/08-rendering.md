@@ -291,6 +291,11 @@ build:install-wheel →  copyfiles -f packages/python/dist/*.whl packages/data-c
 `dist/port-0.0.0-py3-none-any.whl`, and the second step copies it into
 data-collector's `public/` directory where Vite serves it as a static asset.
 
+This is the dev/Playwright wheel; a release ships a different wheel built by
+the separate `build:wheel:release` chain, which stages the package and
+excludes the e2etest/e2etest_multifile test-platform files before packaging
+(see ADR-0004) — don't assume a release ships the wheel described above.
+
 ### How it's loaded
 
 During worker initialisation, `py_worker.js` runs:

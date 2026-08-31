@@ -9,6 +9,7 @@ if [ "$1" != "release" ]; then
   if [ -z "${VITE_PLATFORM:-}" ]; then
     echo "ERROR: VITE_PLATFORM is not set."
     echo "  Use: VITE_PLATFORM=<platform> pnpm start"
+    echo "  Or, for e2e tests: VITE_PLATFORM=<platform> pnpm test:e2e"
     echo "  Available platforms: packages/python/port/configs/*_config.json"
     echo "  No config yet? Generate one with: pnpm generate-config <platform>"
     echo "  To get started with the example platform: VITE_PLATFORM=example pnpm start"

@@ -46,6 +46,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0020 — Use session-platform donation keys](./0020-use-session-platform-donation-keys.md)
 - [0024 — ZipArchiveReader handles expected-missing DDP members](./0024-ziparchivereader-handles-expected-missing-ddp-members.md)
 - [0026 — Stream PayloadFile uploads without materializing](./0026-stream-payloadfile-uploads-without-materializing.md)
+- [0040 — Present multi-part uploads as one archive-set](./0040-present-multi-part-uploads-as-one-archive-set.md)
 
 ### Testing
 
@@ -63,7 +64,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 
 ### Performance
 
-- [0034 — Hold participant-flow peak memory to the ~824 MB reference budget](./0034-hold-participant-flow-peak-memory-to-the-824-mb-reference-budget.md)
+- [0034 — Hold participant-flow peak memory to the reference budget](./0034-hold-participant-flow-peak-memory-to-the-reference-budget.md)
 
 ### Architecture
 

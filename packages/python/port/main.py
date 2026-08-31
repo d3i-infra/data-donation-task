@@ -116,6 +116,8 @@ class ScriptWrapper(Generator):
         # Automatically wrap JS file readers with AsyncFileAdapter
         if data and getattr(data, "__type__", None) == "PayloadFile":
             data.value = AsyncFileAdapter(data.value)
+        elif data and getattr(data, "__type__", None) == "PayloadFiles":
+            data.value = [AsyncFileAdapter(reader) for reader in data.value]
 
         try:
             command = self.script.send(data)

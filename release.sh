@@ -13,14 +13,21 @@ TIMESTAMP=$(date '+%Y-%m-%d_%H-%M-%S')
 
 CONFIGS_DIR="packages/python/port/configs"
 
-# e2etest is repository test infrastructure (Playwright's error-flow fixture),
-# not a researcher platform: its config must not represent study membership
-# during release, and the fault-injection module it selects must never reach
-# a participant. Reject it before anything else runs — see ADR-0004.
+# e2etest and e2etest_multifile are repository test infrastructure (Playwright's
+# error-flow and multi-file fixtures), not researcher platforms: their
+# configs must not represent study membership during release, and the
+# modules they select must never reach a participant. Reject them before
+# anything else runs — see ADR-0004.
 if [ "${VITE_PLATFORM:-}" = "e2etest" ]; then
     echo "ERROR: e2etest is test-only and cannot be released." >&2
     echo "       It exists for 'VITE_PLATFORM=e2etest pnpm test:e2e' and" >&2
     echo "       'VITE_PLATFORM=e2etest pnpm start' only." >&2
+    exit 1
+fi
+if [ "${VITE_PLATFORM:-}" = "e2etest_multifile" ]; then
+    echo "ERROR: e2etest_multifile is test-only and cannot be released." >&2
+    echo "       It exists for 'VITE_PLATFORM=e2etest_multifile pnpm test:e2e:multi'" >&2
+    echo "       and 'VITE_PLATFORM=e2etest_multifile pnpm start' only." >&2
     exit 1
 fi
 
@@ -41,9 +48,11 @@ else
         basename="${config_file##*/}"          # e.g. chatgpt_config.json
         platform="${basename%_config.json}"    # e.g. chatgpt
         # Documented exception to "every config is a study platform": e2etest
-        # is Playwright's error-flow fixture, not something a researcher
-        # deploys. See the rejection above and ADR-0004.
+        # and e2etest_multifile are Playwright's error-flow and multi-file
+        # fixtures, not something a researcher deploys. See the rejection
+        # above and ADR-0004.
         [ "$platform" = "e2etest" ] && continue
+        [ "$platform" = "e2etest_multifile" ] && continue
         platforms+=("$platform")
     done
 

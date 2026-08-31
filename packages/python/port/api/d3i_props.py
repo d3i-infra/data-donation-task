@@ -141,9 +141,13 @@ class PropsUIPromptFileInputMultiple:
     Attributes:
         description (Translatable): Text with an explanation.
         extensions (str): Accepted mime types, example: "application/zip, text/plain".
+        example (Optional[Translatable]): Optional example placeholder text (e.g. sample
+            filenames) shown in the file list before any file is selected. When absent,
+            the component falls back to its own built-in per-locale placeholder copy.
     """
     description: props.Translatable
     extensions: str
+    example: Optional[props.Translatable] = None
 
     def toDict(self):
         """
@@ -156,6 +160,8 @@ class PropsUIPromptFileInputMultiple:
         dict["__type__"] = "PropsUIPromptFileInputMultiple"
         dict["description"] = self.description.toDict()
         dict["extensions"] = self.extensions
+        if self.example is not None:
+            dict["example"] = self.example.toDict()
         return dict
 
 

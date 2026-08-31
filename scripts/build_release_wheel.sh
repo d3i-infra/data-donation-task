@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # Builds the production release wheel from a disposable staged copy of
-# packages/python, with the e2etest fault-injection platform and its config
-# removed from the copy before the build. The normal development/Playwright
-# wheel (`pnpm run build:wheel`, invoked by `pnpm run build:py`) is untouched
-# by this script and still includes e2etest — only the release path excludes
-# it. See ADR-0004 (release-wheel boundary) and
+# packages/python, with the e2etest fault-injection platform, the
+# e2etest_multifile test platform, and their configs removed from the copy
+# before the build. The normal development/Playwright wheel (`pnpm run
+# build:wheel`, invoked by `pnpm run build:py`) is untouched by this script
+# and still includes both — only the release path excludes them. See
+# ADR-0004 (release-wheel boundary) and
 # ~/notes/e2etest-release-packaging-recommendation.md for the full rationale.
 #
 # The source checkout is never mutated: everything the exclusion touches is a
@@ -43,6 +44,8 @@ cp -R "$py_dir/port" "$stage_dir/port"
 
 e2etest_module="$stage_dir/port/platforms/e2etest.py"
 e2etest_config="$stage_dir/port/configs/e2etest_config.json"
+e2etest_multifile_module="$stage_dir/port/platforms/e2etest_multifile.py"
+e2etest_multifile_config="$stage_dir/port/configs/e2etest_multifile_config.json"
 
 if [ ! -f "$e2etest_module" ]; then
     echo "ERROR: expected test-only file missing from staged copy: port/platforms/e2etest.py" >&2
@@ -58,11 +61,27 @@ if [ ! -f "$e2etest_config" ]; then
     echo "       ADR-0004) to match; do not silently ship without the exclusion." >&2
     exit 1
 fi
+if [ ! -f "$e2etest_multifile_module" ]; then
+    echo "ERROR: expected test-only file missing from staged copy: port/platforms/e2etest_multifile.py" >&2
+    echo "       The release-wheel exclusion assumes this file exists so it can be removed." >&2
+    echo "       If the e2etest_multifile platform was renamed or removed, update this script (and" >&2
+    echo "       ADR-0004) to match; do not silently ship without the exclusion." >&2
+    exit 1
+fi
+if [ ! -f "$e2etest_multifile_config" ]; then
+    echo "ERROR: expected test-only file missing from staged copy: port/configs/e2etest_multifile_config.json" >&2
+    echo "       The release-wheel exclusion assumes this file exists so it can be removed." >&2
+    echo "       If the e2etest_multifile platform was renamed or removed, update this script (and" >&2
+    echo "       ADR-0004) to match; do not silently ship without the exclusion." >&2
+    exit 1
+fi
 
 rm -- "$e2etest_module"
 rm -- "$e2etest_config"
+rm -- "$e2etest_multifile_module"
+rm -- "$e2etest_multifile_config"
 
-echo "Building release wheel from staged copy (e2etest excluded)..."
+echo "Building release wheel from staged copy (e2etest and e2etest_multifile excluded)..."
 # Poetry keys cached environments by project path (see ADR-0004), and
 # `poetry build` otherwise provisions one for whatever path it is pointed at
 # even though a plain poetry-core wheel build needs no environment at all.

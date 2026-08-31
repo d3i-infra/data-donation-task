@@ -13,6 +13,7 @@
     "lint": "pnpm --filter @eyra/data-collector lint",
     "verify:py": "bash scripts/py-run.sh verify",
     "test:e2e": "playwright test",
+    "test:e2e:multi": "VITE_PLATFORM=e2etest_multifile playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:report": "playwright show-report",
