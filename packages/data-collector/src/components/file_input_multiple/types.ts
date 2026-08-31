@@ -18,4 +18,15 @@ export interface PropsUIPromptFileInputMultiple {
   // but that type also isn't exported, so it isn't available to import here either).
   description: Translatable
   extensions: string
+  // Optional example placeholder text (e.g. sample filenames), shown in the
+  // file list before any file is selected. Present on the wire only when
+  // the Python side set it (d3i_props.py's PropsUIPromptFileInputMultiple.
+  // toDict() omits the key entirely when absent), so this is optional here
+  // too. When absent, file_input_multiple.tsx falls back to its own
+  // built-in per-locale placeholder copy. No current caller
+  // (port_helpers.render_file_page(multiple=True), including
+  // e2etest_multifile) actually omits it — every multi-file prompt sets
+  // `example` today — so this field stays optional as unit-covered defense,
+  // not because a live platform relies on the fallback.
+  example?: Translatable
 }

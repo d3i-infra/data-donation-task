@@ -272,6 +272,13 @@ test('too many files shows the safety error page and exits upload-rejected', asy
     // into localized UI. A planned redesign of participant error
     // presentation will break these deliberately — update them with the
     // new presentation, keep Layer 1 untouched.
+    //
+    // Single "OK" button (not "Continue"): FlowBuilder discards this
+    // Confirm's result and always raises TaskIncompleteError next
+    // regardless of which button is pressed, so a second identical
+    // "Continue" button would have invented a distinction that isn't
+    // there — render_safety_error_page now renders one acknowledging
+    // button instead (see port_helpers.py; ITEM 3).
     await expect(page.getByRole('heading', { name: 'File cannot be processed' })).toBeVisible({ timeout: 90000 });
     await expect(page.getByText('at most 16')).toBeVisible();
 
@@ -280,7 +287,7 @@ test('too many files shows the safety error page and exits upload-rejected', asy
     // button is clicked) — it must not loop back to the file prompt, and
     // a rejected upload is never a completion, so the run exits nonzero
     // with the upload-rejected code (ADR-0039).
-    await page.getByText('Continue', { exact: true }).first().click();
+    await page.getByText('OK', { exact: true }).click();
     await expect(page.getByRole('heading', { name: 'Select your e2etest_multifile file' })).not.toBeVisible();
     await expect(page.getByText('Task not completed')).toBeVisible();
     await page.getByText('OK', { exact: true }).click();

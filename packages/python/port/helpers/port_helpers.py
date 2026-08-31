@@ -44,9 +44,9 @@ def render_page(
     return CommandUIRender(page)
 
 
-def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
+def generate_retry_prompt(platform_name: str, multiple: bool = False) -> props.PropsUIPromptConfirm:
     """
-    Generate a bilingual retry prompt for file processing errors.
+    Generate a multilingual retry prompt for file processing errors.
 
     Returns a PropsUIPromptConfirm with "Try again" (ok → PayloadTrue) and
     "Continue" (cancel → PayloadFalse) buttons. Using standard feldspar
@@ -56,17 +56,34 @@ def generate_retry_prompt(platform_name: str) -> props.PropsUIPromptConfirm:
 
     Args:
         platform_name: The name of the platform whose file could not be processed.
+        multiple (bool, optional): Whether the upload this retries is a
+            multi-file (PayloadFiles) selection — mirrors generate_file_prompt's
+            `multiple` flag. When True, the retry copy tells the participant to
+            select ALL the files again, since a multi-part upload (e.g. Google
+            Takeout) must be resubmitted as a complete set, not one part.
+            Defaults to False.
     """
 
-    text = props.Translatable(
-        {
-            "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
-            "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
-            "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtige Datei ausgewählt haben. Versuchen Sie es erneut, um eine andere Datei auszuwählen.",
-            "it": f"Purtroppo non possiamo elaborare il suo file di {platform_name}. Continui se è sicuro di aver selezionato il file giusto. Riprovi per selezionare un file diverso.",
-            "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Continúe si está seguro de que ha seleccionado el archivo correcto. Intente de nuevo para seleccionar un archivo diferente.",
-        }
-    )
+    if multiple:
+        text = props.Translatable(
+            {
+                "en": f"Unfortunately, we cannot process your {platform_name} files. Continue, if you are sure that you selected the right files. Try again to select ALL the files.",
+                "nl": f"Helaas, kunnen we uw {platform_name} bestanden niet verwerken. Weet u zeker dat u de juiste bestanden heeft gekozen? Ga dan verder. Probeer opnieuw om ALLE bestanden te selecteren.",
+                "de": f"Leider können wir Ihre {platform_name}-Dateien nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtigen Dateien ausgewählt haben. Versuchen Sie es erneut, um ALLE Dateien auszuwählen.",
+                "it": f"Purtroppo non possiamo elaborare i suoi file di {platform_name}. Continui se è sicuro di aver selezionato i file giusti. Riprovi per selezionare TUTTI i file.",
+                "es": f"Lamentablemente, no podemos procesar sus archivos de {platform_name}. Continúe si está seguro de que ha seleccionado los archivos correctos. Intente de nuevo para seleccionar TODOS los archivos.",
+            }
+        )
+    else:
+        text = props.Translatable(
+            {
+                "en": f"Unfortunately, we cannot process your {platform_name} file. Continue, if you are sure that you selected the right file. Try again to select a different file.",
+                "nl": f"Helaas, kunnen we uw {platform_name} bestand niet verwerken. Weet u zeker dat u het juiste bestand heeft gekozen? Ga dan verder. Probeer opnieuw als u een ander bestand wilt kiezen.",
+                "de": f"Leider können wir Ihre {platform_name}-Datei nicht verarbeiten. Fahren Sie fort, wenn Sie sicher sind, dass Sie die richtige Datei ausgewählt haben. Versuchen Sie es erneut, um eine andere Datei auszuwählen.",
+                "it": f"Purtroppo non possiamo elaborare il suo file di {platform_name}. Continui se è sicuro di aver selezionato il file giusto. Riprovi per selezionare un file diverso.",
+                "es": f"Lamentablemente, no podemos procesar su archivo de {platform_name}. Continúe si está seguro de que ha seleccionado el archivo correcto. Intente de nuevo para seleccionar un archivo diferente.",
+            }
+        )
     ok = props.Translatable(
         {"en": "Try again", "nl": "Probeer opnieuw", "de": "Erneut versuchen", "it": "Riprova", "es": "Intentar de nuevo"}
     )
@@ -121,7 +138,17 @@ def generate_file_prompt(
             "it": "Segua le istruzioni per il download e selezioni TUTTI i file ricevuti — Google Takeout di solito fornisce più file ZIP appartenenti alla stessa esportazione.",
             "es": "Siga las instrucciones de descarga y seleccione TODOS los archivos recibidos — Google Takeout suele entregar varios archivos zip que van juntos.",
         })
-        return d3i_props.PropsUIPromptFileInputMultiple(description, extensions)
+        # Keeps the filename portion identical across locales — only the
+        # leading "Example"/"Voorbeeld"/... word is translated — matching
+        # the Google Takeout chunked-export naming shape (see ADR-0040).
+        example = props.Translatable({
+            "en": "Example: takeout-...-1-001.zip, takeout-...-2-001.zip",
+            "nl": "Voorbeeld: takeout-...-1-001.zip, takeout-...-2-001.zip",
+            "de": "Beispiel: takeout-...-1-001.zip, takeout-...-2-001.zip",
+            "it": "Esempio: takeout-...-1-001.zip, takeout-...-2-001.zip",
+            "es": "Ejemplo: takeout-...-1-001.zip, takeout-...-2-001.zip",
+        })
+        return d3i_props.PropsUIPromptFileInputMultiple(description, extensions, example=example)
 
     return props.PropsUIPromptFileInput(description, extensions)
 
@@ -377,6 +404,13 @@ def render_no_data_page(platform_name: str) -> CommandUIRender:
 def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIRender:
     """Render file safety error page.
 
+    Terminal page: FlowBuilder discards this Confirm's result and always
+    raises TaskIncompleteError("upload_rejected") next, regardless of which
+    button is pressed (start_flow's safety-check branch). A second button
+    with the same effect would only invent a distinction that isn't there,
+    so this is a single acknowledging button (no `cancel`) — see the
+    task-incomplete page for the same pattern.
+
     Caller should yield and await response before returning.
     """
     header = props.PropsUIHeader(
@@ -396,8 +430,7 @@ def render_safety_error_page(platform_name: str, error: Exception) -> CommandUIR
             "it": f"Non è stato possibile elaborare il suo file di {platform_name}: {error}",
             "es": f"No se ha podido procesar su archivo de {platform_name}: {error}",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -438,6 +471,14 @@ def render_task_incomplete_page(platform_name: str) -> CommandUIRender:
 def render_donate_failure_page(platform_name: str) -> CommandUIRender:
     """Render donation failure page.
 
+    Terminal page: FlowBuilder discards this Confirm's result and always
+    raises TaskIncompleteError("donation_failed") next, regardless of which
+    button is pressed (start_flow's donate-result branch) — donation is
+    never retried from here. A second button with the same effect would
+    only invent a distinction that isn't there, so this is a single
+    acknowledging button (no `cancel`) — see the task-incomplete page for
+    the same pattern.
+
     Caller should yield and await response before returning.
     """
     header = props.PropsUIHeader(
@@ -457,8 +498,7 @@ def render_donate_failure_page(platform_name: str) -> CommandUIRender:
             "it": f"Purtroppo non è stato possibile inviare i suoi dati di {platform_name}. Riprovi più tardi.",
             "es": f"Lamentablemente, no se han podido enviar sus datos de {platform_name}. Inténtelo de nuevo más tarde.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
     )
     page = props.PropsUIPageDataSubmission(platform_name, header, body)
     return CommandUIRender(page)
@@ -472,6 +512,13 @@ def render_protocol_error_page(platform_name: str) -> CommandUIRender:
     the participant-skip case: a mismatched or unrecognized `__type__` is
     an observable protocol error, not a silent skip. See ADR-0018/0026 for
     the accepted upload payload shapes.
+
+    Terminal page: FlowBuilder discards this Confirm's result and always
+    raises TaskIncompleteError("upload_rejected") next, regardless of which
+    button is pressed (start_flow's protocol-mismatch branch). A second
+    button with the same effect would only invent a distinction that isn't
+    there, so this is a single acknowledging button (no `cancel`) — see the
+    task-incomplete page for the same pattern.
     """
     header = props.Translatable({
         "en": "Something went wrong",
@@ -488,8 +535,7 @@ def render_protocol_error_page(platform_name: str) -> CommandUIRender:
             "it": f"La pagina dello studio e il flusso di {platform_name} non sono sincronizzati. Chiuda questa finestra e riprovi più tardi.",
             "es": f"La página del estudio y el flujo de {platform_name} no están sincronizados. Cierre esta ventana e inténtelo de nuevo más tarde.",
         }),
-        ok=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
-        cancel=props.Translatable({"en": "Continue", "nl": "Doorgaan", "de": "Weiter", "it": "Continua", "es": "Continuar"}),
+        ok=props.Translatable({"en": "OK", "nl": "OK", "de": "OK", "it": "OK", "es": "OK"}),
     )
     return render_page(header, body)
 

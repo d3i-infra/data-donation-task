@@ -331,8 +331,15 @@ class FlowBuilder:
         raise NotImplementedError("Must be implemented by subclass")
 
     def generate_retry_prompt(self):
-        """Generate platform-specific retry prompt."""
-        return ph.generate_retry_prompt(self.platform_name)
+        """Generate platform-specific retry prompt.
+
+        Mirrors generate_file_prompt's `multiple=` flag: a PayloadFiles
+        flow (expected_file_payload == "PayloadFiles") gets the multi-aware
+        copy telling the participant to select ALL the files again.
+        """
+        return ph.generate_retry_prompt(
+            self.platform_name, multiple=self.expected_file_payload == "PayloadFiles"
+        )
 
     def generate_review_data_prompt(self, table_list):
         """Generate platform-specific review data prompt."""

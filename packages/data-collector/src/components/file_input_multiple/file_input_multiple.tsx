@@ -9,6 +9,7 @@ import TextBundle from "@eyra/feldspar"
 import { resolveText } from "../../locale/text"
 import { PropsUIPromptFileInputMultiple, Translatable } from "./types.ts"
 import { addFiles } from "./select"
+import { resolvePlaceholder } from "./placeholder"
 import CloseSvg  from "./assets/close.svg"
 
 type Props = PropsUIPromptFileInputMultiple & ReactFactoryContext
@@ -124,11 +125,11 @@ interface Copy {
   continueButton: string
 }
 
-function prepareCopy ({ description, extensions, locale }: Props): Copy {
+function prepareCopy ({ description, extensions, example, locale }: Props): Copy {
   return {
     description: resolveText(description, locale),
     note: resolveText(note(), locale),
-    placeholder: resolveText(placeholderText(), locale),
+    placeholder: resolvePlaceholder(example, locale),
     duplicatesNotice: resolveText(duplicatesNoticeText(), locale),
     extensions: extensions,
     selectButton: resolveText(selectButtonLabel(), locale),
@@ -161,15 +162,6 @@ const note = (): Translatable => {
     .add('nl', 'NB: Het proces om de juiste gegevens uit het bestand te halen gebeurt op uw eigen computer. Er worden nog geen gegevens opgeslagen of verstuurd.')
     .add('it', "Nota: l'estrazione dei dati corretti dal file avviene sul suo computer. Non viene ancora salvato né inviato alcun dato.")
     .add('es', 'Nota: el proceso de extraer los datos correctos del archivo se realiza en su propio ordenador. Todavía no se guarda ni se envía ningún dato.')
-}
-
-const placeholderText = (): Translatable => {
-  return new TextBundle()
-    .add('en', 'E.g. data.zip')
-    .add('de', 'Z.B. data.zip')
-    .add('nl', 'Voorbeeld: data.zip')
-    .add('it', 'Esempio: data.zip')
-    .add('es', 'Ejemplo: data.zip')
 }
 
 const duplicatesNoticeText = (): Translatable => {

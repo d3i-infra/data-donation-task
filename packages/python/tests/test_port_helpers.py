@@ -28,6 +28,18 @@ class TestRenderSafetyErrorPage:
         d = result.toDict()
         assert d["page"]["__type__"] == "PropsUIPageDataSubmission"
 
+    def test_confirm_prompt_has_no_cancel_button(self):
+        """ITEM 3: FlowBuilder discards this Confirm's result and always
+        raises TaskIncompleteError("upload_rejected") next regardless of
+        which button is pressed — a single acknowledging button, like the
+        task-incomplete page."""
+        error = ValueError("test error")
+        result = ph.render_safety_error_page("Facebook", error)
+        d = result.toDict()
+        body = d["page"]["body"][0]
+        assert body["__type__"] == "PropsUIPromptConfirm"
+        assert "cancel" not in body
+
 
 class TestRenderDonateFailurePage:
     def test_returns_command_ui_render(self):
@@ -38,6 +50,18 @@ class TestRenderDonateFailurePage:
         result = ph.render_donate_failure_page("YouTube")
         d = result.toDict()
         assert d["page"]["__type__"] == "PropsUIPageDataSubmission"
+
+    def test_confirm_prompt_has_no_cancel_button(self):
+        """ITEM 3: FlowBuilder discards this Confirm's result and always
+        raises TaskIncompleteError("donation_failed") next regardless of
+        which button is pressed — donation is never retried from here, so
+        this is a single acknowledging button, like the task-incomplete
+        page."""
+        result = ph.render_donate_failure_page("YouTube")
+        d = result.toDict()
+        body = d["page"]["body"][0]
+        assert body["__type__"] == "PropsUIPromptConfirm"
+        assert "cancel" not in body
 
 
 class TestRenderTaskIncompletePage:
