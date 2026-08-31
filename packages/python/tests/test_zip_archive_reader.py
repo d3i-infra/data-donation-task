@@ -240,6 +240,26 @@ class TestMemberGuardIntegration:
         assert errors["MemberTooLargeError"] == 1
 
 
+def _make_reader(entries: list[tuple[str, str | bytes]]) -> ZipArchiveReader:
+    """Build a ZipArchiveReader over a fresh in-memory archive with the given entries."""
+    archive = _build_archive(*entries)
+    members = [name for name, _ in entries]
+    return ZipArchiveReader(archive, members, Counter())
+
+
+class TestOpenMember:
+    def test_open_member_yields_stream_for_resolved_member(self):
+        reader = _make_reader([("Takeout/data/file.txt", b"content")])
+        with reader.open_member("file.txt") as stream:
+            assert stream is not None
+            assert stream.read() == b"content"
+
+    def test_open_member_yields_none_when_unresolvable(self):
+        reader = _make_reader([("Takeout/data/file.txt", b"content")])
+        with reader.open_member("missing.txt") as stream:
+            assert stream is None
+
+
 class TestMultipleReads:
     """Successive ZipFile contexts on the same archive object work
     (mirrors AsyncFileAdapter reuse across member accesses).

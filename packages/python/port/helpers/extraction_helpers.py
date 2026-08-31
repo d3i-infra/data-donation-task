@@ -5,9 +5,10 @@ import math
 import re
 import logging
 from collections import Counter
+from contextlib import contextmanager
 from dataclasses import dataclass
 from datetime import datetime, timezone
-from typing import Any, Callable
+from typing import Any, Callable, IO, Iterator
 from pathlib import Path
 import zipfile
 
@@ -662,6 +663,17 @@ class ZipArchiveReader:
             )
             self.errors["AmbiguousMemberMatch"] += 1
             return None
+
+    @contextmanager
+    def open_member(self, filename: str) -> Iterator[IO[bytes] | None]:
+        """Yields a binary stream for the resolved member, or None when the lookup
+        fails — resolution and error counting mirror the buffered read paths."""
+        member_path = self.resolve_member(filename)
+        if member_path is None:
+            yield None
+            return
+        with self._source.open_member(member_path) as stream:
+            yield stream
 
     def _read_member_bytes(self, member_path: str) -> io.BytesIO:
         """Read a specific member via the archive source (single archive or

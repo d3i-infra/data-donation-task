@@ -7,6 +7,7 @@ applies_to:
     - packages/python/port/helpers/extraction_helpers.py
     - packages/python/port/helpers/flow_builder.py
     - packages/python/port/helpers/uploads.py
+    - packages/python/port/platforms/google.py
 priority: invariant
 companions:
     - packages/python/tests/test_archive_set.py
@@ -25,51 +26,47 @@ satisfy via `SingleArchiveSource`.
 
 ## Guidance
 
-- Order parts by `(name, size)` — both metadata, never a byte read, and never
-  upload/selection order — so member resolution and duplicate-winner selection
-  are deterministic across the whole set regardless of how parts were passed in.
-  Parts tying on both name and size are indistinguishable without reading
-  bytes (forbidden pre-validation), so their relative order is unspecified.
-- Build the member inventory as the union of all parts' namelists, sorted by
-  member path — that listing order is separate from canonical part order.
-  Canonical part order instead governs duplicate-winner resolution: the
-  first part, by canonical order, to declare a path owns it — a later
+- Order parts by `(name, size)` — metadata only, never upload/selection order — so
+  member resolution and duplicate-winner selection are deterministic. Parts tying
+  on both are indistinguishable without a forbidden byte read, so their order is
+  unspecified.
+- The member inventory is the union of all parts' namelists, sorted by member path
+  (separate from canonical part order). Canonical part order instead governs
+  duplicate-winner resolution: the first part to declare a path owns it; a later
   part's same-path member is a duplicate, not a shadowing member.
-- Count exact-duplicate members in a `Counter`, keeping across-part and
-  within-part duplicates distinct so neither inflates the other:
-  `DuplicateMemberAcrossParts` for a path an earlier part already owns;
-  `DuplicateMemberWithinPart` for the zip format's legal same-path-twice
-  inside one part (resolves to that part's *last* entry — plain `zipfile`
-  semantics, not reimplemented). `ZipArchiveReader` merges the whole
-  `duplicates` counter into the extraction `errors` counter (ADR-0024).
-- Never open all parts eagerly or hold them all in memory at once —
-  `ArchiveSet.read_member()` opens only the owning part's `zipfile.ZipFile`, on
-  demand, mirroring the streaming invariant (ADR-0026) at the set level.
+- Count exact-duplicate members in a `Counter`, distinct per cause so neither
+  inflates the other: `DuplicateMemberAcrossParts` (a path an earlier part already
+  owns) vs. `DuplicateMemberWithinPart` (the zip format's legal same-path-twice
+  inside one part, resolved to that part's *last* entry — plain `zipfile`
+  semantics). `ZipArchiveReader` merges `duplicates` into the extraction `errors`
+  counter.
+- Never open all parts eagerly or hold them all in memory — `ArchiveSet.read_member()`
+  opens only the owning part's `zipfile.ZipFile`, on demand, mirroring the
+  streaming invariant at the set level.
 - Enforce `MAX_MEMBER_UNCOMPRESSED_BYTES` at read/materialization time
-  (`ArchiveSet.read_member` / `SingleArchiveSource.read_member`), from the zip's
+  (`ArchiveSet.read_member` / `SingleArchiveSource.read_member`) from the zip's
   central-directory `file_size`, before decompressing — never after.
+- `ArchiveSource` also carries `open_member(path)`, an additive streaming
+  counterpart to `read_member`: it yields the owning part's decompression stream
+  (a context manager over `IO[bytes]`) without materializing the member.
+  Deliberately unguarded — the size guard bounds full-buffer decompression, while
+  a streaming consumer bounds its own memory. `read_member`'s contract is
+  unchanged; `open_member` is a second way in, never a replacement.
 - Process parts sequentially: one part's `zipfile.ZipFile` context closes before
   the next opens; there is no concurrent multi-part extraction.
-- `PayloadFiles` (ADR-0017) is `ArchiveSet`'s only transport. There is no separate
-  `ArchiveSource` protocol record — `ArchiveSource`, `SingleArchiveSource`, and
-  `ArchiveSet` all live in `archive_set.py`.
+- `PayloadFiles` is `ArchiveSet`'s only transport; `ArchiveSource`,
+  `SingleArchiveSource`, and `ArchiveSet` all live in `archive_set.py`.
 
 ## Why
 
 A multi-file DDP (e.g. a Google Takeout export split into numbered parts) is the
 same logical archive as a single-zip DDP to the researcher and to `ZipArchiveReader`
 — a platform module should not need to know whether it is reading one zip or five.
-Without a canonical part order, member resolution and duplicate-winner selection
-would depend on browser file-picker / upload order, which is neither deterministic
-across attempts nor meaningful DDP structure. First-part-wins-with-a-counter (rather
-than raising or silently overwriting) keeps chunked-export duplicates — e.g. an
-overlap file repeated across two consecutive Takeout parts — visible to researchers
-without treating them as fatal. Within-part duplicates get their own counter for
-the same reason, without reimplementing `zipfile`'s central-directory resolution
-to force first-entry semantics — real DDP exports show zero such duplicates, so
-this is a defensive observability path, not a load-bearing one. Guarding size at
-materialization, not at inventory time, keeps the earlier metadata-only upload
-checks (ADR-0018) genuinely metadata-only: inventory discovery only reads each
-part's central directory, never member bytes, while the
-guard still bounds decompression-bomb risk before any single member is read fully
-into memory.
+Without canonical ordering, member and duplicate-winner resolution would depend on
+nondeterministic upload order. Counting rather than raising or overwriting keeps
+chunked-export duplicates (e.g. an overlap file repeated across two Takeout parts)
+visible without treating them as fatal; within-part duplicates get their own
+counter for the same reason, though real DDP exports show none — a defensive path,
+not a load-bearing one. Guarding size at materialization, not inventory time,
+keeps upload-time checks metadata-only while still bounding decompression-bomb
+risk before a member is read fully into memory.

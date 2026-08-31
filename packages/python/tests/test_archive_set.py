@@ -110,3 +110,31 @@ class TestSingleSource:
             members = zf.namelist()
         src = SingleArchiveSource(p, members)
         assert src.members == members and src.read_member("m.json") == b"{}"
+
+
+class TestOpenMember:
+    """Streaming reads: additive open_member on both sources (ADR-0040 amendment)."""
+
+    def test_archive_set_open_member_streams_owning_parts_bytes(self):
+        parts = [_part("a.zip", [("x.txt", b"from-a")]), _part("b.zip", [("y.txt", b"from-b")])]
+        archive_set = ArchiveSet(parts)
+        with archive_set.open_member("y.txt") as stream:
+            assert stream.read() == b"from-b"
+
+    def test_single_source_open_member_matches_read_member(self):
+        part = _part("a.zip", [("x.txt", b"payload")])
+        source = SingleArchiveSource(part, ["x.txt"])
+        with source.open_member("x.txt") as stream:
+            assert stream.read() == source.read_member("x.txt")
+
+    def test_open_member_is_not_size_guarded(self, monkeypatch):
+        # A member over the materialization cap still streams: the guard bounds
+        # full-buffer decompression (read_member); a streaming consumer bounds
+        # its own memory, so the cap does not apply here.
+        monkeypatch.setattr("port.helpers.archive_set.MAX_MEMBER_UNCOMPRESSED_BYTES", 4)
+        part = _part("a.zip", [("big.txt", b"12345678")])
+        archive_set = ArchiveSet([part])
+        with pytest.raises(MemberTooLargeError):
+            archive_set.read_member("big.txt")
+        with archive_set.open_member("big.txt") as stream:
+            assert stream.read() == b"12345678"

@@ -8,7 +8,8 @@ here.
 import logging
 import zipfile
 from collections import Counter
-from typing import Protocol, runtime_checkable
+from contextlib import AbstractContextManager, contextmanager
+from typing import IO, Iterator, Protocol, runtime_checkable
 
 from port.helpers.uploads import MAX_MEMBER_UNCOMPRESSED_BYTES
 
@@ -24,6 +25,7 @@ class ArchiveSource(Protocol):
     @property
     def members(self) -> list[str]: ...
     def read_member(self, path: str) -> bytes: ...
+    def open_member(self, path: str) -> AbstractContextManager[IO[bytes]]: ...
 
 
 def _guarded_read(zf: zipfile.ZipFile, path: str) -> bytes:
@@ -46,6 +48,15 @@ class SingleArchiveSource:
     def read_member(self, path: str) -> bytes:
         with zipfile.ZipFile(self._archive, "r") as zf:
             return _guarded_read(zf, path)
+
+    @contextmanager
+    def open_member(self, path: str) -> Iterator[IO[bytes]]:
+        """Streaming counterpart to read_member: yields the member's decompression
+        stream without materializing it. Deliberately not size-guarded — the guard
+        bounds full-buffer decompression; a streaming consumer bounds its own memory."""
+        with zipfile.ZipFile(self._archive, "r") as zf:
+            with zf.open(path) as stream:
+                yield stream
 
 
 class ArchiveSet:
@@ -106,3 +117,14 @@ class ArchiveSet:
         part = self._parts[self._owner[path]]
         with zipfile.ZipFile(part, "r") as zf:
             return _guarded_read(zf, path)
+
+    @contextmanager
+    def open_member(self, path: str) -> Iterator[IO[bytes]]:
+        """Streaming counterpart to read_member: yields the owning part's
+        decompression stream for `path` without materializing it. Deliberately
+        not size-guarded — the guard bounds full-buffer decompression; a
+        streaming consumer bounds its own memory."""
+        part = self._parts[self._owner[path]]
+        with zipfile.ZipFile(part, "r") as zf:
+            with zf.open(path) as stream:
+                yield stream
