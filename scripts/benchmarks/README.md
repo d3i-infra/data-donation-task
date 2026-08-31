@@ -58,27 +58,85 @@ must be adapted alongside the two heading selectors for non-TikTok flows.
 
 ### Multi-file (`PayloadFiles`) uploads
 
-To measure the multi-part upload path (`ArchiveSet`, see ADR-0040) against
-the same peak-memory budget as a single-zip upload (ADR-0034), generate a
-split fixture and point a harness at the `e2etest_multifile` test platform
-instead of a real study platform:
+`MEMTEST_ZIP` accepts a `:`-separated list of paths — a single path keeps
+today's single-zip behavior unchanged; two or more make the harness drive
+Playwright's multi-file selection (`ArchiveSet`, see ADR-0040) instead. Pair
+it with `MEMTEST_PLATFORM_LABEL` (default `TikTok`) to point the harness's
+two `getByRole('heading', …)` selectors (`Select your ${label} file` /
+`Your ${label} data`) at a different platform's flow — the donate-button
+selector (`'Yes, share for research'`, the default from
+`generate_review_data_prompt`) is unchanged and still needs adapting by hand
+for a flow that customizes it.
+
+#### iOS-realistic Google Takeout scenario
+
+This is the worst case an iPhone participant actually hits: several zip
+parts selected at once, one of them containing a several-hundred-MB history
+file. `gen_takeout_benchmark_set.py` builds an en-locale, Google-recognizable
+3-part Takeout set to drive it — part 1 is a single legitimately-huge member
+(the YouTube watch history, sized by `--activity-mb`, default 300 — the case
+the 512 MiB per-member guard passes and the streaming HTML parser
+(`_parse_activity_html`, ADR-0040) exists for), part 2 a mid-sized My
+Activity/Search export plus the subscriptions/comments CSVs, part 3
+manifest-only (`archive_browser.html`).
+
+Exact, runnable steps:
+
+    pnpm generate-config google   # if not already generated (ADR-0030)
+    # Build and serve a production-representative build:
+    VITE_PLATFORM=google NODE_ENV=development pnpm run build
+    python3 -m http.server 3000    # from packages/data-collector/dist
+
+    python3 scripts/benchmarks/gen_takeout_benchmark_set.py --out /tmp/bench-set
+
+    MEMTEST_PLATFORM_LABEL=Google \
+    MEMTEST_ZIP=/tmp/bench-set/takeout-<stamp>-1-001.zip:/tmp/bench-set/takeout-<stamp>-2-001.zip:/tmp/bench-set/takeout-<stamp>-3-001.zip \
+    node scripts/benchmarks/memtest-v3-peak.cjs
+
+(the generator prints the exact three-path `MEMTEST_ZIP` value, `<stamp>`
+filled in, at the end of its run — copy it verbatim). `--activity-mb` defaults
+to 300; pass a smaller value for a quick smoke run.
+
+Unlike TikTok's default config, `google_config.json` already attaches
+`visualizations` to `youtube_watch_history` (the big table) — no fixture
+swap needed before building, unlike the TikTok case below.
+
+Absolute numbers still need the production-representative, non-logging-sink
+build ADR-0034's Guidance calls for — a `NODE_ENV=development` build runs
+`FakeBridge` (which logs the full donation to the console) and StrictMode
+React, inflating every phase; treat those runs as relative-only evidence.
+One more wrinkle specific to `donate`: `FakeBridge`'s `POST /data-submission`
+only gets a real `200` from the new dev-donate-sink (`devDonateSinkPlugin` in
+`packages/data-collector/vite.config.ts`, `apply: 'serve'`) when the app is
+served by the Vite **dev server** (`pnpm start`) — a production-representative
+build served statically (`python3 -m http.server`) has no such route, so that
+fetch 404s there instead. Harmless to the harness's own measurement (it
+samples for a fixed settle window after the click regardless of the fetch's
+outcome), but worth knowing before reading anything into what the browser
+shows next. Compare per-phase peaks as **deltas over this run's own idle
+baseline** — absolute baselines wobble with environment state — and this run,
+like the split-fixture one below, is Danielle's, done outside the agent
+sandbox (no Chromium there).
+
+For the older synthetic split-fixture harness (any platform, not
+Google-shaped), generate a split fixture and point a harness at the
+`e2etest_multifile` test platform instead of a real study platform:
 
     python3 tests/generate_test_zip.py --size 1900MB --files 4 --split 2 \
         --output /tmp/big-part-1.zip /tmp/big-part-2.zip
 
 `--split N` distributes the generated files round-robin across N zip parts
 — each file stays whole in exactly one part, matching how a real
-multi-part Takeout export is structured. `memtest-v3-peak.cjs` expects a
-single `MEMTEST_ZIP` path today; running it against a multi-part upload
-means adapting the harness's upload step to call `setFiles([...])` with
-both part paths (see `tests/multifile.spec.ts` for the Playwright pattern)
-and its two `getByRole('heading', …)` selectors to `e2etest_multifile`'s
-headings (`Select your e2etest_multifile file`, `Your e2etest_multifile data`) —
-the donate-button selector (`'Yes, share for research'`) is unchanged.
+multi-part Takeout export is structured. Run it the same way as above:
+
+    MEMTEST_PLATFORM_LABEL=e2etest_multifile \
+    MEMTEST_ZIP=/tmp/big-part-1.zip:/tmp/big-part-2.zip \
+    node scripts/benchmarks/memtest-v3-peak.cjs
+
 Build and serve with `VITE_PLATFORM=e2etest_multifile` (dev server or
 `build:release`-excluded dev build; `e2etest_multifile` is test-only and never
-ships in a release, see ADR-0004). This comparison run is Danielle's, done
-outside the agent sandbox.
+ships in a release, see ADR-0004). This comparison run is Danielle's too,
+done outside the agent sandbox.
 
 ### Visualization-bearing config (required for consent/chart phases)
 

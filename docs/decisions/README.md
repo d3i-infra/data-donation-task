@@ -64,7 +64,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 
 ### Performance
 
-- [0034 — Hold participant-flow peak memory to the ~824 MB reference budget](./0034-hold-participant-flow-peak-memory-to-the-824-mb-reference-budget.md)
+- [0034 — Hold participant-flow peak memory to the reference budget](./0034-hold-participant-flow-peak-memory-to-the-reference-budget.md)
 
 ### Architecture
 
