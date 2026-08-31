@@ -48,6 +48,8 @@ from datetime import datetime, timezone
 from typing import Callable, IO, Literal, TypeGuard, overload
 
 import pandas as pd
+from dateutil import parser
+from lxml import etree
 
 from port.api.d3i_props import ExtractionResult
 from port.helpers.archive_set import ArchiveSet
@@ -399,3 +401,422 @@ def validate_ddp(archive_set: ArchiveSet) -> GoogleValidation:
         archive_members=archive_members,
         ddp_locale=ddp_locale,
     )
+
+
+def _parse_activity_html(data: IO[bytes]) -> list[dict]:
+    """Reads an activity file in html format and parses it into a list of dictionaries with
+    the same shape as the json format: the title of the activity, the url it points to, what
+    stands under it and its timestamp.
+
+    Every activity file of the DDP — the YouTube histories as well as the My Activity file
+    of any product — is one page of ``outer-cell`` blocks, in which the activity itself
+    sits in the ``content-cell`` of body text::
+
+        <div class="content-cell ... mdl-typography--body-1">Watched
+            <a href="https://www.youtube.com/watch?v=abc">A video</a><br>
+            <a href="https://www.youtube.com/channel/UC1">A channel</a><br>
+            15 jun 2026, 20:30:41 CEST
+        </div>
+
+    A line between the activity and the timestamp is read by whether it links out. One that
+    does is a subtitle — the channel of the video above, which the json writes as
+    ``{"name": ..., "url": ...}`` — and one that does not is the ``description`` of the
+    activity, such as the "Watched at 11:39 AM" an ad is recorded with. A record carries
+    either, both, or neither.
+
+    Selecting those cells by class is what makes one parser enough for every source: the
+    activity is read the same way regardless of which product wrote the file, and callers
+    select the records that are theirs by url, exactly as they do for the json format.
+
+    The caption cell beside it carries the lists some sources record with an activity —
+    the locations and details of a Discover card, say — which ``_parse_activity_caption``
+    reads onto the same record.
+
+    The document is walked as a stream and each cell is dropped once it is read, so the
+    *parse tree* stays proportional to one activity rather than to the size of the file —
+    a watch history of a heavy user runs to hundreds of megabytes. That bound covers only
+    the input side: the ``records`` list this function returns holds one dict per activity
+    and grows with the file, so overall memory still scales with row count once parsing is
+    done — see ADR-0034 for the measured, unbounded downstream cost.
+
+    ``data`` is any binary file-like ``etree.iterparse`` can stream from, not necessarily a
+    seekable one: production hands it the decompression stream ``ArchiveSet.open_member``
+    yields (ADR-0040), never a fully materialized member, so this parser's own streaming
+    read bounds how much of the *zip member* is resident at once — it says nothing about
+    the size of the parsed records it accumulates and returns.
+
+    The activity HTML declares no charset in its head (verified against real exports),
+    and lxml's HTML parser defaults to latin-1 when it finds none — silently double-
+    decoding every non-ASCII byte. Takeout's export bytes are UTF-8 (empirical), so the
+    encoding is pinned explicitly here rather than left to that default."""
+
+    records = []
+    for _, cell in etree.iterparse(data, html=True, tag="div", events=("end",), encoding="utf-8"):
+        classes = cell.get("class") or ""
+        texts = (
+            [text.strip() for text in cell.itertext() if text.strip()]
+            if "mdl-typography--body-1" in classes
+            else []
+        )
+        # An activity always carries text, ending in its timestamp. A body cell without
+        # any is the empty one the layout puts beside it, right-aligned, and not a record.
+        if texts:
+            # The activity is the text up to the first line break and the timestamp is the
+            # line the cell closes with. What stands in between is told apart by its link:
+            # a line that links out is a subtitle, the channel of a video say, and one that
+            # does not is the description of the activity.
+            lines = _parse_activity_lines(cell)
+            middle = lines[1:-1]
+
+            record = {
+                "title": lines[0]["text"],
+                "titleUrl": _strip_redirect(lines[0]["url"]) if lines[0]["url"] else "",
+                "time": _convert_to_iso8601(texts[-1]),
+            }
+            subtitles = [_subtitle(line) for line in middle if line["url"]]
+            if subtitles:
+                record["subtitles"] = subtitles
+            description = " ".join(line["text"] for line in middle if not line["url"])
+            if description:
+                record["description"] = description
+            records.append(record)
+        elif records and "mdl-typography--caption" in classes:
+            # The caption follows the activity it belongs to, so it lands on the record
+            # that was just read.
+            records[-1].update(_parse_activity_caption(cell))
+
+        # Drop every div once it ends — the record it held has been read, and its children
+        # ended before it did — so the tree does not grow with the file.
+        cell.clear()
+        while cell.getprevious() is not None:
+            del cell.getparent()[0]
+
+    return records
+
+
+#: The link that gives away a location, whatever language its section is headed in.
+MAPS_LINK = "google.com/maps"
+
+
+def _close_line(line: dict, section: list) -> dict:
+    """Adds the line to the section if it holds anything, and starts an empty one."""
+
+    text = " ".join(part.strip() for part in line["texts"] if part.strip())
+    if text or line["url"]:
+        section.append({"text": text, "url": line["url"]})
+    return {"texts": [], "url": ""}
+
+
+def _parse_activity_lines(cell) -> list[dict]:
+    """Reads a body cell as the lines its line breaks separate, each with the first url it
+    links to. A line that holds neither text nor a link is left out, so the break the cell
+    tends to close with does not add an empty one."""
+
+    lines: list[dict] = []
+    line = {"texts": [cell.text or ""], "url": ""}
+    for child in cell:
+        if child.tag == "br":
+            line = _close_line(line, lines)
+        else:
+            if child.tag == "a" and not line["url"]:
+                line["url"] = child.get("href") or ""
+            line["texts"].append("".join(child.itertext()))
+        line["texts"].append(child.tail or "")
+    _close_line(line, lines)
+
+    return lines
+
+
+def _subtitle(line: dict) -> dict:
+    """Reads a line linking out from under an activity in the shape the json format writes
+    it: the name it shows and where it points."""
+
+    return {"name": line["text"], "url": _strip_redirect(line["url"])}
+
+
+def _parse_activity_caption(cell) -> dict:
+    """Reads the lists an activity carries beside it, in the shape the json format writes
+    them: ``details`` as ``{"name": ...}`` and ``locationInfos`` as ``{"name": ..., "url":
+    ..., "source": ...}``. Returns only the lists that are there, as the json does.
+
+    The caption is a run of sections, each headed by a bold label and holding one entry per
+    line break::
+
+        <b>Locations:</b><br> At <a href="...maps...">this general area</a> - Based on your
+        past activity<br><b>Details:</b><br> Armed forces<br> Business - viewed<br>
+
+    Which section is which is read from where it sits and what it holds, not from the
+    labels, which are written in the language of the account: the caption opens with the
+    products and closes with why the activity was kept, and in between a section of
+    locations links to Maps. What is left is the details."""
+
+    sections: list[list[dict]] = [[]]
+    line = {"texts": [cell.text or ""], "url": ""}
+    for child in cell:
+        if child.tag == "b":
+            # The label of a section, which the section it opens is recognized without.
+            line = _close_line(line, sections[-1])
+            sections.append([])
+        elif child.tag == "br":
+            line = _close_line(line, sections[-1])
+        else:
+            if child.tag == "a" and not line["url"]:
+                line["url"] = child.get("href") or ""
+            line["texts"].append(child.text or "")
+        line["texts"].append(child.tail or "")
+    _close_line(line, sections[-1])
+
+    caption = {}
+    filled = [section for section in sections if section]
+    for position, section in enumerate(filled):
+        if position == 0 or position == len(filled) - 1:
+            # A caption opens with the products the activity belongs to and closes with why
+            # it was kept, neither of which says anything about the activity itself.
+            continue
+        if any(MAPS_LINK in line["url"] for line in section):
+            caption["locationInfos"] = [_location(line) for line in section]
+        else:
+            caption["details"] = [{"name": line["text"]} for line in section if line["text"]]
+
+    return caption
+
+
+def _location(line: dict) -> dict:
+    """Reads a location entry, whose source of the location follows its name."""
+
+    name, separator, source = line["text"].rpartition(" - ")
+    if not separator:
+        name, source = line["text"], ""
+
+    location = {"name": name, "url": line["url"]}
+    if source:
+        location["source"] = source
+    return location
+
+
+def _strip_redirect(url: str) -> str:
+    """Returns the destination of a Google redirect url, other urls unchanged. Activities
+    that leave Google, such as a visit from the Chrome history, are recorded as one."""
+
+    prefix = "https://www.google.com/url?q="
+    return url[len(prefix):] if url.startswith(prefix) else url
+
+
+def _first_subtitle(item: dict) -> dict:
+    """Returns the subtitle an activity stands under, empty when it carries none. A record
+    may hold a list of them, but the sources read here name a single one — the channel of a
+    video — and only where the account still has it."""
+
+    subtitles = item.get("subtitles") or []
+    return next((subtitle for subtitle in subtitles if isinstance(subtitle, dict)), {})
+
+
+def _join_details(item: dict) -> str:
+    """Reads the details an activity carries as one column of text, empty when it carries
+    none. Most records have nothing here; the ones that do say how the activity came about,
+    such as a video that was watched from an ad.
+
+    A detail that points somewhere is written as its name and that url behind a colon. The
+    json format keeps the two apart, in a ``name`` and a ``url``, where the html writes them
+    as the one line ``Tried to open in app: https://...`` — so joining them here is what
+    makes both formats produce the same column."""
+
+    texts = []
+    for detail in item.get("details") or []:
+        if not isinstance(detail, dict):
+            continue
+        texts.append(": ".join(
+            part for part in (detail.get("name", ""), detail.get("url", "")) if part
+        ))
+
+    return ", ".join(texts)
+
+
+def _join_locations(item: dict) -> str:
+    """Reads the locations an activity was recorded from as one column of text, empty when
+    it carries none. Each is the area it names and the link to Maps that shows it, followed
+    by how it was arrived at behind a dash, the way the archive writes it. An activity may
+    be placed by several of them at once."""
+
+    texts = []
+    for location in item.get("locationInfos") or []:
+        if not isinstance(location, dict):
+            continue
+        area = " ".join(
+            part for part in (location.get("name", ""), location.get("url", "")) if part
+        )
+        source = location.get("source", "")
+        texts.append(f"{area} - {source}" if source else area)
+
+    return ", ".join(texts)
+
+
+#: Months as Takeout abbreviates them in the languages it writes in Latin script, by the
+#: first three letters, lowercased. Dates in another script are left to ``dateutil``.
+MONTHS = {
+    "jan": 1, "oca": 1, "ene": 1,
+    "feb": 2, "şub": 2, "sub": 2,
+    "mar": 3, "mrt": 3, "mär": 3, "mrz": 3,
+    "apr": 4, "nis": 4, "abr": 4,
+    "may": 5, "mei": 5, "mai": 5,
+    "jun": 6, "haz": 6,
+    "jul": 7, "tem": 7,
+    "aug": 8, "ağu": 8, "agu": 8, "ago": 8,
+    "sep": 9, "eyl": 9, "set": 9,
+    "oct": 10, "okt": 10, "eki": 10,
+    "nov": 11, "kas": 11,
+    "dec": 12, "dez": 12, "ara": 12, "dic": 12,
+}
+
+#: ``15 jun 2026, 20:30:41 CEST`` — how most locales write an activity timestamp, some of
+#: them with an ordinal dot after the day and after the month, as ``17. Aug. 2026`` is.
+DAY_FIRST = re.compile(r"^(\d{1,2})\.? ([^\s,]+),? (\d{4}),? (\d{1,2}):(\d{2}):(\d{2})")
+
+#: ``Aug 17, 2026, 1:14:48 PM CEST`` — how the English locale writes one.
+MONTH_FIRST = re.compile(r"^([^\s,\d]+) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}):(\d{2})(?:\s*([AaPp])\.?[Mm])?")
+
+#: ``27.08.2026, 20:04:54 MESZ`` — a fully numeric dotted date, as the current German
+#: export writes one. Dotted numeric dates are day-first in every locale that writes
+#: them, so this is unambiguous by construction — unlike ``dateutil``'s own month-first
+#: default, which silently swaps day and month whenever the day is <= 12 (12.07 read as
+#: 2026-12-07 instead of 2026-07-12). Tried before ``dateutil`` for exactly that reason;
+#: a month > 12 cannot be this shape at all, so that case (and any other ValueError, e.g.
+#: an out-of-range day) falls through to the existing paths below unchanged.
+NUMERIC_DAY_FIRST = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4}),? (\d{1,2}):(\d{2}):(\d{2})")
+
+#: ``2026年7月30日 00:23:06 CEST`` — how the Chinese export writes a timestamp. The
+#: 年 (year), 月 (month) and 日 (day) unit markers name each field, so this is
+#: unambiguous by construction, the same reasoning as ``NUMERIC_DAY_FIRST`` — and
+#: unlike either of those, there is no digit-only shape here for ``dateutil`` to
+#: even attempt, so without this it falls through unread (BUG C: confirmed against
+#: a real zh export, tests/ddp/google_set_uu-acct-zh/'s 观看记录.html — the zh
+#: locale writes English action words, e.g. "Watched", but CJK-formatted dates).
+CJK_DATE = re.compile(r"^(\d{4})年(\d{1,2})月(\d{1,2})日,? (\d{1,2}):(\d{2}):(\d{2})")
+
+#: ``23‏/07‏/2026، 4:20:22 م CEST`` — how the Arabic export writes a timestamp:
+#: Western digits in day/month/year order (day-first — confirmed against real
+#: samples with a day > 12, so unambiguous by construction), each numeric field
+#: followed by a U+200F RIGHT-TO-LEFT MARK, a U+060C ARABIC COMMA after the year,
+#: and a 12-hour clock using the Arabic meridiem letters (ص "morning" = AM, م
+#: "evening" = PM) instead of AM/PM. Confirmed against a real ar export,
+#: tests/ddp/google_set_uu-acct-ar/'s activity HTML. The RTL mark is optional in
+#: the pattern (harmless if a future export ever omits it); the meridiem letter
+#: is not, since the hour alone is ambiguous without it.
+ARABIC_DATE = re.compile(
+    r"^(\d{1,2})‏?/(\d{1,2})‏?/(\d{4})، (\d{1,2}):(\d{2}):(\d{2}) ([صم])"
+)
+
+
+def _convert_to_iso8601(timestamp):
+    """Converts a time string extracted from the HTML DDP (e.g. 15 jun 2026, 20:30:41 CEST) to
+    ISO8601 format, ignoring timezone abbreviations and translating month abbreviations.
+
+    An activity file holds one timestamp per record, hundreds of thousands of them for a
+    heavy user, and reading a date in any format a participant might have is expensive.
+    The formats Takeout actually writes are read directly here, which is some twenty
+    times faster; anything else — another script, another separator — falls through to
+    ``dateutil``, which reads what it can and leaves the rest as it found it."""
+
+    numeric = NUMERIC_DAY_FIRST.match(timestamp)
+    if numeric:
+        day, month, year, hour, minute, second = numeric.groups()
+        if 1 <= int(month) <= 12:
+            try:
+                return datetime(
+                    int(year), int(month), int(day), int(hour), int(minute), int(second)
+                ).isoformat()
+            except ValueError:
+                pass  # e.g. day out of range for the month — fall through below
+
+    cjk = CJK_DATE.match(timestamp)
+    if cjk:
+        year, month, day, hour, minute, second = cjk.groups()
+        if 1 <= int(month) <= 12:
+            try:
+                return datetime(
+                    int(year), int(month), int(day), int(hour), int(minute), int(second)
+                ).isoformat()
+            except ValueError:
+                pass  # e.g. day out of range for the month — fall through below
+
+    arabic = ARABIC_DATE.match(timestamp)
+    if arabic:
+        day, month, year, hour, minute, second, meridiem = arabic.groups()
+        if 1 <= int(month) <= 12:
+            # A 12-hour clock counts noon as 12 PM (م) and midnight as 12 AM (ص).
+            hour = int(hour) % 12 + (12 if meridiem == "م" else 0)
+            try:
+                return datetime(
+                    int(year), int(month), int(day), hour, int(minute), int(second)
+                ).isoformat()
+            except ValueError:
+                pass  # e.g. day out of range for the month — fall through below
+
+    match = MONTH_FIRST.match(timestamp)
+    if match:
+        month, day, year, hour, minute, second, meridiem = match.groups()
+    else:
+        match = DAY_FIRST.match(timestamp)
+        if match:
+            day, month, year, hour, minute, second = match.groups()
+            meridiem = None
+        else:
+            return _convert_with_dateutil(timestamp)
+
+    number = MONTHS.get(month[:3].lower())
+    if number is None:
+        return _convert_with_dateutil(timestamp)
+
+    hour = int(hour)
+    if meridiem:
+        # A 12-hour clock counts noon as 12 PM and midnight as 12 AM.
+        hour = hour % 12 + (12 if meridiem.lower() == "p" else 0)
+
+    try:
+        return datetime(int(year), number, int(day), hour, int(minute), int(second)).isoformat()
+    except ValueError:
+        return _convert_with_dateutil(timestamp)
+
+
+def _convert_usec_to_iso8601(timestamp):
+    """Converts a timestamp in microseconds since the epoch, as the Chrome history writes
+    them (e.g. 1787225185379660), to ISO 8601. ``eh.epoch_to_iso`` cannot read these
+    numbers because it takes them for seconds and a microsecond count overflows the year.
+
+    The time is read in UTC and written without the offset, in the shape the activity
+    files record their local time in, so that one column holds one format. Sub-second
+    precision is dropped for the same reason. A timestamp that is not a number is
+    returned unchanged."""
+
+    try:
+        seconds = int(timestamp) // 1_000_000
+        return datetime.fromtimestamp(seconds, tz=timezone.utc).replace(tzinfo=None).isoformat()
+    except (OverflowError, OSError, TypeError, ValueError):
+        return timestamp
+
+
+def _convert_with_dateutil(timestamp):
+    """Converts a timestamp of a shape ``_convert_to_iso8601`` does not read itself,
+    returning it unchanged when it cannot be read at all."""
+    try:
+        parts = timestamp.split(' ')
+
+        # Ignore timezone abbreviation at the end as this is not included in json either
+        # and cannot be automatically parsed
+        if ':' not in parts[-1]:
+            parts.pop()
+
+        # Translate month abbreviations to English
+        nl_month_translations = {
+            'mrt': 'mar',
+            'mei': 'may',
+            'okt': 'oct',
+            }
+        for i in range(len(parts)):
+            if parts[i].lower() in nl_month_translations:
+                parts[i] = nl_month_translations[parts[i].lower()]
+
+        dt = parser.parse(' '.join(parts))
+        return dt.isoformat()
+    except (ValueError, TypeError) as e:
+        return timestamp
