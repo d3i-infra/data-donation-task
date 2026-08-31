@@ -820,3 +820,1221 @@ def _convert_with_dateutil(timestamp):
         return dt.isoformat()
     except (ValueError, TypeError) as e:
         return timestamp
+
+
+def _read(reader: ZipArchiveReader, key: str, ddp_locale: str):
+    """Reads the first file present for ``key``, in whichever format it was exported.
+
+    Returns the extension of the file that was found together with the read result, so
+    the caller knows how to parse it, or ``(None, None)`` when the archive holds no file
+    for this key.
+
+    Activity sources (``json``/``html``) go through ``_read_activity`` instead, whose
+    html branch streams a heavy user's file rather than buffering it (ADR-0040); this
+    function stays for the buffered formats. ``html`` is therefore absent from the
+    readers dict below by design, not by oversight — an activity key's ``KEY_FORMATS``
+    entry lists it, but ``_read`` skips a format it holds no reader for rather than
+    raising, so a mixed json/html key never ``KeyError``s through here."""
+
+    readers = {"json": reader.json, "csv": reader.csv, "txt": reader.raw}
+    for path in TAKEOUT_PATHS.get(ddp_locale, {}).get(key, []):
+        for extension in KEY_FORMATS[key]:
+            reader_fn = readers.get(extension)
+            if reader_fn is None:
+                continue
+            result = reader_fn(f"{path}.{extension}")
+            if result.found:
+                return extension, result
+    return None, None
+
+
+def _read_activity(reader: ZipArchiveReader, errors: Counter, key: str, ddp_locale: str):
+    """Reads an activity source in whichever format it was exported: JSON parsed
+    whole (small), HTML parsed as a stream so a heavy user's multi-hundred-MB
+    file never sits in memory at once (open_member — ADR-0040). Returns the
+    parsed records, or None when the archive-set holds no file for this key.
+    Parse failures are counted, never raised."""
+    for path in TAKEOUT_PATHS.get(ddp_locale, {}).get(key, []):
+        for extension in KEY_FORMATS[key]:
+            if extension == "json":
+                result = reader.json(f"{path}.json")
+                if result.found:
+                    return result.data
+            elif extension == "html":
+                try:
+                    with reader.open_member(f"{path}.html") as stream:
+                        if stream is not None:
+                            return _parse_activity_html(stream)
+                except Exception as e:
+                    logger.error("Exception caught: %s", e)
+                    errors[type(e).__name__] += 1
+                    return None
+    return None
+
+
+@overload
+def _validate_activity_shape(
+    d: object, errors: Counter, *, allow_dict: Literal[False] = False
+) -> TypeGuard[list]: ...
+@overload
+def _validate_activity_shape(
+    d: object, errors: Counter, *, allow_dict: Literal[True]
+) -> TypeGuard[list | dict]: ...
+def _validate_activity_shape(d: object, errors: Counter, *, allow_dict: bool = False) -> bool:
+    """True when ``d`` — an ``_read_activity`` result — has a shape its caller
+    can safely iterate. ``None`` means the source was simply absent (ADR-0024:
+    an expected-missing DDP member, never an error). Anything else that is
+    not a list — or, for ``chrome_history_to_df``'s alternate dict export
+    shape (``allow_dict=True``), not a dict either — is a genuinely malformed
+    source: a JSON file that parsed fine but does not hold the shape every
+    activity extractor assumes. That case is counted and contained here so
+    every ``_read_activity`` caller degrades to an empty table instead of
+    raising out of ``run_extraction``'s uncaught per-table loop
+    (table_extractor.py), which would otherwise abort every other table.
+
+    The two ``@overload``s (rather than a plain ``bool`` return) are so
+    callers narrow properly: after ``if not _validate_activity_shape(d,
+    errors): return out``, pyright knows ``d`` is a ``list`` (or ``list |
+    dict`` for the ``allow_dict=True`` caller) for the rest of the
+    function, the same as it would after an inline ``isinstance`` check."""
+    if d is None:
+        return False
+    if isinstance(d, list) or (allow_dict and isinstance(d, dict)):
+        return True
+    errors["UnexpectedActivityShape"] += 1
+    return False
+
+
+# ---------------------------------------------------------------------------
+# Extractor functions
+# ---------------------------------------------------------------------------
+
+
+def youtube_watch_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the YouTube watch history from the Google DDP.
+
+    Reads the file at the ``youtube.watch_history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Channel name``, ``Channel URL``, ``Details``,
+        ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one video the participant watched on YouTube, including the video title and URL, the channel that published it, how the view came about where the archive says so, and the timestamp.",
+          "source_file": "the YouTube watch history, e.g. history/watch-history.json or Verlauf/Wiedergabeverlauf.html",
+          "columns": {
+            "Title": "Title of the watched video.",
+            "URL": "URL of the watched video.",
+            "Channel name": "Name of the channel that published the video, empty when the archive does not name one.",
+            "Channel URL": "URL of the channel that published the video, empty when the archive does not link to one.",
+            "Details": "How the view came about, such as a video watched from an ad. Empty for most videos.",
+            "Timestamp": "ISO 8601 timestamp of when the video was watched."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_watch_history",
+          "title": {"en": "Your YouTube watch history", "nl": "Je YouTube kijkgeschiedenis"},
+          "description": {
+            "en": "Videos you have watched on YouTube, including timestamps.",
+            "nl": "Video's die je op YouTube hebt bekeken, inclusief tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Channel name": {"en": "Channel", "nl": "Kanaal"},
+            "Channel URL": {"en": "Channel URL", "nl": "Kanaal-URL"},
+            "Details": {"en": "Details", "nl": "Details"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Videos watched over time",
+                "nl": "Bekeken video's in de loop van de tijd"
+              },
+              "type": "area",
+              "group": {"column": "Timestamp", "dateFormat": "auto", "label": {"en": "Date", "nl": "Datum"}},
+              "values": [{"aggregate": "count", "label": {"en": "Number of videos", "nl": "Bekeken video's"}}]
+            },
+            {
+              "title": {
+                "en": "Videos watched by hour of the day",
+                "nl": "Bekeken video's per uur van de dag"
+              },
+              "type": "bar",
+              "group": {"column": "Timestamp", "dateFormat": "hour_cycle", "label": {"en": "Hour of the day", "nl": "Uur van de dag"}},
+              "values": [{"label": {"en": "Number of videos", "nl": "Aantal video's"}}]
+            },
+            {
+              "title": {
+                "en": "Words in video titles you watched",
+                "nl": "Woorden in titels van bekeken video's"
+              },
+              "type": "wordcloud",
+              "textColumn": "Title",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "youtube.watch_history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    # The activity file this falls back to records views and searches together, and
+    # neither format tells them apart by itself, so select on the url. Only dict
+    # records qualify — a list entry of some other type (malformed export) is
+    # dropped, never raised on, since ``.get`` only ever runs on a dict.
+    d = [item for item in d if isinstance(item, dict) and "/watch?v=" in item.get("titleUrl", "")]
+
+    datapoints = []
+    try:
+        for item in d:
+            channel = _first_subtitle(item)
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                channel.get("name", ""),
+                channel.get("url", ""),
+                _join_details(item),
+                item.get("time", ""),
+            ))
+        out = pd.DataFrame(  # pyright: ignore
+            datapoints,
+            columns=["Title", "URL", "Channel name", "Channel URL", "Details", "Timestamp"],
+        )
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def youtube_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the YouTube search history from the Google DDP.
+
+    Reads the file at the ``youtube.search_history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Details``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one search query in YouTube search history, including how the search came about where the archive says so.",
+          "source_file": "the YouTube search history, e.g. history/search-history.json or Verlauf/Suchverlauf.html",
+          "columns": {
+            "Title": "Description of the search action.",
+            "URL": "URL of the search query.",
+            "Details": "How the search came about, such as a search that came from an ad. Empty for most searches.",
+            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_search_history",
+          "title": {
+            "en": "Your YouTube search history",
+            "nl": "Je YouTube zoekgeschiedenis"
+          },
+          "description": {
+            "en": "Your search queries on YouTube with timestamps.",
+            "nl": "Je zoekopdrachten op YouTube met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Details": {"en": "Details", "nl": "Details"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Words in your YouTube search history",
+                "nl": "Woorden in je YouTube zoekgeschiedenis"
+              },
+              "type": "wordcloud",
+              "textColumn": "Title",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "youtube.search_history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    # The activity file this falls back to records views and searches together, and
+    # neither format tells them apart by itself, so select on the url. Only dict
+    # records qualify — a list entry of some other type (malformed export) is
+    # dropped, never raised on, since ``.get`` only ever runs on a dict.
+    d = [item for item in d if isinstance(item, dict) and "results?search_query=" in item.get("titleUrl", "")]
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                _join_details(item),
+                item.get("time", ""),
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Details", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def youtube_subscriptions_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the YouTube subscriptions from the Google DDP.
+
+    Reads the CSV at the ``youtube.subscriptions`` paths of the detected locale.
+    Normalizes column names to English regardless of export language.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Channel Id``, ``Channel URL``, ``Channel Name``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one YouTube channel the participant is subscribed to.",
+          "source_file": "the YouTube subscriptions, e.g. subscriptions/subscriptions.csv or Abos/Abos.csv",
+          "columns": {
+            "Channel Id": "Unique identifier of the subscribed channel.",
+            "Channel URL": "URL of the subscribed channel.",
+            "Channel Name": "Display name of the subscribed channel."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_subscriptions",
+          "title": {"en": "Your YouTube subscriptions", "nl": "Je YouTube abonnementen"},
+          "description": {
+            "en": "YouTube channels you are subscribed to.",
+            "nl": "YouTube-kanalen waarop je bent geabonneerd."
+          },
+          "headers": {
+            "Channel Id": {"en": "Channel Id", "nl": "Kanaal-id"},
+            "Channel URL": {"en": "Channel URL", "nl": "Kanaal-URL"},
+            "Channel Name": {"en": "Channel Name", "nl": "Kanaalnaam"}
+          }
+        }
+    """
+    _, result = _read(reader, "youtube.subscriptions", ddp_locale)
+    if result is None:
+        return pd.DataFrame()
+    df = result.data
+
+    try:
+        if not df.empty:
+            # Positional rename, not a header-name mapping: a wrong column count
+            # either raises (too few/many names for the frame) or silently
+            # mislabels (same count, different meaning) — localized headers
+            # beyond en/nl are a known PENDING limitation, so this only
+            # contains the count mismatch rather than attempting to map names.
+            if df.shape[1] == 3:
+                df.columns = ["Channel Id", "Channel URL", "Channel Name"]  # pyright: ignore
+            else:
+                errors["UnexpectedSubscriptionsColumnCount"] += 1
+                return pd.DataFrame()
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+        return pd.DataFrame()
+
+    return df
+
+
+def _parse_comment_text(raw: str) -> str:
+    try:
+        segments = json.loads(f"[{raw}]")
+        return " ".join(s["text"] for s in segments if isinstance(s, dict) and s.get("text", "").strip())
+    except Exception:
+        return raw
+
+
+def youtube_comments_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the YouTube comments from the Google DDP.
+
+    Reads the CSV at the ``youtube.comments`` paths of the detected locale. Normalizes
+    column names to English and parses comment text segments.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Timestamp``, ``Channel ID``, ``Comment text``, ``Comment ID``,
+        ``Video ID``, ``Price`` (subset available depends on export).
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one comment the participant posted on a YouTube video or post.",
+          "source_file": "the YouTube comments, e.g. comments/comments.csv or reacties/reacties.csv",
+          "columns": {
+            "Timestamp": "ISO 8601 timestamp of when the comment was created.",
+            "Channel ID": "ID of the channel where the comment was posted.",
+            "Comment text": "Full text of the comment.",
+            "Comment ID": "Unique identifier for the comment.",
+            "Video ID": "ID of the video the comment was posted on.",
+            "Price": "Super Chat amount, if applicable."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "youtube_comments",
+          "title": {"en": "Your YouTube comments", "nl": "Je YouTube reacties"},
+          "description": {
+            "en": "Comments you posted on YouTube videos and posts.",
+            "nl": "Reacties die je op YouTube-video's en -posts hebt geplaatst."
+          },
+          "headers": {
+            "Comment ID": {"en": "Comment ID", "nl": "Reactie-ID"},
+            "Channel ID": {"en": "Channel ID", "nl": "Kanaal-ID"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"},
+            "Price": {"en": "Price", "nl": "Prijs"},
+            "Video ID": {"en": "Video ID", "nl": "Video-ID"},
+            "Comment text": {"en": "Comment text", "nl": "Reactietekst"}
+          },
+          "visualizations": [
+            {
+              "title": {
+                "en": "Most common words in your YouTube comments",
+                "nl": "Meest voorkomende woorden in je YouTube reacties"
+              },
+              "type": "wordcloud",
+              "textColumn": "Comment text",
+              "tokenize": true
+            }
+          ]
+        }
+    """
+    _, result = _read(reader, "youtube.comments", ddp_locale)
+    if result is None:
+        return pd.DataFrame()
+    df = result.data
+
+    try:
+        if not df.empty:
+            df = df.rename(columns={
+                "Reactie-ID": "Comment ID",
+                "Kanaal-ID": "Channel ID",
+                "Aanmaaktijdstempel reactie": "Timestamp",
+                "Comment create timestamp": "Timestamp",
+                "Comment Create Timestamp": "Timestamp",
+                "Prijs": "Price",
+                "Video-ID": "Video ID",
+                "Reactietekst": "Comment text",
+                "Comment Text": "Comment text",
+            })
+            keep = ["Timestamp", "Channel ID", "Comment text", "Comment ID", "Video ID", "Price"]
+            df = df[[col for col in keep if col in df.columns]]  # pyright: ignore
+            if "Comment text" in df.columns:
+                df["Comment text"] = df["Comment text"].apply(_parse_comment_text)
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+        return pd.DataFrame()
+
+    return df
+
+
+def search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google search history from the Google DDP.
+
+    Reads the file at the ``search.search_history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Locations``, ``Details``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one search query in Google search history, including the general area it was made from and how the search came about where the archive says so.",
+          "source_file": "the Google search history, e.g. Search/MyActivity.json or Suche/MyActivity.html",
+          "columns": {
+            "Title": "Description of the search action.",
+            "URL": "URL of the search query.",
+            "Locations": "The general area the search was made from, as a name, a link to Google Maps and, behind a dash, how the area was arrived at. Empty for most searches.",
+            "Details": "How the search came about, such as a search that came from an ad. Empty for most searches.",
+            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "search_history",
+          "title": {"en": "Your Google search history", "nl": "Je Google zoekgeschiedenis"},
+          "description": {
+            "en": "Your search queries on Google with timestamps.",
+            "nl": "Je zoekopdrachten op Google met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Locations": {"en": "Locations", "nl": "Locaties"},
+            "Details": {"en": "Details", "nl": "Details"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "search.search_history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                _join_locations(item),
+                _join_details(item),
+                item.get("time", ""),
+            ))
+        out = pd.DataFrame(  # pyright: ignore
+            datapoints,
+            columns=["Title", "URL", "Locations", "Details", "Timestamp"],
+        )
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def chrome_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Chrome history from the Google DDP.
+
+    Reads the file at the ``chrome.history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one website the participant visited in Chrome, including the page title, URL, and timestamp.",
+          "source_file": "the Chrome history, e.g. Chrome/MyActivity.json or Chrome/Verlauf.html",
+          "columns": {
+            "Title": "Title of the visited page.",
+            "URL": "URL of the visited page.",
+            "Timestamp": "ISO 8601 timestamp of when the page was visited."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "chrome_history",
+          "title": {"en": "Your Chrome browsing history", "nl": "Je Chrome-surfgeschiedenis"},
+          "description": {
+            "en": "Websites you visited in Chrome, including timestamps.",
+            "nl": "Websites die je in Chrome hebt bezocht, inclusief tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "chrome.history", ddp_locale)
+    if not _validate_activity_shape(d, errors, allow_dict=True):
+        return out
+
+    datapoints = []
+    try:
+        if isinstance(d, dict) and "Browser History" in d:
+            for item in d["Browser History"]:
+                datapoints.append((
+                    item.get("title", ""),
+                    item.get("url", ""),
+                    _convert_usec_to_iso8601(item.get("time_usec", ""))
+                ))
+        else:
+            for item in d:
+                datapoints.append((
+                    item.get("title", ""),
+                    item.get("titleUrl", ""),
+                    item.get("time", "")
+                ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def video_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google video search history from the Google DDP.
+
+    Reads the file at the ``video_search.history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one search event in Google video search history.",
+          "source_file": "the Google video search history, e.g. Video Search/MyActivity.json",
+          "columns": {
+            "Title": "Description of the video search action.",
+            "URL": "URL of the video search event.",
+            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "video_search_history",
+          "title": {"en": "Your Google video search history", "nl": "Je Google-videozoekgeschiedenis"},
+          "description": {
+            "en": "Your search queries on Google video with timestamps.",
+            "nl": "Je zoekopdrachten op Google video met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "video_search.history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                item.get("time", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def ads_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google ads history from the Google DDP.
+
+    Reads the file at the ``ads.history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction. Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Details``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one event in Google ads history, including what the archive records about where the ad was shown.",
+          "source_file": "the Google ads history, e.g. Ads/MyActivity.json",
+          "columns": {
+            "Title": "The ad event.",
+            "URL": "URL of the ad event.",
+            "Details": "What the archive records about the ad event, such as where the ad was shown. Empty for most events.",
+            "Timestamp": "ISO 8601 timestamp of when the ad event occurred."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "ads_history",
+          "title": {"en": "Your Google ads history", "nl": "Je Google-advertentiegeschiedenis"},
+          "description": {
+            "en": "Your ad events on Google with timestamps.",
+            "nl": "Je advertentiegebeurtenissen op Google met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Details": {"en": "Details", "nl": "Details"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "ads.history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                _join_details(item),
+                item.get("time", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Details", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def discover_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google Discover history from the Google DDP.
+
+    Reads the file at the ``discover.history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction. Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``Locations``, ``Details``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one event in Google Discover history.",
+          "source_file": "the Google Discover history, e.g. Discover/MyActivity.json",
+          "columns": {
+            "Title": "The title of the Discover event.",
+            "Locations": "The locations associated with the Discover event.",
+            "Details": "Additional details about the Discover event.",
+            "Timestamp": "ISO 8601 timestamp of when the Discover event occurred."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "discover_history",
+          "title": {"en": "Your Google Discover history", "nl": "Je Google Discover-geschiedenis"},
+          "description": {
+            "en": "Your Discover events on Google with timestamps.",
+            "nl": "Je Discover-gebeurtenissen op Google met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "Locations": {"en": "Locations", "nl": "Locaties"},
+            "Details": {"en": "Details", "nl": "Details"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "discover.history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                _join_locations(item),
+                _join_details(item),
+                item.get("time", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "Locations", "Details", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def google_news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google News history from the Google DDP.
+
+    Reads the file at the ``google_news.history`` paths of the detected locale, as
+    JSON or as HTML depending on the format it was exported in.
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one event in Google News history.",
+          "source_file": "the Google News history, e.g. News/MyActivity.json",
+          "columns": {
+            "Title": "The title of the Google News event.",
+            "URL": "URL of the Google News event.",
+            "Timestamp": "ISO 8601 timestamp of when the Google News event occured."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "google_news_history",
+          "title": {"en": "Your Google News history", "nl": "Je Google Nieuws-geschiedenis"},
+          "description": {
+            "en": "Your Google News events with timestamps.",
+            "nl": "Je Google Nieuws-gebeurtenissen met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "google_news.history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                item.get("time", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+def news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the News history from the Google DDP.
+
+    Reads the file at the ``news.history`` paths of the detected locale, as JSON or as
+    HTML depending on the format it was exported in. This is the My Activity stream
+    for the News product — account-dependent, like ``google_news.history`` beside it —
+    and a different export than the News product's own files ``news_items_to_df``
+    reads below (researcher decision 2026-08-27: both News shapes are extracted).
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the file up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Title``, ``URL``, ``Timestamp``.
+        Empty DataFrame when no matching file is found or parsing fails.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one event in News history.",
+          "source_file": "the News history, e.g. News/MyActivity.json",
+          "columns": {
+            "Title": "The title of the News event.",
+            "URL": "URL of the News event.",
+            "Timestamp": "ISO 8601 timestamp of when the News event occured."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "news_history",
+          "title": {"en": "Your News history", "nl": "Je Nieuws-geschiedenis"},
+          "description": {
+            "en": "Your News events with timestamps.",
+            "nl": "Je Nieuws-gebeurtenissen met tijdstippen."
+          },
+          "headers": {
+            "Title": {"en": "Action", "nl": "Actie"},
+            "URL": {"en": "URL", "nl": "URL"},
+            "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
+          }
+        }
+    """
+    out = pd.DataFrame()
+    d = _read_activity(reader, errors, "news.history", ddp_locale)
+    if not _validate_activity_shape(d, errors):
+        return out
+
+    datapoints = []
+    try:
+        for item in d:
+            datapoints.append((
+                item.get("title", ""),
+                item.get("titleUrl", ""),
+                item.get("time", "")
+            ))
+        out = pd.DataFrame(datapoints, columns=["Title", "URL", "Timestamp"])  # pyright: ignore
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+
+    return out
+
+
+#: The Takeout/News product files, each a plain-text list with one item per line.
+#: Filenames stay English across locales (verified: nl translates only the folder).
+NEWS_ITEM_KINDS = [
+    ("news.articles", "Saved article"),
+    ("news.followed_locations", "Followed location"),
+    ("news.followed_sources", "Followed source"),
+    ("news.followed_topics", "Followed topic"),
+    ("news.magazines", "Magazine"),
+]
+
+
+def news_items_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str) -> pd.DataFrame:
+    """Extract the Google News product files from the Google DDP.
+
+    Reads each of the five ``news.*`` product files at the paths of the detected
+    locale — always plain text, one item per line — and tags every line with which
+    kind of item it is (``NEWS_ITEM_KINDS``). This is the News product's own export
+    (followed sources, topics and locations, saved articles and magazines); a
+    different export than the My Activity stream ``news_history_to_df`` reads above
+    (researcher decision 2026-08-27: both News shapes are extracted).
+
+    Parameters
+    ----------
+    reader:
+        Archive reader used to load files from the DDP zip.
+    errors:
+        Mutable counter that accumulates error type counts encountered during
+        extraction.  Updated in-place.
+    ddp_locale:
+        Locale of the DDP, used to look the files up in ``TAKEOUT_PATHS``.
+
+    Returns
+    -------
+    pd.DataFrame
+        Columns: ``Type``, ``Name``.
+        A file the archive does not hold contributes no rows; a file the archive
+        holds but which is empty likewise contributes none.
+
+    Table documentation::
+
+        {
+          "summary": "Each row represents one followed source, topic or location, saved article, or magazine in the Google News product export.",
+          "source_file": "the News product files, e.g. News/followed_sources.txt or Nieuws/followed_sources.txt",
+          "columns": {
+            "Type": "The kind of News product item: Saved article, Followed location, Followed source, Followed topic, or Magazine.",
+            "Name": "The name of the item, one line as Takeout wrote it."
+          }
+        }
+
+    Table config::
+
+        {
+          "id": "news_items",
+          "title": {"en": "Your Google News sources and saved items", "nl": "Je Google Nieuws-bronnen en opgeslagen items"},
+          "description": {
+            "en": "The sources, topics and locations you follow, plus saved articles and magazines, from the Google News product export.",
+            "nl": "De bronnen, onderwerpen en locaties die je volgt, plus opgeslagen artikelen en tijdschriften, uit de Google Nieuws-productexport."
+          },
+          "headers": {
+            "Type": {"en": "Type", "nl": "Soort"},
+            "Name": {"en": "Name", "nl": "Naam"}
+          }
+        }
+    """
+    rows = []
+    try:
+        for key, kind in NEWS_ITEM_KINDS:
+            _, result = _read(reader, key, ddp_locale)
+            if result is None or not result.found:
+                continue
+            text = result.data.read().decode("utf-8", errors="replace")
+            rows.extend((kind, line.strip()) for line in text.splitlines() if line.strip())
+    except Exception as e:
+        logger.error("Exception caught: %s", e)
+        errors[type(e).__name__] += 1
+    return pd.DataFrame(rows, columns=["Type", "Name"])  # pyright: ignore
+
+
+#: The CSS class Takeout's archive_browser.html manifest marks a failed export
+#: item with. Matched by class, never by the message text beside it, which
+#: localizes ("Service failed to retrieve this item" / "Kon dit item niet
+#: ophalen" / ...).
+FAILURE_MESSAGE_CLASS = "failure-message"
+
+
+def _count_failed_files(reader: ZipArchiveReader) -> int:
+    """Best-effort count of export-level failures Takeout itself reported.
+
+    Takeout's status page offers a "see report" manifest (``archive_browser.html``)
+    that most participants will not include in their upload — when present, its
+    failure entries are the only signal that the export itself dropped files (the
+    data zips it did produce look entirely normal). Counted by the
+    ``FAILURE_MESSAGE_CLASS`` CSS class, never the message text beside it, which
+    localizes, so this is locale-robust without needing a translation table. Any
+    parse trouble — the file absent, unreadable, or not real HTML at all — counts
+    as zero: this detector must never interrupt a participant's flow.
+
+    Streams the manifest through ``reader.open_member`` rather than buffering it
+    (ADR-0040), the same memory discipline ``_parse_activity_html`` uses for a
+    heavy user's activity file.
+
+    Wired into ``extraction()``, which sets ``errors["ExportReportedFailedFiles"] = n``
+    from this count, only when ``n > 0`` — a clean or absent manifest adds no
+    key (an aggregate count, never filenames; ADR-0022/ADR-0023).
+
+    Like ``_parse_activity_html``, this manifest declares no charset either, so the
+    encoding is pinned to UTF-8 explicitly rather than left to lxml's latin-1 default —
+    see that function's docstring.
+    """
+    try:
+        with reader.open_member("archive_browser.html") as stream:
+            if stream is None:
+                return 0
+            count = 0
+            for _, node in etree.iterparse(stream, html=True, tag="div", events=("end",), encoding="utf-8"):
+                classes = node.get("class") or ""
+                if FAILURE_MESSAGE_CLASS in classes and (node.text or "").strip():
+                    count += 1
+                node.clear()
+                while node.getprevious() is not None:
+                    del node.getparent()[0]
+            return count
+    except Exception:
+        logger.info("archive_browser.html present but unreadable; skipping failed-files count")
+        return 0
+
+
+# ---------------------------------------------------------------------------
+# Platform wiring: registry, extraction, flow
+# ---------------------------------------------------------------------------
+
+#: Extractor priority order — also the order tables appear in the consent form
+#: and in the generated config. Fork order for the ten extractors it shipped,
+#: then the two News extractors this port adds after it (``news_history_to_df``
+#: for the My Activity stream, ``news_items_to_df`` for the News product's own
+#: export — researcher decision 2026-08-27: both News shapes are extracted).
+EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
+    "youtube_watch_history_to_df": youtube_watch_history_to_df,
+    "youtube_search_history_to_df": youtube_search_history_to_df,
+    "youtube_subscriptions_to_df": youtube_subscriptions_to_df,
+    "youtube_comments_to_df": youtube_comments_to_df,
+    "search_history_to_df": search_history_to_df,
+    "chrome_history_to_df": chrome_history_to_df,
+    "video_search_history_to_df": video_search_history_to_df,
+    "ads_history_to_df": ads_history_to_df,
+    "discover_history_to_df": discover_history_to_df,
+    "google_news_history_to_df": google_news_history_to_df,
+    "news_history_to_df": news_history_to_df,
+    "news_items_to_df": news_items_to_df,
+}
+
+
+def extraction(archive_set: ArchiveSet, validation: GoogleValidation) -> ExtractionResult:
+    """Extract every registered table from a validated Google Takeout archive-set.
+
+    Config-driven like every other platform (``load_port_config``/``run_extraction``,
+    ``table_extractor.py``), with one addition each source needs: the DDP locale
+    ``validate_ddp`` detected is injected into every table's ``extractor_kwargs``
+    here, once, rather than duplicated in each table's config entry — every
+    extractor above takes ``ddp_locale`` as its lookup key into ``TAKEOUT_PATHS``.
+
+    Also runs the best-effort Failed-Files detector (``_count_failed_files``)
+    over the archive-set's own ``archive_browser.html`` manifest, when the
+    participant included it. The count lands in ``errors["ExportReportedFailedFiles"]``
+    only when it is nonzero — a clean or absent manifest adds no key, so a
+    normal extraction's error counter stays exactly what the extractors
+    themselves reported (ADR-0022/ADR-0023: an aggregate count, never
+    filenames).
+    """
+    ddp_locale = validation.ddp_locale
+    config = load_port_config(EXTRACTOR_REGISTRY, "google")
+    for table in config:
+        table.extractor_kwargs = {**table.extractor_kwargs, "ddp_locale": ddp_locale}
+
+    errors: Counter = Counter()
+    reader = ZipArchiveReader(archive_set, validation.archive_members, errors)
+
+    failed = _count_failed_files(reader)
+    if failed:
+        errors["ExportReportedFailedFiles"] = failed
+
+    return run_extraction(reader, errors, config)
+
+
+class GoogleFlow(FlowBuilder):
+    """Flow implementation for a Google Takeout donation (multi-zip archive-set).
+
+    Sets ``expected_file_payload = "PayloadFiles"`` so ``FlowBuilder`` presents
+    the multi-select file prompt, unions whatever parts the participant selects
+    into one ``ArchiveSet`` (ADR-0040), and passes that ``ArchiveSet`` — never a
+    single reader — to ``validate_file``/``extract_data`` below. See
+    ``FlowBuilder.expected_file_payload`` and the ``e2etest_multifile`` platform
+    for the same shape on a smaller, test-only example.
+    """
+
+    expected_file_payload = "PayloadFiles"
+
+    def __init__(self, session_id: str):
+        super().__init__(session_id, "Google")
+
+    def validate_file(self, archive_set: ArchiveSet) -> GoogleValidation:  # Liskov narrowing, see PENDING typing-debt
+        return validate_ddp(archive_set)
+
+    def extract_data(self, archive_set: ArchiveSet, validation: GoogleValidation) -> ExtractionResult:
+        return extraction(archive_set, validation)
+
+
+def process(session_id):
+    flow = GoogleFlow(session_id)
+    return flow.start_flow()
