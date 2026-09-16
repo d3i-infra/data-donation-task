@@ -297,7 +297,7 @@ def _is_empty_sentinel(line: str) -> bool:
         "dit gedeelte bevat geen gegevens",
         "er staan geen gegevens in dit gedeelte",
         "je hebt geen informatie over platforms van derden",
-        "You have no data in this section",      
+        "you have no data in this section",
     }
     return line.strip().lower() in _EMPTY_SENTINELS
 
