@@ -18,6 +18,8 @@ import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
 import port.helpers.uploads as uploads
 from port.helpers.archive_set import ArchiveSet
+from port.helpers.encrypt_payload import encrypt_payload
+from port.helpers.table_extractor import load_public_key_pem
 
 logger = logging.getLogger(__name__)
 
@@ -56,6 +58,7 @@ class FlowBuilder:
     def __init__(self, session_id: str, platform_name: str):
         self.session_id = session_id
         self.platform_name = platform_name
+        self.public_key_pem: str | None = load_public_key_pem(platform_name)
         self._initialize_ui_text()
 
     def _initialize_ui_text(self):
@@ -266,6 +269,10 @@ class FlowBuilder:
 
         donate_key = f"{self.session_id}-{self.platform_name.lower()}"
         is_decline = consent_result.__type__ == "PayloadFalse"
+
+        if self.public_key_pem and not is_decline:
+            reviewed_data = encrypt_payload(reviewed_data.encode("utf-8"), self.public_key_pem)
+
         yield from ph.emit_log("info", f"[{self.platform_name}] Donation started: payload size={len(reviewed_data)} bytes")
         donate_result = yield ph.donate(donate_key, reviewed_data)
 

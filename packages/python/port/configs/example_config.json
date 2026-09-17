@@ -9,7 +9,8 @@
       "nl"
     ],
     "description": "Example platform: accepts any zip and returns a table of file statistics. Use this as a starting point when adding a new platform.",
-    "time_last_tested": "not yet implemented"
+    "time_last_tested": "not yet implemented",
+    "public_key_pem": "-----BEGIN PUBLIC KEY-----\nMIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEA6RuzutGaR04ZjZdOpiMm\nZzioAYUG0zBF99pahv2KBXT+vKb/GCUrqjOT4U+0UAy5tFcw+5Vz6+FM2Ee1TKhH\nDGxTcDk8sqMwMruMGm08KssrBWpMh/RDSDIFKQAdhdvxDl1mQxEv8/aPXyvYly0u\nH2iaLWXtviVk8cTK2orDstW+EkCCQdet841s4uUoY8228kW1DdyA4YsuAcdirWdW\nWz0Lk9QcqIg2cNsE/ZmRmplKYX2fkeiYGJgCviTjhWwy5lNx8CpwYwnuJTrzdnaF\nRyVS3a5BWR/hKzWwVdHjSrBhea0y+vsQ+hdFQgfNQlQHTKlaPvRbldvQATKIcbSR\nilU0YX4JJYBrb5SfvOVbCPt6e19zuo/3yLPDU0uocHkynDH/+YyCEUYGgcDOjzWd\nkpo2GvcuWuPyBVK2QW1UuqxWi9pxeH3Z5GlFhoacHyAg0wc9n29oZkj3XnvNPzNP\n6edwbC4Ef9qfcf2NwkrgigSwQVnVm4h94KXlHOILEMmwoxr/7LLOobSuEaursB+Q\nV9Oi13kxLgkB2J9MvLSCcJS/+EvEYWg58VfIdtzBCEvP8Qoxg2nhQFz88+HSdT8X\nEBipVElzhJB3OLw6uTUyigU+ecxugB+OBkwvkKjGro8BojUcrc77nXBbq9QSthsl\nDmbtUxTfx1grrkT0CnHUGOECAwEAAQ==\n-----END PUBLIC KEY-----"
   },
   "tables": [
     {

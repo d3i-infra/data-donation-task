@@ -69,6 +69,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 ### Architecture
 
 - [0036 — Await the host's donation acknowledgment before resolving](./0036-await-the-host-s-donation-acknowledgment-before-resolving.md)
+- [0041 — Encrypt donation payloads](./0041-encrypt-donation-payloads.md)
 
 ### Localization
 

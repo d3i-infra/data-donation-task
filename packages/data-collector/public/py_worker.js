@@ -156,7 +156,7 @@ function startPyodide() {
 
 function loadPackages() {
   console.log("[ProcessingWorker] loading packages");
-  return self.pyodide.loadPackage(["micropip", "numpy", "pandas", "lxml"]);
+  return self.pyodide.loadPackage(["micropip", "numpy", "pandas", "lxml", "cryptography"]);
 }
 
 function installPortPackage() {

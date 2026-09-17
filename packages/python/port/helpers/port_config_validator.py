@@ -323,6 +323,16 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
         errors.append("top-level 'tables' key must be a list")
         return errors, warnings
 
+    # 3b. Optional platform_info.public_key_pem (ADR-0041).
+    platform_info = raw.get("platform_info")
+    if isinstance(platform_info, dict):
+        pem = platform_info.get("public_key_pem")
+        if pem is not None:
+            if not isinstance(pem, str):
+                errors.append("platform_info.public_key_pem must be a string or null")
+            elif not pem.startswith("-----BEGIN PUBLIC KEY-----"):
+                errors.append("platform_info.public_key_pem must be a PEM-encoded public key")
+
     tables: list[dict] = raw["tables"]
 
     # 4. Per-table schema.

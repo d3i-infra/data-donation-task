@@ -31,7 +31,8 @@ class StubFlow(FlowBuilder):
     """Concrete FlowBuilder for testing."""
 
     def __init__(self, session_id="test-session", validation_status=0, tables=None):
-        super().__init__(session_id, "TestPlatform")
+        with patch("port.helpers.flow_builder.load_public_key_pem", return_value=None):
+            super().__init__(session_id, "TestPlatform")
         self._validation_status = validation_status
         self._tables = tables if tables is not None else [
             d3i_props.PropsUIPromptConsentFormTableViz(
@@ -552,3 +553,84 @@ class TestTooManyFilesSafetyPath:
         with pytest.raises(TaskIncompleteError) as exc:
             gen.send(make_payload("PayloadTrue"))
         assert exc.value.exit_code == 4
+
+
+class TestEncryptedDonation:
+    """When a public key is configured, the donate payload is encrypted."""
+
+    def test_donate_payload_is_encrypted_envelope(self):
+        flow = StubFlow()
+        flow.public_key_pem = "-----BEGIN PUBLIC KEY-----\nfake\n-----END PUBLIC KEY-----"
+        gen = flow.start_flow()
+
+        # File prompt
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        # Upload file
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        # Consent
+        consent_payload = make_payload("PayloadJSON", value='{"data": "test"}')
+        with patch("port.helpers.flow_builder.encrypt_payload", return_value='{"encrypted_aes_key":"a","iv":"b","ciphertext":"c"}') as mock_enc:
+            cmd = advance_past_logs(gen, consent_payload)
+
+        assert isinstance(cmd, CommandSystemDonate)
+        # Payload should be the encrypted envelope, not the original
+        assert cmd.json_string == '{"encrypted_aes_key":"a","iv":"b","ciphertext":"c"}'
+        mock_enc.assert_called_once_with(b'{"data": "test"}', flow.public_key_pem)
+
+    def test_donate_payload_is_plaintext_without_key(self):
+        """No public key → plaintext donation (backward-compatible)."""
+        flow = StubFlow()
+        # public_key_pem defaults to None
+        gen = flow.start_flow()
+
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        consent_payload = make_payload("PayloadJSON", value='{"data": "test"}')
+        cmd = advance_past_logs(gen, consent_payload)
+
+        assert isinstance(cmd, CommandSystemDonate)
+        assert cmd.json_string == '{"data": "test"}'
+
+    def test_declined_donation_not_encrypted(self):
+        """Decline payloads are never encrypted — they contain no personal data."""
+        flow = StubFlow()
+        flow.public_key_pem = "-----BEGIN PUBLIC KEY-----\nfake\n-----END PUBLIC KEY-----"
+        gen = flow.start_flow()
+
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        decline_payload = make_payload("PayloadFalse")
+        with patch("port.helpers.flow_builder.encrypt_payload") as mock_enc:
+            cmd = advance_past_logs(gen, decline_payload)
+
+        assert isinstance(cmd, CommandSystemDonate)
+        mock_enc.assert_not_called()
+
+    def test_encryption_failure_propagates(self):
+        """If encryption fails, the error must propagate — never fall back to plaintext."""
+        flow = StubFlow()
+        flow.public_key_pem = "-----BEGIN PUBLIC KEY-----\nfake\n-----END PUBLIC KEY-----"
+        gen = flow.start_flow()
+
+        cmd = start_and_skip_logs(gen)
+        assert isinstance(cmd, CommandUIRender)
+
+        cmd = advance_past_logs(gen, make_payload_file())
+        assert isinstance(cmd, CommandUIRender)
+
+        consent_payload = make_payload("PayloadJSON", value='{"data": "test"}')
+        with patch("port.helpers.flow_builder.encrypt_payload", side_effect=ValueError("crypto failure")):
+            with pytest.raises(ValueError, match="crypto failure"):
+                advance_past_logs(gen, consent_payload)
