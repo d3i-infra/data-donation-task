@@ -15,6 +15,9 @@ importers:
         specifier: ^5.8.3
         version: 5.9.2
     devDependencies:
+      '@d3i-infra/adg':
+        specifier: 4.0.0-rc1
+        version: 4.0.0-rc1
       '@playwright/test':
         specifier: 1.61.1
         version: 1.61.1
@@ -405,6 +408,41 @@ packages:
 
   '@bcoe/v8-coverage@0.2.3':
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
+
+  '@d3i-infra/adg-darwin-arm64@4.0.0-rc1':
+    resolution: {integrity: sha512-+1YULKUBKur+8gq2e4hQxvuMsBCAO77BlVH4HkCVcjOUv+9L5pRGRV5Lw+eDcfbncVR0IDGtUKQKYFLk+K5exQ==}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@d3i-infra/adg-darwin-x64@4.0.0-rc1':
+    resolution: {integrity: sha512-7WTvaLfl/R9xTXQF8JNE5nf96pGKhEiC11f11wh/qqJezs9kadMLsH3T1GPLhiDJ7tNGkBZZ3M7Ljp1MKVcumQ==}
+    cpu: [x64]
+    os: [darwin]
+
+  '@d3i-infra/adg-linux-arm64@4.0.0-rc1':
+    resolution: {integrity: sha512-busMYK05eVskd5Pv1kxgJFEKLW689/oVasv57sqeTJYJomQLU4xrfmp0u9c0m38gfWEyPVPJoio19lYV6/yzUw==}
+    cpu: [arm64]
+    os: [linux]
+
+  '@d3i-infra/adg-linux-x64@4.0.0-rc1':
+    resolution: {integrity: sha512-y0DwDNBFGZAPPjMHfDLgqEG23eilzIhFFvGBtzQJWZgKS86kNzP2ULoRCKJ4mRU5Fh+Ks0COWroXx1ZulzY4Pw==}
+    cpu: [x64]
+    os: [linux]
+
+  '@d3i-infra/adg-win32-arm64@4.0.0-rc1':
+    resolution: {integrity: sha512-1mmysStgJuEfnkUwEhnKCtnIic/cGZ2/HfjX75SKNFjVVSgDdZpndV4vW0hgXR/2M/K19YuO9LNhz+TRNJvcig==}
+    cpu: [arm64]
+    os: [win32]
+
+  '@d3i-infra/adg-win32-x64@4.0.0-rc1':
+    resolution: {integrity: sha512-3FqcUJwihirKAHifqPB7AAU5RJZJ+NPRS5cDqxnICDZuDE0AnAOudO3+hwgirhe70HI/Jj/LMsdHX5ty8YJJoQ==}
+    cpu: [x64]
+    os: [win32]
+
+  '@d3i-infra/adg@4.0.0-rc1':
+    resolution: {integrity: sha512-858Jc4uSgunsgy9ha21twmAXiJ9a/INZMxlxA6cArn6SRqz5P4hY0MnGx5/J0ThHywAcx6TJokkbU3lhWXYmYQ==}
+    engines: {node: '>=18'}
+    hasBin: true
 
   '@emnapi/core@1.10.0':
     resolution: {integrity: sha512-yq6OkJ4p82CAfPl0u9mQebQHKPJkY7WrIuk205cTYnYe+k2Z8YBh11FrbRG/H6ihirqcacOgl2BIO8oyMQLeXw==}
@@ -3576,6 +3614,33 @@ snapshots:
       '@babel/helper-validator-identifier': 7.28.5
 
   '@bcoe/v8-coverage@0.2.3': {}
+
+  '@d3i-infra/adg-darwin-arm64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg-darwin-x64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg-linux-arm64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg-linux-x64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg-win32-arm64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg-win32-x64@4.0.0-rc1':
+    optional: true
+
+  '@d3i-infra/adg@4.0.0-rc1':
+    optionalDependencies:
+      '@d3i-infra/adg-darwin-arm64': 4.0.0-rc1
+      '@d3i-infra/adg-darwin-x64': 4.0.0-rc1
+      '@d3i-infra/adg-linux-arm64': 4.0.0-rc1
+      '@d3i-infra/adg-linux-x64': 4.0.0-rc1
+      '@d3i-infra/adg-win32-arm64': 4.0.0-rc1
+      '@d3i-infra/adg-win32-x64': 4.0.0-rc1
 
   '@emnapi/core@1.10.0':
     dependencies:

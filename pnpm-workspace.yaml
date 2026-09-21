@@ -4,3 +4,12 @@ packages:
 allowBuilds:
   esbuild: true
   unrs-resolver: true
+
+minimumReleaseAgeExclude:
+  - '@d3i-infra/adg-darwin-arm64@4.0.0-rc1'
+  - '@d3i-infra/adg-darwin-x64@4.0.0-rc1'
+  - '@d3i-infra/adg-linux-arm64@4.0.0-rc1'
+  - '@d3i-infra/adg-linux-x64@4.0.0-rc1'
+  - '@d3i-infra/adg-win32-arm64@4.0.0-rc1'
+  - '@d3i-infra/adg-win32-x64@4.0.0-rc1'
+  - '@d3i-infra/adg@4.0.0-rc1'

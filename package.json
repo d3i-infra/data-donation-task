@@ -33,6 +33,7 @@
     "doctor": "bash scripts/doctor.sh"
   },
   "devDependencies": {
+    "@d3i-infra/adg": "4.0.0-rc1",
     "@playwright/test": "1.61.1",
     "@tailwindcss/postcss": "^4.2.4",
     "@types/node": "26.0.1",
