@@ -4,7 +4,7 @@ date: "2026-09-11"
 category: Architecture
 applies_to:
     - packages/python/port/helpers/flow_builder.py
-    - packages/python/port/helpers/encrypt_payload.py
+    - packages/python/port/helpers/donation_crypto.py
     - packages/python/port/configs/*_config.json
 priority: invariant
 ---
@@ -17,7 +17,7 @@ When a RSA public key is present in the platform config, `FlowBuilder` encrypts 
 
 ## Guidance
 
-- An `encrypt_payload(payload_bytes, public_key_pem)` helper in `packages/python/port/helpers/encrypt_payload.py` uses the `cryptography` library (available as a Pyodide package) to encrypt the payload. `FlowBuilder.start_flow()` calls it when a public key is configured and yields the resulting envelope instead of plaintext.
+- All encryption and decryption logic lives in `packages/python/port/helpers/donation_crypto.py` — the single source of truth. It exports `encrypt_payload()`, `decrypt_envelope()`, `validate_envelope()`, and the envelope constants. The `cryptography` library (available as a Pyodide package) provides the primitives. `FlowBuilder.start_flow()` calls `encrypt_payload` when a public key is configured and yields the resulting envelope instead of plaintext.
 - The encrypted envelope is a self-documenting JSON object. Metadata fields (`version`, `key_wrapping`, `content_encryption`, `key_id`) describe how to decrypt; crypto fields (`encrypted_aes_key`, `iv`, `ciphertext`) carry the base64-encoded material. A recipient with just the private key and the envelope can determine the algorithms without access to this codebase.
 - Activation is conditional on the public key's presence in the platform config — no feature flags, no environment switches. No key = plaintext donation, unchanged from today. The field is `platform_info.public_key_pem` in `configs/<platform>_config.json`: set it to a PEM string to enable encryption, or `null` / omit it entirely to donate plaintext. The config validator checks format when the field is present.
 - RSA key minimum is 2048-bit; 4096-bit is recommended. The public key must be PEM-encoded (SPKI format, `-----BEGIN PUBLIC KEY-----`). The config generator does not produce this field — it is added manually per deployment after the researcher generates a keypair.

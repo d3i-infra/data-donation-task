@@ -18,7 +18,7 @@ import port.helpers.port_helpers as ph
 import port.helpers.validate as validate
 import port.helpers.uploads as uploads
 from port.helpers.archive_set import ArchiveSet
-from port.helpers.encrypt_payload import encrypt_payload
+from port.helpers.donation_crypto import encrypt_payload
 from port.helpers.table_extractor import load_public_key_pem
 
 logger = logging.getLogger(__name__)

@@ -4,7 +4,7 @@ import subprocess
 import sys
 from pathlib import Path
 
-from port.helpers.encrypt_payload import encrypt_payload
+from port.helpers.donation_crypto import encrypt_payload
 
 FIXTURES = Path(__file__).parent / "fixtures"
 SCRIPT = Path(__file__).parents[3] / "scripts" / "decrypt_donation.py"
