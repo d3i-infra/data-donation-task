@@ -1474,8 +1474,8 @@ def off_tiktok_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> p
     """Extract activity data outside of TikTok.
 
     Reads ``Profile And Settings > Off TikTok Activity > OffTikTokActivityDataList`` from the 
-    TikTok export JSON or from ``Activiteit buiten TikTok.txt`` or ``Activity off TikTok.txt`` in 
-    case of a TXT export.
+    TikTok export JSON or from ``Activiteit buiten TikTok.txt`` or ``Off-TikTok Activities.txt`` 
+    in case of a TXT export.
 
     Parameters
     ----------
@@ -1572,99 +1572,6 @@ def off_tiktok_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> p
     return out
 
 
-def ad_interests_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.DataFrame:
-    """Extract TikTok ad interests.
-
-    Reads ``Your Activity > Ad Interests `` from the TikTok export JSON 
-    or from ``Advertentie-interesses.txt`` or ``Ad Interests.txt`` in case of a TXT export.
-
-    Parameters
-    ----------
-    reader:
-        Archive reader used to load JSON or TXT files from the DDP zip.
-    errors:
-        Mutable counter that accumulates error type counts encountered during extraction.  
-        Updated in-place.
-    validation:
-        Validation results for the extracted data used to determine ddp type and language.
-
-    Returns
-    -------
-    pd.DataFrame
-        Columns: ``Date``, ``Interest``.
-        Empty DataFrame when the data is absent or parsing fails.
-
-    Table documentation::
-        {
-            "summary": "Ad interest categories associated with the participant's TikTok activity.",
-            "source_file": "user_data_tiktok.json or user_data.json",
-            "columns": {
-                "Interests": "The ad interests associated with the participant's TikTok activity."
-            }
-        }
-
-    Table config::
-        {
-            "id": "tiktok_ad_interests",
-            "title": {"en": "Ad interests", "nl": "Advertentie-interesses"},
-            "description": {
-                "en": "Ad interests associated with your TikTok activity.",
-                "nl": "Advertentie-interesses gekoppeld aan je TikTok-activiteit."
-            },
-            "headers": {
-                "Interests": {"en": "Interests", "nl": "Interesses"}
-            }
-        }
-    """
-    out = pd.DataFrame()
-    if validation.current_ddp_category.ddp_filetype == DDPFiletype.JSON:
-        data = _load_user_data(reader)
-        out = pd.DataFrame()
-        try:
-            items = _get(data, "Your Activity", "Ad Interests")
-            if not isinstance(items, list):
-                return out
-        except Exception as e:
-            logger.error("Exception caught: %s", e)
-            errors[type(e).__name__] += 1
-            return out
-    elif validation.current_ddp_category.ddp_filetype == DDPFiletype.TXT:
-        if validation.current_ddp_category.language == Language.NL:
-            data = reader.raw("Advertentie-interesses.txt")
-        elif validation.current_ddp_category.language == Language.EN:
-            data = reader.raw("Ad Interests.txt")
-        else:
-            return out
-        if not data.found:
-            return out    
-        try:
-            items = _parse_tiktok_txt(data.data)
-            if not isinstance(items, list):
-                # When only one record is present, this is not automatically recognized as a list of records.
-                # Therefor the returned dict needs to be stored in a list to proceed.
-                if isinstance(items, dict):
-                    items = [items]
-                else:
-                    return out
-        except Exception as e:
-            logger.error("Exception caught: %s", e)
-            errors[type(e).__name__] += 1
-            return out
-    try:
-        rows = [
-            (
-                _item_get(item, "Categorieën advertentie-interesses", "AdInterestCategories", "Ad Interest Categories"),
-            )
-            for item in items
-        ]
-        out = pd.DataFrame(rows, columns=["Date", "Interest"])  # pyright: ignore
-        out = out.sort_values("Date", ascending=False)
-    except Exception as e:
-        logger.error("Exception caught: %s", e)
-        errors[type(e).__name__] += 1
-    return out
-
-
 # ---------------------------------------------------------------------------
 # Extractor registry & platform info
 # ---------------------------------------------------------------------------
@@ -1683,7 +1590,6 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "share_history_to_df": share_history_to_df,
     "comments_to_df": comments_to_df,
     "off_tiktok_to_df": off_tiktok_to_df,
-    "ad_interests_to_df": ad_interests_to_df,
 }
 
 
