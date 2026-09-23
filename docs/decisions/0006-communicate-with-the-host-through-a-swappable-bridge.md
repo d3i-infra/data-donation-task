@@ -27,8 +27,8 @@ The workflow reaches its host only through a `Bridge` — `LiveBridge` (postMess
 
 - Route host commands through the injected `Bridge` via `CommandRouter`; don't call `postMessage` from workflow/command code or hard-code a transport.
 - Select the transport in `ScriptHostComponent` (prod `LiveBridge`, dev `FakeBridge`) and thread it through `Assembly` — `ScriptHostComponent` takes no `bridge` prop.
-- `Bridge.send()` returns `Promise<ResponseSystemDonate | void>`: `CommandRouter` returns a `PayloadResponse` for a resolved donate and `PayloadVoid` otherwise; async donation resolution is gated by `VITE_ASYNC_DONATIONS`. (The Python side reads that payload through `handle_donate_result()` — its own rule.)
+- `Bridge.send()` returns `Promise<ResponseSystemDonate | void>`: `CommandRouter` returns a `PayloadResponse` for a resolved donate and `PayloadVoid` otherwise. Every bridge resolves a donate with a `ResponseSystemDonate` — no flag gates it: `LiveBridge` awaits the host's acknowledgment, `FakeBridge` (which has no host) synthesizes one from its own POST result. (The Python side reads that payload through `handle_donate_result()` — its own rule.)
 
 ## Why
 
-The workflow runs in two contexts — the Eyra/mono iframe in production, standalone in dev — and workflow logic must not know which: the same Python generator drives both, and `FakeBridge` makes local development possible without a running host. The seam has proven itself: the async donation protocol (pending-donation tracking, `ResponseSystemDonate`, the `VITE_ASYNC_DONATIONS` gate) landed entirely inside the bridge/router, `FakeBridge` evolved in lockstep, and no workflow code changed.
+The workflow runs in two contexts — the Eyra/mono iframe in production, standalone in dev — and workflow logic must not know which: the same Python generator drives both, and `FakeBridge` makes local development possible without a running host. The seam has proven itself: the awaited donation protocol (pending-donation tracking, `ResponseSystemDonate`, port replacement) landed entirely inside the bridge/router, `FakeBridge` evolved in lockstep, and no workflow code changed.

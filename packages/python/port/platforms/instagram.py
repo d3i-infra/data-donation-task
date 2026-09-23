@@ -44,6 +44,7 @@ from port.helpers.validate import (
     Language,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -1359,7 +1360,7 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 # ---------------------------------------------------------------------------
 
 def extraction(
-    instagram_zip: str,
+    instagram_zip: SeekableBinaryReader,
     validation,
 ) -> ExtractionResult:
     """Extract data from an Instagram DDP zip and return consent-form tables.
@@ -1367,7 +1368,8 @@ def extraction(
     Parameters
     ----------
     instagram_zip:
-        Path to the Instagram DDP zip archive on disk.
+        Seekable binary reader over the Instagram DDP zip — the upload
+        adapter itself, never a path (ADR-0026).
     validation:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.

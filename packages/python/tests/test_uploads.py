@@ -11,12 +11,11 @@ import zipfile
 import io
 from unittest.mock import MagicMock
 
+from port.helpers import uploads
 from port.helpers.uploads import (
     check_payload_size,
     FileTooLargeError,
-    ChunkedExportError,
     MAX_FILE_SIZE_BYTES,
-    CHUNKED_EXPORT_SENTINEL_BYTES,
 )
 
 
@@ -44,10 +43,16 @@ class TestCheckPayloadSize:
         with pytest.raises(FileTooLargeError):
             check_payload_size(_payload_file(MAX_FILE_SIZE_BYTES + 1))
 
-    def test_exact_sentinel_raises_chunked_export(self):
-        """Exactly CHUNKED_EXPORT_SENTINEL_BYTES raises ChunkedExportError."""
-        with pytest.raises(ChunkedExportError):
-            check_payload_size(_payload_file(CHUNKED_EXPORT_SENTINEL_BYTES))
+    def test_exactly_max_size_passes(self):
+        """Exactly MAX_FILE_SIZE_BYTES passes — equality is not over the cap.
+
+        There is no exact-size sentinel: a truncated archive fails zip
+        validation downstream and routes to the retry prompt instead
+        (real Google Takeout parts slice below the limit, never at
+        exactly 2 GiB, so an exact-boundary rejection was never a
+        reliable detector of a chunked export).
+        """
+        check_payload_size(_payload_file(MAX_FILE_SIZE_BYTES))
 
     def test_payload_string_raises_type_error(self):
         """PayloadString is no longer accepted (SRC compat dropped per ADR-0026)."""
@@ -189,3 +194,42 @@ class TestAsyncFileAdapterContract:
         # Seek-from-end.
         adapter.seek(-2, 2)
         assert adapter.read(2) == b"op"
+
+
+def _payload_files(*sizes):
+    payload = MagicMock()
+    payload.__type__ = "PayloadFiles"
+    files = []
+    for s in sizes:
+        f = MagicMock(); f.size = s; files.append(f)
+    payload.value = files
+    return payload
+
+
+class TestCheckPayloadSizeMulti:
+    def test_within_limits_passes(self):
+        uploads.check_payload_size(_payload_files(2**31, 2**31))  # two 2GiB parts OK
+
+    def test_single_part_over_2gib_is_legal_in_a_set(self):
+        uploads.check_payload_size(_payload_files(3 * 1024**3))  # 4GB Takeout part size
+
+    def test_exactly_2gib_member_passes_in_a_set(self):
+        uploads.check_payload_size(_payload_files(uploads.MAX_FILE_SIZE_BYTES, 100))
+
+    def test_aggregate_over_total_cap_raises(self):
+        with pytest.raises(uploads.FileTooLargeError):
+            uploads.check_payload_size(_payload_files(6 * 1024**3, 5 * 1024**3))
+
+    def test_too_many_files_raises(self):
+        with pytest.raises(uploads.TooManyFilesError):
+            uploads.check_payload_size(_payload_files(*[100] * 17))
+
+    def test_metadata_only_no_reads(self):
+        payload = _payload_files(100, 200)
+        uploads.check_payload_size(payload)
+        for f in payload.value:
+            f.read.assert_not_called(); f.readSlice.assert_not_called()
+
+    def test_empty_set_raises_type_error(self):
+        with pytest.raises(TypeError):
+            uploads.check_payload_size(_payload_files())

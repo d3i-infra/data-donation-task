@@ -1,0 +1,76 @@
+name: checks
+
+on:
+  pull_request:
+    branches: [development, master]
+
+permissions:
+  contents: read
+
+jobs:
+  js:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build feldspar
+        run: pnpm --filter @eyra/feldspar build
+
+      - name: Typecheck JS
+        run: pnpm typecheck:js
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run JS unit tests
+        run: pnpm run test:js
+
+  py:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: "22"
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.13"
+
+      - name: Install Poetry
+        run: pip install poetry
+
+      - name: Install Python dependencies
+        run: cd packages/python && poetry install --with test,dev
+
+      - name: Run Python unit tests
+        run: pnpm run test:py
+
+      - name: Python typecheck
+        run: pnpm run typecheck:py

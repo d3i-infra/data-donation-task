@@ -103,6 +103,15 @@ The worker handles this in `unwrap()`:
    (ADR-0026). `uploads.check_payload_size()` enforces the size policy from
    JS-reported metadata before any bytes are read.
 
+A platform whose file prompt sets `expected_file_payload = "PayloadFiles"`
+(see [FlowBuilder](04-flowbuilder.md)) gets the same treatment per file,
+never one bulk copy: the browser sends a `File[]`, `py_worker.js` maps each
+one through the same reader-wrapping logic (`Array.map(createAsyncFileReader)`,
+ADR-0017) into a `PayloadFiles.value` list, and `main.py` wraps each reader
+in its own `AsyncFileAdapter`. `FlowBuilder.start_flow()` then unions those
+adapters into one `ArchiveSet` (ADR-0040) before validation — see
+[Extraction](05-extraction.md#multi-file-archives-archiveset).
+
 ---
 
 ## Key files

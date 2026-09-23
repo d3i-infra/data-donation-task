@@ -1,5 +1,5 @@
-import { VisualizationData, ChartVisualizationData, TextVisualizationData, zTable, zVisualizationType } from './types'
-import { memo, useEffect, useMemo, useState } from 'react'
+import { VisualizationData, ChartVisualizationData, TextVisualizationData, Table, zVisualizationType } from './types'
+import { memo, useEffect, useMemo, useState, ReactElement } from 'react'
 
 import useVisualizationData from './visualizationDataFunctions/useVisualizationData'
 
@@ -8,13 +8,13 @@ import VisxWordcloud from './figures/d3_wordcloud'
 import { zoomInIcon, zoomOutIcon } from './zoom_icons'
 import { z } from 'zod'
 import { Loader } from './ui/loader'
-import { getTranslations, translate } from './translate'
+import { resolveFlatText } from '../../../locale/text'
 
 const doubleTypes = ['wordcloud']
 type ShowStatus = 'hidden' | 'visible' | 'double'
 
 export interface FigureProps {
-  tableInput: any
+  tableInput: Table
   visualizationInput: any
   locale: string
   handleDelete: (rowIds: string[]) => void
@@ -27,19 +27,17 @@ export const Figure = ({
   locale,
   handleDelete,
   handleUndo
-}: FigureProps): JSX.Element => {
-  const tableValidator = useMemo(() => zTable.safeParse(tableInput), [tableInput])
+}: FigureProps): ReactElement => {
   const visualizationValidator = useMemo(() => zVisualizationType.safeParse(visualizationInput), [visualizationInput])
 
-  if (!tableValidator.success || !visualizationValidator.success) {
-    if (!tableValidator.success) console.error(tableValidator.error)
-    if (!visualizationValidator.success) console.error(visualizationValidator.error)
+  if (!visualizationValidator.success) {
+    console.error(visualizationValidator.error)
     return <div />
   }
 
   return (
     <FigureComponent
-      table={tableValidator.data}
+      table={tableInput}
       visualization={visualizationValidator.data}
       locale={locale}
       handleDelete={handleDelete}
@@ -49,7 +47,7 @@ export const Figure = ({
 }
 
 export interface ValidatedFigureProps {
-  table: z.infer<typeof zTable>
+  table: Table
   visualization: z.infer<typeof zVisualizationType>
   locale: string
   handleDelete: (rowIds: string[]) => void
@@ -59,20 +57,26 @@ export interface ValidatedFigureProps {
 export const FigureComponent = ({
   table,
   visualization,
-  locale,
-  handleDelete,
-  handleUndo
-}: ValidatedFigureProps): JSX.Element => {
+  locale
+}: ValidatedFigureProps): ReactElement => {
   const [visualizationData, status] = useVisualizationData(table, visualization)
   const [longLoading, setLongLoading] = useState<boolean>(false)
   const [showStatus, setShowStatus] = useState<ShowStatus>('visible')
   const [resizeLoading, setResizeLoading] = useState<boolean>(false)
 
+  // Reset longLoading as soon as status leaves 'loading', without a synchronous
+  // setState in an effect body (which would cause an extra cascading render).
+  // This is the React-documented "adjusting state when a prop changes" pattern:
+  // detect the transition during render and update state immediately, instead
+  // of doing it in a useEffect after commit.
+  const [prevStatus, setPrevStatus] = useState(status)
+  if (status !== prevStatus) {
+    setPrevStatus(status)
+    if (status !== 'loading') setLongLoading(false)
+  }
+
   useEffect(() => {
-    if (status !== 'loading') {
-      setLongLoading(false)
-      return
-    }
+    if (status !== 'loading') return
     const timer = setTimeout((): void => {
       setLongLoading(true)
     }, 1000)
@@ -109,7 +113,7 @@ export const FigureComponent = ({
   return (
     <div className=' max-w overflow-hidden  bg-grey6 rounded-md border-[0.2rem] border-grey4'>
       <div className='flex justify-between'>
-        <div className='font-bold p-3'>{translate(visualization.title, locale)}</div>
+        <div className='font-bold p-3'>{resolveFlatText(visualization.title, locale)}</div>
         <button onClick={toggleDouble} className={showStatus !== 'hidden' && canDouble ? 'text-primary' : 'hidden'}>
           {showStatus === 'double' ? zoomOutIcon : zoomInIcon}
         </button>
@@ -145,7 +149,7 @@ export const RenderVisualization = memo(
     fallbackMessage: string
     loading: boolean
     locale: string
-  }): JSX.Element | null => {
+  }): ReactElement | null => {
     if (visualizationData == null) return null
 
     const fallback = <div className='m-auto font-bodybold text-4xl text-grey2 '>{fallbackMessage}</div>
@@ -172,13 +176,22 @@ function prepareTexts (locale: string): Record<string, string> {
   const texts = {
     errorMsg: {
       en: 'Could not create visualization',
-      nl: 'Kon visualisatie niet maken'
+      nl: 'Kon visualisatie niet maken',
+      de: 'Visualisierung konnte nicht erstellt werden',
+      it: 'Impossibile creare la visualizzazione',
+      es: 'No se ha podido crear la visualización'
     },
     noDataMsg: {
       en: 'No data',
-      nl: 'Geen data'
+      nl: 'Geen data',
+      de: 'Keine Daten',
+      it: 'Nessun dato',
+      es: 'Sin datos'
     }
   }
 
-  return getTranslations(texts, locale)
+  return {
+    errorMsg: resolveFlatText(texts.errorMsg, locale),
+    noDataMsg: resolveFlatText(texts.noDataMsg, locale)
+  }
 }

@@ -124,10 +124,27 @@ def load_port_config(
     KeyError
         If a table entry references an extractor name not present in *registry*.
     """
-    config_filename = f"{platform}_config.json"
+    config_filename = f"{platform.lower()}_config.json"
     ref = importlib.resources.files("port") / "configs" / config_filename
     raw = json.loads(ref.read_text(encoding="utf-8"))
     return _build_config(raw, registry)
+
+
+def load_public_key_pem(platform: str) -> str | None:
+    """Return the RSA public key PEM from the platform config, or None.
+
+    The key lives at ``platform_info.public_key_pem`` in
+    ``configs/<platform>_config.json``.  When absent — or when the config
+    file does not exist at all — returns None so the platform donates
+    plaintext (unchanged from the pre-encryption baseline).
+    """
+    config_filename = f"{platform.lower()}_config.json"
+    ref = importlib.resources.files("port") / "configs" / config_filename
+    try:
+        raw = json.loads(ref.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError):
+        return None
+    return raw.get("platform_info", {}).get("public_key_pem")
 
 
 def run_extraction(reader, errors: Counter, config: list[TableConfig]) -> ExtractionResult:

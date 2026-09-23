@@ -138,6 +138,55 @@ class FileGenerator:
         return result
 
 
+def _plan_files(target_size_bytes, num_files):
+    """Return [(filename, file_size), ...] for num_files whose sizes sum to
+    target_size_bytes (remainder folded into the last file). Shared by
+    generate_zip and generate_split_zips so a file's name/size plan is
+    identical regardless of how many output zips it ends up split across.
+    """
+    size_per_file = target_size_bytes // num_files
+    remainder = target_size_bytes % num_files
+    extensions = ['.txt', '.csv', '.json', '.log', '.dat']
+
+    plan = []
+    for i in range(num_files):
+        # Add remainder bytes to last file
+        file_size = size_per_file + (remainder if i == num_files - 1 else 0)
+        ext = extensions[i % len(extensions)]
+        filename = f"test_file_{i+1:04d}{ext}"
+        plan.append((filename, file_size))
+    return plan
+
+
+def _write_file_to_zip(zf, filename, file_size, content_prefix=None):
+    """Stream one synthetic file's content directly into an open ZipFile.
+
+    content_prefix: optional bytes written at the start of the member,
+    replacing (not adding to) that many bytes of the generated filler so
+    file_size is preserved exactly. Unused by generate_zip (always None,
+    identical behavior to before); generate_split_zips passes a
+    per-file marker so a content-reading extractor has something to prove
+    it actually read member bytes through ArchiveSet.read_member, not just
+    central-directory metadata.
+    """
+    zinfo = zipfile.ZipInfo(filename=filename)
+    zinfo.compress_type = zipfile.ZIP_STORED
+
+    with zf.open(zinfo, 'w') as dest:
+        remaining = file_size
+        if content_prefix:
+            prefix = content_prefix[:file_size]
+            dest.write(prefix)
+            remaining -= len(prefix)
+
+        file_obj = FileGenerator(remaining)
+        while True:
+            chunk = file_obj.read(8 * 1024 * 1024)  # Read 8MB at a time
+            if not chunk:
+                break
+            dest.write(chunk)
+
+
 def generate_zip(output_path, target_size_bytes, num_files):
     """
     Generate a ZIP file with specified total size and number of files.
@@ -154,40 +203,14 @@ def generate_zip(output_path, target_size_bytes, num_files):
     print(f"  Compression: STORED (no compression)")
     print()
 
-    # Calculate size per file
-    size_per_file = target_size_bytes // num_files
-    remainder = target_size_bytes % num_files
+    plan = _plan_files(target_size_bytes, num_files)
 
     # Create ZIP file with no compression (ZIP_STORED)
     print("Creating ZIP archive...")
     with zipfile.ZipFile(output_path, 'w', zipfile.ZIP_STORED) as zf:
-        for i in range(num_files):
-            # Add remainder bytes to last file
-            file_size = size_per_file + (remainder if i == num_files - 1 else 0)
-
-            # Generate filename with extension variety
-            extensions = ['.txt', '.csv', '.json', '.log', '.dat']
-            ext = extensions[i % len(extensions)]
-            filename = f"test_file_{i+1:04d}{ext}"
-
+        for filename, file_size in plan:
             print(f"  Writing {filename} ({format_size(file_size)})...", end='', flush=True)
-
-            # Create file-like object that generates content on-the-fly
-            file_obj = FileGenerator(file_size)
-
-            # Write directly to ZIP without creating temp file
-            # Create ZipInfo for the file
-            zinfo = zipfile.ZipInfo(filename=filename)
-            zinfo.compress_type = zipfile.ZIP_STORED
-
-            # Write the file content
-            with zf.open(zinfo, 'w') as dest:
-                while True:
-                    chunk = file_obj.read(8 * 1024 * 1024)  # Read 8MB at a time
-                    if not chunk:
-                        break
-                    dest.write(chunk)
-
+            _write_file_to_zip(zf, filename, file_size)
             print(" ✓")
 
     # Get final sizes
@@ -208,6 +231,74 @@ def generate_zip(output_path, target_size_bytes, num_files):
     print(f"  Output location:   {os.path.abspath(output_path)}")
 
 
+def generate_split_zips(output_paths, target_size_bytes, num_files):
+    """
+    Generate N ZIP files that together form one logical multi-part archive,
+    distributing whole files round-robin across the N parts.
+
+    Files are never split across parts — the same "each Takeout part carries
+    only whole files" property a real multi-part Google Takeout export has
+    (ArchiveSet's canonical union relies on it, see ADR-0040). Each part's
+    zip comment records a Takeout-style internal label
+    (``takeout-test-<i>-001.zip``, 1-based) purely for documentation/realism;
+    the file itself is written to whichever path the caller passed in
+    ``output_paths`` — that path, not the comment, is what a participant's
+    upload (and Playwright's ``setFiles([...])``) sees as the file name.
+
+    Each member's content starts with a ``FILE:<filename>`` marker line
+    (see ``_write_file_to_zip``'s ``content_prefix``), so a content-reading
+    extractor (``reader.raw()``/``json()``/``csv()``, which route through
+    ``ArchiveSet.read_member``) has something to parse that can only be
+    produced by actually reading that member's bytes from its owning part —
+    not by reading central-directory metadata alone, which is all
+    ``generate_zip``'s plain filler content would prove.
+
+    Args:
+        output_paths: Output ZIP file paths, one per part (len == N).
+        target_size_bytes: Target total uncompressed size across all parts.
+        num_files: Number of files to include, summed across all parts.
+    """
+    n = len(output_paths)
+    plan = _plan_files(target_size_bytes, num_files)
+
+    print(f"\nGenerating {n} split ZIP file(s):")
+    print(f"  Target size: {format_size(target_size_bytes)}")
+    print(f"  Number of files: {num_files}")
+    print(f"  Compression: STORED (no compression)")
+    print()
+
+    writers = [zipfile.ZipFile(path, 'w', zipfile.ZIP_STORED) for path in output_paths]
+    try:
+        for i, zf in enumerate(writers):
+            zf.comment = f"takeout-test-{i + 1}-001.zip".encode()
+
+        for i, (filename, file_size) in enumerate(plan):
+            part_index = i % n
+            zf = writers[part_index]
+            print(
+                f"  Writing {filename} ({format_size(file_size)}) -> "
+                f"{output_paths[part_index]}...", end='', flush=True,
+            )
+            content_prefix = f"FILE:{filename}\n".encode()
+            _write_file_to_zip(zf, filename, file_size, content_prefix=content_prefix)
+            print(" ✓")
+    finally:
+        for zf in writers:
+            zf.close()
+
+    print(f"\n✅ {n} ZIP file(s) created successfully!")
+    print(f"\n📊 Statistics:")
+    for i, path in enumerate(output_paths):
+        zip_size = os.path.getsize(path)
+        with zipfile.ZipFile(path, 'r') as zf:
+            uncompressed_size = sum(info.file_size for info in zf.infolist())
+            member_count = len(zf.infolist())
+        print(
+            f"  Part {i + 1} ({os.path.abspath(path)}): {member_count} file(s), "
+            f"{format_size(uncompressed_size)} uncompressed, {format_size(zip_size)} on disk"
+        )
+
+
 def main():
     parser = argparse.ArgumentParser(
         description='Generate a test ZIP file with specified size and number of files.',
@@ -218,6 +309,12 @@ Examples:
   %(prog)s -s 500MB -f 5 -o test_500mb.zip
   %(prog)s --size 100MB --files 100 --output many_files.zip --force
   %(prog)s --size 2GB --files 20 --output test_2gb.zip
+
+  # Split mode: distribute files round-robin across N zips (whole files,
+  # never split across parts) -- e.g. a two-part Google-Takeout-style
+  # multi-file upload fixture:
+  %(prog)s --size 4KB --files 4 --split 2 \\
+      --output test-split-1.zip test-split-2.zip --force
 
 Note:
   Files are created with ZIP_STORED (no compression) to ensure the
@@ -240,14 +337,26 @@ Note:
 
     parser.add_argument(
         '-o', '--output',
-        default='test.zip',
-        help='Output ZIP file path (default: test.zip)'
+        nargs='+',
+        default=['test.zip'],
+        help='Output ZIP file path(s) (default: test.zip). With --split N, '
+             'pass exactly N paths, one per part.'
+    )
+
+    parser.add_argument(
+        '--split',
+        type=int,
+        default=None,
+        metavar='N',
+        help='Distribute the generated files round-robin across N zips '
+             '(each file stays whole in exactly one part) instead of one. '
+             'Requires exactly N paths via --output.'
     )
 
     parser.add_argument(
         '--force',
         action='store_true',
-        help='Overwrite output file without asking'
+        help='Overwrite output file(s) without asking'
     )
 
     args = parser.parse_args()
@@ -264,10 +373,28 @@ Note:
     if target_size <= 0:
         parser.error("Size must be positive")
 
-    # Check if output file already exists
-    if os.path.exists(args.output) and not args.force:
+    if args.split is not None:
+        if args.split < 2:
+            parser.error("--split must be at least 2")
+        if len(args.output) != args.split:
+            parser.error(
+                f"--split {args.split} requires exactly {args.split} "
+                f"paths via -o/--output (got {len(args.output)})"
+            )
+        if args.files < args.split:
+            parser.error(
+                f"--files must be >= --split ({args.split}) so every part "
+                f"gets at least one whole file"
+            )
+    elif len(args.output) != 1:
+        parser.error("multiple --output paths require --split N")
+
+    # Check if any output file already exists
+    existing = [p for p in args.output if os.path.exists(p)]
+    if existing and not args.force:
         try:
-            response = input(f"⚠️  File '{args.output}' already exists. Overwrite? (y/n): ")
+            label = existing[0] if len(existing) == 1 else ", ".join(existing)
+            response = input(f"⚠️  File(s) already exist: {label}. Overwrite? (y/n): ")
             if response.lower() != 'y':
                 print("Cancelled.")
                 return
@@ -275,17 +402,22 @@ Note:
             print("\nCancelled.")
             return
 
-    # Generate the ZIP file
+    # Generate the ZIP file(s)
     try:
-        generate_zip(args.output, target_size, args.files)
+        if args.split is not None:
+            generate_split_zips(args.output, target_size, args.files)
+        else:
+            generate_zip(args.output[0], target_size, args.files)
     except KeyboardInterrupt:
         print("\n\n❌ Cancelled by user")
-        if os.path.exists(args.output):
-            os.remove(args.output)
+        for p in args.output:
+            if os.path.exists(p):
+                os.remove(p)
     except Exception as e:
         print(f"\n❌ Error: {e}")
-        if os.path.exists(args.output):
-            os.remove(args.output)
+        for p in args.output:
+            if os.path.exists(p):
+                os.remove(p)
         raise
 
 

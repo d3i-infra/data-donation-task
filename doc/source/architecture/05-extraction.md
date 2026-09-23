@@ -37,9 +37,10 @@ member list.
 ## ZipArchiveReader
 
 `ZipArchiveReader` is the main tool for reading files out of a validated zip.
-It is constructed with the uploaded archive (a seekable file-like object — the
-upload adapter in production, `io.BytesIO` in tests), the member list from
-validation, and a shared `errors` Counter:
+It is constructed with the uploaded archive — a seekable file-like object
+(the upload adapter in production, `io.BytesIO` in tests) for a single-file
+platform, or an `ArchiveSet` for a multi-file platform (see below) — the
+member list from validation, and a shared `errors` Counter:
 
 ```python
 reader = ZipArchiveReader(linkedin_zip, validation.archive_members, errors)
@@ -71,6 +72,62 @@ and returns an empty `DataFrame`. This keeps extraction running even when
 individual files fail.
 
 **File:** `packages/python/port/helpers/extraction_helpers.py`
+
+---
+
+## Multi-file archives: ArchiveSet
+
+A platform whose export can arrive as several files (a chunked Google
+Takeout export is the motivating case) sets `expected_file_payload =
+"PayloadFiles"` on its `FlowBuilder` subclass (see
+[FlowBuilder](04-flowbuilder.md)). `start_flow()` then unions the uploaded
+parts into one `ArchiveSet` before validation, and that `ArchiveSet` — not
+a single reader — is what reaches `validate_file()`/`extract_data()` and
+gets passed into `ZipArchiveReader`. Extractor code does not need to know
+whether it is reading one zip or several: `ZipArchiveReader` accepts either
+shape.
+
+**File:** `packages/python/port/helpers/archive_set.py`
+
+| Name | Role |
+|---|---|
+| `ArchiveSource` (protocol) | `.members: list[str]` + `.read_member(path) -> bytes` — the shape `ZipArchiveReader` accepts alongside a plain seekable reader |
+| `SingleArchiveSource` | Wraps one already-validated archive in the `ArchiveSource` shape (the single-file path, used internally) |
+| `ArchiveSet` | N uploaded parts presented as one archive: one union member inventory, on-demand per-part reads |
+
+`ArchiveSet` orders its parts canonically by `(name, size)` — both
+JS-reported metadata, never a byte read and never upload/selection order —
+so member resolution is deterministic regardless of how the parts were
+picked. The member inventory is the union of every part's namelist, sorted
+by member path; canonical part order is separate from that listing order
+and decides which part owns a path duplicated across parts — the first
+part to declare a path, in canonical order, owns it. Exact-duplicate
+members are counted, not silently dropped or treated as fatal, in two
+distinct `Counter` keys so neither inflates the other:
+`DuplicateMemberAcrossParts` (an earlier part already owns this path — e.g.
+an overlap file repeated across two consecutive Takeout parts) and
+`DuplicateMemberWithinPart` (the zip format's legal same-path-twice inside
+one part's own central directory). `ZipArchiveReader` merges
+`archive.duplicates` into its `errors` Counter automatically, so these show
+up in the same extraction-summary log line as any other error type.
+Constructing an `ArchiveSet` raises `zipfile.BadZipFile` if any part isn't a
+readable zip; `FlowBuilder.start_flow()` catches that and routes it to the
+retry prompt (see ADR-0040).
+
+### The materialization-time member guard
+
+`MAX_MEMBER_UNCOMPRESSED_BYTES` (in `port/helpers/uploads.py`) bounds a
+single member's uncompressed size, checked from the zip's central-directory
+`file_size` *before* decompressing — inside `ArchiveSet.read_member()` /
+`SingleArchiveSource.read_member()`, i.e. at the moment a member is actually
+read, never earlier. This is deliberately separate from the upload-level
+safety check (`uploads.check_payload_size()`, metadata-only, aggregate size
+and file count — see [FlowBuilder](04-flowbuilder.md)): that check runs
+before any zip is even opened, while this guard runs per-member, at read
+time, and raises `MemberTooLargeError` for a decompression-bomb-sized
+member. `ZipArchiveReader` catches it the same way it catches any other
+read exception — records it in `errors`, returns an empty result — so one
+oversized member does not abort the rest of extraction.
 
 ---
 
@@ -145,10 +202,12 @@ matching one. `validation.current_ddp_category` tells you which category matched
 
 | File | Role |
 |---|---|
-| `packages/python/port/helpers/extraction_helpers.py` | `ZipArchiveReader`, `ReadResult` |
+| `packages/python/port/helpers/extraction_helpers.py` | `ZipArchiveReader`, `JsonExtractionResult`, `CsvExtractionResult`, `RawExtractionResult` |
+| `packages/python/port/helpers/archive_set.py` | `ArchiveSet`, `ArchiveSource`, `SingleArchiveSource`, `MemberTooLargeError` |
 | `packages/python/port/helpers/validate.py` | `ValidateInput`, `DDPCategory`, `validate_zip()` |
 | `packages/python/port/api/d3i_props.py` | `ExtractionResult`, `PropsUIPromptConsentFormTableViz` |
-| `packages/python/port/platforms/linkedin.py` | Complete example extraction implementation |
+| `packages/python/port/platforms/linkedin.py` | Complete single-file example extraction implementation |
+| `packages/python/port/platforms/e2etest_multifile.py` | Minimal multi-file (`ArchiveSet`) extraction implementation |
 
 ---
 

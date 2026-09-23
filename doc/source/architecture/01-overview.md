@@ -73,7 +73,7 @@ The Vite app that gets built and served. This is the composition root that
 wires feldspar together with D3I-specific components:
 
 - Hosts `py_worker.js` (the worker entry point) and the Python wheel
-  (`port-0.0.0.tar.gz`) in its `public/` directory
+  (`port-0.0.0-py3-none-any.whl`) in its `public/` directory
 - Registers custom prompt factories for D3I UI components (consent form with
   visualizations, multi-file input, questionnaire, error page, retry prompt)
 - Configures `ScriptHostComponent` with the worker URL, log level, and
@@ -107,6 +107,7 @@ commands, and `sendLogs(entries)` for JS-side log entries.
 | `port.helpers.validate` | `ValidateInput`, `DDPCategory` — zip structure validation |
 | `port.helpers.uploads` | Upload safety checks — size policy from JS metadata, never reads the payload |
 | `port.helpers.extraction_helpers` | `ZipArchiveReader` and CSV/JSON parsing utilities |
+| `port.helpers.archive_set` | `ArchiveSet`/`ArchiveSource` — unions a multi-file (`PayloadFiles`) upload into one archive |
 | `port.helpers.port_helpers` | `emit_log`, `render_page`, `donate` and other helpers |
 | `port.api.commands` | `CommandSystem*` and `CommandUIRender` classes |
 | `port.api.d3i_props` | `ExtractionResult`, consent form table types |

@@ -27,13 +27,13 @@ Donation command results are normalized through `port_helpers.handle_donate_resu
 
 - Route every production `CommandSystemDonate` / `ph.donate()` result through `handle_donate_result()`, except `main.py:error_flow()`.
 - Read structured responses as `result.value.success`, not `result.success`.
-- Treat `PayloadVoid` / `None` as success for D3I mono compatibility.
+- Treat `PayloadVoid` / `None` as success — a defensive branch for a host or bridge that resolves a donate without an acknowledgment; no current mono does.
 - Failed participant-data donations show the donation failure page; failed decline-status donations are logged and suppressed.
 - `error_flow()` donates the consent-gated error report fire-and-forget after consent; do not use that exception for ordinary donations.
 
 ## Why
 
-The donate response differs by host: Eyra Next (async donations) returns `PayloadResponse` whose `value.success` says whether the donation landed — a failure the participant must see — while D3I mono is fire-and-forget (`PayloadVoid`/`None`). Treating `PayloadVoid` as failure breaks every mono deployment; ignoring results silently swallows real Eyra Next failures. Normalizing once lets both hosts work unconfigured, and unknown payloads fail closed. Two traps make the single location load-bearing: the result nests under `value` (`result.value.success`), and a failed *decline* recording is deliberately silent — invisible infrastructure, not the participant's problem.
+Both monos acknowledge every donation over the MessageChannel, so production reaches Python as `PayloadResponse` whose `value.success` says whether the donation landed — a failure the participant must see. `PayloadVoid`/`None` remains a legacy shape (older hosts, a stub bridge) that must not be read as failure, or a working deployment breaks; ignoring results altogether silently swallows real upload failures. Normalizing once lets both hosts work unconfigured, and unknown payloads fail closed. Two traps make the single location load-bearing: the result nests under `value` (`result.value.success`), and a failed *decline* recording is deliberately silent — invisible infrastructure, not the participant's problem.
 
 ## Checks
 

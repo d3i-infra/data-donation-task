@@ -1,9 +1,9 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   Title3,
 } from "@eyra/feldspar"
+import { resolveText } from '../../locale/text'
 
 import { PropsUIQuestionMultipleChoiceCheckbox } from './types'
 
@@ -13,7 +13,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionMultipleChoiceCheckbox & parentSetter & ReactFactoryContext
 
-export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
+export const MultipleChoiceQuestionCheckbox = (props: Props): React.JSX.Element => {
   const { question, choices, id, parentSetter, locale } = props
   const [selectedChoices, setSelectedChoices] = React.useState<string[]>([]);
 
@@ -69,8 +69,8 @@ export const MultipleChoiceQuestionCheckbox = (props: Props): JSX.Element => {
 
   function prepareCopy (locale: string): Copy {
     return {
-      choices: choices.map((choice) => Translator.translate(choice, locale)),
-      question: Translator.translate(question, locale)
+      choices: choices.map((choice) => resolveText(choice, locale)),
+      question: resolveText(question, locale)
     }
   }
 }

@@ -44,8 +44,16 @@ function getVocabulary (
         seen.add(token)
       }
 
-      const v = values != null ? Number(values[i]) ?? 1 : 1
-      if (!isNaN(v)) vocabulary[token].value += v
+      // Number() never returns null/undefined (only NaN for unparsable input), so
+      // `Number(values[i]) ?? 1` never actually falls back to the intended weight of
+      // 1 -- combined with the isNaN guard below, a non-numeric cell silently
+      // contributed 0 instead. Guard against NaN explicitly instead.
+      let v = 1
+      if (values != null) {
+        const numericValue = Number(values[i])
+        v = Number.isNaN(numericValue) ? 1 : numericValue
+      }
+      vocabulary[token].value += v
     }
   }
   return vocabulary

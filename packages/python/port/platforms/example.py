@@ -60,6 +60,7 @@ from typing import Callable
 
 import pandas as pd
 
+from port.helpers.archive_set import ArchiveSource
 from port.helpers.extraction_helpers import ZipArchiveReader
 from port.helpers.flow_builder import FlowBuilder
 from port.helpers.validate import (
@@ -67,6 +68,7 @@ from port.helpers.validate import (
     ValidateInput,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -79,19 +81,20 @@ logger = logging.getLogger(__name__)
 # Validator
 # ---------------------------------------------------------------------------
 
-def validate_zip_file(path_to_zip: str) -> ValidateInput:
+def validate_zip_file(archive: SeekableBinaryReader) -> ValidateInput:
     """Validate that the uploaded file is a readable zip archive.
 
     This is the simplest possible validator: it accepts any valid zip without
     checking which files are inside.  For a real platform you would normally
-    call ``validate.validate_zip(DDP_CATEGORIES, path_to_zip)`` instead, which
+    call ``validate.validate_zip(DDP_CATEGORIES, archive)`` instead, which
     additionally matches the zip contents against a list of known files to
     confirm the participant uploaded the right export.
 
     Parameters
     ----------
-    path_to_zip:
-        Path on disk to the file supplied by the participant.
+    archive:
+        Seekable binary reader over the file supplied by the participant —
+        the upload adapter itself, never a path (ADR-0026).
 
     Returns
     -------
@@ -105,7 +108,7 @@ def validate_zip_file(path_to_zip: str) -> ValidateInput:
     ]
     v = ValidateInput(status_codes, [])
     try:
-        with zipfile.ZipFile(path_to_zip, "r") as zf:
+        with zipfile.ZipFile(archive, "r") as zf:
             v.archive_members = zf.namelist()
         v.set_current_status_code_by_id(0)
     except zipfile.BadZipFile:
@@ -132,7 +135,7 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     Parameters
     ----------
     reader:
-        Archive reader whose ``zip_path`` attribute points to the zip on disk.
+        Archive reader wrapping the participant's zip upload.
     errors:
         Mutable counter that accumulates error type counts encountered during
         extraction.  Updated in-place.
@@ -186,6 +189,11 @@ def file_stats_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
         }
     """
     rows = []
+    # Central-directory metadata is only available directly off a single
+    # SeekableBinaryReader; this example only demonstrates the single-file
+    # path (it never receives a multi-part ArchiveSource).
+    if isinstance(reader.archive, ArchiveSource):
+        return pd.DataFrame(rows)
     try:
         with zipfile.ZipFile(reader.archive, "r") as zf:
             for info in zf.infolist():
@@ -221,20 +229,21 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 }
 
 
-def extraction(zip_path: str, validation: ValidateInput) -> ExtractionResult:
+def extraction(archive: SeekableBinaryReader, validation: ValidateInput) -> ExtractionResult:
     """Extract file statistics from the donated zip and return consent-form tables.
 
     Parameters
     ----------
-    zip_path:
-        Path to the zip archive on disk.
+    archive:
+        Seekable binary reader over the zip upload — the adapter itself,
+        never a path (ADR-0026).
     validation:
         Validation result whose ``archive_members`` list is forwarded to
         ``ZipArchiveReader`` so it does not have to re-open the zip.
     """
     config = load_port_config(EXTRACTOR_REGISTRY, "example")
     errors: Counter = Counter()
-    reader = ZipArchiveReader(zip_path, validation.archive_members, errors)
+    reader = ZipArchiveReader(archive, validation.archive_members, errors)
     return run_extraction(reader, errors, config)
 
 
@@ -249,10 +258,10 @@ class ExamplePlatformFlow(FlowBuilder):
     def __init__(self, session_id: str):
         super().__init__(session_id, "example")
 
-    def validate_file(self, file: str) -> ValidateInput:
+    def validate_file(self, file: SeekableBinaryReader) -> ValidateInput:
         return validate_zip_file(file)
 
-    def extract_data(self, file_value: str, validation: ValidateInput) -> ExtractionResult:
+    def extract_data(self, file_value: SeekableBinaryReader, validation: ValidateInput) -> ExtractionResult:
         return extraction(file_value, validation)
 
 

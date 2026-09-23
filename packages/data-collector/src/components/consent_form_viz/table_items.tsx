@@ -1,6 +1,6 @@
-import { useMemo } from 'react'
+import { useMemo, ReactElement } from 'react'
 import TextBundle from '@eyra/feldspar'
-import { Translator } from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { TableWithContext } from './types'
 import UndoSvg from './assets/images/undo.svg'
 
@@ -11,7 +11,7 @@ interface Props {
   locale: string
 }
 
-export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): JSX.Element => {
+export const TableItems = ({ table, searchedTable, handleUndo, locale }: Props): ReactElement => {
   const text = useMemo(() => getTranslations(locale), [locale])
 
   const deleted = table.deletedRowCount
@@ -72,16 +72,32 @@ const tableIcon = (
 )
 
 function getTranslations (locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {
-  columns: new TextBundle().add('en', 'columns').add('nl', 'kolommen'),
-  rows: new TextBundle().add('en', 'rows').add('nl', 'rijen'),
-  noData: new TextBundle().add('en', 'no data').add('nl', 'geen data'),
-  deleted: new TextBundle().add('en', 'deleted').add('nl', 'verwijderd')
+  columns: new TextBundle()
+    .add('en', 'columns')
+    .add('nl', 'kolommen')
+    .add('de', 'Spalten')
+    .add('it', 'colonne')
+    .add('es', 'columnas'),
+  rows: new TextBundle()
+    .add('en', 'rows')
+    .add('nl', 'rijen')
+    .add('de', 'Zeilen')
+    .add('it', 'righe')
+    .add('es', 'filas'),
+  noData: new TextBundle()
+    .add('en', 'no data')
+    .add('nl', 'geen data')
+    .add('de', 'keine Daten')
+    .add('it', 'nessun dato')
+    .add('es', 'sin datos'),
+  deleted: new TextBundle()
+    .add('en', 'deleted')
+    .add('nl', 'verwijderd')
+    .add('de', 'gelöscht')
+    .add('it', 'eliminate')
+    .add('es', 'eliminadas')
 }

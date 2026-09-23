@@ -32,8 +32,19 @@ pnpm monorepo (the Feldspar data-donation workflow). TypeScript/React packages u
 runtime in `packages/python` (Poetry).
 
 - Build: `pnpm build`
-- Python tests: `pnpm test`
-- JS unit tests: `pnpm --filter @eyra/feldspar test`
-- Typecheck: `pnpm typecheck:py`
-- E2E (Playwright): `pnpm test:e2e`
+- All tests (JS + Python): `pnpm test`
+- JS unit tests: `pnpm test:js` (both packages — `@eyra/feldspar` *and* `@eyra/data-collector`;
+  a single package is `pnpm --filter @eyra/feldspar test`)
+- Python tests: `pnpm test:py` — extra args pass through, e.g.
+  `pnpm test:py -- tests/test_ui_locale.py -q`
+- Typecheck: `pnpm typecheck:py` (Pyright); tests + typecheck together: `pnpm verify:py`
+- E2E (Playwright): `VITE_PLATFORM=<platform> pnpm test:e2e` — boots the dev server on
+  port 3000 itself; `VITE_PLATFORM` is required (`check-deps.sh` enforces it). The
+  platform selects the spec set (`playwright.config.ts`):
+  `VITE_PLATFORM=example` runs the default donation + localization suite,
+  `VITE_PLATFORM=e2etest` runs the error-flow suite (the example platform plus a
+  fault-injection trigger), and `VITE_PLATFORM=e2etest_multifile` runs the multi-file
+  upload suite (`tests/multifile.spec.ts`). Neither test platform is releasable —
+  `release.sh` rejects both explicitly and excludes their modules/configs from the
+  production wheel (ADR-0004).
 - Memory benchmarks: `scripts/benchmarks/` (see its README)

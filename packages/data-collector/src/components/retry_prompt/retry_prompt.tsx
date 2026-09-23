@@ -1,9 +1,9 @@
 import {
   BodyLarge,
-  Translator,
   ReactFactoryContext,
   PrimaryButton,
 } from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { PropsUIPromptRetry } from "./types"
 
 type Props = PropsUIPromptRetry & ReactFactoryContext
@@ -35,7 +35,7 @@ interface Copy {
 
 function prepareCopy ({ text, ok, locale }: Props): Copy {
   return {
-    text: Translator.translate(text, locale),
-    ok: Translator.translate(ok, locale),
+    text: resolveText(text, locale),
+    ok: resolveText(ok, locale),
   }
 }

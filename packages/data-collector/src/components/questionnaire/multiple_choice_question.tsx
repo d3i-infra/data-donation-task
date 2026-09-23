@@ -1,9 +1,9 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   Title3,
 } from "@eyra/feldspar"
+import { resolveText } from '../../locale/text'
 import { PropsUIQuestionMultipleChoice } from './types'
 
 interface parentSetter {
@@ -12,7 +12,7 @@ interface parentSetter {
 
 type Props = PropsUIQuestionMultipleChoice & parentSetter & ReactFactoryContext
 
-export const MultipleChoiceQuestion = (props: Props): JSX.Element => {
+export const MultipleChoiceQuestion = (props: Props): React.JSX.Element => {
   const { question, choices, id, parentSetter, locale } = props
   const [selectedChoice, setSelectedChoice] = React.useState<string>("");
   const [checkedArray, setCheckedArray] = React.useState(Array(choices.length).fill(false));
@@ -60,8 +60,8 @@ export const MultipleChoiceQuestion = (props: Props): JSX.Element => {
 
   function prepareCopy (locale: string): Copy {
     return {
-      choices: choices.map((choice) => Translator.translate(choice, locale)),
-      question: Translator.translate(question, locale)
+      choices: choices.map((choice) => resolveText(choice, locale)),
+      question: resolveText(question, locale)
     }
   }
 }

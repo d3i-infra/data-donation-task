@@ -2,13 +2,18 @@ import { CommandSystem, isCommandSystem, isCommandSystemDonate } from './framewo
 import { Bridge, ResponseSystemDonate } from './framework/types/modules'
 import { LogEntry } from './framework/logging'
 
-// When VITE_ASYNC_DONATIONS=true, the bridge awaits DonateSuccess/DonateError
-// responses from the host (Eyra's new mono, which POSTs donations via HTTP and
-// replies via MessageChannel). When false (default), donations are fire-and-forget,
-// preserving compatibility with D3I's mono which never sends a response.
-// D3I-specific addition — no upstream equivalent in eyra/feldspar.
-const meta: any = import.meta
-const ASYNC_DONATIONS = meta.env.VITE_ASYNC_DONATIONS === 'true'
+// The bridge always awaits a DonateSuccess/DonateError response from the host
+// before resolving a donate command. Both monos (d3i-infra/mono and eyra/mono)
+// attempt a reply on every handled path of `donate_via_api` in
+// core/assets/js/feldspar_app.js — including network errors and non-ok
+// responses — so a failed upload comes back as DonateError rather than silence.
+// This assumes a host carrying the donate-ack protocol (d3i-infra/mono
+// bbfcbffbd, 2026-02-02); against an older mono no reply is ever sent and the
+// participant waits forever. Note the host's own send is guarded
+// (`if (this.channel && this.channel.port1)`), which is why updatePort() must
+// keep failing pending donations when the channel is replaced.
+// D3I-specific addition — upstream eyra/feldspar's `send()` returns void and
+// ignores the acknowledgment.
 
 // Response types sent back from feldspar_app.js via MessageChannel.
 // Protocol introduced in eyra/mono commit f1395c378 "Refactor data donation to
@@ -162,7 +167,7 @@ export class LiveBridge implements Bridge {
 
     this.log('info', 'send', command)
 
-    if (ASYNC_DONATIONS && isCommandSystemDonate(command)) {
+    if (isCommandSystemDonate(command)) {
       return new Promise<ResponseSystemDonate>((resolve) => {
         this.pendingDonations.set(command.key, { resolve })
         this.log('info', `Donation started, pending: ${this.pendingDonations.size}`)

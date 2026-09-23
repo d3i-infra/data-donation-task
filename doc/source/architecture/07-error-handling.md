@@ -5,6 +5,49 @@ The dividing lines are chosen to protect participant PII.
 
 ---
 
+## Upload-flow control paths — not Python exceptions
+
+Two more failure paths live in `FlowBuilder.start_flow()` itself, before
+extraction is ever reached. Neither is a caught exception in the sense of
+the three categories below — both are ordinary branches in the generator's
+control flow, and neither carries participant data.
+
+**The protocol-error page.** Step 1's file-prompt gate is a three-way
+branch on `file_result.__type__` versus `self.expected_file_payload`: the
+exact match proceeds, the established decline shapes (`PayloadFalse` /
+`PayloadVoid` / `PayloadString`, pinned by ADR-0026) end the flow silently
+(as an abandonment — see below), and anything else — a genuine mismatch between what this build's host sends and
+what this platform expects, i.e. version skew, not a decline — renders
+`ph.render_protocol_error_page(platform_name)`: a visible page telling the
+participant something went wrong with the upload step, distinct from the
+"no data extracted" or "safety check failed" pages. This never happens in
+normal operation; it exists so a version-skewed host doesn't hang the
+participant on the file-select page forever with no explanation.
+
+Neither branch is a completion. Both raise `TaskIncompleteError` —
+`"abandoned"` for a decline, `"upload_rejected"` for a protocol mismatch —
+so `ScriptWrapper` shows the task-incomplete page and exits nonzero, and
+the host keeps the task pending instead of recording a donation-free
+completion (ADR-0039). The same applies to the multi-file safety-error page
+(`FileTooLargeError` / `TooManyFilesError`) and to declining the retry
+prompt after a corrupt part.
+
+**`ArchiveSet` construction failure → retry, not a traceback.** For a
+multi-file platform (`expected_file_payload == "PayloadFiles"`),
+`start_flow()` unions the uploaded parts with `ArchiveSet(parts)`, which
+raises `zipfile.BadZipFile` if any single part isn't a readable zip. This is
+caught at the call site and routed through the same `_prompt_retry()` helper
+an invalid single file uses — the participant sees "Try again?", not an
+uncaught-exception page. See [FlowBuilder](04-flowbuilder.md) for the full
+three-way gate and the two causes that share `_prompt_retry()`, and ADR-0040
+for `ArchiveSet` itself.
+
+**File:** `packages/python/port/helpers/flow_builder.py`,
+`packages/python/port/helpers/port_helpers.py`
+(`render_protocol_error_page`)
+
+---
+
 ## Category 1: Expected extraction errors
 
 These are foreseeable failures during file parsing — a missing file in the

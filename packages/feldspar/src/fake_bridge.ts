@@ -4,8 +4,8 @@ import { LogEntry } from './framework/logging'
 
 // Updated to match the async Bridge interface introduced in eyra/feldspar PR #612
 // (draft, feature/live_error_handling) and adopted by what-if-horizon in commit
-// 0020453. handleDataSubmission now always returns a ResponseSystemDonate so that
-// local dev/test runs behave consistently whether VITE_ASYNC_DONATIONS is set or not.
+// 0020453. handleDataSubmission always returns a ResponseSystemDonate, matching
+// LiveBridge, so local dev/test runs behave the same as a hosted run.
 export default class FakeBridge implements Bridge {
   async send (command: CommandSystem): Promise<ResponseSystemDonate | void> {
     if (isCommandSystemDonate(command)) {

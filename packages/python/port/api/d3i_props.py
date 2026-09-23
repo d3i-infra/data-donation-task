@@ -27,10 +27,13 @@ class PropsUIPromptConsentFormTableViz:
             {"column1": 2, "column2": 5},
             {"column1": 3, "column2": 6},
         ])
-        
-        example1 = PropsUIPromptConsentFormTable(
+
+        example1 = PropsUIPromptConsentFormTableViz(
             id="example1",
-            title=Translatable("Table as DataFrame"),
+            title=props.Translatable({
+                "en": "Table as DataFrame",
+                "nl": "Tabel als DataFrame",
+            }),
             data_frame=data_frame_df,
         )
 
@@ -39,10 +42,13 @@ class PropsUIPromptConsentFormTableViz:
             "column2": {"0": 2, "1": 5},
             "column3": {"0": 3, "1": 6},
         }
-        
-        example2 = PropsUIPromptConsentFormTable(
+
+        example2 = PropsUIPromptConsentFormTableViz(
             id="example2",
-            title=Translatable("Table as Dictionary"),
+            title=props.Translatable({
+                "en": "Table as Dictionary",
+                "nl": "Tabel als woordenboek",
+            }),
             data_frame=data_frame_dict,
         )
     """
@@ -135,9 +141,13 @@ class PropsUIPromptFileInputMultiple:
     Attributes:
         description (Translatable): Text with an explanation.
         extensions (str): Accepted mime types, example: "application/zip, text/plain".
+        example (Optional[Translatable]): Optional example placeholder text (e.g. sample
+            filenames) shown in the file list before any file is selected. When absent,
+            the component falls back to its own built-in per-locale placeholder copy.
     """
     description: props.Translatable
     extensions: str
+    example: Optional[props.Translatable] = None
 
     def toDict(self):
         """
@@ -150,6 +160,8 @@ class PropsUIPromptFileInputMultiple:
         dict["__type__"] = "PropsUIPromptFileInputMultiple"
         dict["description"] = self.description.toDict()
         dict["extensions"] = self.extensions
+        if self.example is not None:
+            dict["example"] = self.example.toDict()
         return dict
 
 

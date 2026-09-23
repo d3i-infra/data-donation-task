@@ -1,7 +1,13 @@
-import { 
+import {
   isInstanceOf,
-  Text,
 } from "@eyra/feldspar"
+
+// Matching feldspar's Text/Translatable (duplicated like consent_form_viz/types.ts
+// to keep this component self-contained — feldspar doesn't export these types).
+export interface Translatable {
+  translations: { [locale: string]: string }
+}
+export type Text = Translatable | string
 
 export interface PropsUIQuestionMultipleChoice {
   type: 'PropsUIQuestionMultipleChoice'
@@ -41,8 +47,8 @@ export type PropsUIQuestion =
   | PropsUIQuestionOpen;
 
 export interface PropsUIPromptQuestionnaire {
-  type: 'PropsUIPromptQuestionnaire'
-  questions: PropsUIQuestion[] 
+  __type__: 'PropsUIPromptQuestionnaire'
+  questions: PropsUIQuestion[]
   description: Text
 }
 

@@ -12,6 +12,7 @@ from collections import Counter
 
 import pytest
 import pandas as pd
+from port.helpers.archive_set import ArchiveSet
 from port.helpers.extraction_helpers import (
     ZipArchiveReader,
     JsonExtractionResult,
@@ -181,6 +182,82 @@ class TestJsonAll:
         reader = ZipArchiveReader(archive, members, Counter())
         results = reader.json_all(r"nonexistent_\d+\.json$")
         assert results == []
+
+
+def _named_part(name: str, entries: list[tuple[str, str | bytes]]) -> io.BytesIO:
+    """Build an in-memory zip part with a `.name` attribute, as ArchiveSet expects."""
+    buf = _build_archive(*entries)
+    buf.name = name
+    return buf
+
+
+class TestArchiveSetSource:
+    """ZipArchiveReader accepts an ArchiveSet (ArchiveSource) in place of a
+    single SeekableBinaryReader, resolving members across parts."""
+
+    def test_json_and_raw_resolve_members_from_both_parts(self):
+        part1 = _named_part("a-1.zip", [("data/following.json", json.dumps({"a": 1}))])
+        part2 = _named_part("a-2.zip", [("Bookmarks.html", "<html>hi</html>")])
+        archive = ArchiveSet([part1, part2])
+        reader = ZipArchiveReader(archive, archive.members, Counter())
+
+        json_result = reader.json("data/following.json")
+        assert json_result.found is True
+        assert json_result.data == {"a": 1}
+
+        raw_result = reader.raw("Bookmarks.html")
+        assert raw_result.found is True
+        assert b"hi" in raw_result.data.getvalue()
+
+    def test_duplicate_members_across_parts_merged_into_errors(self):
+        part1 = _named_part("a-1.zip", [("Takeout/archive_browser.html", "ONE")])
+        part2 = _named_part("a-2.zip", [("Takeout/archive_browser.html", "TWO")])
+        archive = ArchiveSet([part1, part2])
+        errors = Counter()
+        reader = ZipArchiveReader(archive, archive.members, errors)
+        assert errors["DuplicateMemberAcrossParts"] == 1
+        result = reader.raw("Takeout/archive_browser.html")
+        assert result.data.getvalue() == b"ONE"
+
+
+class TestMemberGuardIntegration:
+    """An oversized member is a counted error, not an exception escaping
+    through ZipArchiveReader's public methods."""
+
+    def test_oversized_member_counted_not_raised(self, monkeypatch):
+        import port.helpers.archive_set as archive_set_mod
+
+        monkeypatch.setattr(archive_set_mod, "MAX_MEMBER_UNCOMPRESSED_BYTES", 4)
+        part = _named_part("a-1.zip", [("big.json", json.dumps({"k": "v" * 20}))])
+        archive = ArchiveSet([part])
+        errors = Counter()
+        reader = ZipArchiveReader(archive, archive.members, errors)
+
+        result = reader.json("big.json")
+
+        assert result.found is True
+        assert result.data == {}
+        assert errors["MemberTooLargeError"] == 1
+
+
+def _make_reader(entries: list[tuple[str, str | bytes]]) -> ZipArchiveReader:
+    """Build a ZipArchiveReader over a fresh in-memory archive with the given entries."""
+    archive = _build_archive(*entries)
+    members = [name for name, _ in entries]
+    return ZipArchiveReader(archive, members, Counter())
+
+
+class TestOpenMember:
+    def test_open_member_yields_stream_for_resolved_member(self):
+        reader = _make_reader([("Takeout/data/file.txt", b"content")])
+        with reader.open_member("file.txt") as stream:
+            assert stream is not None
+            assert stream.read() == b"content"
+
+    def test_open_member_yields_none_when_unresolvable(self):
+        reader = _make_reader([("Takeout/data/file.txt", b"content")])
+        with reader.open_member("missing.txt") as stream:
+            assert stream is None
 
 
 class TestMultipleReads:

@@ -291,6 +291,11 @@ build:install-wheel →  copyfiles -f packages/python/dist/*.whl packages/data-c
 `dist/port-0.0.0-py3-none-any.whl`, and the second step copies it into
 data-collector's `public/` directory where Vite serves it as a static asset.
 
+This is the dev/Playwright wheel; a release ships a different wheel built by
+the separate `build:wheel:release` chain, which stages the package and
+excludes the e2etest/e2etest_multifile test-platform files before packaging
+(see ADR-0004) — don't assume a release ships the wheel described above.
+
 ### How it's loaded
 
 During worker initialisation, `py_worker.js` runs:
@@ -313,7 +318,6 @@ the previous step.
 | `packages/python/pyproject.toml` | Yes | Poetry project definition (name, version, deps) |
 | `packages/python/dist/*.whl` | No | Build artifact, gitignored |
 | `packages/data-collector/public/port-0.0.0-py3-none-any.whl` | No | Copied from dist, gitignored |
-| `packages/data-collector/public/port-0.0.0.tar.gz` | Yes | Legacy committed sdist — not used by `py_worker.js` (which loads the `.whl`) |
 
 The version is hardcoded at `0.0.0` because it is never published to PyPI —
 it only needs to be loadable by micropip inside the worker.

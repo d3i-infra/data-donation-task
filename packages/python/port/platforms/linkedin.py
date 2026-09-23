@@ -46,6 +46,7 @@ from port.helpers.validate import (
     Language,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -577,13 +578,14 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 # Main extraction & flow
 # ---------------------------------------------------------------------------
 
-def extraction(linkedin_zip: str, validation: validate.ValidateInput) -> ExtractionResult:
+def extraction(linkedin_zip: SeekableBinaryReader, validation: validate.ValidateInput) -> ExtractionResult:
     """Extract data from a LinkedIn DDP zip and return consent-form tables.
 
     Parameters
     ----------
     linkedin_zip:
-        Path to the LinkedIn DDP zip archive on disk.
+        Seekable binary reader over the LinkedIn DDP zip — the upload
+        adapter itself, never a path (ADR-0026).
     validation:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.

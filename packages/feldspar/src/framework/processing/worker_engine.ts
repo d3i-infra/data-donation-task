@@ -4,23 +4,29 @@ import { Logger } from '../logging'
 
 export default class WorkerProcessingEngine {
   sessionId: String
+  locale: String
   worker: Worker
   commandHandler: CommandHandler
   logger?: Logger
+  platform?: string
 
   resolveInitialized!: () => void;
   resolveContinue!: () => void;
 
   constructor (
     sessionId: string,
+    locale: string,
     worker: Worker,
     commandHandler: CommandHandler,
-    logger?: Logger
+    logger?: Logger,
+    platform?: string
   ) {
     this.sessionId = sessionId
+    this.locale = locale
     this.commandHandler = commandHandler
     this.worker = worker
     this.logger = logger
+    this.platform = platform
     this.initWorkerEventHandlers()
   }
 
@@ -98,14 +104,16 @@ export default class WorkerProcessingEngine {
     })
   }
 
-  firstRunCycle(): void {
-    const meta: any = import.meta;
-    const platform = meta.env.VITE_PLATFORM;
+  // `platform` arrives only through the constructor — App.tsx is the single source
+  // (ADR-0004). There is no env fallback here: feldspar reads no build-time env of
+  // its own, and a bundle built without a platform must fail loudly in Python
+  // (script.py raises ValueError, surfaced through the consent-gated error page)
+  // rather than be papered over by a default chosen down here.
+  firstRunCycle (): void {
     this.worker.postMessage({
-      eventType: "firstRunCycle",
-      sessionId: this.sessionId,
-      platform,
-    });
+      eventType: 'firstRunCycle',
+      data: { sessionId: this.sessionId, locale: this.locale, platform: this.platform },
+    })
   }
 
   nextRunCycle (response: Response): void {

@@ -1,7 +1,13 @@
 import { isTranslatable, Text, Translatable } from './types/elements'
 
+export const MISSING_TRANSLATION = '?text?'
+
 export const Translator = (function () {
-  const defaultLocale: string = 'nl'
+  let defaultLocale: string = 'nl'
+
+  function setDefaultLocale (locale: string): void {
+    defaultLocale = locale
+  }
 
   function translate (text: Text, locale: string): string {
     if (typeof text === 'string') {
@@ -14,24 +20,21 @@ export const Translator = (function () {
   }
 
   function resolve (translatable: Translatable, locale: string): string {
-    const text = translatable.translations[locale]
-    if (text !== null) {
+    const translations = translatable?.translations ?? {}
+    const text = translations[locale]
+    if (typeof text === 'string') {
       return text
     }
-
-    const defaultText = translatable.translations[defaultLocale]
-    if (defaultText !== null) {
+    const defaultText = translations[defaultLocale]
+    if (typeof defaultText === 'string') {
       return defaultText
     }
-
-    if (Object.values(translatable.translations).length > 0) {
-      return Object.values(translatable.translations)[0]
+    const first = Object.values(translations).find((value) => typeof value === 'string')
+    if (first !== undefined) {
+      return first
     }
-
-    return '?text?'
+    return MISSING_TRANSLATION
   }
 
-  return {
-    translate
-  }
+  return { translate, setDefaultLocale }
 })()

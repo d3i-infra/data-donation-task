@@ -44,6 +44,7 @@ from port.helpers.validate import (
     Language,
 )
 from port.api.d3i_props import ExtractionResult
+from port.api.file_utils import SeekableBinaryReader
 from port.helpers.table_extractor import (
     load_port_config,
     run_extraction,
@@ -367,13 +368,14 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
 # Main extraction & flow
 # ---------------------------------------------------------------------------
 
-def extraction(chrome_zip: str, validation) -> ExtractionResult:
+def extraction(chrome_zip: SeekableBinaryReader, validation) -> ExtractionResult:
     """Extract data from a Chrome DDP zip and return consent-form tables.
 
     Parameters
     ----------
     chrome_zip:
-        Path to the Chrome DDP zip archive on disk.
+        Seekable binary reader over the Chrome DDP zip — the upload
+        adapter itself, never a path (ADR-0026).
     validation:
         Validation result object whose ``archive_members`` attribute is passed
         to ``ZipArchiveReader``.

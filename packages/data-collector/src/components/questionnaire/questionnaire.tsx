@@ -1,10 +1,10 @@
 import React from 'react'
 import {
-  Translator,
   ReactFactoryContext,
   PrimaryButton,
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
+import { resolveText } from "../../locale/text"
 import { 
     PropsUIPromptQuestionnaire,
     isPropsUIQuestionMultipleChoice,
@@ -18,7 +18,7 @@ import { OpenQuestion } from './open_question'
 
 type Props = PropsUIPromptQuestionnaire & ReactFactoryContext
 
-export const Questionnaire = (props: Props): JSX.Element => {
+export const Questionnaire = (props: Props): React.JSX.Element => {
   const { questions, description, resolve, locale } = props
   const [answers, setAnswers] = React.useState<{}>({});
   const copy = prepareCopy(locale)
@@ -26,10 +26,6 @@ export const Questionnaire = (props: Props): JSX.Element => {
   function handleDonate (): void {
     const value = JSON.stringify(answers)
     resolve?.({ __type__: 'PayloadJSON', value })
-  }
-
-  function handleCancel (): void {
-    resolve?.({ __type__: 'PayloadFalse', value: false })
   }
 
   const renderQuestion = (item: any) => {
@@ -77,8 +73,8 @@ export const Questionnaire = (props: Props): JSX.Element => {
         
   function prepareCopy (locale: string): Copy {
     return {
-      description: Translator.translate(description, locale),
-      continueLabel: Translator.translate(continueLabel, locale)
+      description: resolveText(description, locale),
+      continueLabel: resolveText(continueLabel, locale)
     }
   }
 };
@@ -91,4 +87,8 @@ interface Copy {
 
 const continueLabel = new TextBundle()
   .add('en', 'Continue')
+  .add('nl', 'Doorgaan')
+  .add('de', 'Weiter')
+  .add('it', 'Continua')
+  .add('es', 'Continuar')
  

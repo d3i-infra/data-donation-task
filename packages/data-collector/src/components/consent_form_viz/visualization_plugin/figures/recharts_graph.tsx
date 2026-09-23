@@ -1,5 +1,5 @@
-import { translate } from '../translate'
-import * as React from 'react'
+import { ReactElement } from 'react'
+import { resolveFlatText } from '../../../../locale/text'
 import { AxisSettings, TickerFormat, ChartVisualizationData } from '../types'
 
 import {
@@ -24,11 +24,11 @@ interface Props {
 
 const margin = { top: 5, right: 5, left: 5, bottom: 15 }
 
-export default function RechartsGraph ({ visualizationData, locale }: Props): JSX.Element | null {
-  const xLabel = translate(visualizationData.xLabel ?? visualizationData.xKey, locale)
+export default function RechartsGraph ({ visualizationData, locale }: Props): ReactElement | null {
+  const xLabel = resolveFlatText(visualizationData.xLabel ?? visualizationData.xKey, locale)
   const tickFormatter = getTickFormatter(Object.values(visualizationData.yKeys))
 
-  function tooltip (): JSX.Element {
+  function tooltip (): ReactElement {
     return (
       <Tooltip
         allowEscapeViewBox={{ x: false, y: false }}
@@ -45,7 +45,7 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
     )
   }
 
-  function Xaxis (minTickGap: number): JSX.Element | null {
+  function Xaxis (minTickGap: number): ReactElement | null {
     const hasVisualizationData = Boolean(visualizationData)
     if (!hasVisualizationData) return null
 
@@ -56,13 +56,13 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
     )
   }
 
-  function Yaxis (): JSX.Element | null {
+  function Yaxis (): ReactElement | null {
     return (
       <YAxis yAxisId='left' tickFormatter={tickFormatter} fontSize={12} />
     )
   }
 
-  function legend (): JSX.Element {
+  function legend (): ReactElement {
     return (
       <Legend
         margin={{ left: 10 }}
@@ -74,10 +74,10 @@ export default function RechartsGraph ({ visualizationData, locale }: Props): JS
     )
   }
 
-  let chart: JSX.Element | null = null
+  let chart: ReactElement | null = null
 
   function getYLabel (yKey: AxisSettings): string {
-    return translate(yKey.label ?? yKey.id, locale)
+    return resolveFlatText(yKey.label ?? yKey.id, locale)
   }
 
   if (visualizationData.type === 'line') {

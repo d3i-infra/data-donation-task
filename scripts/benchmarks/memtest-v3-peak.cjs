@@ -1,5 +1,5 @@
 // Peak-pressure harness: samples every 250 ms across the WHOLE flow
-// (navigation -> consent page + settle), tracking the maximum instantaneous
+// (navigation -> consent page -> donate + settle), tracking the maximum instantaneous
 // footprint of (a) the full browser process tree and (b) the renderer
 // process alone (closest proxy for iOS WebContent). Reports absolute peaks.
 const { chromium } = require('@playwright/test');
@@ -8,7 +8,13 @@ const fs = require('fs');
 
 const ZIP = process.env.MEMTEST_ZIP;
 if (!ZIP) { console.error('Set MEMTEST_ZIP=/path/to/test.zip'); process.exit(1); }
+// Colon-separated for a multi-part (ArchiveSet) upload; a single path (no ':')
+// is byte-compatible with today's behavior below.
+const ZIP_PATHS = ZIP.split(':');
 const LABEL = process.env.RUN_LABEL || 'unlabeled';
+// Drives the two heading locators below so the harness can target a platform
+// other than TikTok without touching phase logic or sampling.
+const PLATFORM_LABEL = process.env.MEMTEST_PLATFORM_LABEL || 'TikTok';
 
 function treePids(rootPid) {
   const lines = execSync('ps -eo pid=,ppid=').toString().trim().split('\n');
@@ -59,19 +65,27 @@ function rssKb(pid) {
   }, 250);
 
   await page.goto('http://localhost:3000/');
-  await page.getByRole('heading', { name: 'Select your TikTok file' }).waitFor({ timeout: 180000 });
+  await page.getByRole('heading', { name: `Select your ${PLATFORM_LABEL} file` }).waitFor({ timeout: 180000 });
   phase = 'idle-ready';
   await page.waitForTimeout(3000);
 
   phase = 'upload+process';
   const chooser = page.waitForEvent('filechooser');
   await page.getByText('Choose file').click();
-  await (await chooser).setFiles(ZIP);
+  await (await chooser).setFiles(ZIP_PATHS.length > 1 ? ZIP_PATHS : ZIP_PATHS[0]);
   await page.getByText('Continue').click();
-  await page.getByRole('heading', { name: 'Your TikTok data' }).waitFor({ timeout: 300000 });
+  await page.getByRole('heading', { name: `Your ${PLATFORM_LABEL} data` }).waitFor({ timeout: 300000 });
 
   phase = 'render+settle';
   await page.waitForTimeout(12000);
+
+  phase = 'donate';
+  // Label comes from generate_review_data_prompt; adapt alongside the two
+  // heading selectors when targeting a different platform/flow.
+  await page.getByText('Yes, share for research').click();
+  // The serialization spike is synchronous with the click; a fixed settle
+  // captures it without coupling to whatever page the flow shows next.
+  await page.waitForTimeout(8000);
   clearInterval(sampler);
 
   const mb = (kb) => Math.round(kb / 1024);

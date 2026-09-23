@@ -211,6 +211,45 @@ The example skips DDP matching on purpose — it lets you test the full flow wit
 
 ---
 
+## Multi-file platforms
+
+Some exports arrive as several zip parts that belong together — a Google
+Takeout export split across multiple files is the common case. To accept
+that instead of a single zip, set `expected_file_payload` on your flow
+class and annotate both hook overrides as `ArchiveSet`:
+
+```python
+from port.helpers.archive_set import ArchiveSet
+
+class MyPlatformFlow(FlowBuilder):
+    expected_file_payload = "PayloadFiles"
+
+    def __init__(self, session_id: str):
+        super().__init__(session_id, "myplatform")
+
+    def validate_file(self, archive_set: ArchiveSet) -> ValidateInput:
+        return validate_my_archive_set(archive_set)
+
+    def extract_data(self, archive_set: ArchiveSet, validation: ValidateInput) -> ExtractionResult:
+        return extraction(archive_set, validation)
+```
+
+This one attribute changes three things: the participant sees a multi-select
+file picker instead of a single-file one, `FlowBuilder` unions whatever
+parts they select into one `ArchiveSet` (raising a retry prompt instead of a
+traceback if a part is corrupt), and `validate_file`/`extract_data` receive
+that `ArchiveSet` rather than a single reader. Everything downstream is
+unchanged — `ZipArchiveReader(archive_set, validation.archive_members,
+errors)` works the same way it does for a single-file platform, because
+`ArchiveSet` satisfies the same `ArchiveSource` protocol
+`SingleArchiveSource` wraps a single zip in.
+
+See `packages/python/port/platforms/e2etest_multifile.py` for a minimal
+working multi-file platform, and `tests/multifile.spec.ts` for the
+Playwright coverage of the multi-select upload flow.
+
+---
+
 ## Python packages
 
 The task runs in the participant's browser via [Pyodide](https://pyodide.org/en/stable/), a Python runtime compiled to WebAssembly, so locally installed packages are not available. Check the [Pyodide package list](https://pyodide.org/en/stable/usage/packages-in-pyodide.html) and add what you need to `packages/data-collector/public/py_worker.js`:
@@ -220,6 +259,51 @@ function loadPackages() {
   return self.pyodide.loadPackage(['micropip', 'numpy', 'pandas', 'lxml'])
 }
 ```
+
+---
+
+## Parsing large HTML files
+
+Some exports include huge HTML files — a heavy user's watch or search history can run to
+hundreds of megabytes. Parse those with streaming lxml, not BeautifulSoup: BeautifulSoup
+has no streaming mode, so it builds the whole DOM in memory before you can read anything
+out of it — too slow in Pyodide, and it blows the participant's memory budget on a
+multi-hundred-MB member. Reading the whole member into memory first with `.read()` before
+handing it to any parser has the same problem, streaming lxml or not.
+
+Use `etree.iterparse` fed directly from `ZipArchiveReader.open_member()` (a context
+manager yielding the member's decompression stream, not a materialized buffer), and clear
+each element once you're done with it so the tree doesn't grow with the file:
+
+```python
+from lxml import etree
+
+with reader.open_member("path/to/History.html") as stream:
+    if stream is None:
+        return pd.DataFrame()
+    records = []
+    for _, cell in etree.iterparse(stream, html=True, tag="div", events=("end",), encoding="utf-8"):
+        if "the-class-you-want" in (cell.get("class") or ""):
+            records.append(...)  # read what you need out of `cell` here
+        cell.clear()
+        while cell.getprevious() is not None:
+            del cell.getparent()[0]
+```
+
+Two more things worth knowing before you copy this: pass `encoding` explicitly.
+Google Takeout's activity HTML ships with no `<meta charset>` in its `<head>`, and lxml's
+HTML parser silently falls back to latin-1 when it can't find one — every non-ASCII byte
+comes out double-decoded (mojibake) with no error raised anywhere. Takeout's export bytes
+are UTF-8; don't assume every export is, but always pin the encoding you've verified
+rather than trusting the parser's guess.
+
+`port/platforms/google.py`'s `_parse_activity_html` is the reference implementation —
+it streams an `mdl-grid`/`outer-cell` activity page this way, one activity at a time,
+and its docstring has the full account of what this bounds and what it doesn't: it
+keeps the *parse* proportional to one activity rather than to file size, but the
+records list it returns — and everything downstream of it (tables, consent transport,
+donation serialization) — still scales with row count and stays unbounded. See the
+memory ADR (`docs/decisions/0034-*.md`) for the measured numbers behind that split.
 
 ---
 

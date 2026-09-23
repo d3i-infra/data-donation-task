@@ -12,9 +12,9 @@ export interface ResponseSystemDonate {
   error?: string
 }
 
-// Bridge.send is now async: returns ResponseSystemDonate when VITE_ASYNC_DONATIONS=true
-// (Eyra's mono responds via MessageChannel), or void for fire-and-forget mode
-// (D3I's mono, backwards-compatible default). Pattern from eyra/feldspar PR #612.
+// Bridge.send is async: it resolves with a ResponseSystemDonate for donate commands
+// — the host acknowledges every donation via MessageChannel — and with void for all
+// other commands. Pattern from eyra/feldspar PR #612.
 export interface Bridge {
   send: (command: CommandSystem) => Promise<ResponseSystemDonate | void>
   sendLogs: (entries: LogEntry[]) => void

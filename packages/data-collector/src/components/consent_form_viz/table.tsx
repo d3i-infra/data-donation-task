@@ -1,12 +1,13 @@
-import { 
+import {
     useEffect,
     useLayoutEffect,
     useMemo,
     useRef,
     useState,
-    ReactNode, 
-    Dispatch, 
-    SetStateAction 
+    ReactNode,
+    ReactElement,
+    Dispatch,
+    SetStateAction
 } from 'react'
 import Highlighter from 'react-highlight-words'
 import { 
@@ -16,9 +17,7 @@ import UndoSvg from './assets/images/undo.svg'
 import DeleteSvg from './assets/images/delete.svg'
 import { Pagination } from './pagination'
 import TextBundle from '@eyra/feldspar'
-import { 
-    Translator,
-} from '@eyra/feldspar'
+import { resolveAll } from '../../locale/text'
 import { CheckBox } from "./check_box"
 import { PropsUITableRow } from "./types"
 
@@ -50,7 +49,7 @@ export const Table = ({
   handleDelete,
   handleUndo,
   pageSize = 7
-}: Props): JSX.Element => {
+}: Props): ReactElement => {
   const [page, setPage] = useState(0)
   const columnNames = table.head.cells
   const [selected, setSelected] = useState<Set<string>>(new Set())
@@ -70,6 +69,7 @@ export const Table = ({
   const cellClass = 'min-h-[2.1rem] md:min-h-[2.5rem] px-3 flex items-center font-table-row'
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: pagination reset on table swap; fix needs ADR-0031-safe redesign
     setSelected(new Set())
     setPage((page) => Math.max(0, Math.min(page, nPages - 1)))
   }, [table, nPages])
@@ -110,7 +110,7 @@ export const Table = ({
     return items
   }, [table, page, pageSize])
 
-  function renderHeaderCell (value: string, i: number): JSX.Element {
+  function renderHeaderCell (value: string, i: number): ReactElement {
     // Display translated header if available, fall back to raw column name
     const displayName = table.headers?.[value] ?? value
     return (
@@ -122,7 +122,7 @@ export const Table = ({
     )
   }
 
-  function renderRow (item: PropsUITableRow | null, i: number): JSX.Element | null {
+  function renderRow (item: PropsUITableRow | null, i: number): ReactElement | null {
     if (item == null && i >= unfilteredRows) return null
     if (item == null) {
       return (
@@ -246,7 +246,7 @@ function Cell ({
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
-}): JSX.Element {
+}): ReactElement {
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const isUrl = /^https?:\/\//.test(cell)
@@ -322,7 +322,7 @@ function Cell ({
   )
 }
 
-function TooltipIcon (): JSX.Element {
+function TooltipIcon (): ReactElement {
   return (
     <svg
       className='w-3 h-3 mb-1 text-gray-800 dark:text-white'
@@ -349,7 +349,7 @@ function IconButton (props: {
   color: string
   disabled?: boolean
   hidden?: boolean
-}): JSX.Element | null {
+}): ReactElement | null {
   if (props.hidden ?? false) return null
   const disabled = props.disabled ?? false
   return (
@@ -366,14 +366,20 @@ function IconButton (props: {
 }
 
 function getTranslations (locale: string): Record<string, string> {
-  const translated: Record<string, string> = {}
-  for (const [key, value] of Object.entries(translations)) {
-    translated[key] = Translator.translate(value, locale)
-  }
-  return translated
+  return resolveAll(translations, locale)
 }
 
 const translations = {
-  delete: new TextBundle().add('en', 'Delete').add('nl', 'Verwijder'),
-  undo: new TextBundle().add('en', 'Undo').add('nl', 'Herstel')
+  delete: new TextBundle()
+    .add('en', 'Delete')
+    .add('nl', 'Verwijder')
+    .add('de', 'Löschen')
+    .add('it', 'Elimina')
+    .add('es', 'Eliminar'),
+  undo: new TextBundle()
+    .add('en', 'Undo')
+    .add('nl', 'Herstel')
+    .add('de', 'Rückgängig')
+    .add('it', 'Annulla')
+    .add('es', 'Deshacer')
 }
