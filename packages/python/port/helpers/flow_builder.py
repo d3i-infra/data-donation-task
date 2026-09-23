@@ -271,7 +271,10 @@ class FlowBuilder:
         is_decline = consent_result.__type__ == "PayloadFalse"
 
         if self.public_key_pem and not is_decline:
+            yield from ph.emit_log("info", f"[{self.platform_name}] Encrypting donation payload")
             reviewed_data = encrypt_payload(reviewed_data.encode("utf-8"), self.public_key_pem)
+        elif not self.public_key_pem:
+            yield from ph.emit_log("info", f"[{self.platform_name}] No public key configured; donating plaintext")
 
         yield from ph.emit_log("info", f"[{self.platform_name}] Donation started: payload size={len(reviewed_data)} bytes")
         donate_result = yield ph.donate(donate_key, reviewed_data)
