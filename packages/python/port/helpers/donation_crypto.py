@@ -46,7 +46,7 @@ import base64
 import json
 import logging
 import os
-from typing import Union
+from typing import Any, Union
 
 from cryptography.hazmat.primitives.asymmetric import padding, rsa
 from cryptography.hazmat.primitives import hashes, serialization
