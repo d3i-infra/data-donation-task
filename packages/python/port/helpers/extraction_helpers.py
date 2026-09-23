@@ -7,7 +7,7 @@ import logging
 from collections import Counter
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, IO, Iterator
 from pathlib import Path
 import zipfile
@@ -19,6 +19,7 @@ import io
 import json
 
 import pandas as pd
+import pytz
 import numpy as np
 
 
@@ -237,6 +238,149 @@ def replace_months(input_string: str) -> str:
             return replaced_string
 
     return input_string
+
+
+DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
+
+#: Every date column is written as ``YYYY-MM-DD HH:MM:SS`` in this timezone, so that a
+#: date means the same thing in every table regardless of the platform that wrote it.
+REFERENCE_TIMEZONE = "Europe/Amsterdam"
+_REFERENCE_ZONE = pytz.timezone(REFERENCE_TIMEZONE)
+
+#: A zone spelled out at the end of a timestamp rather than as an offset, as the TikTok
+#: txt export writes it: ``2026-05-02 10:09:50 UTC``. Only the zero-offset names are
+#: listed, so anything else falls through to the parser and is counted rather than guessed
+#: at.
+NAMED_UTC = re.compile(r"[\s_]+(?:UTC|GMT)$", re.IGNORECASE)
+
+
+def _to_reference(moment: datetime) -> str:
+    """Write *moment*, an aware datetime, in ``REFERENCE_TIMEZONE`` and ``DATETIME_FORMAT``."""
+    return moment.astimezone(_REFERENCE_ZONE).strftime(DATETIME_FORMAT)
+
+
+def resolve_timezone(name: str | None) -> "pytz.BaseTzInfo | None":
+    """The IANA zone *name* names (``Europe/London``), or ``None`` when it names nothing
+    the database knows — the caller decides whether that is worth counting."""
+    if not name:
+        return None
+    try:
+        return pytz.timezone(name.strip())
+    except pytz.UnknownTimeZoneError:
+        return None
+
+
+def zone_time_to_datetime_string(moment: datetime, zone: "str | pytz.BaseTzInfo", errors: Counter | None = None) -> str:
+    """Convert a local wall-clock time in an IANA zone to ``DATETIME_FORMAT`` in
+    ``REFERENCE_TIMEZONE``.
+
+    Args:
+        moment: A naive datetime holding the local wall-clock time.
+        zone: The zone's IANA name, or a zone already resolved by ``resolve_timezone``.
+        errors: Optional counter; a zone the database does not know is counted as
+            ``TimezoneUnknown`` and the wall time written as it stands.
+    """
+    tz = resolve_timezone(zone) if isinstance(zone, str) else zone
+    if tz is None:
+        if errors is not None:
+            errors["TimezoneUnknown"] += 1
+        return moment.strftime(DATETIME_FORMAT)
+    return _to_reference(tz.localize(moment, is_dst=False))
+
+
+def epoch_to_datetime_string(epoch_timestamp: str | int | float, errors: Counter | None = None) -> str:
+    """Convert epoch seconds to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
+
+    Epoch seconds name an absolute instant, so this conversion is exact — nothing about
+    the participant has to be assumed.
+
+    Args:
+        epoch_timestamp: Seconds since the epoch, as a number or a string holding one.
+        errors: Optional counter that aggregates error types.
+
+    Returns:
+        str: The formatted timestamp, ``""`` for an absent one, or the input unchanged
+        when it cannot be read as a number.
+
+    Examples::
+
+        >>> epoch_to_datetime_string(1632139200)
+        "2021-09-20 14:00:00"
+    """
+    # Empty/falsy timestamps are expected absences, not errors
+    if not epoch_timestamp and epoch_timestamp != 0:
+        return ""
+
+    out = str(epoch_timestamp)
+    try:
+        moment = datetime.fromtimestamp(int(float(epoch_timestamp)), tz=timezone.utc)
+        out = _to_reference(moment)
+    except (OverflowError, OSError, ValueError, TypeError) as e:
+        logger.error("Could not convert epoch timestamp, %s", e)
+        if errors is not None:
+            errors["TimestampParseError"] += 1
+
+    return out
+
+
+def utc_timestamp_to_datetime_string(timestamp: str, errors: Counter | None = None) -> str:
+    """Convert a timestamp string to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
+
+    Reads what the platform wrote about the zone and honours it: a trailing ``Z`` or an
+    offset names the instant exactly. A timestamp carrying no zone at all is taken for UTC.
+
+    Args:
+        timestamp: An ISO 8601 timestamp, with or without a zone.
+        errors: Optional counter that aggregates error types.
+
+    Returns:
+        str: The formatted timestamp, ``""`` for an absent one, or the input unchanged
+        when it cannot be read.
+
+    Examples::
+
+        >>> utc_timestamp_to_datetime_string("2021-09-20T12:00:00.123Z")
+        "2021-09-20 14:00:00"
+    """
+    if not timestamp or not isinstance(timestamp, str):
+        return ""
+
+    text = NAMED_UTC.sub("", timestamp.strip())
+
+    try:
+        moment = datetime.fromisoformat(text.replace("Z", "+00:00").replace("z", "+00:00"))
+    except (ValueError, TypeError) as e:
+        logger.error("Could not convert timestamp, %s", e)
+        if errors is not None:
+            errors["TimestampParseError"] += 1
+        return timestamp
+
+    if moment.tzinfo is None:
+        moment = moment.replace(tzinfo=timezone.utc)
+
+    return _to_reference(moment)
+
+
+def local_time_to_datetime_string(
+    moment: datetime, utc_offset: timedelta, errors: Counter | None = None
+) -> str:
+    """Convert a local wall-clock time to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
+
+    Args:
+        moment: A naive datetime holding the local wall-clock time.
+        utc_offset: How far that local time stands ahead of UTC.
+        errors: Optional counter that aggregates error types.
+
+    Returns:
+        str: The formatted timestamp.
+    """
+    try:
+        return _to_reference(moment.replace(tzinfo=timezone(utc_offset)))
+    except (OverflowError, ValueError, TypeError) as e:
+        logger.error("Could not convert local timestamp, %s", e)
+        if errors is not None:
+            errors["TimestampParseError"] += 1
+        return moment.strftime(DATETIME_FORMAT)
 
 
 def epoch_to_iso(epoch_timestamp: str | int | float, errors: Counter | None = None) -> str:
@@ -572,6 +716,17 @@ def read_csv_from_bytes_to_df(json_bytes: io.BytesIO) -> pd.DataFrame:
     return pd.DataFrame(read_csv_from_bytes(json_bytes))
 
 
+def xpath_nodes(node: Any, expression: str) -> list[Any]:
+    """Run an XPath query and return its node list.
+
+    lxml's ``xpath`` is typed as a union (a query can also yield a string, a
+    number or a boolean); every caller here iterates over element results, so a
+    non-list result is treated as "no matches" rather than raised.
+    """
+    result = node.xpath(expression)
+    return result if isinstance(result, list) else []
+
+
 # --- Result types for ZipArchiveReader ---
 
 @dataclass
@@ -753,3 +908,16 @@ class ZipArchiveReader:
 
         b = self._read_member_bytes(member)
         return RawExtractionResult(found=True, data=b, member_path=member)
+
+    def raw_all(self, pattern: str) -> list[RawExtractionResult]:
+        """Extract raw bytes from all zip members matching a regex pattern.
+
+        Returns results sorted lexicographically by member path. Used for
+        paginated HTML exports (post_comments_1.html, _2.html, etc.).
+        """
+        matches = sorted(m for m in self.archive_members if re.search(pattern, m))
+        results = []
+        for member in matches:
+            b = self._read_member_bytes(member)
+            results.append(RawExtractionResult(found=True, data=b, member_path=member))
+        return results
