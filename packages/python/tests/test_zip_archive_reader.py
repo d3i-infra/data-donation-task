@@ -87,7 +87,11 @@ class TestResolveMember:
         reader = ZipArchiveReader(archive, members, errors)
         result = reader.resolve_member("following.json")
         assert result is None
-        assert errors["AmbiguousMemberMatch"] == 1
+        # The key names the *requested* name, never a member path: the counter
+        # reaches the host log, so nothing from the participant's archive may
+        # ride along in it.
+        assert errors["AmbiguousMemberMatch(following.json)"] == 1
+        assert not any("data/" in key for key in errors)
 
     def test_exact_match_wins_over_suffix(self):
         """When a file exists at top level AND nested, exact match wins."""
@@ -98,6 +102,41 @@ class TestResolveMember:
         members = ["ratings.csv", "data/ratings.csv"]
         reader = ZipArchiveReader(archive, members, Counter())
         assert reader.resolve_member("ratings.csv") == "ratings.csv"
+
+    # Meta exports delivered through Google Drive spell an apostrophe in a
+    # member name as an underscore (who_you_ve_followed.json); device
+    # downloads keep the apostrophe. Extractors ask for the apostrophe form.
+    def test_apostrophe_in_request_matches_underscore_member(self):
+        archive = _build_archive(("connections/followers/who_you_ve_followed.json", "{}"))
+        members = ["connections/followers/who_you_ve_followed.json"]
+        reader = ZipArchiveReader(archive, members, Counter())
+        assert reader.resolve_member("who_you've_followed.json") == members[0]
+        assert reader.resolve_member("connections/followers/who_you've_followed.json") == members[0]
+
+    def test_apostrophe_member_still_matches_apostrophe_request(self):
+        archive = _build_archive(("connections/followers/who_you've_followed.json", "{}"))
+        members = ["connections/followers/who_you've_followed.json"]
+        reader = ZipArchiveReader(archive, members, Counter())
+        assert reader.resolve_member("who_you've_followed.json") == members[0]
+
+    def test_apostrophe_normalization_keeps_ambiguity_rule(self):
+        """One spelling per part of a set is still two members → ambiguous."""
+        archive = _build_archive(
+            ("a/who_you've_followed.json", "{}"),
+            ("b/who_you_ve_followed.json", "{}"),
+        )
+        members = ["a/who_you've_followed.json", "b/who_you_ve_followed.json"]
+        errors = Counter()
+        reader = ZipArchiveReader(archive, members, errors)
+        assert reader.resolve_member("who_you've_followed.json") is None
+        assert errors["AmbiguousMemberMatch(who_you've_followed.json)"] == 1
+
+    def test_apostrophe_normalization_is_not_a_stem_match(self):
+        """Dropping the apostrophe outright (who_youve_followed) is a different
+        name and must not match — the rule is one substitution, not fuzziness."""
+        archive = _build_archive(("who_youve_followed.json", "{}"))
+        reader = ZipArchiveReader(archive, ["who_youve_followed.json"], Counter())
+        assert reader.resolve_member("who_you've_followed.json") is None
 
 
 class TestJsonExtraction:
