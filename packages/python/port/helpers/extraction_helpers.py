@@ -793,19 +793,27 @@ class ZipArchiveReader:
         """Resolve a filename to an archive member path.
 
         Resolution rule:
-        1. Exact path match → use it.
+        1. Exact path match → use it. Drive-delivered Meta exports spell an
+           apostrophe in a member name as an underscore; both spellings are
+           tried, apostrophe form first, so an exact hit keeps its precedence.
         2. Path-boundary suffix match (member.endswith("/" + filename)) →
-           if exactly 1, use it.
+           if exactly 1, use it. Both spellings are tried here too.
         3. 0 matches → return None.
         4. Multiple matches → return None, log warning,
-           increment errors["AmbiguousMemberMatch"].
+           increment errors["AmbiguousMemberMatch(<requested name>)"].
         """
+        candidates = [filename]
+        if "'" in filename:
+            candidates.append(filename.replace("'", "_"))
+
         # 1. Exact match
-        if filename in self.archive_members:
-            return filename
+        for candidate in candidates:
+            if candidate in self.archive_members:
+                return candidate
 
         # 2. Path-boundary suffix match
-        matches = [m for m in self.archive_members if m.endswith("/" + filename)]
+        suffixes = tuple("/" + candidate for candidate in candidates)
+        matches = [m for m in self.archive_members if m.endswith(suffixes)]
 
         if len(matches) == 1:
             return matches[0]
@@ -816,7 +824,7 @@ class ZipArchiveReader:
                 "Ambiguous member match: '%s' matched %d members in archive",
                 filename, len(matches),
             )
-            self.errors["AmbiguousMemberMatch"] += 1
+            self.errors[f"AmbiguousMemberMatch({filename})"] += 1
             return None
 
     @contextmanager
