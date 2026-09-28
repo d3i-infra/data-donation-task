@@ -41,14 +41,11 @@ Platform info::
 """
 import json
 import logging
-import re
 from collections import Counter
 from dataclasses import dataclass, field
-from datetime import datetime, timezone
 from typing import Callable, IO, Literal, TypeGuard, overload
 
 import pandas as pd
-from dateutil import parser
 from lxml import etree
 
 from port.api.d3i_props import ExtractionResult
@@ -471,7 +468,7 @@ def _parse_activity_html(data: IO[bytes]) -> list[dict]:
             record = {
                 "title": lines[0]["text"],
                 "titleUrl": _strip_redirect(lines[0]["url"]) if lines[0]["url"] else "",
-                "time": _convert_to_iso8601(texts[-1]),
+                "time": texts[-1],
             }
             subtitles = [_subtitle(line) for line in middle if line["url"]]
             if subtitles:
@@ -651,177 +648,6 @@ def _join_locations(item: dict) -> str:
     return ", ".join(texts)
 
 
-#: Months as Takeout abbreviates them in the languages it writes in Latin script, by the
-#: first three letters, lowercased. Dates in another script are left to ``dateutil``.
-MONTHS = {
-    "jan": 1, "oca": 1, "ene": 1,
-    "feb": 2, "şub": 2, "sub": 2,
-    "mar": 3, "mrt": 3, "mär": 3, "mrz": 3,
-    "apr": 4, "nis": 4, "abr": 4,
-    "may": 5, "mei": 5, "mai": 5,
-    "jun": 6, "haz": 6,
-    "jul": 7, "tem": 7,
-    "aug": 8, "ağu": 8, "agu": 8, "ago": 8,
-    "sep": 9, "eyl": 9, "set": 9,
-    "oct": 10, "okt": 10, "eki": 10,
-    "nov": 11, "kas": 11,
-    "dec": 12, "dez": 12, "ara": 12, "dic": 12,
-}
-
-#: ``15 jun 2026, 20:30:41 CEST`` — how most locales write an activity timestamp, some of
-#: them with an ordinal dot after the day and after the month, as ``17. Aug. 2026`` is.
-DAY_FIRST = re.compile(r"^(\d{1,2})\.? ([^\s,]+),? (\d{4}),? (\d{1,2}):(\d{2}):(\d{2})")
-
-#: ``Aug 17, 2026, 1:14:48 PM CEST`` — how the English locale writes one.
-MONTH_FIRST = re.compile(r"^([^\s,\d]+) (\d{1,2}), (\d{4}), (\d{1,2}):(\d{2}):(\d{2})(?:\s*([AaPp])\.?[Mm])?")
-
-#: ``27.08.2026, 20:04:54 MESZ`` — a fully numeric dotted date, as the current German
-#: export writes one. Dotted numeric dates are day-first in every locale that writes
-#: them, so this is unambiguous by construction — unlike ``dateutil``'s own month-first
-#: default, which silently swaps day and month whenever the day is <= 12 (12.07 read as
-#: 2026-12-07 instead of 2026-07-12). Tried before ``dateutil`` for exactly that reason;
-#: a month > 12 cannot be this shape at all, so that case (and any other ValueError, e.g.
-#: an out-of-range day) falls through to the existing paths below unchanged.
-NUMERIC_DAY_FIRST = re.compile(r"^(\d{1,2})\.(\d{1,2})\.(\d{4}),? (\d{1,2}):(\d{2}):(\d{2})")
-
-#: ``2026年7月30日 00:23:06 CEST`` — how the Chinese export writes a timestamp. The
-#: 年 (year), 月 (month) and 日 (day) unit markers name each field, so this is
-#: unambiguous by construction, the same reasoning as ``NUMERIC_DAY_FIRST`` — and
-#: unlike either of those, there is no digit-only shape here for ``dateutil`` to
-#: even attempt, so without this it falls through unread (BUG C: confirmed against
-#: a real zh export, tests/ddp/google_set_uu-acct-zh/'s 观看记录.html — the zh
-#: locale writes English action words, e.g. "Watched", but CJK-formatted dates).
-CJK_DATE = re.compile(r"^(\d{4})年(\d{1,2})月(\d{1,2})日,? (\d{1,2}):(\d{2}):(\d{2})")
-
-#: ``23‏/07‏/2026، 4:20:22 م CEST`` — how the Arabic export writes a timestamp:
-#: Western digits in day/month/year order (day-first — confirmed against real
-#: samples with a day > 12, so unambiguous by construction), each numeric field
-#: followed by a U+200F RIGHT-TO-LEFT MARK, a U+060C ARABIC COMMA after the year,
-#: and a 12-hour clock using the Arabic meridiem letters (ص "morning" = AM, م
-#: "evening" = PM) instead of AM/PM. Confirmed against a real ar export,
-#: tests/ddp/google_set_uu-acct-ar/'s activity HTML. The RTL mark is optional in
-#: the pattern (harmless if a future export ever omits it); the meridiem letter
-#: is not, since the hour alone is ambiguous without it.
-ARABIC_DATE = re.compile(
-    r"^(\d{1,2})‏?/(\d{1,2})‏?/(\d{4})، (\d{1,2}):(\d{2}):(\d{2}) ([صم])"
-)
-
-
-def _convert_to_iso8601(timestamp):
-    """Converts a time string extracted from the HTML DDP (e.g. 15 jun 2026, 20:30:41 CEST) to
-    ISO8601 format, ignoring timezone abbreviations and translating month abbreviations.
-
-    An activity file holds one timestamp per record, hundreds of thousands of them for a
-    heavy user, and reading a date in any format a participant might have is expensive.
-    The formats Takeout actually writes are read directly here, which is some twenty
-    times faster; anything else — another script, another separator — falls through to
-    ``dateutil``, which reads what it can and leaves the rest as it found it."""
-
-    numeric = NUMERIC_DAY_FIRST.match(timestamp)
-    if numeric:
-        day, month, year, hour, minute, second = numeric.groups()
-        if 1 <= int(month) <= 12:
-            try:
-                return datetime(
-                    int(year), int(month), int(day), int(hour), int(minute), int(second)
-                ).isoformat()
-            except ValueError:
-                pass  # e.g. day out of range for the month — fall through below
-
-    cjk = CJK_DATE.match(timestamp)
-    if cjk:
-        year, month, day, hour, minute, second = cjk.groups()
-        if 1 <= int(month) <= 12:
-            try:
-                return datetime(
-                    int(year), int(month), int(day), int(hour), int(minute), int(second)
-                ).isoformat()
-            except ValueError:
-                pass  # e.g. day out of range for the month — fall through below
-
-    arabic = ARABIC_DATE.match(timestamp)
-    if arabic:
-        day, month, year, hour, minute, second, meridiem = arabic.groups()
-        if 1 <= int(month) <= 12:
-            # A 12-hour clock counts noon as 12 PM (م) and midnight as 12 AM (ص).
-            hour = int(hour) % 12 + (12 if meridiem == "م" else 0)
-            try:
-                return datetime(
-                    int(year), int(month), int(day), hour, int(minute), int(second)
-                ).isoformat()
-            except ValueError:
-                pass  # e.g. day out of range for the month — fall through below
-
-    match = MONTH_FIRST.match(timestamp)
-    if match:
-        month, day, year, hour, minute, second, meridiem = match.groups()
-    else:
-        match = DAY_FIRST.match(timestamp)
-        if match:
-            day, month, year, hour, minute, second = match.groups()
-            meridiem = None
-        else:
-            return _convert_with_dateutil(timestamp)
-
-    number = MONTHS.get(month[:3].lower())
-    if number is None:
-        return _convert_with_dateutil(timestamp)
-
-    hour = int(hour)
-    if meridiem:
-        # A 12-hour clock counts noon as 12 PM and midnight as 12 AM.
-        hour = hour % 12 + (12 if meridiem.lower() == "p" else 0)
-
-    try:
-        return datetime(int(year), number, int(day), hour, int(minute), int(second)).isoformat()
-    except ValueError:
-        return _convert_with_dateutil(timestamp)
-
-
-def _convert_usec_to_iso8601(timestamp):
-    """Converts a timestamp in microseconds since the epoch, as the Chrome history writes
-    them (e.g. 1787225185379660), to ISO 8601. ``eh.epoch_to_iso`` cannot read these
-    numbers because it takes them for seconds and a microsecond count overflows the year.
-
-    The time is read in UTC and written without the offset, in the shape the activity
-    files record their local time in, so that one column holds one format. Sub-second
-    precision is dropped for the same reason. A timestamp that is not a number is
-    returned unchanged."""
-
-    try:
-        seconds = int(timestamp) // 1_000_000
-        return datetime.fromtimestamp(seconds, tz=timezone.utc).replace(tzinfo=None).isoformat()
-    except (OverflowError, OSError, TypeError, ValueError):
-        return timestamp
-
-
-def _convert_with_dateutil(timestamp):
-    """Converts a timestamp of a shape ``_convert_to_iso8601`` does not read itself,
-    returning it unchanged when it cannot be read at all."""
-    try:
-        parts = timestamp.split(' ')
-
-        # Ignore timezone abbreviation at the end as this is not included in json either
-        # and cannot be automatically parsed
-        if ':' not in parts[-1]:
-            parts.pop()
-
-        # Translate month abbreviations to English
-        nl_month_translations = {
-            'mrt': 'mar',
-            'mei': 'may',
-            'okt': 'oct',
-            }
-        for i in range(len(parts)):
-            if parts[i].lower() in nl_month_translations:
-                parts[i] = nl_month_translations[parts[i].lower()]
-
-        dt = parser.parse(' '.join(parts))
-        return dt.isoformat()
-    except (ValueError, TypeError) as e:
-        return timestamp
-
-
 def _read(reader: ZipArchiveReader, key: str, ddp_locale: str):
     """Reads the first file present for ``key``, in whichever format it was exported.
 
@@ -944,7 +770,7 @@ def youtube_watch_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_l
             "Channel name": "Name of the channel that published the video, empty when the archive does not name one.",
             "Channel URL": "URL of the channel that published the video, empty when the archive does not link to one.",
             "Details": "How the view came about, such as a video watched from an ad. Empty for most videos.",
-            "Timestamp": "ISO 8601 timestamp of when the video was watched."
+            "Timestamp": "Watch time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -993,7 +819,8 @@ def youtube_watch_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_l
               "textColumn": "Title",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1061,7 +888,7 @@ def youtube_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_
             "Title": "Description of the search action.",
             "URL": "URL of the search query.",
             "Details": "How the search came about, such as a search that came from an ad. Empty for most searches.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Timestamp": "Search time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1093,7 +920,8 @@ def youtube_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_
               "textColumn": "Title",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1236,7 +1064,7 @@ def youtube_comments_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale
           "summary": "Each row represents one comment the participant posted on a YouTube video or post.",
           "source_file": "the YouTube comments, e.g. comments/comments.csv or reacties/reacties.csv",
           "columns": {
-            "Timestamp": "ISO 8601 timestamp of when the comment was created.",
+            "Timestamp": "Comment time (ISO 8601 UTC).",
             "Channel ID": "ID of the channel where the comment was posted.",
             "Comment text": "Full text of the comment.",
             "Comment ID": "Unique identifier for the comment.",
@@ -1272,7 +1100,8 @@ def youtube_comments_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale
               "textColumn": "Comment text",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": "iso-8601"}}
         }
     """
     _, result = _read(reader, "youtube.comments", ddp_locale)
@@ -1337,7 +1166,7 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: 
             "URL": "URL of the search query.",
             "Locations": "The general area the search was made from, as a name, a link to Google Maps and, behind a dash, how the area was arrived at. Empty for most searches.",
             "Details": "How the search came about, such as a search that came from an ad. Empty for most searches.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Timestamp": "Search time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1356,7 +1185,8 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: 
             "Locations": {"en": "Locations", "nl": "Locaties"},
             "Details": {"en": "Details", "nl": "Details"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1415,7 +1245,7 @@ def chrome_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: 
           "columns": {
             "Title": "Title of the visited page.",
             "URL": "URL of the visited page.",
-            "Timestamp": "ISO 8601 timestamp of when the page was visited."
+            "Timestamp": "Visit time (Unix microseconds or ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1432,7 +1262,8 @@ def chrome_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: 
             "Title": {"en": "Action", "nl": "Actie"},
             "URL": {"en": "URL", "nl": "URL"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["epoch-micros", "iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1444,10 +1275,16 @@ def chrome_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: 
     try:
         if isinstance(d, dict) and "Browser History" in d:
             for item in d["Browser History"]:
+                # ``.get(..., "")`` only substitutes the default for a *missing*
+                # key; an explicit JSON ``null`` returns ``None`` itself, and
+                # mixing that bare ``None`` with a real int in the same column
+                # upcasts the whole column to float64, silently losing precision
+                # (ADR-0042) — so an explicit null is normalized to "" here too.
+                time_usec = item.get("time_usec")
                 datapoints.append((
                     item.get("title", ""),
                     item.get("url", ""),
-                    _convert_usec_to_iso8601(item.get("time_usec", ""))
+                    time_usec if time_usec is not None else ""
                 ))
         else:
             for item in d:
@@ -1494,7 +1331,7 @@ def video_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_lo
           "columns": {
             "Title": "Description of the video search action.",
             "URL": "URL of the video search event.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Timestamp": "Search time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1511,7 +1348,8 @@ def video_search_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_lo
             "Title": {"en": "Action", "nl": "Actie"},
             "URL": {"en": "URL", "nl": "URL"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1566,7 +1404,7 @@ def ads_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str
             "Title": "The ad event.",
             "URL": "URL of the ad event.",
             "Details": "What the archive records about the ad event, such as where the ad was shown. Empty for most events.",
-            "Timestamp": "ISO 8601 timestamp of when the ad event occurred."
+            "Timestamp": "Ad event time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1584,7 +1422,8 @@ def ads_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: str
             "URL": {"en": "URL", "nl": "URL"},
             "Details": {"en": "Details", "nl": "Details"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1640,7 +1479,7 @@ def discover_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale
             "Title": "The title of the Discover event.",
             "Locations": "The locations associated with the Discover event.",
             "Details": "Additional details about the Discover event.",
-            "Timestamp": "ISO 8601 timestamp of when the Discover event occurred."
+            "Timestamp": "Discover event time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1658,7 +1497,8 @@ def discover_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale
             "Locations": {"en": "Locations", "nl": "Locaties"},
             "Details": {"en": "Details", "nl": "Details"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1713,7 +1553,7 @@ def google_news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_loc
           "columns": {
             "Title": "The title of the Google News event.",
             "URL": "URL of the Google News event.",
-            "Timestamp": "ISO 8601 timestamp of when the Google News event occured."
+            "Timestamp": "Google News event time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1730,7 +1570,8 @@ def google_news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_loc
             "Title": {"en": "Action", "nl": "Actie"},
             "URL": {"en": "URL", "nl": "URL"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1787,7 +1628,7 @@ def news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: st
           "columns": {
             "Title": "The title of the News event.",
             "URL": "URL of the News event.",
-            "Timestamp": "ISO 8601 timestamp of when the News event occured."
+            "Timestamp": "News event time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -1804,7 +1645,8 @@ def news_history_to_df(reader: ZipArchiveReader, errors: Counter, ddp_locale: st
             "Title": {"en": "Action", "nl": "Actie"},
             "URL": {"en": "URL", "nl": "URL"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -1996,6 +1838,13 @@ def extraction(archive_set: ArchiveSet, validation: GoogleValidation) -> Extract
     normal extraction's error counter stays exactly what the extractors
     themselves reported (ADR-0022/ADR-0023: an aggregate count, never
     filenames).
+
+    Every table ``run_extraction`` actually returns is stamped with
+    ``date_locale = ddp_locale`` — the language Takeout wrote this archive's
+    dates in, which the front end's date-column interpreter needs to read
+    them (ADR-0043). ``_detect_locale`` already returns a BCP 47 primary
+    subtag (``en``/``nl``/``de``/``es``/``ar``/``tr``/``zh``), so it is passed
+    through unchanged, never re-mapped.
     """
     ddp_locale = validation.ddp_locale
     config = load_port_config(EXTRACTOR_REGISTRY, "google")
@@ -2009,7 +1858,10 @@ def extraction(archive_set: ArchiveSet, validation: GoogleValidation) -> Extract
     if failed:
         errors["ExportReportedFailedFiles"] = failed
 
-    return run_extraction(reader, errors, config)
+    result = run_extraction(reader, errors, config)
+    for table in result.tables:
+        table.date_locale = ddp_locale
+    return result
 
 
 class GoogleFlow(FlowBuilder):
