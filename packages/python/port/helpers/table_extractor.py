@@ -46,6 +46,8 @@ class TableConfig:
         Optional list of column names to include in the extracted DataFrame.
         ``None`` (default) keeps all columns produced by the extractor.
         Column names not present in the DataFrame are silently ignored.
+    date_columns:
+        Per date column, the encoding spec the front end interprets (ADR-0043).
     """
 
     id: str
@@ -56,6 +58,7 @@ class TableConfig:
     extractor_kwargs: dict[str, Any] = field(default_factory=dict)
     visualizations: list[dict[str, Any]] = field(default_factory=list)
     variables: list[str] | None = None
+    date_columns: dict[str, dict[str, Any]] = field(default_factory=dict)
 
 
 def _build_config(
@@ -97,6 +100,7 @@ def _build_config(
             extractor_kwargs=entry.get("extractor_kwargs", {}),
             visualizations=entry.get("visualizations", []),
             variables=entry.get("variables", None),
+            date_columns=entry.get("date_columns", {}),
         ))
     return configs
 
@@ -147,6 +151,22 @@ def load_public_key_pem(platform: str) -> str | None:
     return raw.get("platform_info", {}).get("public_key_pem")
 
 
+def load_reference_timezone(platform: str) -> str | None:
+    """Return ``platform_info.timezone`` from the platform config, or None for the default.
+
+    Same lifecycle as ``load_public_key_pem``: read once per session; absent, null or a
+    missing config file all mean "not configured" (the front end then uses its default).
+    """
+    config_filename = f"{platform.lower()}_config.json"
+    ref = importlib.resources.files("port") / "configs" / config_filename
+    try:
+        raw = json.loads(ref.read_text(encoding="utf-8"))
+    except (FileNotFoundError, OSError):
+        return None
+    zone = (raw.get("platform_info") or {}).get("timezone")
+    return zone.strip() if isinstance(zone, str) and zone.strip() else None
+
+
 def run_extraction(reader, errors: Counter, config: list[TableConfig]) -> ExtractionResult:
     """Run a config-driven extraction and return non-empty tables.
 
@@ -178,6 +198,7 @@ def run_extraction(reader, errors: Counter, config: list[TableConfig]) -> Extrac
             description=table_cfg.description,
             headers=table_cfg.headers,
             visualizations=table_cfg.visualizations if table_cfg.visualizations else None,
+            date_columns=table_cfg.date_columns or None,
         )
         tables.append(table)
 

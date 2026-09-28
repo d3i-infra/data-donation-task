@@ -19,7 +19,7 @@ import port.helpers.validate as validate
 import port.helpers.uploads as uploads
 from port.helpers.archive_set import ArchiveSet
 from port.helpers.donation_crypto import encrypt_payload
-from port.helpers.table_extractor import load_public_key_pem
+from port.helpers.table_extractor import load_public_key_pem, load_reference_timezone
 
 logger = logging.getLogger(__name__)
 
@@ -55,10 +55,29 @@ class FlowBuilder:
     # construction below key off this attribute. See ADR-0040 (ArchiveSet).
     expected_file_payload: str = "PayloadFile"
 
-    def __init__(self, session_id: str, platform_name: str):
+    def __init__(self, session_id: str, platform_name: str, config_key: str | None = None):
+        """
+        Parameters
+        ----------
+        platform_name:
+            Participant-facing display name (used in UI text) and, lowercased,
+            the donation-key segment ``f"{session_id}-{platform_name.lower()}"``
+            (ADR-0020) — a downstream data contract, never to be changed casually.
+        config_key:
+            The ``configs/<config_key>_config.json`` lookup key for
+            ``load_public_key_pem``/``load_reference_timezone``. Defaults to
+            ``platform_name``, which is correct whenever the display name already
+            matches the config filename (e.g. "Chrome" -> "chrome_config.json").
+            Pass this separately when the display name does not (e.g. WhatsApp's
+            display name is "WhatsApp Group Chat", but its config file is
+            ``whatsapp_config.json``) — this must never be derived from or fed
+            back into the donation key.
+        """
         self.session_id = session_id
         self.platform_name = platform_name
-        self.public_key_pem: str | None = load_public_key_pem(platform_name)
+        lookup_key = config_key if config_key is not None else platform_name
+        self.public_key_pem: str | None = load_public_key_pem(lookup_key)
+        self.display_timezone: str | None = load_reference_timezone(lookup_key)
         self._initialize_ui_text()
 
     def _initialize_ui_text(self):
@@ -353,6 +372,9 @@ class FlowBuilder:
 
     def generate_review_data_prompt(self, table_list):
         """Generate platform-specific review data prompt."""
+        for table in table_list:
+            if getattr(table, "display_timezone", None) is None:
+                table.display_timezone = self.display_timezone
         return ph.generate_review_data_prompt(
             description=self.UI_TEXT["review_data_description"],
             table_list=table_list,

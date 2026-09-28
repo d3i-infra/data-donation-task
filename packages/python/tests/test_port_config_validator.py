@@ -277,3 +277,218 @@ def test_every_supported_locale_appears_in_the_coverage_matrix(locale):
 
     assert locale in coverage["present"]
     assert locale in coverage["empty"]
+
+
+# --- date_columns and platform_info.timezone (ADR-0043) ----------------------
+
+
+def test_date_columns_with_known_encodings_is_accepted(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "epoch-seconds"},
+                                                          "col_b": {"encoding": ["iso-8601", "takeout-html"]}})]},
+    )
+    errors, _ = validate("example")
+    assert not [e for e in errors if "date_columns" in e]
+
+
+def test_date_columns_unknown_encoding_is_rejected(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "epoch-millis"}})]},
+    )
+    errors, _ = validate("example")
+    assert any(e == "tables[0].date_columns['col_a']: unknown encoding 'epoch-millis'" for e in errors)
+
+
+def test_date_columns_must_name_a_header_column(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"nope": {"encoding": "epoch-seconds"}})]},
+    )
+    errors, _ = validate("example")
+    assert any(e == "tables[0].date_columns['nope']: not a column in headers" for e in errors)
+
+
+def test_timezone_null_or_iana_is_accepted(monkeypatch):
+    for zone in (None, "Europe/London"):
+        monkeypatch.setattr(
+            "port.helpers.port_config_validator.read_config",
+            lambda platform, zone=zone: {"platform_info": {"name": "example", "timezone": zone}, "tables": [_table()]},
+        )
+        errors, _ = validate("example")
+        assert not [e for e in errors if "timezone" in e]
+
+
+def test_timezone_unknown_name_is_rejected(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example", "timezone": "Mars/Olympus_Mons"}, "tables": [_table()]},
+    )
+    errors, _ = validate("example")
+    assert any(e == "platform_info.timezone must be an IANA timezone name or null" for e in errors)
+
+
+def test_date_columns_that_is_not_a_dict_reports_and_does_not_raise(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"}, "tables": [_table(date_columns=["col_a"])]},
+    )
+    errors, _ = validate("example")
+    assert any("optional field 'date_columns' must be dict" in e for e in errors)
+
+
+def test_utc_offset_minutes_rejects_booleans(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "meta-html", "utcOffsetMinutes": True}})]},
+    )
+    errors, _ = validate("example")
+    assert any(e == "tables[0].date_columns['col_a']: utcOffsetMinutes must be an integer" for e in errors)
+
+
+def test_empty_encoding_list_is_rejected(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": []}})]},
+    )
+    errors, _ = validate("example")
+    assert any(e == "tables[0].date_columns['col_a']: encoding list must not be empty" for e in errors)
+
+
+# --- utcOffsetMinutes declared on an encoding that ignores it (final review M4) ---------------
+
+
+def test_utc_offset_minutes_on_tiktok_warns(monkeypatch):
+    """tiktok always reads its own written-in UTC clock; a declared offset never runs."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "tiktok", "utcOffsetMinutes": 60}})]},
+    )
+    errors, warnings = validate("example")
+    assert not [e for e in errors if "utcOffsetMinutes" in e]
+    assert any(
+        "col_a" in w and "utcOffsetMinutes" in w and "tiktok" in w for w in warnings
+    )
+
+
+def test_utc_offset_minutes_on_iso_8601_is_silent(monkeypatch):
+    """iso-8601 reads the offset itself (parseIso); no warning belongs here."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "iso-8601", "utcOffsetMinutes": 60}})]},
+    )
+    _, warnings = validate("example")
+    assert not [w for w in warnings if "utcOffsetMinutes" in w]
+
+
+def test_utc_offset_minutes_on_meta_html_is_silent(monkeypatch):
+    """meta-html reads the offset itself (parseMetaHtml); no warning belongs here."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={"col_a": {"encoding": "meta-html", "utcOffsetMinutes": 60}})]},
+    )
+    _, warnings = validate("example")
+    assert not [w for w in warnings if "utcOffsetMinutes" in w]
+
+
+def test_utc_offset_minutes_on_an_encoding_list_with_an_offset_aware_member_is_silent(monkeypatch):
+    """A column declaring several encodings only warns when none of them reads the offset."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {"platform_info": {"name": "example"},
+                          "tables": [_table(date_columns={
+                              "col_a": {"encoding": ["iso-8601", "takeout-html"], "utcOffsetMinutes": 60}
+                          })]},
+    )
+    _, warnings = validate("example")
+    assert not [w for w in warnings if "utcOffsetMinutes" in w]
+
+
+# --- date-grouped charts must declare their column (final review, Important 2) ----
+
+
+def test_date_grouped_chart_without_a_date_columns_entry_is_rejected(monkeypatch):
+    """A stale, pre-Task-8 config with a dateFormat chart but no date_columns
+    declaration must fail validation — silently, every row of that chart would
+    otherwise land in "could not be placed" once the front end starts reading
+    date_columns (final review, Important 2)."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {
+            "platform_info": {"name": "example"},
+            "tables": [
+                _table(
+                    visualizations=[
+                        {
+                            "title": {"en": "Per month", "nl": "Per maand"},
+                            "type": "area",
+                            "group": {"column": "col_a", "dateFormat": "month"},
+                            "values": [{}],
+                        }
+                    ]
+                )
+            ],
+        },
+    )
+    errors, _ = validate("example")
+    assert any(
+        "col_a" in e and "dateFormat" in e and "date_columns" in e
+        for e in errors
+    )
+
+
+def test_date_grouped_chart_with_a_matching_date_columns_entry_is_accepted(monkeypatch):
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {
+            "platform_info": {"name": "example"},
+            "tables": [
+                _table(
+                    date_columns={"col_a": {"encoding": "iso-8601"}},
+                    visualizations=[
+                        {
+                            "title": {"en": "Per month", "nl": "Per maand"},
+                            "type": "area",
+                            "group": {"column": "col_a", "dateFormat": "month"},
+                            "values": [{}],
+                        }
+                    ],
+                )
+            ],
+        },
+    )
+    errors, _ = validate("example")
+    assert not [e for e in errors if "dateFormat" in e and "date_columns" in e]
+
+
+def test_chart_without_a_dateformat_group_is_unaffected(monkeypatch):
+    """A non-date grouping (e.g. by a categorical column) never needs date_columns."""
+    monkeypatch.setattr(
+        "port.helpers.port_config_validator.read_config",
+        lambda platform: {
+            "platform_info": {"name": "example"},
+            "tables": [
+                _table(
+                    visualizations=[
+                        {
+                            "title": {"en": "By category", "nl": "Per categorie"},
+                            "type": "bar",
+                            "group": {"column": "col_b"},
+                            "values": [{}],
+                        }
+                    ]
+                )
+            ],
+        },
+    )
+    errors, _ = validate("example")
+    assert not [e for e in errors if "dateFormat" in e]

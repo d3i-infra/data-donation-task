@@ -634,3 +634,22 @@ class TestEncryptedDonation:
         with patch("port.helpers.flow_builder.encrypt_payload", side_effect=ValueError("crypto failure")):
             with pytest.raises(ValueError, match="crypto failure"):
                 advance_past_logs(gen, consent_payload)
+
+
+class TestDisplayTimezone:
+    """Tables carry the configured display timezone (ADR-0043) into the review prompt."""
+
+    def test_tables_carry_the_configured_display_timezone(self, monkeypatch):
+        import port.helpers.flow_builder as fb
+        monkeypatch.setattr(fb, "load_reference_timezone", lambda platform: "Europe/London")
+        flow = StubFlow()
+        prompt = flow.generate_review_data_prompt(flow._tables)
+        assert all(t.display_timezone == "Europe/London" for t in flow._tables)
+        assert prompt is not None
+
+    def test_tables_without_a_configured_zone_carry_none(self, monkeypatch):
+        import port.helpers.flow_builder as fb
+        monkeypatch.setattr(fb, "load_reference_timezone", lambda platform: None)
+        flow = StubFlow()
+        flow.generate_review_data_prompt(flow._tables)
+        assert all(t.display_timezone is None for t in flow._tables)
