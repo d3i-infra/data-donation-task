@@ -20,7 +20,8 @@ import TextBundle from '@eyra/feldspar'
 import { resolveAll } from '../../locale/text'
 import { CheckBox } from "./check_box"
 import { PropsUITableRow } from "./types"
-
+import { resolveDisplayTimezone } from "./visualization_plugin/visualizationDataFunctions/util"
+import { buildCellDisplay } from "./cell_display"
 
 export interface Props {
   table: TableWithContext
@@ -110,6 +111,21 @@ export const Table = ({
     return items
   }, [table, page, pageSize])
 
+  // Validated once per declared zone (ADR-0035), not per row: `Intl.DateTimeFormat` throws a
+  // RangeError for a `timeZone` the browser's ICU rejects, and that construction otherwise
+  // happens lazily inside `displayTimestamp` while rendering a cell.
+  const zone = useMemo(() => {
+    const resolved = resolveDisplayTimezone(table.displayTimezone)
+    if (table.displayTimezone !== undefined && resolved !== table.displayTimezone) {
+      console.error(`consent_form_viz: table "${table.id}" has an invalid display_timezone "${table.displayTimezone}", falling back to ${resolved}`)
+    }
+    return resolved
+  }, [table.id, table.displayTimezone])
+  const cellDisplay = useMemo(
+    () => buildCellDisplay({ head: table.head, dateColumns: table.dateColumns, dateLocale: table.dateLocale }, zone, locale),
+    [table.head, table.dateColumns, table.dateLocale, zone, locale]
+  )
+
   function renderHeaderCell (value: string, i: number): ReactElement {
     // Display translated header if available, fall back to raw column name
     const displayName = table.headers?.[value] ?? value
@@ -150,7 +166,7 @@ export const Table = ({
 
         {item.cells.map((cell, j) => (
           <td key={j}>
-            <Cell cell={cell} search={search} cellClass={cellClass} setTooltip={setTooltip} />
+            <Cell cell={cell} display={cellDisplay[j]?.(cell)} search={search} cellClass={cellClass} setTooltip={setTooltip} />
           </td>
         ))}
       </tr>
@@ -238,11 +254,13 @@ export const Table = ({
 
 function Cell ({
   cell,
+  display,
   search,
   cellClass,
   setTooltip
 }: {
   cell: string
+  display?: string | null
   search: string
   cellClass: string
   setTooltip: Dispatch<SetStateAction<Tooltip>>
@@ -250,6 +268,10 @@ function Cell ({
   const textRef = useRef<HTMLDivElement>(null)
   const [overflows, setOverflows] = useState(false)
   const isUrl = /^https?:\/\//.test(cell)
+  const text = display ?? cell
+  // display is '' for an empty value (an empty cell, not a hoverable raw value) and the
+  // formatted text otherwise; null/undefined means the raw cell is already shown as `text`.
+  const showRawOnHover = display != null && display !== ''
 
   const searchWords = useMemo(() => {
     return [search]
@@ -264,7 +286,7 @@ function Cell ({
   function onSetTooltip (): void {
     if (isUrl) return
     if (textRef.current == null) return
-    if (!overflows) return
+    if (!overflows && !showRawOnHover) return
 
     const rect = textRef.current.getBoundingClientRect()
 
@@ -303,7 +325,7 @@ function Cell ({
               <Highlighter
                 searchWords={searchWords}
                 autoEscape
-                textToHighlight={cell}
+                textToHighlight={text}
                 highlightClassName='bg-tertiary rounded-sm'
               />
             </a>
@@ -312,12 +334,12 @@ function Cell ({
             <Highlighter
               searchWords={searchWords}
               autoEscape
-              textToHighlight={cell}
+              textToHighlight={text}
               highlightClassName='bg-tertiary rounded-sm'
             />
             )}
       </div>
-      {overflows && !isUrl && <TooltipIcon />}
+      {(overflows || showRawOnHover) && !isUrl && <TooltipIcon />}
     </div>
   )
 }

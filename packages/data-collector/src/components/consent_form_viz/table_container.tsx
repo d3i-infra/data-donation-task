@@ -6,12 +6,14 @@ import TextBundle from "@eyra/feldspar"
 import { resolveAll } from "../../locale/text"
 import { 
     TableWithContext,
-    PropsUITableRow,
 } from "./types"
 import { TableItems } from "./table_items"
 import { Figure } from "./visualization_plugin/figure"
 import { Table } from "./table"
 import { SearchBar } from "./search_bar"
+import { searchRows } from "./search_rows"
+import { buildCellDisplay } from "./cell_display"
+import { resolveDisplayTimezone } from "./visualization_plugin/visualizationDataFunctions/util"
 import { zTable, Table as ValidatedTable } from "./visualization_plugin/types"
 
 interface TableContainerProps {
@@ -29,9 +31,19 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
   const text = useMemo(() => getTranslations(locale), [locale])
   const [show, setShow] = useState<boolean>(!table.folded)
 
+  // Search sees a date cell as the participant does, so it builds the same display as the table.
+  const cellDisplay = useMemo(
+    () => buildCellDisplay(
+      { head: table.head, dateColumns: table.dateColumns, dateLocale: table.dateLocale },
+      resolveDisplayTimezone(table.displayTimezone),
+      locale
+    ),
+    [table.head, table.dateColumns, table.dateLocale, table.displayTimezone, locale]
+  )
+
   useEffect(() => {
     const timer = setTimeout(() => {
-      const ids = searchRows(table.originalBody.rows, search)
+      const ids = searchRows(table.originalBody.rows, search, cellDisplay)
       setSearchFilterIds(ids)
       if (search !== "" && lastSearch.current === "") {
         setTimeout(() => setShow(true), 10)
@@ -39,7 +51,7 @@ export const TableContainer = ({ id, table, updateTable, locale }: TableContaine
       lastSearch.current = search
     }, 300)
     return () => clearTimeout(timer)
-  }, [search, lastSearch, table.originalBody.rows])
+  }, [search, lastSearch, table.originalBody.rows, cellDisplay])
 
   const searchedTable = useMemo(() => {
     if (searchFilterIds === undefined) return table
@@ -174,37 +186,6 @@ function deleteTableRows(table: TableWithContext, deletedRows: string[][]): Tabl
     deletedRowCount,
     deletedRows,
   }
-}
-
-function searchRows(rows: PropsUITableRow[], search: string): Set<string> | undefined {
-  if (search.trim() === "") return undefined
-
-  // Not sure whether it's better to look for one of the words or exact string.
-  // Now going for exact string. Note that if you change this, you should also change
-  // the highlighting behavior in table.tsx (<Highlighter searchWords.../>)
-  // const query = search.trim().split(/\s+/)
-  const query = [search.trim()]
-
-  const regexes: RegExp[] = []
-  for (const q of query) {
-    regexes.push(new RegExp(q.replace(/[-/\\^$*+?.()|[\]{}]/, "\\$&"), "i"))
-  }
-
-  const ids = new Set<string>()
-  for (const row of rows) {
-    for (const regex of regexes) {
-      let anyCellMatches = false
-      for (const cell of row.cells) {
-        if (regex.test(cell)) {
-          anyCellMatches = true
-          break
-        }
-      }
-      if (anyCellMatches) ids.add(row.id)
-    }
-  }
-
-  return ids
 }
 
 const zoomInIcon = (
