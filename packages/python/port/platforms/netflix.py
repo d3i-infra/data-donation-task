@@ -172,7 +172,7 @@ def ratings_to_df(
           "columns": {
             "Title Name": "Name of the rated Netflix title.",
             "Thumbs Value": "Thumbs up or thumbs down value given by the participant.",
-            "Event Utc Ts": "ISO 8601 timestamp of when the rating was given."
+            "Event Utc Ts": "Rating time (UTC, YYYY-MM-DD HH:MM:SS)."
           }
         }
 
@@ -190,6 +190,7 @@ def ratings_to_df(
             "Thumbs Value": {"en": "Thumbs value", "nl": "Aantal duimpjes omhoog"},
             "Event Utc Ts": {"en": "Date", "nl": "Datum en tijd"}
           },
+          "date_columns": {"Event Utc Ts": {"encoding": "iso-8601", "utcOffsetMinutes": 0}},
           "visualizations": [
             {
               "title": {
@@ -255,7 +256,7 @@ def viewing_activity_to_df(
           "summary": "Each row represents one viewing session on Netflix, including the title watched, start time, and duration in hours.",
           "source_file": "ViewingActivity.csv",
           "columns": {
-            "Start Time": "ISO 8601 timestamp of when the viewing session started.",
+            "Start Time": "Viewing start time (UTC, YYYY-MM-DD HH:MM:SS).",
             "Duration": "Duration of the viewing session in hours.",
             "Title": "Name of the Netflix title watched.",
             "Supplemental Video Type": "Type of supplemental video (e.g. trailer), if applicable."
@@ -277,6 +278,7 @@ def viewing_activity_to_df(
             "Title": {"en": "Title", "nl": "Titel"},
             "Supplemental Video Type": {"en": "Type", "nl": "Aanvullende informatie"}
           },
+          "date_columns": {"Start Time": {"encoding": "iso-8601", "utcOffsetMinutes": 0}},
           "visualizations": [
             {
               "title": {
@@ -349,7 +351,7 @@ def search_history_to_df(
           "columns": {
             "Query Typed": "The search query the participant typed.",
             "Displayed Name": "The result title that was displayed.",
-            "Utc Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Utc Timestamp": "Search time (UTC, YYYY-MM-DD HH:MM:SS)."
           }
         }
 
@@ -370,6 +372,7 @@ def search_history_to_df(
             "Displayed Name": {"en": "Result shown", "nl": "Weergegeven resultaat"},
             "Utc Timestamp": {"en": "Date", "nl": "Datum en tijd"}
           },
+          "date_columns": {"Utc Timestamp": {"encoding": "iso-8601", "utcOffsetMinutes": 0}},
           "visualizations": [
             {
               "title": {
