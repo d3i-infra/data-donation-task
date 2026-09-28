@@ -1,78 +1,79 @@
 import { DateFormat, Table } from "../types";
+import { Interpretation } from "./interpretTimestamp";
 
 export function formatDate(
-  dateString: string[],
+  wallClockMs: Array<number | null>,
   format: DateFormat,
   minValues: number = 10
 ): [string[], Record<string, number> | null] {
   let formattedDate: string[];
-  const dateNumbers = dateString.map((date) => new Date(date).getTime());
+  const nonNullMs = wallClockMs.filter((ms): ms is number => ms !== null);
   let domain: [number, number] | null = null;
   let formatter: (date: Date) => string = (date) => date.toISOString();
 
-  if (format === "auto") format = autoFormatDate(dateNumbers, minValues);
+  if (format === "auto") format = autoFormatDate(nonNullMs, minValues);
 
-  if (format === "year") formatter = (date) => date.getFullYear().toString();
+  if (format === "year") formatter = (date) => date.getUTCFullYear().toString();
 
   if (format === "quarter") {
     formatter = (date) => {
-      const year = date.getFullYear().toString();
-      const quarter = Math.floor(date.getMonth() / 3) + 1;
+      const year = date.getUTCFullYear().toString();
+      const quarter = Math.floor(date.getUTCMonth() / 3) + 1;
       return `${year}-Q${quarter}`;
     };
   }
 
   if (format === "month") {
-    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short", timeZone: "UTC" });
     formatter = (date) => {
-      const year = date.getFullYear().toString();
+      const year = date.getUTCFullYear().toString();
       const month = monthFormatter.format(date);
       return `${year}-${month}`;
     };
   }
 
   if (format === "day") {
-    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short", timeZone: "UTC" });
     formatter = (date) => {
-      const year = date.getFullYear().toString();
+      const year = date.getUTCFullYear().toString();
       const month = monthFormatter.format(date);
-      const day = date.getDate().toString();
+      const day = date.getUTCDate().toString();
       return `${year}-${month}-${day}`;
     };
   }
 
   if (format === "hour") {
-    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short" });
+    const monthFormatter = new Intl.DateTimeFormat("default", { month: "short", timeZone: "UTC" });
     formatter = (date) => {
-      const year = date.getFullYear().toString();
+      const year = date.getUTCFullYear().toString();
       const month = monthFormatter.format(date);
-      const day = date.getDate().toString();
-      const hour = date.getHours();
+      const day = date.getUTCDate().toString();
+      const hour = date.getUTCHours();
       return `${year}-${month}-${day} ${hour}:00`;
     };
   }
 
   if (format === "month_cycle") {
-    const intlFormatter = new Intl.DateTimeFormat("default", { month: "long" });
+    const intlFormatter = new Intl.DateTimeFormat("default", { month: "long", timeZone: "UTC" });
     formatter = (date) => intlFormatter.format(date);
     // can be any year, starting at january
-    domain = [new Date("2000-01-01").getTime(), new Date("2001-01-01").getTime()];
+    domain = [Date.UTC(2000, 0, 1), Date.UTC(2001, 0, 1)];
   }
   if (format === "weekday_cycle") {
-    const intlFormatter = new Intl.DateTimeFormat("default", { weekday: "long" });
+    const intlFormatter = new Intl.DateTimeFormat("default", { weekday: "long", timeZone: "UTC" });
     formatter = (date) => intlFormatter.format(date);
     // can be any full week, starting at monday
-    domain = [new Date("2023-11-06").getTime(), new Date("2023-11-13").getTime()];
+    domain = [Date.UTC(2023, 10, 6), Date.UTC(2023, 10, 13)];
   }
   if (format === "hour_cycle") {
-    const intlFormatter = new Intl.DateTimeFormat("default", { hour: "numeric", hour12: false });
+    const intlFormatter = new Intl.DateTimeFormat("default", { hour: "numeric", hour12: false, timeZone: "UTC" });
     formatter = (date) => intlFormatter.format(date);
     // can be any day, starting at midnight
-    domain = [new Date("2000-01-01").getTime(), new Date("2000-01-02").getTime()];
+    domain = [Date.UTC(2000, 0, 1), Date.UTC(2000, 0, 2)];
   }
 
-  formattedDate = dateNumbers.map((date) => formatter(new Date(date)));
-  if (domain == null) domain = getDomain(dateNumbers);
+  formattedDate = wallClockMs.map((ms) => (ms === null ? "" : formatter(new Date(ms))));
+  if (domain == null) domain = getDomain(nonNullMs);
   const sortableDate: Record<string, number> | null = createSortable(domain, format, formatter);
 
   return [formattedDate, sortableDate];
@@ -151,6 +152,47 @@ export function rescaleToRange(value: number, min: number, max: number, newMin: 
   let scaled = (value - min) / (max - min);
   scaled = isNaN(scaled) ? 0 : scaled; // prevent NaN
   return scaled * (newMax - newMin) + newMin;
+}
+
+const displayFormatters = new Map<string, Intl.DateTimeFormat>()
+
+export function displayTimestamp (interp: Interpretation, timeZone: string, locale: string): string | null {
+  if (interp.status === 'empty') return ''
+  if (interp.status !== 'instant' && interp.status !== 'local') return null
+  const zone = interp.status === 'instant' ? timeZone : 'UTC'
+  const key = `${locale}|${zone}`
+  let fmt = displayFormatters.get(key)
+  if (fmt === undefined) {
+    fmt = new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeStyle: 'medium', timeZone: zone })
+    displayFormatters.set(key, fmt)
+  }
+  return fmt.format(new Date(interp.status === 'instant' ? interp.epochMs : interp.wallClockMs))
+}
+
+// `new Intl.DateTimeFormat` throws a RangeError for a `timeZone` the browser's ICU does not
+// recognise. Callers validate a declared zone once (e.g. per table, in a memo — ADR-0035),
+// not per row, and fall back to a default zone on failure.
+export function isValidTimeZone(zone: string): boolean {
+  try {
+    void new Intl.DateTimeFormat('en-US', { timeZone: zone })
+    return true
+  } catch {
+    return false
+  }
+}
+
+// The one default display zone (bug: previously duplicated as a literal in table.tsx and
+// prepareChartData.ts — ts-idiom-merged §5 items 1-2 / T41).
+export const DEFAULT_DISPLAY_TIMEZONE = 'Europe/Amsterdam'
+
+/** A table's declared `displayTimezone`, validated once and falling back to
+ *  `DEFAULT_DISPLAY_TIMEZONE` for an undeclared or invalid zone. Both the table and chart
+ *  paths go through this so an invalid zone can no longer reach `Intl.DateTimeFormat`
+ *  unvalidated in either place (bug: the chart path used to skip validation entirely and
+ *  throw — ts-idiom-merged §5 item 1). */
+export function resolveDisplayTimezone(zone: string | undefined): string {
+  if (zone !== undefined && isValidTimeZone(zone)) return zone
+  return DEFAULT_DISPLAY_TIMEZONE
 }
 
 export function extractUrlDomain(x: string): string {
