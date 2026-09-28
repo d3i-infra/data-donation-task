@@ -28,7 +28,7 @@ Platform info::
 """
 import logging
 from collections import Counter
-from typing import Callable
+from typing import Any, Callable
 
 import pandas as pd
 import json
@@ -94,6 +94,23 @@ def shown_message_ids(conversation: dict) -> set[str] | None:
     return shown
 
 
+def _time_sort_key(value: Any) -> tuple[int, float]:
+    """Sort key for the raw ``create_time`` cell; never raises.
+
+    ``value`` can be a native int/float (the common case), ``None`` or ``""``
+    (a system/tool message with no timestamp), or — from a malformed export —
+    an unparsable string. All four must sort without raising: an exception
+    here would propagate to the broad ``except`` around the whole conversation
+    loop and silently drop every message in it, not just the bad one.
+    Empties and malformed values sort last (``(1, 0.0)``); real timestamps
+    sort by their numeric value (``(0, float(value))``).
+    """
+    try:
+        return (0, float(value))
+    except (TypeError, ValueError):
+        return (1, 0.0)
+
+
 def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
     """Extract all ChatGPT conversations into a DataFrame.
 
@@ -122,7 +139,7 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
             "message": "Full text of the message.",
             "content type": "The content type of the message, e.g. 'text', 'multimodal_text', 'thoughts', or 'reasoning_recap'.",
             "model": "ChatGPT model slug used to generate the assistant reply.",
-            "time": "ISO 8601 timestamp of when the message was created.",
+            "time": "Time of the message (Unix seconds).",
             "message id": "A unique identifier for the message.",
             "reaction to": "The id of the message this message reacts to. ``client-created-root`` indicates the first message in the chat.",
             "hidden": "True when ChatGPT doesn't show the message in the conversation: it is on another branch than the one currently shown, e.g. an earlier version of a regenerated reply, a reply to an edited prompt, or the reply not picked when two were compared. False when shown, or when the export doesn't say which branch is shown.",
@@ -159,6 +176,15 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
           "visualizations": [
             {
               "title": {
+                "en": "Messages over time",
+                "nl": "Berichten in de loop van de tijd"
+              },
+              "type": "area",
+              "group": {"column": "time", "dateFormat": "auto"},
+              "values": [{"aggregate": "count", "label": "Count"}]
+            },
+            {
+              "title": {
                 "en": "Your messages in a wordcloud",
                 "nl": "Je berichten in een woordwolk"
               },
@@ -166,7 +192,8 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
               "textColumn": "message",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"time": {"encoding": "epoch-seconds"}}
         }
     """
     results = reader.json_all(r"^conversations.*\.json")
@@ -223,7 +250,14 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
                     role = eh.find_item(denested_d, "role")
                     model = eh.find_item(denested_d, "-model_slug")
                     reaction_to = eh.find_item(denested_d, "parent")
-                    time = eh.epoch_to_iso(eh.find_item(denested_d, "create_time"), errors=errors)
+                    time = eh.find_item_raw(denested_d, "create_time")
+                    if time is None:
+                        # find_item_raw returns the export's own value (ADR-0042); a
+                        # JSON null (system/tool messages in newer exports) surfaces
+                        # as Python None. Keep the donated cell empty, not None —
+                        # never `find_item_raw(...) or ""`, which would also erase a
+                        # legitimate epoch of 0.
+                        time = ""
                     datapoint = {
                         "conversation title": title,
                         "role": role,
@@ -239,7 +273,7 @@ def conversations_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
                     }
                     if role != "":
                         datapoints.append(datapoint)
-        datapoints = sorted(datapoints, key=lambda d: d['time'])
+        datapoints = sorted(datapoints, key=lambda d: _time_sort_key(d['time']))
         out = pd.DataFrame(datapoints)
 
     except Exception as e:
