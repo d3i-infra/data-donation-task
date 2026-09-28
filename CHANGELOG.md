@@ -147,6 +147,39 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
     zips at once.
   See ADR-0013 (validation exception), ADR-0027 (extractor canaries),
   ADR-0034 (memory budget), ADR-0040 (archive-set pipeline).
+* **`date_columns` on a table's config, declaring how its raw values are
+  encoded.** Six encodings are recognised — `epoch-seconds`, `epoch-micros`,
+  `iso-8601`, `tiktok`, `takeout-html`, `meta-html` — a column may declare
+  several when an export mixes shapes, and an `iso-8601` or `meta-html` entry
+  may add `utcOffsetMinutes` to place a zone-less rendered value without
+  guessing. The validator rejects an undeclared encoding name, so an
+  extractor that adds a date column must declare it in the same change.
+* **`platform_info.timezone`**, the IANA zone the front end displays
+  timestamps in, defaulting to `Europe/Amsterdam` when a platform config
+  leaves it unset.
+* **Front-end timestamp interpretation, done once.** The new
+  `interpretTimestamp` module turns a cell, its `date_columns` spec and the
+  export's locale into one of six explicit statuses — `instant`, `local`,
+  `empty`, `invalid`, `ambiguous`, `unsupported` — instead of every consumer
+  calling `new Date()` on a raw string. Charts bucket `instant` values in the
+  display zone and `local` values by their own wall clock, and report the
+  count of rows they could not place; those rows stay in the table and the
+  donation. Table cells show the readable form for `instant` and `local`,
+  fall back to the raw text for every other status, and always carry the raw
+  value in a custom tooltip, shown on hover and on tap. Google's and
+  YouTube's html-rendering extractors
+  now stamp `date_locale` on their tables so `interpretTimestamp` reads the
+  same locale Google rendered in. See ADR-0043 and the amendments to
+  ADR-0035 and ADR-0031.
+* **Facebook accepts an HTML-format DDP export, alongside the existing
+  JSON one.** Seventeen of the platform's nineteen tables read either
+  format — `notifications` and `group_posts_and_comments` stay JSON-only,
+  since the HTML export carries no file for them. Each table donates the
+  export's own values as written: Unix seconds from the JSON export, the
+  rendered `Mon DD, YYYY H:MM:SS am/pm` clock text from the HTML one —
+  shown on the account's own clock rather than converted, since a
+  Facebook HTML export names no timezone (see the ADR-0043 amendment
+  above).
 
 ### Fixed
 
@@ -236,6 +269,44 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
 
 ### Changed
 
+* **Breaking: timestamps are donated as exported.** Facebook, Instagram and
+  ChatGPT now donate the epoch seconds the export itself carried — the
+  Python layer keeps the export's own number end to end via the new
+  `find_item_raw`/`raw_timestamp` helpers, though the consent page
+  serializes every cell as text when it donates, so the payload still
+  carries it as a string (pre-existing gap, tracked in
+  `PENDING_ISSUES.md`) — where they previously wrote a converted UTC ISO
+  string. Chrome's browser-history extractor now donates epoch
+  microseconds, previously also a converted UTC ISO string. Google's and
+  YouTube's Takeout-html tables now donate the sentence Google rendered,
+  previously a converted naive ISO string, and Chrome history inside a
+  Takeout now donates the `time_usec` microseconds the json carried,
+  previously a converted naive ISO string. Instagram's html-rendered
+  tables now donate Meta's own display text unconverted, previously
+  rewritten to a UTC instant with a fixed −8h offset applied. Google's
+  json-sourced tables continue to donate the `Z` string with its
+  fraction, unchanged and now declared alongside everything else.
+  Downstream analysis interprets the raw value with the same front-end
+  step the consent page uses, `interpretTimestamp` (ADR-0043), rather
+  than re-deriving its own reading. Chrome's 10,000-row cap now orders by
+  the raw microseconds instead of a parsed instant. Netflix, TikTok and
+  WhatsApp values are unchanged and are now declared the same way;
+  WhatsApp keeps its own `dateutil`-based converter as a recorded
+  exception, since it writes its own ISO string rather than the export's
+  own text. See ADR-0042, ADR-0043, and the amendments to ADR-0035 and
+  ADR-0031. Helpers removed by this change are listed under `### Removed`
+  below.
+* **Breaking: stale platform configs need regenerating.**
+  `port_config_validator` now refuses a chart that groups by a
+  `dateFormat` on a column the table's `date_columns` doesn't declare —
+  a config generated before this branch declares no `date_columns` at
+  all, so every one of its date charts now fails validation instead of
+  silently rendering "could not be placed" for every row. Regenerate
+  every platform config before the next release: the generator refuses
+  to overwrite, so remove the stale file first
+  (`rm packages/python/port/configs/<platform>_config.json && pnpm
+  generate-config <platform>`), or merge `date_columns` into a
+  hand-edited one.
 * Pyright debt cleanup: upload consumers are typed as
   `SeekableBinaryReader` (ADR-0026), TikTok extractor payloads are
   narrowed before use, and the remaining optional/union type errors
@@ -249,9 +320,31 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   failure naming the command that fixes it — previously it degraded
   into a wall of bogus unresolved-import errors. The script uses no
   bash-4 builtins, so it runs on macOS's stock `/bin/bash` 3.2.
+* **Facebook's table set is now nineteen tables**, pinned by
+  `facebook.EXTRACTOR_REGISTRY`. Six are new or replace a prior table with
+  a re-ported clock-sourced shape: `facebook_content_shown_to_you`
+  ("Content shown to you on Facebook", replaces "Facebook items you
+  recently viewed"), `facebook_profile_visits` ("Profiles you visited
+  recently", replaces the grouped table of the same title with a source
+  layout that also reads the export's September-2026 split files),
+  `facebook_your_events` ("Events", replaces "Your event responses"),
+  `facebook_activity_off_meta` ("Your activity off Meta technologies"),
+  `facebook_advertisers_youve_interacted_with` ("Ads you clicked or
+  engaged with"), and `facebook_link_history` ("Links visited from
+  Facebook") — the last three newly extracted in this repo, ported from
+  the algosoc fork's JSON branch. Twelve further tables were dropped
+  outright (see `### Removed`).
 
 ### Removed
 
+* **Timestamp-conversion helpers**, superseded by donating the export's own
+  value (see the `### Changed` entry above): `extraction_helpers.epoch_to_iso`,
+  `epoch_to_datetime_string`, `utc_timestamp_to_datetime_string`,
+  `local_time_to_datetime_string`, `zone_time_to_datetime_string`,
+  `resolve_timezone`, `sort_isotimestamp_empty_timestamp_last` and
+  `replace_months`, along with the platform-private `_raw_timestamp` wrappers
+  they supported. `find_item_raw` and the shared `raw_timestamp` take their
+  place.
 * **`VITE_ASYNC_DONATIONS`** and its `.env.example` documentation. The
   flag existed to keep donations fire-and-forget for a mono that never
   replied; both monos now attempt a `DonateSuccess`/`DonateError` reply
@@ -276,6 +369,21 @@ Earlier releases used sequential numbering (#1-#5) matching the upstream
   a prop, and a bundle built without a platform fails loudly via
   `script.py`'s `ValueError` on the consent-gated error page rather
   than falling back to a build-time default.
+* **Twelve Facebook tables**, dropped from `facebook.EXTRACTOR_REGISTRY`
+  outright rather than ported (three further tables were replaced, not
+  simply dropped — see `### Changed` above), by id and researcher-facing
+  title: `facebook_news_your_locations` ("The locations Facebook news is
+  set to"), `facebook_content_sharing_links_you_created` ("Links you
+  shared"), `facebook_reels_usage` ("Interactions with Facebook Reels"),
+  `facebook_last_28` ("How many videos you watched in the last 28 days"),
+  `facebook_your_friends` ("Your friends on Facebook"),
+  `facebook_profile_update_history` ("History of your profile updates"),
+  `facebook_your_answers_to_membership_questions` ("Your answers to
+  group membership questions"), `facebook_your_saved_items` ("Your saved
+  items"), `facebook_your_comment_active_days` ("Days you actively
+  commented"), `facebook_your_pages` ("Pages you manage"),
+  `facebook_story_reactions` ("Your story reactions"), and
+  `facebook_feed_controls` ("Feed controls (show more / show less)").
 
 ## v3.0.0 — 2026-07-16
 
