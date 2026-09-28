@@ -76,11 +76,11 @@ WHY = (
 
 def _format_timestamp(moment: datetime) -> str:
     """Formats *moment* the way the English Takeout export writes an activity
-    timestamp: ``Aug 17, 2026, 1:14:48 PM CEST`` — parseable by
-    ``port.platforms.google.MONTH_FIRST`` (a 12-hour clock with no leading
-    zero on the hour). The trailing zone abbreviation is fixed at CEST;
-    ``_convert_to_iso8601`` ignores it regardless of the archive's real zone,
-    same as production."""
+    timestamp: ``Aug 17, 2026, 1:14:48 PM CEST`` — the shape the front end's
+    ``takeout-html`` encoding interprets (a 12-hour clock with no leading
+    zero on the hour). The trailing zone abbreviation is fixed at CEST; the
+    raw sentence is donated as exported, zone included, same as production
+    (ADR-0042 — there is no converter to ignore it any more)."""
     hour12 = moment.hour % 12 or 12
     meridiem = "AM" if moment.hour < 12 else "PM"
     return (

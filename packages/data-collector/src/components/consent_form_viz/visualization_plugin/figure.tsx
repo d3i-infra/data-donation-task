@@ -97,7 +97,8 @@ export const FigureComponent = ({
   }
 
   const canDouble = doubleTypes.includes(visualization.type)
-  const { errorMsg, noDataMsg } = useMemo(() => prepareTexts(locale), [locale])
+  const { errorMsg, noDataMsg, unplottedMsg } = useMemo(() => prepareTexts(locale), [locale])
+  const unplottedCount = visualizationData != null && 'unplotted' in visualizationData ? visualizationData.unplotted : 0
 
   if (visualizationData == null && status === 'loading') {
     if (longLoading) return <Loader />
@@ -118,6 +119,9 @@ export const FigureComponent = ({
           {showStatus === 'double' ? zoomOutIcon : zoomInIcon}
         </button>
       </div>
+      {unplottedCount > 0 && (
+        <div className='text-grey2 text-sm px-3'>{unplottedMsg.replace('{n}', unplottedCount.toLocaleString(locale))}</div>
+      )}
       <div className='w-full overflow-auto'>
         <div className='flex flex-col '>
           <div
@@ -172,7 +176,11 @@ export const RenderVisualization = memo(
   }
 )
 
-function prepareTexts (locale: string): Record<string, string> {
+// Inference gives this its precise key type ({ errorMsg, noDataMsg, unplottedMsg }: string)
+// instead of widening to Record<string, string>, so a misspelt key (e.g. `unplotedMsg`) is a
+// compile error at the call site rather than an `undefined.replace` crash at render time
+// (ts-idiom T45).
+function prepareTexts (locale: string) {
   const texts = {
     errorMsg: {
       en: 'Could not create visualization',
@@ -187,11 +195,19 @@ function prepareTexts (locale: string): Record<string, string> {
       de: 'Keine Daten',
       it: 'Nessun dato',
       es: 'Sin datos'
+    },
+    unplotted: {
+      en: '{n} rows could not be placed on the time axis',
+      nl: '{n} rijen konden niet op de tijdas worden geplaatst',
+      de: '{n} Zeilen konnten nicht auf der Zeitachse platziert werden',
+      it: '{n} righe non è stato possibile collocare sull\'asse temporale',
+      es: '{n} filas no se pudieron colocar en el eje temporal'
     }
   }
 
   return {
     errorMsg: resolveFlatText(texts.errorMsg, locale),
-    noDataMsg: resolveFlatText(texts.noDataMsg, locale)
+    noDataMsg: resolveFlatText(texts.noDataMsg, locale),
+    unplottedMsg: resolveFlatText(texts.unplotted, locale)
   }
 }

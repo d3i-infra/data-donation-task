@@ -138,6 +138,50 @@ class TestResolveMember:
         reader = ZipArchiveReader(archive, ["who_youve_followed.json"], Counter())
         assert reader.resolve_member("who_you've_followed.json") is None
 
+    # Fix round 1, item 2: the substitution only ran one way (a requested
+    # apostrophe tried the underscore spelling). An export that kept the
+    # apostrophe never matched a request spelled with an underscore instead —
+    # exactly the shape who_youve_followed_to_df / pages_youve_liked_to_df hit
+    # against a real JSON export.
+    def test_underscore_request_matches_apostrophe_member(self):
+        """The member itself is stored with an apostrophe (a_b's_c.json); a
+        request spelled with an underscore instead (a_b_s_c.json) still
+        resolves it — the reverse of the already-supported direction."""
+        archive = _build_archive(("a_b's_c.json", "{}"))
+        reader = ZipArchiveReader(archive, ["a_b's_c.json"], Counter())
+        assert reader.resolve_member("a_b_s_c.json") == "a_b's_c.json"
+
+    def test_underscore_request_matches_apostrophe_member_at_a_path_boundary(self):
+        archive = _build_archive(("some/folder/a_b's_c.json", "{}"))
+        reader = ZipArchiveReader(archive, ["some/folder/a_b's_c.json"], Counter())
+        assert reader.resolve_member("a_b_s_c.json") == "some/folder/a_b's_c.json"
+
+    def test_exact_spelling_wins_when_both_spellings_exist_as_distinct_members(self):
+        """When both an apostrophe-spelled and an underscore-spelled member
+        exist, the literal requested spelling always wins — new fuzziness in
+        either direction never displaces an exact hit."""
+        archive = _build_archive(
+            ("a_b_s_c.json", "{}"),
+            ("a_b's_c.json", "{}"),
+        )
+        members = ["a_b_s_c.json", "a_b's_c.json"]
+        reader = ZipArchiveReader(archive, members, Counter())
+        assert reader.resolve_member("a_b_s_c.json") == "a_b_s_c.json"
+        assert reader.resolve_member("a_b's_c.json") == "a_b's_c.json"
+
+    def test_underscore_substitution_does_not_create_new_ambiguity_for_a_plain_name(self):
+        """A filename with ordinary underscores and no apostrophe-spelled
+        sibling anywhere in the archive must still resolve cleanly — the
+        extra candidates the fix tries never manufacture a false ambiguity."""
+        archive = _build_archive(
+            ("your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json", "{}"),
+        )
+        members = ["your_facebook_activity/posts/your_posts__check_ins__photos_and_videos_1.json"]
+        errors = Counter()
+        reader = ZipArchiveReader(archive, members, errors)
+        assert reader.resolve_member("your_posts__check_ins__photos_and_videos_1.json") == members[0]
+        assert not errors
+
 
 class TestJsonExtraction:
     def test_found(self, sample_zip):

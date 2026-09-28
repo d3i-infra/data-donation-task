@@ -574,7 +574,7 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
           "summary": "Each row represents one TikTok video the participant watched, including the date and video link.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the video was watched.",
+            "Date": "Watch time (UTC, YYYY-MM-DD HH:MM:SS).",
             "Link": "URL of the watched TikTok video."
           }
         }
@@ -591,7 +591,8 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
           "headers": {
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "Link": {"en": "Link", "nl": "URL"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -676,7 +677,7 @@ def favorite_videos_to_df(reader: ZipArchiveReader, errors: Counter, validation)
           "summary": "Each row represents one TikTok video the participant marked as a favorite.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the video was marked as favorite.",
+            "Date": "Time the video was favorited (UTC, YYYY-MM-DD HH:MM:SS).",
             "Link": "URL of the favorited TikTok video."
           }
         }
@@ -693,7 +694,8 @@ def favorite_videos_to_df(reader: ZipArchiveReader, errors: Counter, validation)
           "headers": {
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "Link": {"en": "Link", "nl": "URL"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -773,7 +775,7 @@ def follower_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
           "summary": "Each row represents one account that follows the participant on TikTok.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the account started following.",
+            "Date": "Time of the follow (UTC, YYYY-MM-DD HH:MM:SS).",
             "UserName": "Username of the follower account."
           }
         }
@@ -790,7 +792,8 @@ def follower_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
           "headers": {
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "UserName": {"en": "Username", "nl": "Gebruikersnaam"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -870,7 +873,7 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
           "summary": "Each row represents one account that the participant follows on TikTok.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the participant started following this account.",
+            "Date": "Time of the follow (UTC, YYYY-MM-DD HH:MM:SS).",
             "UserName": "Username of the followed account."
           }
         }
@@ -887,7 +890,8 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
           "headers": {
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "UserName": {"en": "Username", "nl": "Gebruikersnaam"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -1067,7 +1071,7 @@ def like_list_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
           "summary": "Each row represents one TikTok video the participant liked.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the video was liked.",
+            "Date": "Time of the like (UTC, YYYY-MM-DD HH:MM:SS).",
             "Link": "URL of the liked TikTok video."
           }
         }
@@ -1084,7 +1088,8 @@ def like_list_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd
           "headers": {
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "Link": {"en": "URL", "nl": "URL"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -1164,7 +1169,7 @@ def searches_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
           "summary": "Each row represents one search the participant performed on TikTok.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the search was performed.",
+            "Date": "Time of the search (UTC, YYYY-MM-DD HH:MM:SS).",
             "SearchTerm": "The search term entered by the participant."
           }
         }
@@ -1182,6 +1187,7 @@ def searches_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "SearchTerm": {"en": "Search term", "nl": "Zoekterm"}
           },
+          "date_columns": {"Date": {"encoding": "tiktok"}},
           "visualizations": [
             {
               "title": {"en": "Most searched terms", "nl": "Meest gezochte termen"},
@@ -1271,7 +1277,7 @@ def share_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
           "summary": "Each row represents one piece of content the participant shared on TikTok.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the content was shared.",
+            "Date": "Time of the share (UTC, YYYY-MM-DD HH:MM:SS).",
             "SharedContent": "Description of the shared content.",
             "Link": "URL of the shared content.",
             "Method": "Method used to share the content."
@@ -1292,7 +1298,8 @@ def share_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
             "SharedContent": {"en": "Shared content", "nl": "Gedeelde inhoud"},
             "Link": {"en": "Link", "nl": "Link"},
             "Method": {"en": "Method", "nl": "Methode"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()
@@ -1381,7 +1388,7 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
           "summary": "Each row represents one comment the participant left on a TikTok video.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of when the comment was posted.",
+            "Date": "Time of the comment (UTC, YYYY-MM-DD HH:MM:SS).",
             "Comment": "Text of the comment.",
             "Photo": "Photo associated with the comment, if any.",
             "Url": "URL of the video the comment was posted on."
@@ -1403,6 +1410,7 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> pd.
             "Photo": {"en": "Photo", "nl": "Foto"},
             "Url": {"en": "Url", "nl": "Url"}
           },
+          "date_columns": {"Date": {"encoding": "tiktok"}},
           "visualizations": [
             {
               "title": {
@@ -1499,7 +1507,7 @@ def off_tiktok_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> p
           "summary": "Each row represents one activity the participant had outside of TikTok.",
           "source_file": "user_data_tiktok.json or user_data.json",
           "columns": {
-            "Date": "Timestamp of the activity.",
+            "Date": "Time of the activity outside TikTok (UTC, YYYY-MM-DD HH:MM:SS).",
             "Source": "The source of the activity.",
             "Event": "Description of the activity event."
           }
@@ -1518,7 +1526,8 @@ def off_tiktok_to_df(reader: ZipArchiveReader, errors: Counter, validation) -> p
             "Date": {"en": "Date", "nl": "Datum en tijd"},
             "Source": {"en": "Source", "nl": "Bron"},
             "Event": {"en": "Event", "nl": "Gebeurtenis"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "tiktok"}}
         }
     """
     out = pd.DataFrame()

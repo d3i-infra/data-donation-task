@@ -73,6 +73,10 @@ SIMPLIFIED_REGEXES = [
     r"^\[%m.%d.%y, %H:%M:%S\] %name: %chat_message$",
     r"^\[%m.%d.%y %H:%M:%S\] %name: %chat_message$",
     r"^%m/%d/%y, %H:%M - %name: %chat_message$",
+    r"^%d-%m-%y %H:%M %DAYPART - %name: %chat_message$",
+    r"^%d/%m/%y %H:%M %DAYPART - %name: %chat_message$",
+    r"^\[%d-%m-%y %H:%M:%S %DAYPART\] %name: %chat_message$",
+    r"^\[%d/%m/%y %H:%M:%S %DAYPART\] %name: %chat_message$",
     r"^(?P<year>.*?)(?:\] | - )%name: %chat_message$"  # Fallback catch all regex
 ]
 
@@ -88,6 +92,7 @@ REGEX_CODES = {
     "%S": r"(?P<seconds>\d{2})",
     "%P": r"(?P<ampm>[AaPp].? ?[Mm].?)",
     "%p": r"(?P<ampm>[AaPp].? ?[Mm].?)",
+    "%DAYPART": r"(?P<daypart>[’']s (?:ochtends|middags|avonds|nachts))",
     "%name": r"(?P<name>[^:]*)",
     "%chat_message": r"(?P<chat_message>.*)"
 }
@@ -136,6 +141,26 @@ def convert_to_iso8601(timestamp):
         return timestamp
 
 
+def to_24h(hour: int, ampm: str | None, daypart: str | None) -> int:
+    """Fold a 12-hour clock into 24h using an AM/PM marker or a Dutch day-part."""
+    if ampm:
+        pm = ampm.strip().lower().startswith("p")
+        if pm and hour < 12:
+            return hour + 12
+        if not pm and hour == 12:
+            return 0
+        return hour
+    if daypart:
+        part = daypart.split()[-1]
+        if part == "nachts":
+            return 0 if hour == 12 else hour
+        if part == "ochtends":
+            return hour
+        # middags (12:00-17:59) and avonds (18:00-23:59)
+        return hour if hour == 12 else hour + 12
+    return hour
+
+
 class Datapoint(TypedDict):
     date: str
     name: str
@@ -153,8 +178,9 @@ def create_data_point_from_chat(chat: str, regex) -> Datapoint:
         return Datapoint(date="", name="", chat_message="")
 
     # Construct date
+    hour = to_24h(int(result.get("hour") or 0), result.get("ampm"), result.get("daypart"))
     date = convert_to_iso8601(
-        f"{result.get('year', '')}-{result.get('month', '')}-{result.get('day', '')} {result.get('hour', '')}:{result.get('minutes', '')}"
+        f"{result.get('year', '')}-{result.get('month', '')}-{result.get('day', '')} {hour}:{result.get('minutes', '')}"
     )
     name = result.get("name", "")
     chat_message = result.get("chat_message", "")
@@ -414,13 +440,18 @@ def chat_messages_to_df(df: pd.DataFrame, errors: Counter) -> pd.DataFrame:
     pd.DataFrame
         Columns: ``Timestamp``, ``Name``, ``Message``.
 
+    Note: ``Timestamp`` is not the export's own text — ``convert_to_iso8601`` rewrites
+    the chat line's date/time into this extractor's own ISO string before this function
+    ever sees it. That is a known violation of the raw-value rule (ADR-0042), to be
+    removed; in the meantime the consent page interprets the value (ADR-0043).
+
     Table documentation::
 
         {
           "summary": "Each row represents one message in the WhatsApp group chat, including the sender name, message text, and timestamp.",
           "source_file": "WhatsApp chat export (.txt or .zip)",
           "columns": {
-            "Timestamp": "ISO 8601 timestamp of the message.",
+            "Timestamp": "Time the message was sent, on the phone's clock (ISO 8601, no time zone).",
             "Name": "Display name of the message sender.",
             "Message": "Text content of the message."
           }
@@ -443,6 +474,7 @@ def chat_messages_to_df(df: pd.DataFrame, errors: Counter) -> pd.DataFrame:
             "Name": {"en": "Name", "nl": "Naam"},
             "Message": {"en": "Message", "nl": "Bericht"}
           },
+          "date_columns": {"Timestamp": {"encoding": "iso-8601"}},
           "visualizations": [
             {
               "title": {"en": "Most common words in your chats", "nl": "Meest gebruikte woorden in je gesprekken"},
@@ -628,6 +660,7 @@ def extraction(df: pd.DataFrame) -> ExtractionResult:
             description=table_cfg.description,
             headers=table_cfg.headers,
             visualizations=table_cfg.visualizations if table_cfg.visualizations else None,
+            date_columns=table_cfg.date_columns or None,
         ))
     return ExtractionResult(
         tables=[t for t in tables if not t.data_frame.empty],
@@ -637,7 +670,11 @@ def extraction(df: pd.DataFrame) -> ExtractionResult:
 
 class WhatsAppFlow(FlowBuilder):
     def __init__(self, session_id: str):
-        super().__init__(session_id, "WhatsApp Group Chat")
+        # ``config_key="whatsapp"`` matches configs/whatsapp_config.json, the file
+        # load_public_key_pem/load_reference_timezone actually look up. The display
+        # name stays "WhatsApp Group Chat": it also feeds the ADR-0020 donation key
+        # (f"{session_id}-{platform_name.lower()}"), which must not change here.
+        super().__init__(session_id, "WhatsApp Group Chat", config_key="whatsapp")
         
     def validate_file(self, file):
         df = parse_chat(file)

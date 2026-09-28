@@ -1,6 +1,6 @@
 from collections import Counter
 from dataclasses import dataclass, field
-from typing import Optional
+from typing import Any, Optional
 
 import pandas as pd
 
@@ -19,6 +19,9 @@ class PropsUIPromptConsentFormTableViz:
         visualizations (Optional[list]): Optional visualizations to be shown.
         folded (Optional[bool]): Whether the table should be initially folded.
         delete_option (Optional[bool]): Whether to show a delete option for the table.
+        date_columns (Optional[dict]): Per date column, how the raw value is encoded (ADR-0043)
+        date_locale (Optional[str]): BCP 47 locale the export rendered its dates in (Google, YouTube)
+        display_timezone (Optional[str]): IANA zone the consent page displays and buckets in
 
     Examples::
 
@@ -60,6 +63,9 @@ class PropsUIPromptConsentFormTableViz:
     headers: Optional[dict[str, props.Translatable]] = None
     folded: Optional[bool] = False
     delete_option: Optional[bool] = True
+    date_columns: Optional[dict[str, dict[str, Any]]] = None
+    date_locale: Optional[str] = None
+    display_timezone: Optional[str] = None
 
     def translate_data_frame(self):
         if isinstance(self.data_frame, pd.DataFrame):
@@ -85,6 +91,12 @@ class PropsUIPromptConsentFormTableViz:
             dict["headers"] = {key: value.toDict() for key, value in self.headers.items()}
         dict["folded"] = self.folded
         dict["delete_option"] = self.delete_option
+        if self.date_columns:
+            dict["date_columns"] = self.date_columns
+        if self.date_locale:
+            dict["date_locale"] = self.date_locale
+        if self.display_timezone:
+            dict["display_timezone"] = self.display_timezone
         return dict
 
 

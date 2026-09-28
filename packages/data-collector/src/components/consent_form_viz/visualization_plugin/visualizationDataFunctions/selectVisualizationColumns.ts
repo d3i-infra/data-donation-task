@@ -17,7 +17,10 @@ export function selectVisualizationColumns (table: Table, visualization: Visuali
         id: row.id,
         cells: indices.map((index) => row.cells[index])
       }))
-    }
+    },
+    dateColumns: table.dateColumns,
+    dateLocale: table.dateLocale,
+    displayTimezone: table.displayTimezone
   }
 }
 

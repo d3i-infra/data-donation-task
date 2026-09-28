@@ -25,8 +25,14 @@
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+
+    /* Test files are part of this project so the language server and
+       `tsc --noEmit` see them with Jest's globals typed. Tests reach feldspar
+       through the built package (`@eyra/feldspar`); only jest maps that name
+       onto src/test_support, which stays excluded here. */
+    "types": ["jest"]
   },
   "include": ["src"],
-  "exclude": ["src/test_support", "src/**/*.test.ts", "src/**/*.test.tsx"]
+  "exclude": ["src/test_support"]
 }

@@ -48,7 +48,8 @@ Platform info::
         "filetypes": ["zip"],
         "languages": ["en", "nl"],
         "description": "Example platform: accepts any zip and returns a table of file statistics. Use this as a starting point when adding a new platform.",
-        "time_last_tested": "not yet implemented"
+        "time_last_tested": "not yet implemented",
+        "timezone": null
     }
 """
 import logging

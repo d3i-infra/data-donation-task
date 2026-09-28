@@ -147,7 +147,7 @@ def browser_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
             "Title": "Title of the visited web page.",
             "URL": "URL of the visited web page.",
             "Transition": "Page transition type (e.g. LINK, TYPED, RELOAD).",
-            "Date": "ISO 8601 timestamp of the visit."
+            "Date": "Visit time (Unix microseconds)."
           }
         }
 
@@ -176,7 +176,8 @@ def browser_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
               "textColumn": "URL",
               "tokenize": false
             }
-          ]
+          ],
+          "date_columns": {"Date": {"encoding": "epoch-micros"}}
         }
     """
     d: dict | list = {}
@@ -192,15 +193,26 @@ def browser_history_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
     try:
         items = d["Browser History"]  # type: ignore
         for item in items:
+            # ``.get(..., "")`` only substitutes the default for a *missing* key;
+            # an explicit JSON ``null`` returns ``None`` itself, and mixing that
+            # bare ``None`` with a real int in the same column upcasts the whole
+            # column to float64, silently losing precision (ADR-0042) — so an
+            # explicit null is normalized to "" here too (mirrors google.py).
+            time_usec = item.get("time_usec")
             datapoints.append((
                 item.get("title", None),
                 item.get("url", None),
                 item.get("page_transition_qualifier") or item.get("page_transition"),
-                eh.epoch_to_iso(item.get("time_usec", 0) / 1_000_000, errors=errors),
+                time_usec if time_usec is not None else "",
             ))
 
         out = pd.DataFrame(datapoints, columns=["Title", "URL", "Transition", "Date"])
-        out = out.sort_values("Date", ascending=False).head(10_000).reset_index(drop=True)
+        key = pd.to_numeric(out["Date"], errors="coerce")
+        out = (out.assign(_k=key)
+                  .sort_values("_k", ascending=False, na_position="last")
+                  .drop(columns="_k")
+                  .head(10_000)
+                  .reset_index(drop=True))
     except Exception as e:
         logger.error("Exception caught: %s", e)
         errors[type(e).__name__] += 1

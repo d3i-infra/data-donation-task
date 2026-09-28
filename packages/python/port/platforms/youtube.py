@@ -32,7 +32,6 @@ from collections import Counter
 from typing import Callable
 import re
 import io
-from dateutil import parser
 
 import pandas as pd
 
@@ -126,7 +125,7 @@ def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     # Patterns to extract the relevant fields from watch history item
     video_pattern = re.compile(r'<a href="(https://www\.youtube\.com/watch\?v=.+?)">(.+?)</a>')
     channel_pattern = re.compile(r'<a href="(https://www\.youtube\.com/channel/.+?)">(.+?)</a>')
-    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{2}:[0-9]{2}:[0-9]{2}.*?)<br>')
+    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{1,2}:[0-9]{2}:[0-9]{2}.*?)<br>')
 
     # For each line in the html file extract all div containers with a watch url in them. Then 
     # iterate over these containers and extract the relevant fields from their contents if they
@@ -142,8 +141,8 @@ def _parse_watch_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
                     "titleUrl": video.group(1), 
                     "title": video.group(2), 
                     "channelUrl": channel.group(1) if channel else None, 
-                    "channelName": channel.group(2) if channel else None, 
-                    "time": _convert_to_iso8601(timestamp.group(1)) if timestamp else None,
+                    "channelName": channel.group(2) if channel else None,
+                    "time": timestamp.group(1) if timestamp else "",
                 })
     return result
 
@@ -165,7 +164,7 @@ def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
     
     # Patterns to extract the relevant fields from container contents
     query_pattern = re.compile(r'<a href="(https://www\.youtube\.com/results\?search_query=.+?)">(.+?)</a>')
-    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{2}:[0-9]{2}:[0-9]{2}.*?)<br>')
+    timestamp_pattern = re.compile(r'<br>((?:(?!<br>).)*?[0-9]{1,2}:[0-9]{2}:[0-9]{2}.*?)<br>')
 
     # For each line in the html file extract all div containers with a search query url in them. 
     # Then iterate over these containers and extract the relevant fields from their contents if 
@@ -177,38 +176,11 @@ def _parse_search_history_html(data: io.BytesIO) -> list[dict[str, str]] | None:
             timestamp = timestamp_pattern.search(div_content)
             if query:
                 result.append({
-                    "titleUrl": query.group(1), 
-                    "title": query.group(2), 
-                    "time": _convert_to_iso8601(timestamp.group(1)) if timestamp else None,
+                    "titleUrl": query.group(1),
+                    "title": query.group(2),
+                    "time": timestamp.group(1) if timestamp else "",
                 })
     return result
-
-
-def _convert_to_iso8601(timestamp):
-    """Converts a time string extracted from the HTML DDP (e.g. 15 jun 2026, 20:30:41 CEST) to
-    ISO8601 format, ignoring timezone abbreviations and translating Dutch month abbreviations."""
-    try:
-        parts = timestamp.split(' ')
-
-        # Ignore timezone abbreviation at the end as this is not included in json either
-        # and cannot be automatically parsed
-        if ':' not in parts[-1]:
-            parts.pop()
-
-        # Translate month abbreviations to English
-        nl_month_translations = {
-            'mrt': 'mar',
-            'mei': 'may',
-            'okt': 'oct',
-            }
-        for i in range(len(parts)):
-            if parts[i].lower() in nl_month_translations:
-                parts[i] = nl_month_translations[parts[i].lower()]
-
-        dt = parser.parse(' '.join(parts))
-        return dt.isoformat()
-    except (ValueError, TypeError) as e:
-        return timestamp
 
 
 # ---------------------------------------------------------------------------
@@ -249,7 +221,7 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
           "columns": {
             "Title": "Title of the watched video.",
             "URL": "URL of the watched video.",
-            "Timestamp": "ISO 8601 timestamp of when the video was watched."
+            "Timestamp": "Watch time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -295,7 +267,8 @@ def watch_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) -
               "textColumn": "Title",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -379,7 +352,7 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) 
           "columns": {
             "Query": "The searched query.",
             "URL": "URL of the search query.",
-            "Timestamp": "ISO 8601 timestamp of when the search was performed."
+            "Timestamp": "Search time (ISO 8601 UTC from a JSON export, or the date text from an HTML export with its time zone)."
           }
         }
 
@@ -410,7 +383,8 @@ def search_history_to_df(reader: ZipArchiveReader, errors: Counter, validation) 
               "textColumn": "Query",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": ["iso-8601", "takeout-html"]}}
         }
     """
     out = pd.DataFrame()
@@ -563,7 +537,7 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
           "summary": "Each row represents one comment the participant posted on a YouTube video or post.",
           "source_file": "comments.csv or reacties.csv",
           "columns": {
-            "Timestamp": "ISO 8601 timestamp of when the comment was created.",
+            "Timestamp": "Comment time (ISO 8601 UTC).",
             "Channel ID": "ID of the channel where the comment was posted.",
             "Comment text": "Full text of the comment.",
             "Comment ID": "Unique identifier for the comment.",
@@ -599,7 +573,8 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
               "textColumn": "Comment text",
               "tokenize": true
             }
-          ]
+          ],
+          "date_columns": {"Timestamp": {"encoding": "iso-8601"}}
         }
     """
     result = None
@@ -619,9 +594,11 @@ def comments_to_df(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             "Kanaal-ID": "Channel ID",
             "Aanmaaktijdstempel reactie": "Timestamp",
             "Comment create timestamp": "Timestamp",
+            "Comment Create Timestamp": "Timestamp",  # title case, as current exports write it
             "Prijs": "Price",
             "Video-ID": "Video ID",
             "Reactietekst": "Comment text",
+            "Comment Text": "Comment text",
         })
         keep = ["Timestamp", "Channel ID", "Comment text", "Comment ID", "Video ID", "Price"]
         df = df[[col for col in keep if col in df.columns]]  # pyright: ignore
@@ -657,9 +634,14 @@ def extraction(youtube_zip: SeekableBinaryReader, validation) -> ExtractionResul
         Seekable binary reader over the YouTube DDP zip — the upload
         adapter itself, never a path (ADR-0026).
     validation:
-        Validation result object that is passed on to the watch history and 
-        search history extractor functions in ``EXTRACTOR_REGISTRY``, and whose 
+        Validation result object that is passed on to the watch history and
+        search history extractor functions in ``EXTRACTOR_REGISTRY``, and whose
          ``archive_members`` attribute is passed to ``ZipArchiveReader``.
+
+    Every table ``run_extraction`` actually returns is stamped with
+    ``date_locale``, the DDP's detected language, so the front end's
+    date-column interpreter knows how to read the raw timestamps this
+    platform donates (ADR-0043): ``nl`` for a Dutch DDP, ``en`` otherwise.
     """
     config = load_port_config(EXTRACTOR_REGISTRY, "youtube")
     for table in config: # Pass validation results to determine ddp type and language
@@ -667,7 +649,11 @@ def extraction(youtube_zip: SeekableBinaryReader, validation) -> ExtractionResul
             table.extractor_kwargs = {'validation': validation}
     errors: Counter = Counter()
     reader = ZipArchiveReader(youtube_zip, validation.archive_members, errors)
-    return run_extraction(reader, errors, config)
+    date_locale = "nl" if validation.current_ddp_category.language == Language.NL else "en"
+    result = run_extraction(reader, errors, config)
+    for table in result.tables:
+        table.date_locale = date_locale
+    return result
 
 
 class YouTubeFlow(FlowBuilder):
