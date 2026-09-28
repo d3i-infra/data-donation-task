@@ -5,6 +5,7 @@ category: Data collector
 applies_to:
     - packages/data-collector/src/components/consent_form_viz/consent_form_viz.tsx
     - packages/data-collector/src/components/consent_form_viz/table_container.tsx
+    - packages/data-collector/src/components/consent_form_viz/parse_table.ts
 priority: invariant
 ---
 
@@ -19,6 +20,7 @@ Memory and display optimizations on the consent-viz page must never reduce the d
 - When cutting consent-page memory, trim only transient copies (worker messages via `selectVisualizationColumns`, display windows) — `serializeConsentData()` must keep serializing every non-deleted row of every table.
 - Review rejects any row cap (e.g. a `MAX_ROWS`-style bound) applied to the `tables` state, `originalBody`, or the serialized payload; display pagination over the full data is the fix path.
 - Participant-initiated deletion (delete/undo in `table_container.tsx`) is the only legitimate dataset reduction.
+- Interpretation and formatting of cells (ADR-0043) are view-time computations and never enter `serializeConsentData()`; the payload's cells are the raw strings the extractor wrote.
 - This record is `proposed` — team agreement on the invariant (and on whether any display-side bound may ever interact with the donated payload) is still pending.
 
 ## Why

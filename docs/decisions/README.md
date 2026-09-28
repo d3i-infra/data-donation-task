@@ -47,6 +47,7 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0024 — ZipArchiveReader handles expected-missing DDP members](./0024-ziparchivereader-handles-expected-missing-ddp-members.md)
 - [0026 — Stream PayloadFile uploads without materializing](./0026-stream-payloadfile-uploads-without-materializing.md)
 - [0040 — Present multi-part uploads as one archive-set](./0040-present-multi-part-uploads-as-one-archive-set.md)
+- [0042 — Donate the export's own value, never our reading of it](./0042-donate-the-export-s-own-value-never-our-reading-of-it.md)
 
 ### Testing
 
@@ -60,7 +61,8 @@ Load the ADR(s) whose filename matches the area you are touching.
 - [0031 — Consent-page memory work must never shrink the donated dataset](./0031-consent-page-memory-work-must-never-shrink-the-donated-dataset.md)
 - [0032 — Visualization workers are ephemeral and column-scoped](./0032-visualization-workers-are-ephemeral-and-column-scoped.md)
 - [0033 — Consent-viz donation must not route through DataSubmissionPage's factory data path](./0033-consent-viz-donation-must-not-route-through-datasubmissionpage-s-factory-data-path.md)
-- [0035 — Per-row work over participant tables must not allocate](./0035-per-row-work-over-participant-tables-must-not-allocate.md)
+- [0035 — Construct what a row loop needs once, above the loop](./0035-per-row-work-over-participant-tables-must-not-allocate.md)
+- [0043 — Interpret timestamps once, in the front end, with a status](./0043-interpret-timestamps-once-in-the-front-end-with-a-status.md)
 
 ### Performance
 
