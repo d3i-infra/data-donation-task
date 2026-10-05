@@ -1,5 +1,5 @@
 import { selectVisualizationColumns } from './selectVisualizationColumns'
-import { Table, VisualizationType } from '../types'
+import { Table, VisualizationType, ChartVisualization } from '../types'
 
 function makeTable (): Table {
   return {
@@ -74,5 +74,17 @@ describe('selectVisualizationColumns', () => {
     }
     const projected = selectVisualizationColumns(makeTable(), visualization)
     expect(projected.body.rows.map((r) => r.id)).toEqual(['r1', 'r2'])
+  })
+
+  it('carries dateColumns, dateLocale and displayTimezone through the projection', () => {
+    const table: Table = {
+      id: 't', head: { cells: ['Date', 'x'] }, body: { rows: [{ id: '0', cells: ['1', '2'] }] },
+      dateColumns: { Date: { encoding: ['epoch-seconds'] } }, dateLocale: 'nl', displayTimezone: 'Europe/Amsterdam'
+    }
+    const viz: ChartVisualization = { title: {}, type: 'bar', group: { column: 'Date' }, values: [{ column: 'x', aggregate: 'sum' }] }
+    const out = selectVisualizationColumns(table, viz)
+    expect(out.dateColumns).toEqual(table.dateColumns)
+    expect(out.dateLocale).toBe('nl')
+    expect(out.displayTimezone).toBe('Europe/Amsterdam')
   })
 })

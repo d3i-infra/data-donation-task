@@ -62,6 +62,7 @@ import extractor_integration_helpers as eih
 from extractor_integration_helpers import find_fixture_sets, open_fixture_set
 from port.helpers.archive_set import ArchiveSet
 from port.helpers.extraction_helpers import ZipArchiveReader
+from port.helpers.table_extractor import load_port_config
 from port.platforms import google
 
 GOOGLE_SETS = find_fixture_sets("google")
@@ -368,34 +369,6 @@ MOJIBAKE_MARKERS = ("Ã", "Â ")
 #: and inherits the same titles verbatim.
 MOJIBAKE_ALLOWLIST_SETS = {"google_set_gmail-acct", "google_set_en_vid"}
 
-#: (table, Timestamp value) pairs the timestamp-parse canary below skips, each
-#: with byte-level evidence a real record — not a format the timestamp
-#: converter should have read — produces it. Same allowlist discipline as
-#: ``MOJIBAKE_ALLOWLIST_SETS``: narrow, evidence-backed, flagged, never a
-#: silent catch-all.
-#:
-#: gmail-acct's ``My Activity/Search/My Activity.html`` writes a voice-search
-#: activity's audio player into the *second* content-cell — the one every
-#: other record leaves empty (see ``test_the_empty_cell_beside_an_activity_is_not_a_record``
-#: in test_google_timestamps.py). Confirmed by reading the raw member bytes at
-#: that record: the cell holds
-#: ``<audio controls><source src="....mp3" type="audio/mpeg">Audio file:
-#: ....mp3 (located in the same directory as this page).</audio>`` — no
-#: ``<br>``-separated timestamp line follows the fallback text, so the html
-#: parser (built for the "second cell is empty or absent" case) reads this
-#: audio-fallback text as its own one-line activity, using the same text for
-#: both title and time (``{"title": "Audio file: ...", "time": "Audio file:
-#: ..."}``) — the structural signature this allowlist matches on, since
-#: ``en_vid``'s scrub replaces the audio filename text with lorem-ipsum
-#: placeholder text at the same 9 row positions (module docstring's scrub
-#: note), so the literal "Audio file: " prefix survives only in the real set.
-#: This is a distinct parsing bug (an unhandled audio-player shape, not a
-#: date-format one) — out of scope for Task 8c; tracked in
-#: ~/src/d3i-infra/PENDING_ISSUES.md.
-TIMESTAMP_ALLOWLIST_SETS = {"google_set_gmail-acct", "google_set_en_vid"}
-TIMESTAMP_ALLOWLIST_TABLE = "search_history_to_df"
-
-
 def _string_cells(df):
     """Yield (column, value) for every string-valued cell of *df*, table order."""
     for column in df.columns:
@@ -503,51 +476,50 @@ def test_no_impossible_timestamps_in_any_table(set_dir):
     )
 
 
-@pytest.mark.parametrize("set_dir", _SET_PARAMS, ids=_SET_IDS)
-def test_timestamps_parse_in_every_table(set_dir):
-    """Every non-empty ``Timestamp`` cell in any extracted table must be
-    ISO-8601-parseable.
+# Task 7 (ADR-0042/0043) removed this module's old ISO-everywhere canary (BUG C) — a
+# CJK/Arabic date failing ``datetime.fromisoformat`` is now expected, not a regression.
+# Its replacement is ``test_declared_date_columns_are_populated`` below.
 
-    Unlike ``test_no_impossible_timestamps_in_any_table`` above (which skips a
-    cell it cannot parse — an unparsed/fallback timestamp is the parsing
-    tests' concern, not that canary's), this one requires every non-empty
-    ``Timestamp`` cell to parse at all. Catches BUG C: a date written in a
-    script or format none of the fast paths *or* ``dateutil`` can read is
-    silently left as the raw source string (e.g. a CJK date — confirmed
-    against google_set_uu-acct-zh, where Timestamp cells were left as raw
-    CJK source strings until this canary and google.py's matching fast path
-    were both added), which a downstream date-grouped visualization then
-    fails to render.
-    """
+
+@pytest.mark.parametrize("set_dir", _SET_PARAMS, ids=_SET_IDS)
+def test_declared_date_columns_are_populated(set_dir):
+    """Every ``date_columns`` key a table's config declares must be a real column
+    in that table's extracted frame, with at least one non-empty cell — not
+    necessarily ISO-parseable (ADR-0042 donates the raw value as the export wrote
+    it), just present and actually populated. Checked only for tables this set is
+    pinned non-empty for (``EXPECT_NON_EMPTY``), the same scope every other
+    per-extractor canary in this module uses."""
     if set_dir is None:
         pytest.skip(_NO_FIXTURES_REASON)
     ctx = _context_for(set_dir)
     if ctx.validation.get_status_code_id() != 0:
         pytest.skip(f"{set_dir.name} not recognized as a Google DDP")
 
+    expected = EXPECT_NON_EMPTY.get(set_dir.name)
+    if not expected:
+        pytest.skip(f"{set_dir.name} has no EXPECT_NON_EMPTY pins")
+
+    config = load_port_config(google.EXTRACTOR_REGISTRY, "google")
+    fn_names = {fn: name for name, fn in google.EXTRACTOR_REGISTRY.items()}
     errors: Counter = Counter()
     reader = ZipArchiveReader(ctx.archive_set, ctx.validation.archive_members, errors)
+
     offenders = []
-    for name, fn in google.EXTRACTOR_REGISTRY.items():
-        df = fn(reader, errors, ddp_locale=ctx.validation.ddp_locale)
-        if "Timestamp" not in df.columns:
+    for table in config:
+        name = fn_names[table.extractor]
+        if name not in expected or not table.date_columns:
             continue
-        allowlisted_table = (
-            set_dir.name in TIMESTAMP_ALLOWLIST_SETS and name == TIMESTAMP_ALLOWLIST_TABLE
-        )
-        for i, value in df["Timestamp"].items():
-            if not isinstance(value, str) or not value:
+        df = table.extractor(reader, errors, ddp_locale=ctx.validation.ddp_locale)
+        for column in table.date_columns:
+            if column not in df.columns:
+                offenders.append((table.id, column, "column missing from frame"))
                 continue
-            try:
-                datetime.fromisoformat(value)
-            except ValueError:
-                if allowlisted_table and "Title" in df.columns and df.loc[i, "Title"] == value:
-                    continue
-                offenders.append((name, value))
+            if not any(value not in ("", None) for value in df[column]):
+                offenders.append((table.id, column, "no non-empty cell"))
 
     assert not offenders, (
-        f"{set_dir.name}: unparseable non-empty Timestamp cell(s) "
-        f"(table, value) — first 10: {offenders[:10]}"
+        f"{set_dir.name}: declared date column(s) missing or empty "
+        f"(table, column, problem): {offenders}"
     )
 
 

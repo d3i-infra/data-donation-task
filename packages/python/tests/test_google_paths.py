@@ -750,7 +750,29 @@ class TestChromeHistory:
 
         assert df.iloc[0]["Title"] == "A page"
         assert df.iloc[0]["URL"] == "https://example.org"
-        assert df.iloc[0]["Timestamp"] == google._convert_usec_to_iso8601(1750000000000000)
+        assert df.iloc[0]["Timestamp"] == 1750000000000000
+
+    def test_null_time_usec_becomes_empty_without_upcasting_the_int_row(self):
+        """``.get("time_usec", "")`` only substitutes the default for a *missing*
+        key; an explicit JSON ``null`` returns ``None`` itself. Mixing that bare
+        ``None`` with a real int in the same column upcasts it to float64 and
+        silently loses precision — the exact corruption ADR-0042 forbids. The
+        null row must donate ``""`` instead, and the int row must round-trip
+        exactly as a native ``int``."""
+        big = 9007199254740993  # first integer above float64's exact-int range
+        content = json.dumps({
+            "Browser History": [
+                {"title": "A page", "url": "https://example.org", "time_usec": big},
+                {"title": "A null-time page", "url": "https://example.org/2", "time_usec": None},
+            ]
+        })
+        reader, errors, ddp_locale = _reader_for({"Takeout/Chrome/History.json": content})
+
+        df = google.chrome_history_to_df(reader, errors, ddp_locale)
+
+        assert df.iloc[0]["Timestamp"] == big
+        assert isinstance(df.iloc[0]["Timestamp"], int)
+        assert df.iloc[1]["Timestamp"] == ""
 
     def test_myactivity_fallback_list_format_uses_the_time_field(self):
         reader, errors, ddp_locale = _reader_for({

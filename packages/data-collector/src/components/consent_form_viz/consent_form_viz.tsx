@@ -5,106 +5,21 @@ import {
 } from "@eyra/feldspar"
 import TextBundle from "@eyra/feldspar"
 import { resolveText } from "../../locale/text"
-import { 
+import {
     TableWithContext,
-    TableContext,
-    PropsUITable,
-    PropsUITableBody,
-    PropsUITableHead,
     PropsUIPromptConsentFormViz,
-    PropsUIPromptConsentFormTableViz,
     PropsUITableRow,
+    PropsUITableHead,
 } from "./types"
 import { useCallback, useEffect, useRef, useState, ReactElement } from "react"
 import _ from "lodash"
 import { TableContainer } from "./table_container"
+import { parseTables } from "./parse_table"
 
 type Props = PropsUIPromptConsentFormViz & ReactFactoryContext
 
 export const ConsentFormViz = (props: Props): ReactElement => {
-  function rowCell(dataFrame: any, column: string, row: number): string {
-    const text = String(dataFrame[column][`${row}`])
-    return text
-  }
-
-  function columnNames(dataFrame: any): string[] {
-    return Object.keys(dataFrame)
-  }
-
-  function columnCount(dataFrame: any): number {
-    return columnNames(dataFrame).length
-  }
-
-  function rowCount(dataFrame: any): number {
-    if (columnCount(dataFrame) === 0) {
-      return 0
-    } else {
-      const firstColumn = dataFrame[columnNames(dataFrame)[0]]
-      return Object.keys(firstColumn).length - 1
-    }
-  }
-
-  function rows(data: any): PropsUITableRow[] {
-    const result: PropsUITableRow[] = []
-    const n = rowCount(data)
-    for (let row = 0; row <= n; row++) {
-      const id = `${row}`
-      const cells = columnNames(data).map((column: string) => rowCell(data, column, row))
-      result.push({ id, cells })
-    }
-    return result
-  }
-
-  function parseTables(tablesData: PropsUIPromptConsentFormTableViz[]): Array<PropsUITable & TableContext> {
-    return tablesData.map((table) => parseTable(table))
-  }
-
-  function parseTable(tableData: PropsUIPromptConsentFormTableViz): PropsUITable & TableContext {
-    const id = tableData.id
-    const title = resolveText(tableData.title, props.locale)
-    const description =
-      tableData.description !== undefined ? resolveText(tableData.description, props.locale) : ""
-    const deletedRowCount = 0
-    const dataFrame = loadDataFrame(tableData.data_frame)
-    const headCells = columnNames(dataFrame).map((column: string) => column)
-    const head: PropsUITableHead = {
-      cells: headCells,
-    }
-    const body: PropsUITableBody = {
-      rows: rows(dataFrame),
-    }
-
-    // Translate column headers if provided. The headers dict maps DataFrame
-    // column names to Translatable objects. We resolve them to the current
-    // locale for display, while head.cells retains the raw DataFrame column
-    // names for visualization data lookups.
-    let translatedHeaders: Record<string, string> | undefined
-    if (tableData.headers != null) {
-      translatedHeaders = {}
-      for (const [column, text] of Object.entries(tableData.headers)) {
-        translatedHeaders[column] = resolveText(text, props.locale)
-      }
-    }
-
-    return {
-      __type__: "PropsUITable",
-      id,
-      head,
-      body,
-      title,
-      description,
-      deletedRowCount,
-      annotations: [],
-      originalBody: body,
-      deletedRows: [],
-      visualizations: tableData.visualizations,
-      headers: translatedHeaders,
-      folded: tableData.folded || false,
-      deleteOption: tableData.delete_option,
-    }
-  }
-
-  const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables))
+  const [tables, setTables] = useState<TableWithContext[]>(() => parseTables(props.tables, props.locale))
   const { locale, resolve } = props
   const { description } = prepareCopy(props)
   // The state initializer above already parsed props.tables; only re-parse
@@ -114,8 +29,8 @@ export const ConsentFormViz = (props: Props): ReactElement => {
   useEffect(() => {
     if (parsedTables.current === props.tables) return
     parsedTables.current = props.tables
-    setTables(parseTables(props.tables))
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: consent_form_viz re-parse effect intentionally omits `parseTables` from deps. parseTables is a plain closure re-created every render, so listing it would make the dependency "changed" on every render regardless of whether props.tables actually changed; the effect's own ref-comparison guard (not this array) is what enforces ADR-0031's parse-once contract (issue #122 double parse), and widening this dependency array is exactly the kind of edit that has previously broken that contract by accident. A real fix would hoist parseTables/parseTable out of the component (or wrap them in useCallback keyed only on props.locale) so the function identity is stable and can be listed honestly.
+    setTables(parseTables(props.tables, props.locale))
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- PENDING_ISSUES "lint hygiene" entry 2026-08-26: consent_form_viz re-parse effect intentionally omits `props.locale` from deps; the effect's ref-comparison guard (not this array) enforces ADR-0031's parse-once contract (issue #122 double parse) and only ever fires on a new `props.tables` identity.
   }, [props.tables])
 
   const updateTable = useCallback((tableId: string, table: TableWithContext) => {
@@ -194,13 +109,6 @@ function prepareCopy({ description, locale }: Props): Copy {
   return {
     description: resolveText(description ?? defaultDescription, locale),
   }
-}
-
-function loadDataFrame(dataFrame: any) {
-  if (typeof dataFrame === "string") {
-      return JSON.parse(dataFrame)
-  } 
-  return dataFrame;
 }
 
 const defaultDonateQuestionLabel = new TextBundle()

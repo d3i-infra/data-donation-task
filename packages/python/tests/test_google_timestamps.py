@@ -63,96 +63,6 @@ def test_utf8_bytes_without_a_charset_declaration_are_not_mojibaked():
     assert "Â" not in record["title"]
 
 
-TIMESTAMPS = [
-    # A 12-hour clock writes no leading zero, so the hour is a single digit before 10.
-    ("Aug 17, 2026, 1:14:48 PM CEST", "2026-08-17T13:14:48"),
-    ("Aug 15, 2026, 11:39:58 AM CEST", "2026-08-15T11:39:58"),
-    ("15 jun 2026, 9:30:41 CEST", "2026-06-15T09:30:41"),
-    ("15 mrt 2026, 20:30:41 CET", "2026-03-15T20:30:41"),
-]
-
-#: Shapes the conversion reads directly, beyond the ones above.
-DIRECT = [
-    ("Dec 31, 2026, 12:00:00 AM CET", "2026-12-31T00:00:00"),  # midnight is 12 AM
-    ("Jan 1, 2026, 12:30:00 PM CET", "2026-01-01T12:30:00"),   # noon is 12 PM
-    ("1 mei 2026, 07:05:00 CEST", "2026-05-01T07:05:00"),
-    ("17. Aug. 2026, 22:14:48 MESZ", "2026-08-17T22:14:48"),   # ordinal dots
-    ("17 Ağu 2026, 22:14:48 GMT+3", "2026-08-17T22:14:48"),
-]
-
-#: A shape none of the fast paths match — no month name, no dot-separated numeric
-#: date, no CJK unit markers, no Arabic slashes — so it genuinely hands to
-#: dateutil, which reads it as the unambiguous ISO-ish ``Y-M-D H:M:S`` it is.
-FALLBACK = [
-    ("2026-08-17 22:14:48", "2026-08-17T22:14:48"),
-]
-
-#: Fully numeric dotted dates, as the current German export writes them
-#: (``27.08.2026, 20:04:54 MESZ``) — day-first in every locale that writes them.
-#: ``12.07.2026`` is the ambiguous case dateutil's month-first default gets
-#: wrong (day <= 12, so it reads as 2026-12-07 instead of 2026-07-12); the third
-#: entry is day-first even though the digits alone would read as a US date.
-#: ``17.08.2026, 22:14:48`` carries no timezone abbreviation at all — the fast
-#: path matches on the dotted numeric date alone (``NUMERIC_DAY_FIRST`` has no
-#: trailing anchor), so a missing zone doesn't push it to dateutil either.
-NUMERIC_DAY_FIRST = [
-    ("27.08.2026, 20:04:54 MESZ", "2026-08-27T20:04:54"),
-    ("12.07.2026, 23:29:21 MESZ", "2026-07-12T23:29:21"),
-    ("07.12.2026, 09:00:00 MEZ", "2026-12-07T09:00:00"),
-    ("17.08.2026, 22:14:48", "2026-08-17T22:14:48"),
-]
-
-#: ``2026年7月30日 00:23:06 CEST`` — how the Chinese export writes a timestamp: CJK
-#: unit markers 年/月/日 name year/month/day unambiguously, even though the zh
-#: locale writes English action words ("Watched") in the activity text itself.
-#: Confirmed 2026-08-31 against tests/ddp/google_set_uu-acct-zh/'s real
-#: 观看记录.html (youtube.watch_history) and search-history HTML — every one of
-#: 16494 non-empty Timestamp cells across the set matched one of these four
-#: digit-count shapes (24-hour clock, no AM/PM marker in this locale).
-CJK = [
-    ("2026年7月30日 00:23:06 CEST", "2026-07-30T00:23:06"),  # single-digit month, two-digit day
-    ("2026年5月9日 01:40:12 CEST", "2026-05-09T01:40:12"),  # single-digit month and day
-    ("2025年10月2日 11:40:30 CEST", "2025-10-02T11:40:30"),  # two-digit month, single-digit day
-    ("2024年11月27日 17:58:42 CEST", "2024-11-27T17:58:42"),  # two-digit month and day
-]
-
-#: ``23‏/07‏/2026، 4:20:22 م CEST`` — how the Arabic export writes a timestamp:
-#: Western digits in day/month/year order (day-first — some samples carry a day
-#: > 12, so this is unambiguous by construction, the same reasoning as
-#: ``NUMERIC_DAY_FIRST``), each numeric field followed by U+200F RIGHT-TO-LEFT
-#: MARK, U+060C ARABIC COMMA after the year instead of a Western comma, and a
-#: 12-hour clock with the Arabic meridiem letters ص (ARABIC LETTER SAD, "sabah"/
-#: morning = AM) and م (ARABIC LETTER MEEM, "masa'"/evening = PM) in place of
-#: AM/PM. Confirmed 2026-08-31 against tests/ddp/google_set_uu-acct-ar/'s real
-#: activity HTML (نشاطي/YouTube and نشاطي/Search) — every one of 16494
-#: non-empty Timestamp cells across the set matched one of these four
-#: digit-count/meridiem shapes.
-ARABIC = [
-    ("23‏/07‏/2026، 4:20:22 م CEST", "2026-07-23T16:20:22"),  # PM, single-digit hour
-    ("30‏/07‏/2026، 12:23:06 ص CEST", "2026-07-30T00:23:06"),  # 12 AM is midnight
-    ("20‏/07‏/2026، 12:16:30 م CEST", "2026-07-20T12:16:30"),  # 12 PM is noon
-    ("28‏/05‏/2026، 8:28:13 ص CEST", "2026-05-28T08:28:13"),  # AM, single-digit hour
-]
-
-
-@pytest.mark.parametrize(
-    "timestamp,expected",
-    TIMESTAMPS + DIRECT + FALLBACK + NUMERIC_DAY_FIRST + CJK + ARABIC,
-)
-def test_conversion(timestamp, expected):
-    assert google._convert_to_iso8601(timestamp) == expected
-
-
-@pytest.mark.parametrize("timestamp,_", TIMESTAMPS + DIRECT)
-def test_conversion_agrees_with_dateutil(timestamp, _):
-    """The shapes read directly are the ones dateutil is bypassed for, so they have to
-    come out the same — except where dateutil cannot read them at all, as with Turkish."""
-    converted = google._convert_with_dateutil(timestamp)
-
-    if converted != timestamp:
-        assert google._convert_to_iso8601(timestamp) == converted
-
-
 class TestCaption:
     """Some sources record lists beside an activity — the locations a Discover card was
     picked for, the topics it covered — which the html writes into the caption cell. They
@@ -224,31 +134,10 @@ class TestCaption:
         assert sorted(record) == ["time", "title", "titleUrl"]
 
 
-class TestMicroseconds:
-    """The Chrome history writes its timestamps as a number of microseconds since the
-    epoch, which the shared ``epoch_to_iso`` reads as seconds and overflows on."""
-
-    def test_a_microsecond_timestamp_reads_as_a_time(self):
-        assert google._convert_usec_to_iso8601(1787225185379660) == "2026-08-20T11:26:25"
-
-    def test_a_number_written_as_text_reads_the_same(self):
-        assert google._convert_usec_to_iso8601("1787225185379660") == "2026-08-20T11:26:25"
-
-    def test_the_shape_matches_the_activity_timestamps(self):
-        """One column holds timestamps from both, so they are written the same way."""
-        from_html = google._convert_to_iso8601("Aug 20, 2026, 11:26:25 AM CEST")
-
-        assert len(google._convert_usec_to_iso8601(1787225185379660)) == len(from_html)
-
-    @pytest.mark.parametrize("timestamp", ["", "not a number", None])
-    def test_what_is_not_a_number_is_left_as_it_was(self, timestamp):
-        assert google._convert_usec_to_iso8601(timestamp) == timestamp
-
-
-@pytest.mark.parametrize("timestamp,expected", TIMESTAMPS)
 @pytest.mark.parametrize("cell", [watch_cell, search_cell], ids=["watched", "searched"])
-def test_timestamp(cell, timestamp, expected):
-    assert parse(cell(timestamp))[0]["time"] == expected
+def test_timestamp_is_kept_as_rendered(cell):
+    raw = "15 jun 2026, 20:30:41 CEST"
+    assert parse(cell(raw))[0]["time"] == raw
 
 
 class TestRecord:
@@ -337,7 +226,7 @@ class TestRecord:
         assert records == [{
             "title": "Visited An example page - Example",
             "titleUrl": "https://example.org/a-page",
-            "time": "2026-08-16T17:42:07",
+            "time": "Aug 16, 2026, 5:42:07 PM CEST",
         }]
 
     def test_an_activity_without_a_link_reads_as_an_empty_url(self):

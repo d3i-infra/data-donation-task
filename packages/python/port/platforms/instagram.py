@@ -8,17 +8,9 @@ It handles DDPs in the english language with filetype JSON or HTML.
 
 Timestamps
 ----------
-Every date column is written as ``YYYY-MM-DD HH:MM:SS`` in the reference timezone named by
-``extraction_helpers.REFERENCE_TIMEZONE``, so that a date means the same thing here as it
-does in the TikTok, Facebook and Google tables.
-
-The json export records epoch seconds, which name an absolute instant, so placing them in
-that zone is exact.
-
-The html export names no timezone, but it is not written in the timezone of the
-participant either: it is rendered eight hours behind UTC, always. Knowing that offset is
-what makes it convertible, so the two export formats now agree rather than sitting nine or
-ten hours apart.
+Timestamps are donated as exported: epoch seconds from the json export, the display
+clock text from the html export (eight hours behind UTC, measured; declared to the front end
+as ``utcOffsetMinutes``). The consent page interprets them (ADR-0043).
 
 That offset was measured, not assumed. ``scripts/meta_html_timezone_probe.py`` matches
 records held in both formats and reports the difference; run over two donated archives it
@@ -56,7 +48,6 @@ import logging
 import os
 import re
 from collections import Counter
-from datetime import datetime, timedelta
 from typing import Any, Callable
 
 from lxml import etree
@@ -83,98 +74,26 @@ from port.helpers.table_extractor import (
 logger = logging.getLogger(__name__)
 
 
-#: Months by the first three letters of how the html export abbreviates them, lowercased,
-#: across the languages it is written in that use Latin script. An account writes its export
-#: in whatever language it is set to, which is not always the language of the study, so the
-#: same table the Google extractor reads its html dates with is used here.
-_HTML_MONTHS = {
-    "jan": 1, "oca": 1, "ene": 1,
-    "feb": 2, "şub": 2, "sub": 2,
-    "mar": 3, "mrt": 3, "mär": 3, "mrz": 3,
-    "apr": 4, "nis": 4, "abr": 4,
-    "may": 5, "mei": 5, "mai": 5,
-    "jun": 6, "haz": 6,
-    "jul": 7, "tem": 7,
-    "aug": 8, "ağu": 8, "agu": 8, "ago": 8,
-    "sep": 9, "eyl": 9, "set": 9,
-    "oct": 10, "okt": 10, "eki": 10,
-    "nov": 11, "kas": 11,
-    "dec": 12, "dez": 12, "ara": 12, "dic": 12,
-}
+def _html_timestamp(timestamp: str) -> str:
+    """Return the html export's display-clock text for a timestamp, as exported.
 
-#: ``Aug 09, 2026 9:49 am`` — how the html export writes a timestamp: the month as a word, a 12-hour
-#: clock in lower case, and the seconds left off. The meridiem is optional so that a
-#: 24-hour locale reads too.
-_HTML_TIMESTAMP = re.compile(
-    r"^([^\s\d]+)\.?\s+(\d{1,2}),?\s+(\d{4})[\s,]+(\d{1,2}):(\d{2})(?::(\d{2}))?"
-    r"(?:\s*([AaPp])\.?[Mm]\.?)?\s*$"
-)
-
-
-#: How far the html export stands behind UTC. It names no timezone, so this was measured
-#: rather than assumed: ``scripts/meta_html_timezone_probe.py`` matched records held in both
-#: export formats across two donated archives — eight sources apiece, one of them reaching
-#: back to 2012 — and every one of them came out eight hours behind UTC.
-#:
-#: It is not the timezone of the participant. The Facebook export of the same two accounts
-#: is on a different clock again (Amsterdam for one, UTC for the other), so this belongs to
-#: Instagram rather than to the person or the account.
-#:
-#: Nor is it US Pacific, which the offset otherwise resembles. Records falling inside US
-#: daylight saving, where Pacific stands seven hours behind, are eight hours behind here
-#: too — so the offset is fixed and needs no daylight saving rule of its own.
-HTML_EXPORT_UTC_OFFSET = timedelta(hours=-8)
-
-
-def _html_timestamp(timestamp: str, errors: Counter | None = None) -> str:
-    """Write a timestamp read out of the html export in the shared datetime format.
-
-    The html names no timezone and is not written in the timezone of the participant; it is
-    rendered at the fixed ``HTML_EXPORT_UTC_OFFSET`` measured above. Knowing that offset is
-    what lets this column be converted like any other, so an html donation now agrees with
-    a json one rather than sitting nine or ten hours away from it.
+    ADR-0042: donate the export's own value. The html export writes a display string, not
+    an instant, so it is kept as read rather than parsed into one; the front end interprets
+    it using the ``utcOffsetMinutes`` this table's ``date_columns`` entry declares. That
+    offset (eight hours behind UTC) is measured, not assumed, and belongs to Instagram
+    rather than to the person or the account — see the module docstring's "Timestamps"
+    section for the measurement and its reasoning.
 
     Args:
         timestamp: Text of the date element, e.g. ``Aug 09, 2026 9:49 am``.
-        errors: Optional counter that aggregates error types.
 
     Returns:
-        str: The formatted timestamp, ``""`` for an absent one, or the input unchanged
-        when it cannot be read.
-
-    Examples::
-
-        >>> _html_timestamp("Aug 09, 2026 9:49 am")   # 2026-08-09 17:49 UTC
-        "2026-08-09 19:49:00"
+        str: The text as read, stripped; ``""`` for an absent one.
     """
     if not timestamp or not isinstance(timestamp, str):
         return ""
 
-    match = _HTML_TIMESTAMP.match(timestamp.strip())
-    if match:
-        month, day, year, hour, minute, second, meridiem = match.groups()
-        number = _HTML_MONTHS.get(month[:3].lower())
-
-        if number is not None:
-            hour = int(hour)
-            if meridiem:
-                # A 12-hour clock counts noon as 12 pm and midnight as 12 am.
-                hour = hour % 12 + (12 if meridiem.lower() == "p" else 0)
-            try:
-                moment = datetime(int(year), number, int(day), hour, int(minute), int(second or 0))
-            except ValueError:
-                moment = None
-
-            if moment is not None:
-                return eh.local_time_to_datetime_string(
-                    moment, HTML_EXPORT_UTC_OFFSET, errors=errors
-                )
-
-    logger.error("Could not read an html timestamp: %s", timestamp)
-    if errors is not None:
-        errors["TimestampParseError"] += 1
-
-    return timestamp
+    return timestamp.strip()
 
 
 DDP_CATEGORIES = [
@@ -284,17 +203,22 @@ DDP_CATEGORIES = [
 # ---------------------------------------------------------------------------
 
 def _sort_by_date(out: pd.DataFrame, date_column: str) -> pd.DataFrame:
-    """Sort *out* by *date_column* using timestamp ordering.
+    """Sort newest first by the raw epoch; rows without a timestamp last.
 
-    Parameters
-    ----------
-    out:
-        DataFrame to sort.
-    date_column:
-        Name of the column that contains timestamp strings.
-        Rows with empty timestamps are placed last.
+    Resets the index afterward: ``PropsUIPromptConsentFormTable`` only resets
+    it when truncating past the 10,000-row cap, and ``to_json()`` keys each
+    column by index *label*, not position — ``parse_table.ts`` then looks
+    rows up by literal label "0", "1", "2", ... A sorted frame with stale
+    pre-sort labels would render and donate in original order, silently
+    undoing this sort.
     """
-    return out.sort_values(by=date_column, key=eh.sort_isotimestamp_empty_timestamp_last)
+    key = pd.to_numeric(out[date_column], errors="coerce")
+    return (
+        out.assign(_k=key)
+        .sort_values("_k", ascending=False, na_position="last")
+        .drop(columns="_k")
+        .reset_index(drop=True)
+    )
 
 
 def _first_present(data: dict[str, Any], keys: list[str]) -> dict[str, Any]:
@@ -423,7 +347,7 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter, validation=None) 
           "columns": {
             "Account": "Username or display name of the followed account.",
             "URL": "Direct URL to the followed account's Instagram profile.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the participant started following this account."
+            "Date": "Time of the follow (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -443,7 +367,8 @@ def following_to_df(reader: ZipArchiveReader, errors: Counter, validation=None) 
             "Account": {"en": "Account", "nl": "Account"},
             "URL": {"en": "URL", "nl": "URL"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -468,7 +393,7 @@ def _following_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             datapoints.append((
                 eh.fix_latin1_string(eh.find_item(d, "title") or eh.find_item(d, "value")),
                 eh.find_item(d, "href"),
-                eh.epoch_to_datetime_string(eh.find_item(d, "timestamp"), errors=errors),
+                eh.raw_timestamp(d, "timestamp"),
             ))
         out = pd.DataFrame(datapoints, columns=["Account", "URL", "Date"])  # pyright: ignore
         out = _sort_by_date(out, "Date")
@@ -503,7 +428,7 @@ def _following_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             timestamp = ""
             for d in date_divs:
                 if d.text and d.text.strip():
-                    timestamp = _html_timestamp(d.text.strip(), errors)
+                    timestamp = _html_timestamp(d.text.strip())
                     break
 
             datapoints.append((account, url, timestamp))
@@ -547,7 +472,7 @@ def posts_viewed_to_df(reader: ZipArchiveReader, errors: Counter, validation=Non
           "columns": {
             "Author": "Username or display name of the account that published the viewed post.",
             "URL": "Direct URL to the viewed post.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the post was viewed."
+            "Date": "Time the post was viewed (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -587,7 +512,8 @@ def posts_viewed_to_df(reader: ZipArchiveReader, errors: Counter, validation=Non
               "group": {"column": "Date", "dateFormat": "hour_cycle", "label": {"en": "Hour of the day", "nl": "Uur van de dag"}},
               "values": [{"label": {"en": "Number of posts", "nl": "Aantal berichten"}}]
             }
-          ]
+          ],
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -616,7 +542,7 @@ def _posts_viewed_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFram
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
                     url.get("href", ""),
-                    eh.epoch_to_datetime_string(time.get("timestamp", ""), errors=errors),
+                    time.get("timestamp", ""),
                 ))
         else:
             for item in data:  # pyright: ignore
@@ -624,7 +550,7 @@ def _posts_viewed_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFram
                 datapoints.append((
                     owner_username or owner_name,
                     url,
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Author", "URL", "Date"])  # pyright: ignore
@@ -656,7 +582,7 @@ def _posts_viewed_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFram
             url = url_a[0].get("href", "") if url_a else ""
 
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((author, url, timestamp))
 
@@ -704,7 +630,7 @@ def videos_watched_to_df(
           "columns": {
             "Author": "Username or display name of the account that published the watched video.",
             "URL": "Direct URL to the watched video.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the video was watched."
+            "Date": "Time the video was watched (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -735,7 +661,8 @@ def videos_watched_to_df(
               "group": {"column": "Date", "dateFormat": "auto", "label": {"en": "Date", "nl": "Datum"}},
               "values": [{"aggregate": "count", "label": {"en": "Videos watched", "nl": "Bekeken video's"}}]
             }
-          ]
+          ],
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -763,7 +690,7 @@ def _videos_watched_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
                     url.get("href", ""),
-                    eh.epoch_to_datetime_string(time.get("timestamp", ""), errors=errors),
+                    time.get("timestamp", ""),
                 ))
         else:
             for item in data:  # pyright: ignore
@@ -771,7 +698,7 @@ def _videos_watched_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
                 datapoints.append((
                     owner_username or owner_name,
                     url,
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Author", "URL", "Date"])  # pyright: ignore
@@ -803,7 +730,7 @@ def _videos_watched_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
             url = url_a[0].get("href", "") if url_a else ""
 
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((author, url, timestamp))
 
@@ -847,7 +774,7 @@ def post_comments_to_df(
           "columns": {
             "Comment": "The full text of the comment posted by the participant.",
             "Media owner": "Username of the account that owns the post the comment was placed on.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the comment was posted."
+            "Date": "Time of the comment (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -867,7 +794,8 @@ def post_comments_to_df(
             "Comment": {"en": "Comment", "nl": "Reactie"},
             "Media owner": {"en": "Media owner", "nl": "Account"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -901,7 +829,7 @@ def _post_comments_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
                 datapoints.append((
                     eh.fix_latin1_string(str(comment.get("value", ""))),
                     eh.fix_latin1_string(str(owner.get("value", ""))),
-                    eh.epoch_to_datetime_string(time.get("timestamp", ""), errors=errors),
+                    time.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Comment", "Media owner", "Date"])  # pyright: ignore
@@ -943,7 +871,7 @@ def _post_comments_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFra
                     elif label == "Time":
                         sibling = td.getnext()
                         if sibling is not None and sibling.text:
-                            timestamp = _html_timestamp(sibling.text.strip(), errors)
+                            timestamp = _html_timestamp(sibling.text.strip())
 
                 datapoints.append((comment, media_owner, timestamp))
 
@@ -991,7 +919,7 @@ def liked_comments_to_df(
           "columns": {
             "Account name": "Username of the account whose comment was liked.",
             "Value": "Text of the liked comment, if available in the export (empty in newer export formats).",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the comment was liked."
+            "Date": "Time of the like (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1011,7 +939,8 @@ def liked_comments_to_df(
             "Account name": {"en": "Account name", "nl": "Account"},
             "Value": {"en": "Comment", "nl": "Reactie"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1036,7 +965,7 @@ def _liked_comments_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
                 datapoints.append((
                     eh.fix_latin1_string(item.get("title", "")),
                     eh.fix_latin1_string(entry.get("value", "")),
-                    eh.epoch_to_datetime_string(entry.get("timestamp", ""), errors=errors),
+                    entry.get("timestamp", ""),
                 ))
         else:
             for item in data:  # pyright: ignore
@@ -1044,7 +973,7 @@ def _liked_comments_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
                 datapoints.append((
                     owner_username or owner_name,
                     "",  # comment text not available in label_values format
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Account name", "Value", "Date"])  # pyright: ignore
@@ -1081,7 +1010,7 @@ def _liked_comments_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFr
             timestamp = ""
             for d in date_divs:
                 if d.text and d.text.strip():
-                    timestamp = _html_timestamp(d.text.strip(), errors)
+                    timestamp = _html_timestamp(d.text.strip())
                     break
 
             datapoints.append((account_name, value, timestamp))
@@ -1130,7 +1059,7 @@ def liked_posts_to_df(
           "columns": {
             "Account name": "Username of the account whose post was liked.",
             "Value": "Display name or additional label for the liked post, depending on export format.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the post was liked."
+            "Date": "Time of the like (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1155,7 +1084,8 @@ def liked_posts_to_df(
               "textColumn": "Account name",
               "tokenize": false
             }
-          ]
+          ],
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1180,7 +1110,7 @@ def _liked_posts_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
                 datapoints.append((
                     eh.fix_latin1_string(eh.find_item(d, "title")),
                     eh.fix_latin1_string(eh.find_item(d, "value")),
-                    eh.epoch_to_datetime_string(eh.find_item(d, "timestamp"), errors=errors),
+                    eh.raw_timestamp(d, "timestamp"),
                 ))
         else:
             for item in data:  # pyright: ignore
@@ -1188,7 +1118,7 @@ def _liked_posts_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
                 datapoints.append((
                     owner_username or owner_name,
                     owner_name,
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Account name", "Value", "Date"])  # pyright: ignore
@@ -1217,7 +1147,7 @@ def _liked_posts_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
             account_name = username or name
 
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((account_name, name, timestamp))
 
@@ -1264,7 +1194,7 @@ def story_likes_to_df(
           "source_file": "story_likes.json / story_likes.html",
           "columns": {
             "Account name": "Username of the account whose story was liked.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the story was liked."
+            "Date": "Time of the like (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1280,7 +1210,8 @@ def story_likes_to_df(
           "headers": {
             "Account name": {"en": "Account name", "nl": "Account"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1304,14 +1235,14 @@ def _story_likes_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
                 entry = item.get("string_list_data", [{}])[0]
                 datapoints.append((
                     eh.fix_latin1_string(item.get("title", "")),
-                    eh.epoch_to_datetime_string(entry.get("timestamp", ""), errors=errors),
+                    entry.get("timestamp", ""),
                 ))
         else:
             for item in data:  # pyright: ignore
                 owner_name, owner_username, _ = _extract_owner_details(item.get("label_values", []))
                 datapoints.append((
                     owner_username or owner_name,
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Account name", "Date"])  # pyright: ignore
@@ -1340,7 +1271,7 @@ def _story_likes_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
             account_name = username or name
 
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((account_name, timestamp))
 
@@ -1386,7 +1317,7 @@ def saved_posts_to_df(
             "URL": "URL linking to the saved post.",
             "Username": "Username of the account that created the saved post.",
             "Hashtags": "Space-separated hashtags associated with the saved post, or 'No hashtags' if none.",
-            "Timestamp": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the post was saved."
+            "Timestamp": "Time the post was saved (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1408,7 +1339,8 @@ def saved_posts_to_df(
             "Username": {"en": "Username", "nl": "Account"},
             "Hashtags": {"en": "Hashtags", "nl": "Hashtags"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1471,7 +1403,7 @@ def _saved_posts_json(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
                 url,
                 username,
                 hashtags,
-                eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                item.get("timestamp", ""),
             ))
         out = pd.DataFrame(datapoints, columns=["Caption", "URL", "Username", "Hashtags", "Timestamp"])  # pyright: ignore
         out = _sort_by_date(out, "Timestamp")
@@ -1522,7 +1454,7 @@ def _saved_posts_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame
 
             # Timestamp
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((caption, url, username, hashtags, timestamp))
 
@@ -1568,7 +1500,7 @@ def word_or_phrase_searches_to_df(
           "source_file": "word_or_phrase_searches.json / word_or_phrase_searches.html",
           "columns": {
             "Search term": "The word or phrase that was searched for.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the search was performed."
+            "Date": "Time of the search (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1587,7 +1519,8 @@ def word_or_phrase_searches_to_df(
           "headers": {
             "Search term": {"en": "Search term", "nl": "Zoekterm"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1631,7 +1564,7 @@ def _word_or_phrase_searches_json(reader: ZipArchiveReader, errors: Counter) -> 
             ])
             datapoints.append((
                 eh.fix_latin1_string(str(search.get("value", ""))),
-                eh.epoch_to_datetime_string(time.get("timestamp", ""), errors=errors),
+                time.get("timestamp", ""),
             ))
 
         out = pd.DataFrame(datapoints, columns=["Search term", "Date"])  # pyright: ignore
@@ -1668,7 +1601,7 @@ def _word_or_phrase_searches_html(reader: ZipArchiveReader, errors: Counter) -> 
                 elif label == "Time":
                     sibling = td.getnext()
                     if sibling is not None and sibling.text:
-                        timestamp = _html_timestamp(sibling.text.strip(), errors)
+                        timestamp = _html_timestamp(sibling.text.strip())
 
             datapoints.append((search_term, timestamp))
 
@@ -1715,7 +1648,7 @@ def stories_published_to_df(
           "columns": {
             "Text": "Caption or text of the story, or 'Story has no text' when empty.",
             "Media type": "File extension of the story media asset (e.g. .jpg, .mp4).",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the story was created."
+            "Date": "Time the story was published (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -1735,7 +1668,8 @@ def stories_published_to_df(
             "Text": {"en": "Text", "nl": "Tekst"},
             "Media type": {"en": "File type", "nl": "Bestandstype"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -1767,7 +1701,7 @@ def _stories_published_json(reader: ZipArchiveReader, errors: Counter) -> pd.Dat
             datapoints.append((
                 title,
                 ext,
-                eh.epoch_to_datetime_string(item.get("creation_timestamp", ""), errors=errors),
+                item.get("creation_timestamp", ""),
             ))
 
         out = pd.DataFrame(datapoints, columns=["Text", "Media type", "Date"])  # pyright: ignore
@@ -1805,7 +1739,7 @@ def _stories_published_html(reader: ZipArchiveReader, errors: Counter) -> pd.Dat
 
             # Timestamp
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((title, ext, timestamp))
 
@@ -1988,7 +1922,7 @@ def ads_viewed_to_df(
             "Account name": "Username of the advertiser's Instagram account.",
             "Name": "Display name of the advertiser.",
             "URL": "URL associated with the advertisement.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the ad was shown to the participant."
+            "Date": "Time the ad was shown (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -2009,7 +1943,8 @@ def ads_viewed_to_df(
             "Name": {"en": "Name", "nl": "Naam"},
             "URL": {"en": "URL", "nl": "URL"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -2046,7 +1981,7 @@ def _ads_viewed_json(
                 owner_username or owner_name,
                 owner_name,
                 url,
-                eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                item.get("timestamp", ""),
             ))
 
         out = pd.DataFrame(datapoints, columns=["Account name", "Name", "URL", "Date"])  # pyright: ignore
@@ -2077,7 +2012,7 @@ def _ads_viewed_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataFrame:
             url = url_a[0].get("href", "") if url_a else ""
 
             ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+            timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
             datapoints.append((username or name, name, url, timestamp))
 
@@ -2125,7 +2060,7 @@ def profile_searches_to_df(
           "source_file": "profile_searches.json",
           "columns": {
             "Name": "Username or display name that was searched for.",
-            "Timestamp": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the search was performed."
+            "Timestamp": "Time of the search (Unix seconds)."
           }
         }
 
@@ -2144,7 +2079,8 @@ def profile_searches_to_df(
           "headers": {
             "Name": {"en": "Name", "nl": "Naam"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": "epoch-seconds"}}
         }
     """
     result = reader.json(filename)
@@ -2160,7 +2096,7 @@ def profile_searches_to_df(
         for item in items:
             d = eh.dict_denester(item)
             datapoints.append((
-                eh.epoch_to_datetime_string(eh.find_item(d, "timestamp"), errors=errors),
+                eh.raw_timestamp(d, "timestamp"),
                 eh.fix_latin1_string(eh.find_item(d, "title") or eh.find_item(d, "value")),
             ))
         out = pd.DataFrame(datapoints, columns=["Timestamp", "Name"])  # pyright: ignore
@@ -2211,7 +2147,7 @@ def threads_viewed_to_df(
           "columns": {
             "Author": "Username or display name of the account that published the viewed Threads post.",
             "URL": "Direct URL to the viewed Threads post.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the post was viewed."
+            "Date": "Time the post was viewed (Unix seconds)."
           }
         }
 
@@ -2228,7 +2164,8 @@ def threads_viewed_to_df(
             "Author": {"en": "Author", "nl": "Account"},
             "URL": {"en": "URL", "nl": "URL"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "epoch-seconds"}}
         }
     """
     result = reader.json(filename)
@@ -2250,7 +2187,7 @@ def threads_viewed_to_df(
                 datapoints.append((
                     eh.fix_latin1_string(str(author.get("value", ""))),
                     url.get("href", ""),
-                    eh.epoch_to_datetime_string(time.get("timestamp", ""), errors=errors),
+                    time.get("timestamp", ""),
                 ))
         else:
             for item in data:  # pyright: ignore
@@ -2258,7 +2195,7 @@ def threads_viewed_to_df(
                 datapoints.append((
                     owner_username or owner_name,
                     url,
-                    eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                    item.get("timestamp", ""),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Author", "URL", "Date"])  # pyright: ignore
@@ -2306,7 +2243,7 @@ def ads_clicked_to_df(
             "Action": "The action performed on the ad (e.g. Click).",
             "Title": "Title or name of the clicked advertisement.",
             "URL": "URL of the clicked advertisement.",
-            "Timestamp": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the ad was clicked."
+            "Timestamp": "Time of the click (Unix seconds)."
           }
         }
 
@@ -2327,7 +2264,8 @@ def ads_clicked_to_df(
             "Title": {"en": "Title", "nl": "Titel"},
             "URL": {"en": "URL", "nl": "URL"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": "epoch-seconds"}}
         }
     """
     result = reader.json(filename)
@@ -2360,7 +2298,7 @@ def ads_clicked_to_df(
                 action,
                 title,
                 url,
-                eh.epoch_to_datetime_string(item.get("timestamp", ""), errors=errors),
+                item.get("timestamp", ""),
             ))
 
         out = pd.DataFrame(datapoints, columns=["Action", "Title", "URL", "Timestamp"])  # pyright: ignore
@@ -2408,7 +2346,7 @@ def posts_published_to_df(
           "source_file": "posts_*.json / posts_*.html",
           "columns": {
             "Title": "Caption or title text of the post.",
-            "Timestamp": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the post was created."
+            "Timestamp": "Time the post was published (Unix seconds, or the date text from an HTML export, 8 hours behind UTC)."
           }
         }
 
@@ -2427,7 +2365,8 @@ def posts_published_to_df(
           "headers": {
             "Title": {"en": "Title", "nl": "Titel"},
             "Timestamp": {"en": "Timestamp", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Timestamp": {"encoding": ["epoch-seconds", "meta-html"], "utcOffsetMinutes": -480}}
         }
     """
     if validation and validation.current_ddp_category.ddp_filetype == DDPFiletype.HTML:
@@ -2464,7 +2403,7 @@ def _posts_published_json(
                 dd = eh.dict_denester(item)
                 datapoints.append((
                     eh.fix_latin1_string(eh.find_item(dd, "title")),
-                    eh.epoch_to_datetime_string(eh.find_item(dd, "creation_timestamp"), errors=errors),
+                    eh.raw_timestamp(dd, "creation_timestamp"),
                 ))
 
         out = pd.DataFrame(datapoints, columns=["Title", "Timestamp"])  # pyright: ignore
@@ -2496,7 +2435,7 @@ def _posts_published_html(reader: ZipArchiveReader, errors: Counter) -> pd.DataF
                 title = h2[0].text.strip() if h2 and h2[0].text else ""
 
                 ts = section.xpath(".//div[contains(@class, '_a6-o')]")
-                timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "", errors)
+                timestamp = _html_timestamp(ts[0].text.strip() if ts and ts[0].text else "")
 
                 datapoints.append((title, timestamp))
 
@@ -2675,7 +2614,7 @@ def followers_to_df(
           "columns": {
             "Account": "Username or display name of the follower account.",
             "URL": "Direct URL to the follower's Instagram profile.",
-            "Date": "Timestamp (YYYY-MM-DD HH:MM:SS, Europe/Amsterdam) of when the account started following the participant."
+            "Date": "Time of the follow (Unix seconds)."
           }
         }
 
@@ -2692,7 +2631,8 @@ def followers_to_df(
             "Account": {"en": "Account", "nl": "Account"},
             "URL": {"en": "URL", "nl": "URL"},
             "Date": {"en": "Date", "nl": "Datum en tijd"}
-          }
+          },
+          "date_columns": {"Date": {"encoding": "epoch-seconds"}}
         }
     """
     result = reader.json(filename)
@@ -2714,7 +2654,7 @@ def followers_to_df(
             datapoints.append((
                 eh.fix_latin1_string(eh.find_item(d, "value") or eh.find_item(d, "title")),
                 eh.find_item(d, "href"),
-                eh.epoch_to_datetime_string(eh.find_item(d, "timestamp"), errors=errors),
+                eh.raw_timestamp(d, "timestamp"),
             ))
         out = pd.DataFrame(datapoints, columns=["Account", "URL", "Date"])  # pyright: ignore
         out = _sort_by_date(out, "Date")
@@ -2752,6 +2692,9 @@ EXTRACTOR_REGISTRY: dict[str, Callable[..., pd.DataFrame]] = {
     "followers_to_df": followers_to_df,
 }
 
+#: Extractors whose signature has no ``validation`` parameter.
+_NO_VALIDATION = (followers_to_df,)
+
 
 # ---------------------------------------------------------------------------
 # Main extraction & flow
@@ -2774,7 +2717,10 @@ def extraction(
     """
     config = load_port_config(EXTRACTOR_REGISTRY, "instagram")
     for table in config:
-        table.extractor_kwargs = {'validation': validation}
+        # Extractors pick their HTML or JSON parser from ``validation``; without
+        # it they read JSON and an HTML export yields empty tables.
+        if table.extractor not in _NO_VALIDATION:
+            table.extractor_kwargs = {**table.extractor_kwargs, 'validation': validation}
     errors: Counter = Counter()
     reader = ZipArchiveReader(instagram_zip, validation.archive_members, errors)
     return run_extraction(reader, errors, config)

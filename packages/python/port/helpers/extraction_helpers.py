@@ -7,7 +7,6 @@ import logging
 from collections import Counter
 from contextlib import contextmanager
 from dataclasses import dataclass
-from datetime import datetime, timedelta, timezone
 from typing import Any, Callable, IO, Iterator
 from pathlib import Path
 import zipfile
@@ -19,8 +18,6 @@ import io
 import json
 
 import pandas as pd
-import pytz
-import numpy as np
 
 
 logger = logging.getLogger(__name__)
@@ -109,6 +106,62 @@ def find_item(d: dict[Any, Any], key_to_match: str) -> str:
         logger.error(e)
 
     return out
+
+
+def find_item_raw(d: dict[Any, Any], key_to_match: str) -> Any:
+    """
+    Finds the least nested value in a denested dictionary whose key contains the given key_to_match,
+    returning it in its own type rather than stringified. It exists because ``find_item`` stringifies
+    whatever it matches, which is right for the text fields it was built for but wrong for a
+    timestamp: ADR-0042 requires donating the export's own value, and an epoch is a JSON number that
+    must stay one, not become the string of it.
+
+    Args:
+        d (dict[Any, Any]): A denested dictionary to search in.
+        key_to_match (str): The substring to match in the keys.
+
+    Returns:
+        Any: The value of the least nested key containing key_to_match, in its own type.
+             Returns None if no match is found.
+
+    Raises:
+        Exception: Logs an error message if an exception occurs during the search.
+
+    Examples::
+
+        >>> d = {"asd-asd-asd": 1, "asd-asd": 2, "qwe": 3}
+        >>> find_item_raw(d, "asd")
+        2
+    """
+    out: Any = None
+    pattern = r"{}".format(f"^.*{key_to_match}.*$")
+    depth = math.inf
+
+    try:
+        for k, v in d.items():
+            if re.match(pattern, k):
+                depth_current_match = k.count("-")
+                if depth_current_match < depth:
+                    depth = depth_current_match
+                    out = v
+    except Exception as e:
+        logger.error(e)
+
+    return out
+
+
+def raw_timestamp(d: dict[Any, Any], key: str) -> Any:
+    """Raw value for ``key``, in its own type; ``""`` when absent.
+
+    Wraps ``find_item_raw`` and normalizes its "not found" ``None`` to
+    ``""`` for the cell (ADR-0042: donate the export's own value, so an
+    epoch stays the number it was rather than becoming a string). This
+    must never be written as ``find_item_raw(...) or ""``: that would
+    collapse a legitimate epoch of ``0`` — a falsy but present value —
+    into the same ``""`` used for a genuinely absent one.
+    """
+    value = find_item_raw(d, key)
+    return "" if value is None else value
 
 
 def find_items(d: dict[Any, Any], key_to_match: str) -> list:
@@ -208,242 +261,6 @@ def fix_ascii_string(input: str) -> str:
         return fixed_string
     except Exception:
         return input
-
-
-def replace_months(input_string: str) -> str:
-    """
-    Replaces Dutch month abbreviations with English equivalents in the input string.
-
-    Args:
-        input_string (str): The input string containing potential Dutch month abbreviations.
-
-    Returns:
-        str: The input string with Dutch month abbreviations replaced by English equivalents.
-
-    Examples::
-
-        >>> replace_months("15 mei 2023")
-        "15 may 2023"
-    """
-
-    month_mapping = {
-        'mrt': 'mar',
-        'mei': 'may',
-        'okt': 'oct',
-    }
-
-    for dutch_month, english_month in month_mapping.items():
-        if dutch_month in input_string:
-            replaced_string = input_string.replace(dutch_month, english_month, 1)
-            return replaced_string
-
-    return input_string
-
-
-DATETIME_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-#: Every date column is written as ``YYYY-MM-DD HH:MM:SS`` in this timezone, so that a
-#: date means the same thing in every table regardless of the platform that wrote it.
-REFERENCE_TIMEZONE = "Europe/Amsterdam"
-_REFERENCE_ZONE = pytz.timezone(REFERENCE_TIMEZONE)
-
-#: A zone spelled out at the end of a timestamp rather than as an offset, as the TikTok
-#: txt export writes it: ``2026-05-02 10:09:50 UTC``. Only the zero-offset names are
-#: listed, so anything else falls through to the parser and is counted rather than guessed
-#: at.
-NAMED_UTC = re.compile(r"[\s_]+(?:UTC|GMT)$", re.IGNORECASE)
-
-
-def _to_reference(moment: datetime) -> str:
-    """Write *moment*, an aware datetime, in ``REFERENCE_TIMEZONE`` and ``DATETIME_FORMAT``."""
-    return moment.astimezone(_REFERENCE_ZONE).strftime(DATETIME_FORMAT)
-
-
-def resolve_timezone(name: str | None) -> "pytz.BaseTzInfo | None":
-    """The IANA zone *name* names (``Europe/London``), or ``None`` when it names nothing
-    the database knows — the caller decides whether that is worth counting."""
-    if not name:
-        return None
-    try:
-        return pytz.timezone(name.strip())
-    except pytz.UnknownTimeZoneError:
-        return None
-
-
-def zone_time_to_datetime_string(moment: datetime, zone: "str | pytz.BaseTzInfo", errors: Counter | None = None) -> str:
-    """Convert a local wall-clock time in an IANA zone to ``DATETIME_FORMAT`` in
-    ``REFERENCE_TIMEZONE``.
-
-    Args:
-        moment: A naive datetime holding the local wall-clock time.
-        zone: The zone's IANA name, or a zone already resolved by ``resolve_timezone``.
-        errors: Optional counter; a zone the database does not know is counted as
-            ``TimezoneUnknown`` and the wall time written as it stands.
-    """
-    tz = resolve_timezone(zone) if isinstance(zone, str) else zone
-    if tz is None:
-        if errors is not None:
-            errors["TimezoneUnknown"] += 1
-        return moment.strftime(DATETIME_FORMAT)
-    return _to_reference(tz.localize(moment, is_dst=False))
-
-
-def epoch_to_datetime_string(epoch_timestamp: str | int | float, errors: Counter | None = None) -> str:
-    """Convert epoch seconds to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
-
-    Epoch seconds name an absolute instant, so this conversion is exact — nothing about
-    the participant has to be assumed.
-
-    Args:
-        epoch_timestamp: Seconds since the epoch, as a number or a string holding one.
-        errors: Optional counter that aggregates error types.
-
-    Returns:
-        str: The formatted timestamp, ``""`` for an absent one, or the input unchanged
-        when it cannot be read as a number.
-
-    Examples::
-
-        >>> epoch_to_datetime_string(1632139200)
-        "2021-09-20 14:00:00"
-    """
-    # Empty/falsy timestamps are expected absences, not errors
-    if not epoch_timestamp and epoch_timestamp != 0:
-        return ""
-
-    out = str(epoch_timestamp)
-    try:
-        moment = datetime.fromtimestamp(int(float(epoch_timestamp)), tz=timezone.utc)
-        out = _to_reference(moment)
-    except (OverflowError, OSError, ValueError, TypeError) as e:
-        logger.error("Could not convert epoch timestamp, %s", e)
-        if errors is not None:
-            errors["TimestampParseError"] += 1
-
-    return out
-
-
-def utc_timestamp_to_datetime_string(timestamp: str, errors: Counter | None = None) -> str:
-    """Convert a timestamp string to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
-
-    Reads what the platform wrote about the zone and honours it: a trailing ``Z`` or an
-    offset names the instant exactly. A timestamp carrying no zone at all is taken for UTC.
-
-    Args:
-        timestamp: An ISO 8601 timestamp, with or without a zone.
-        errors: Optional counter that aggregates error types.
-
-    Returns:
-        str: The formatted timestamp, ``""`` for an absent one, or the input unchanged
-        when it cannot be read.
-
-    Examples::
-
-        >>> utc_timestamp_to_datetime_string("2021-09-20T12:00:00.123Z")
-        "2021-09-20 14:00:00"
-    """
-    if not timestamp or not isinstance(timestamp, str):
-        return ""
-
-    text = NAMED_UTC.sub("", timestamp.strip())
-
-    try:
-        moment = datetime.fromisoformat(text.replace("Z", "+00:00").replace("z", "+00:00"))
-    except (ValueError, TypeError) as e:
-        logger.error("Could not convert timestamp, %s", e)
-        if errors is not None:
-            errors["TimestampParseError"] += 1
-        return timestamp
-
-    if moment.tzinfo is None:
-        moment = moment.replace(tzinfo=timezone.utc)
-
-    return _to_reference(moment)
-
-
-def local_time_to_datetime_string(
-    moment: datetime, utc_offset: timedelta, errors: Counter | None = None
-) -> str:
-    """Convert a local wall-clock time to ``DATETIME_FORMAT`` in ``REFERENCE_TIMEZONE``.
-
-    Args:
-        moment: A naive datetime holding the local wall-clock time.
-        utc_offset: How far that local time stands ahead of UTC.
-        errors: Optional counter that aggregates error types.
-
-    Returns:
-        str: The formatted timestamp.
-    """
-    try:
-        return _to_reference(moment.replace(tzinfo=timezone(utc_offset)))
-    except (OverflowError, ValueError, TypeError) as e:
-        logger.error("Could not convert local timestamp, %s", e)
-        if errors is not None:
-            errors["TimestampParseError"] += 1
-        return moment.strftime(DATETIME_FORMAT)
-
-
-def epoch_to_iso(epoch_timestamp: str | int | float, errors: Counter | None = None) -> str:
-    """
-    Convert epoch timestamp to an ISO 8601 string, assuming UTC.
-
-    Args:
-        epoch_timestamp (str | int): The epoch timestamp to convert.
-
-    Returns:
-        str: The ISO 8601 formatted string, or the original input if conversion fails.
-
-    Raises:
-        Exception: Logs an error message if conversion fails.
-
-    Examples::
-
-        >>> epoch_to_iso(1632139200)
-        "2021-09-20T12:00:00+00:00"
-    """
-    # Empty/falsy timestamps are expected absences, not errors
-    if not epoch_timestamp and epoch_timestamp != 0:
-        return ""
-
-    out = str(epoch_timestamp)
-    try:
-        epoch_timestamp = int(float(epoch_timestamp))
-        out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
-    except (OverflowError, OSError, ValueError, TypeError) as e:
-        logger.error("Could not convert epoch time timestamp, %s", e)
-        if errors is not None:
-            errors["TimestampParseError"] += 1
-
-    return out
-
-
-def sort_isotimestamp_empty_timestamp_last(timestamp_series: pd.Series) -> pd.Series:
-    """
-    Creates a key for sorting a pandas Series of ISO timestamps, placing empty timestamps last.
-
-    Args:
-        timestamp_series (pd.Series): A pandas Series containing ISO formatted timestamps.
-
-    Returns:
-        pd.Series: A Series of sorting keys, with -timestamp for valid dates and infinity for invalid/empty dates.
-
-    Examples::
-
-        >>> df = df.sort_values(by="Date", key=sort_isotimestamp_empty_timestamp_last)
-    """
-    def convert_timestamp(timestamp):
-
-        out = np.inf
-        try:
-            if isinstance(timestamp, str) and len(timestamp) > 0:
-                dt = datetime.fromisoformat(timestamp)
-                out = -dt.timestamp()
-        except Exception as e:
-            logger.debug("Cannot convert timestamp: %s", e)
-
-        return out
-
-    return timestamp_series.apply(convert_timestamp)
 
 
 def fix_latin1_string(input: str) -> str:
@@ -795,9 +612,14 @@ class ZipArchiveReader:
         Resolution rule:
         1. Exact path match → use it. Drive-delivered Meta exports spell an
            apostrophe in a member name as an underscore; both spellings are
-           tried, apostrophe form first, so an exact hit keeps its precedence.
+           tried in both directions — a requested apostrophe also tries the
+           underscore spelling, and a requested underscore also tries every
+           single-underscore-to-apostrophe substitution (one export may keep
+           the apostrophe even where another request asks with an
+           underscore) — the literal requested spelling always keeps
+           precedence over any substituted candidate.
         2. Path-boundary suffix match (member.endswith("/" + filename)) →
-           if exactly 1, use it. Both spellings are tried here too.
+           if exactly 1, use it. Every candidate spelling is tried here too.
         3. 0 matches → return None.
         4. Multiple matches → return None, log warning,
            increment errors["AmbiguousMemberMatch(<requested name>)"].
@@ -805,6 +627,9 @@ class ZipArchiveReader:
         candidates = [filename]
         if "'" in filename:
             candidates.append(filename.replace("'", "_"))
+        for i, ch in enumerate(filename):
+            if ch == "_":
+                candidates.append(filename[:i] + "'" + filename[i + 1:])
 
         # 1. Exact match
         for candidate in candidates:

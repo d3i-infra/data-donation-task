@@ -23,6 +23,7 @@ export default [
     files: ['src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/**/*.{ts,tsx}'],
     ignores: [
       'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/util.ts',
+      'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/interpretTimestamp.ts',
       'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/**/*.test.ts',
     ],
     rules: {
@@ -32,9 +33,25 @@ export default [
           selector: "CallExpression[callee.property.name=/^toLocale(Date|Time)?String$/]",
           message: 'Constructs ICU machinery per call; hoist an Intl.DateTimeFormat instead (ADR-0035, see util.ts formatDate).',
         },
+      ],
+    },
+  },
+  {
+    // ADR-0035: Intl formatter construction lives only in the two hoisted,
+    // cached sites (util.ts, interpretTimestamp.ts) — anywhere else in the
+    // consent-viz tree it is a per-render or per-row allocation.
+    files: ['src/components/consent_form_viz/**/*.{ts,tsx}'],
+    ignores: [
+      'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/util.ts',
+      'src/components/consent_form_viz/visualization_plugin/visualizationDataFunctions/interpretTimestamp.ts',
+      'src/components/consent_form_viz/**/*.test.{ts,tsx}',
+    ],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
         {
           selector: "NewExpression[callee.object.name='Intl']",
-          message: 'Construct Intl formatters once in util.ts and reuse (ADR-0035).',
+          message: 'Construct Intl formatters once in util.ts or interpretTimestamp.ts and reuse (ADR-0035).',
         },
       ],
     },

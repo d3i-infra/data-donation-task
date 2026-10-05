@@ -35,6 +35,7 @@ module cannot be loaded.
 import importlib.resources
 import json
 import logging
+import zoneinfo
 from importlib import import_module
 from typing import Any, Callable, Iterator, TypedDict
 
@@ -49,6 +50,20 @@ from port.helpers.ui_locale import (
 
 logger = logging.getLogger(__name__)
 
+#: Encodings the front end's interpretTimestamp knows (ADR-0043). Keep in step with
+#: zDateEncoding in
+#: packages/data-collector/src/components/consent_form_viz/visualization_plugin/types.ts
+#: (test_date_encodings_match_typescript.py pins the two lists together).
+DATE_ENCODINGS: tuple[str, ...] = (
+    "epoch-seconds", "epoch-micros", "iso-8601", "tiktok", "takeout-html", "meta-html",
+)
+
+#: Encodings whose front-end parser reads a declared `utcOffsetMinutes` (interpretTimestamp.ts
+#: `parseIso`/`parseMetaHtml`). The rest (`epoch-seconds`, `epoch-micros`, `tiktok`,
+#: `takeout-html`) always produce or place an instant on their own, so a declared offset is
+#: silently ignored there (final review M4).
+_OFFSET_AWARE_ENCODINGS: frozenset[str] = frozenset({"iso-8601", "meta-html"})
+
 _REQUIRED_FIELDS: list[tuple[str, type]] = [
     ("id", str),
     ("extractor", str),
@@ -62,6 +77,7 @@ _OPTIONAL_FIELDS: list[tuple[str, type]] = [
     ("extractor_kwargs", dict),
     ("variables", list),
     ("documentation", dict),
+    ("date_columns", dict),
 ]
 
 # Table fields whose value is a single participant-facing text bundle.
@@ -333,6 +349,18 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
             elif not pem.startswith("-----BEGIN PUBLIC KEY-----"):
                 errors.append("platform_info.public_key_pem must be a PEM-encoded public key")
 
+        # 3c. Optional platform_info.timezone (ADR-0043): the zone the front end displays and
+        # buckets in. An IANA name, or null for the default.
+        zone = platform_info.get("timezone")
+        if zone is not None:
+            if not isinstance(zone, str):
+                errors.append("platform_info.timezone must be a string or null")
+            else:
+                try:
+                    zoneinfo.ZoneInfo(zone.strip())
+                except (zoneinfo.ZoneInfoNotFoundError, ValueError):
+                    errors.append("platform_info.timezone must be an IANA timezone name or null")
+
     tables: list[dict] = raw["tables"]
 
     # 4. Per-table schema.
@@ -352,6 +380,57 @@ def validate(platform: str) -> tuple[list[str], list[str]]:
                     f"{prefix}: optional field '{field}' must be {expected_type.__name__}, "
                     f"got {type(entry[field]).__name__}"
                 )
+
+        if isinstance(entry.get("date_columns"), dict):
+            for column, spec in entry["date_columns"].items():
+                where = f"{prefix}.date_columns[{column!r}]"
+                if column not in (entry.get("headers") or {}):
+                    errors.append(f"{where}: not a column in headers")
+                if not isinstance(spec, dict):
+                    errors.append(f"{where}: must be an object with an 'encoding'")
+                    continue
+                encodings = spec.get("encoding")
+                names = encodings if isinstance(encodings, list) else [encodings]
+                for name in names:
+                    if name not in DATE_ENCODINGS:
+                        errors.append(f"{where}: unknown encoding {name!r}")
+                offset = spec.get("utcOffsetMinutes")
+                if offset is not None and (not isinstance(offset, int) or isinstance(offset, bool)):
+                    errors.append(f"{where}: utcOffsetMinutes must be an integer")
+                elif offset is not None and not any(name in _OFFSET_AWARE_ENCODINGS for name in names):
+                    encoding_list = ", ".join(repr(name) for name in names)
+                    warnings.append(
+                        f"{where}: utcOffsetMinutes is declared but ignored by "
+                        f"encoding(s) {encoding_list} (only iso-8601 and meta-html read it)"
+                    )
+                if isinstance(encodings, list) and len(encodings) == 0:
+                    errors.append(f"{where}: encoding list must not be empty")
+
+        # 4b. Date-grouped charts (a visualization whose group.column carries a
+        # dateFormat) must declare that column in date_columns (ADR-0043). Without
+        # this, the front end's prepareChartData sees an undeclared column, treats
+        # every row as unplotted, and the chart silently shows nothing — the failure
+        # mode a stale, pre-Task-8 generated config falls into (final review,
+        # Important 2).
+        visualizations = entry.get("visualizations")
+        if isinstance(visualizations, list):
+            raw_date_columns = entry.get("date_columns")
+            declared_date_columns = raw_date_columns if isinstance(raw_date_columns, dict) else {}
+            for vi, viz in enumerate(visualizations):
+                if not isinstance(viz, dict):
+                    continue
+                group = viz.get("group")
+                if not isinstance(group, dict) or group.get("dateFormat") is None:
+                    continue
+                column = group.get("column")
+                if column not in declared_date_columns:
+                    errors.append(
+                        f"{prefix}.visualizations[{vi}].group: column {column!r} is grouped "
+                        f"by dateFormat {group.get('dateFormat')!r} but is not declared in "
+                        f"date_columns; add date_columns[{column!r}] = "
+                        f"{{\"encoding\": ...}} to this table's 'Table config::' block and "
+                        f"regenerate with 'pnpm generate-config <platform>'"
+                    )
 
     # 5. UI-content locale coverage (JSON-only; no platform import needed).
     content_errors, content_warnings = validate_ui_content(tables)

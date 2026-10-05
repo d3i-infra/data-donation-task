@@ -44,10 +44,33 @@ export function isRowArray (rows: unknown): rows is TableRow[] {
   )
 }
 
+// Encodings the front end's interpretTimestamp knows (ADR-0043). Keep in step with
+// DATE_ENCODINGS in packages/python/port/helpers/port_config_validator.py.
+export const zDateEncoding = z.enum(['epoch-seconds', 'epoch-micros', 'iso-8601', 'tiktok', 'takeout-html', 'meta-html'])
+export type DateEncoding = z.infer<typeof zDateEncoding>
+
+// A non-empty encoding list is an invariant of DateColumnSpec, not a fact `interpretTimestamp`
+// re-derives on every cell: the `.transform` normalises a single encoding into a one-element
+// array once, at the schema boundary (one parse per table — ADR-0035), so the inferred type is
+// honest and callers never construct a spec value by hand (final review; ts-idiom T9/T49). The
+// output type is a non-empty tuple (`readonly [DateEncoding, ...DateEncoding[]]`), not just
+// `readonly DateEncoding[]`, so `{ encoding: [] }` is a type error, not merely a schema
+// rejection the type system stays silent about (ts-fix2-review: T9/T36).
+export const zDateColumnSpec = z.object({
+  encoding: z.union([zDateEncoding, z.array(zDateEncoding).nonempty()])
+    .transform((encoding): readonly [DateEncoding, ...DateEncoding[]] =>
+      Object.freeze(Array.isArray(encoding) ? encoding : [encoding])),
+  utcOffsetMinutes: z.number().int().optional()
+})
+export type DateColumnSpec = z.infer<typeof zDateColumnSpec>
+
 export const zTable = z.object({
   id: z.string(),
   head: z.object({ cells: z.array(z.string()) }),
   body: z.object({ rows: z.custom<TableRow[]>(isRowArray, { message: 'body.rows must be an array of { id: string, cells: string[] }' }) }),
+  dateColumns: z.record(zDateColumnSpec).optional(),
+  dateLocale: z.string().optional(),
+  displayTimezone: z.string().optional(),
 })
 export type Table = z.infer<typeof zTable>
 
@@ -133,6 +156,7 @@ export interface ChartVisualizationData {
   xKey: string
   xLabel: string | Translatable | undefined
   yKeys: Record<string, AxisSettings>
+  unplotted: number
 }
 
 // Text Visualizations
